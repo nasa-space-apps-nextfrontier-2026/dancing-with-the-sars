@@ -204,6 +204,8 @@ ACLED conflict events and FIRMS fires shown next to each radar change. Two indep
 
 ## 7. The combined map
 
+**UI design:** https://claude.ai/artifact/6or9wWJWrdVx1kz3LQzbdw#components. All screens, components and outputs are explained in [UI_DESIGN.md](UI_DESIGN.md). CIVISAR is a web app only (it works in a phone browser and can be installed with offline briefs). There is no separate mobile app.
+
 One base map (NASA GIBS backgrounds) with two kinds of switchable layers: the data itself, and the results the agents produce from it.
 
 ### 7.1 Data layers
@@ -322,5 +324,5 @@ Smaller demo parts: movement trend, full agent system, polarization story.
 3. Download UNOSAT / UNDP reference data for the chosen area.
 4. Check OSM completeness for roads, buildings and `building:levels` in the area.
 5. Verify items marked **(unverified)**.
-6. Decide the demo form, then write the architecture.
+6. Settle the four differences between the UI design and this plan ([UI_DESIGN.md](UI_DESIGN.md) section 6), then write the architecture. Demo form decided: web app.
 7. Prepare the safety-agent demonstration.
