@@ -1,0 +1,29 @@
+{
+  "synthetic": true,
+  "value_id": "demo-value-01",
+  "area_id": "demo-area-01",
+  "metric": "residents_baseline",
+  "low": 1200,
+  "high": 1800,
+  "unit": "people",
+  "label": "Unknown",
+  "source": [
+    "demo-source-01"
+  ],
+  "date": "2026-01-01",
+  "safety_tag": "restricted_aggregate",
+  "lineage_ids": [
+    "demo-lineage-01"
+  ],
+  "processing_run_id": "demo-run-01",
+  "processing_version": "demo-v1",
+  "confidence": null,
+  "acquired_at": "2026-01-01T00:00:00Z",
+  "processed_at": "2026-06-25T00:00:00Z",
+  "release_at": "2026-06-27T00:00:00Z",
+  "freshness": "Stale",
+  "cached": true,
+  "limitations": [
+    "Synthetic range; no measured population."
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "synthetic": true,
+  "layer_id": "demo-damage-r8",
+  "title": "Synthetic candidate change",
+  "kind": "raster",
+  "product": "NISAR GCOV",
+  "analytical": true,
+  "polarizations": [
+    "HH",
+    "HV",
+    "HH-HV"
+  ],
+  "available_acquisitions": [
+    "2026-01-19T00:00:00Z",
+    "2026-06-24T00:00:00Z"
+  ],
+  "missing_intervals": [
+    {
+      "start": "2026-01-20",
+      "end": "2026-06-17",
+      "reason": "Source-reported acquisition gap; not interpolated"
+    }
+  ],
+  "default_comparison": {
+    "before": "2026-01-19",
+    "after": "2026-06-24"
+  },
+  "tile_url": "/api/v1/layers/demo-damage-r8/tiles/{z}/{x}/{y}",
+  "min_role": "analyst",
+  "source_ids": [
+    "demo-source-01"
+  ],
+  "label": "Unknown",
+  "date": "2026-06-24",
+  "acquired_at": "2026-06-24T00:00:00Z",
+  "processed_at": "2026-06-25T00:00:00Z",
+  "release_at": "2026-06-27T00:00:00Z",
+  "freshness": "Stale",
+  "cached": true,
+  "public_resolution": 8,
+  "safety_tag": "restricted_until_review",
+  "extent": null,
+  "attribution": "Synthetic fixture; no imagery supplied"
+}

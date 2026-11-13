@@ -1,0 +1,9 @@
+{
+  "error": {
+    "code": "FORBIDDEN",
+    "message": "Your role cannot access this resource.",
+    "request_id": "demo-request-01",
+    "details": []
+  },
+  "synthetic": true
+}

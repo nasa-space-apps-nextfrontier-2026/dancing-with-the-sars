@@ -1,0 +1,173 @@
+{
+  "synthetic": true,
+  "area_id": "demo-area-01",
+  "name": "Synthetic neighbourhood",
+  "as_of": "2026-06-24T12:00:00Z",
+  "people": {
+    "residents": {
+      "synthetic": true,
+      "value_id": "demo-value-01",
+      "area_id": "demo-area-01",
+      "metric": "residents_baseline",
+      "low": 1200,
+      "high": 1800,
+      "unit": "people",
+      "label": "Unknown",
+      "source": [
+        "demo-source-01"
+      ],
+      "date": "2026-01-01",
+      "safety_tag": "restricted_aggregate",
+      "lineage_ids": [
+        "demo-lineage-01"
+      ],
+      "processing_run_id": "demo-run-01",
+      "processing_version": "demo-v1",
+      "confidence": null,
+      "acquired_at": "2026-01-01T00:00:00Z",
+      "processed_at": "2026-06-25T00:00:00Z",
+      "release_at": "2026-06-27T00:00:00Z",
+      "freshness": "Stale",
+      "cached": true,
+      "limitations": [
+        "Synthetic range; no measured population."
+      ]
+    },
+    "potentially_affected": {
+      "synthetic": true,
+      "value_id": "demo-value-01",
+      "area_id": "demo-area-01",
+      "metric": "potentially_affected",
+      "low": 300,
+      "high": 600,
+      "unit": "people",
+      "label": "Unknown",
+      "source": [
+        "demo-source-01"
+      ],
+      "date": "2026-01-01",
+      "safety_tag": "restricted_aggregate",
+      "lineage_ids": [
+        "demo-lineage-01"
+      ],
+      "processing_run_id": "demo-run-01",
+      "processing_version": "demo-v1",
+      "confidence": null,
+      "acquired_at": "2026-01-01T00:00:00Z",
+      "processed_at": "2026-06-25T00:00:00Z",
+      "release_at": "2026-06-27T00:00:00Z",
+      "freshness": "Stale",
+      "cached": true,
+      "limitations": [
+        "Synthetic range; no measured population."
+      ]
+    },
+    "potentially_displaced": {
+      "synthetic": true,
+      "value_id": "demo-value-01",
+      "area_id": "demo-area-01",
+      "metric": "potentially_displaced",
+      "low": 100,
+      "high": 300,
+      "unit": "people",
+      "label": "Unknown",
+      "source": [
+        "demo-source-01"
+      ],
+      "date": "2026-01-01",
+      "safety_tag": "restricted_aggregate",
+      "lineage_ids": [
+        "demo-lineage-01"
+      ],
+      "processing_run_id": "demo-run-01",
+      "processing_version": "demo-v1",
+      "confidence": null,
+      "acquired_at": "2026-01-01T00:00:00Z",
+      "processed_at": "2026-06-25T00:00:00Z",
+      "release_at": "2026-06-27T00:00:00Z",
+      "freshness": "Stale",
+      "cached": true,
+      "limitations": [
+        "Synthetic range; no measured population."
+      ]
+    }
+  },
+  "vulnerable_groups": [],
+  "services": [
+    {
+      "type": "water",
+      "status": "Unknown",
+      "label": "Unknown",
+      "source": [],
+      "date": null
+    }
+  ],
+  "what_to_bring": [
+    {
+      "item": "Verify water service before supply planning",
+      "basis_value_ids": [],
+      "quantity": null
+    }
+  ],
+  "facilities": [],
+  "hazards": [
+    {
+      "alert_id": "demo-alert-01",
+      "type": "synthetic_fire_context"
+    }
+  ],
+  "severity": {
+    "rank": null,
+    "parts": [
+      "damage",
+      "people",
+      "facilities",
+      "services",
+      "roads"
+    ],
+    "reason": "Incomplete synthetic inputs"
+  },
+  "nearest_reported_operating_hospital": null,
+  "route_options": [],
+  "shelter_candidates": [],
+  "permissions": {
+    "routes": false,
+    "shelters": false,
+    "brief": true
+  },
+  "evidence": [
+    {
+      "synthetic": true,
+      "value_id": "demo-value-01",
+      "area_id": "demo-area-01",
+      "metric": "residents_baseline",
+      "low": 1200,
+      "high": 1800,
+      "unit": "people",
+      "label": "Unknown",
+      "source": [
+        "demo-source-01"
+      ],
+      "date": "2026-01-01",
+      "safety_tag": "restricted_aggregate",
+      "lineage_ids": [
+        "demo-lineage-01"
+      ],
+      "processing_run_id": "demo-run-01",
+      "processing_version": "demo-v1",
+      "confidence": null,
+      "acquired_at": "2026-01-01T00:00:00Z",
+      "processed_at": "2026-06-25T00:00:00Z",
+      "release_at": "2026-06-27T00:00:00Z",
+      "freshness": "Stale",
+      "cached": true,
+      "limitations": [
+        "Synthetic range; no measured population."
+      ]
+    }
+  ],
+  "freshness": "Stale",
+  "cached": true,
+  "safety_tag": "restricted_aggregate",
+  "warning": "Entire response is synthetic. Not a field-use assessment."
+}

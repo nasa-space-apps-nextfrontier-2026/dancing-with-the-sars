@@ -1,0 +1,30 @@
+{
+  "synthetic": true,
+  "source_id": "demo-source-01",
+  "dataset_id": "DS01",
+  "name": "Synthetic NISAR contract fixture",
+  "provider": "NASA/ISRO via ASF (product attribution only)",
+  "product_level": "L2",
+  "cmr_concept_id": "C3622214170-ASF",
+  "challenge_provenance": "Tab",
+  "source_url": "https://search.asf.alaska.edu/",
+  "acquisition_start": "2026-01-19T00:00:00Z",
+  "acquisition_end": "2026-01-19T00:00:00Z",
+  "processing_version": "BETA 1.0.2 (source-reported)",
+  "spatial_coverage": {
+    "area_id": "demo-area-01",
+    "geometry": null,
+    "track": 151,
+    "frame": 72
+  },
+  "resolution_m": null,
+  "licence": "VERIFY before real data use",
+  "accessed_at": null,
+  "api": "ASF Search + earthaccess",
+  "checksum": null,
+  "independence_family": "synthetic-nisar",
+  "live_tested": false,
+  "limits": [
+    "No granule downloaded; metadata is illustrative, not a fresh check."
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "synthetic": true,
+  "candidate_id": "demo-shelter-01",
+  "area_id": "demo-area-01",
+  "rank": 1,
+  "kind": "building",
+  "name": "Synthetic candidate A",
+  "geometry": null,
+  "location_redacted": true,
+  "usable_area_m2": {
+    "low": 350,
+    "high": 525
+  },
+  "floor_estimate": {
+    "low": 1,
+    "high": 2,
+    "basis": "synthetic type default, uncertain"
+  },
+  "mode": "warm_building",
+  "space_per_person_m2": 3.5,
+  "capacity": {
+    "low": 100,
+    "high": 150,
+    "unit": "people"
+  },
+  "distance_to_affected_m": null,
+  "nearest_reported_health": null,
+  "nearest_reported_water": null,
+  "access_status": "Unknown",
+  "hazards": [
+    "No structural or explosive-ordnance assessment"
+  ],
+  "field_check_status": "not_requested",
+  "label": "Unknown",
+  "source": [
+    "demo-source-01"
+  ],
+  "date": "2026-06-24",
+  "freshness": "Stale",
+  "cached": true,
+  "safety_tag": "coordinator_shelter",
+  "release_at": "2026-06-27T00:00:00Z",
+  "warning": "Candidate for checking; protection and explosive-ordnance checks required."
+}

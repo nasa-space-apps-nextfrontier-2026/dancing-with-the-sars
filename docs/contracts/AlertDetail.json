@@ -1,0 +1,95 @@
+{
+  "synthetic": true,
+  "alert_id": "demo-alert-01",
+  "area_id": "demo-area-01",
+  "type": "fire_detected",
+  "title": "Fire detected (synthetic demonstration)",
+  "detected_at": "2026-06-24T12:00:00Z",
+  "processed_at": "2026-06-24T12:30:00Z",
+  "satellite": "NOAA-20",
+  "product": "VJ114IMGTDL_NRT",
+  "label": "Unknown",
+  "source": [
+    "demo-source-01"
+  ],
+  "lineage_ids": [
+    "demo-lineage-01"
+  ],
+  "independent_source_count": 0,
+  "freshness": "Stale",
+  "cached": true,
+  "release_at": "2026-06-27T12:00:00Z",
+  "safety_tag": "restricted_alert",
+  "rings": [
+    {
+      "radius_m": 1000,
+      "people": {
+        "synthetic": true,
+        "value_id": "demo-value-01",
+        "area_id": "demo-area-01",
+        "metric": "residents_baseline",
+        "low": 1200,
+        "high": 1800,
+        "unit": "people",
+        "label": "Unknown",
+        "source": [
+          "demo-source-01"
+        ],
+        "date": "2026-01-01",
+        "safety_tag": "restricted_aggregate",
+        "lineage_ids": [
+          "demo-lineage-01"
+        ],
+        "processing_run_id": "demo-run-01",
+        "processing_version": "demo-v1",
+        "confidence": null,
+        "acquired_at": "2026-01-01T00:00:00Z",
+        "processed_at": "2026-06-25T00:00:00Z",
+        "release_at": "2026-06-27T00:00:00Z",
+        "freshness": "Stale",
+        "cached": true,
+        "limitations": [
+          "Synthetic range; no measured population."
+        ]
+      }
+    },
+    {
+      "radius_m": 3000,
+      "people": {
+        "synthetic": true,
+        "value_id": "demo-value-01",
+        "area_id": "demo-area-01",
+        "metric": "residents_baseline",
+        "low": 1200,
+        "high": 1800,
+        "unit": "people",
+        "label": "Unknown",
+        "source": [
+          "demo-source-01"
+        ],
+        "date": "2026-01-01",
+        "safety_tag": "restricted_aggregate",
+        "lineage_ids": [
+          "demo-lineage-01"
+        ],
+        "processing_run_id": "demo-run-01",
+        "processing_version": "demo-v1",
+        "confidence": null,
+        "acquired_at": "2026-01-01T00:00:00Z",
+        "processed_at": "2026-06-25T00:00:00Z",
+        "release_at": "2026-06-27T00:00:00Z",
+        "freshness": "Stale",
+        "cached": true,
+        "limitations": [
+          "Synthetic range; no measured population."
+        ]
+      }
+    }
+  ],
+  "facilities": [],
+  "services": [],
+  "route_options_url": "/api/v1/routes",
+  "review_status": "unreviewed",
+  "cause": "Unknown",
+  "warning": "Synthetic signal; CIVISAR does not determine a cause."
+}

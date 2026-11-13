@@ -1,0 +1,51 @@
+{
+  "synthetic": true,
+  "route_id": "demo-route-A",
+  "area_id": "demo-area-01",
+  "direction": "inbound",
+  "option": "A",
+  "geometry": null,
+  "location_redacted": true,
+  "distance_m": 2400,
+  "estimated_duration_s": 600,
+  "duration_basis": "synthetic assumed speed; no live traffic",
+  "confirmed_closures_avoided": 2,
+  "unknown_segments": {
+    "count": 3,
+    "length_m": 400
+  },
+  "bridges": [
+    {
+      "id": "demo-bridge",
+      "status": "Unknown"
+    }
+  ],
+  "hazard_exposure": [
+    {
+      "type": "synthetic_fire_context",
+      "label": "Unknown"
+    }
+  ],
+  "newest_evidence_at": "2026-06-24T12:00:00Z",
+  "oldest_essential_evidence_at": "2026-01-01T00:00:00Z",
+  "heavy_vehicle_suitability": "Unknown",
+  "graph_revision": 1,
+  "closure_revision": 1,
+  "invalidated": false,
+  "turns": [
+    {
+      "instruction": "Synthetic turn list; field verification required",
+      "distance_m": 200
+    }
+  ],
+  "label": "Unknown",
+  "source": [
+    "demo-source-01"
+  ],
+  "date": "2026-06-24",
+  "freshness": "Stale",
+  "cached": true,
+  "safety_tag": "officer_route",
+  "release_at": "2026-06-27T00:00:00Z",
+  "warning": "No reported closure. Field verification required; no live tracking."
+}
