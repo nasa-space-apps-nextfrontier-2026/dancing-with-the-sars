@@ -23,7 +23,7 @@ The challenge asks for an **interactive application that uses NISAR radar data t
 | Challenge suggestion | How CIVISAR covers it |
 |---|---|
 | Use NISAR data (required) | NISAR L2 GCOV/GSLC change detection is the core damage layer |
-| Different polarizations and frequencies | Compare HH and HV backscatter change. Cross-check with SAOCOM (L-band) and Sentinel-1 (C-band). |
+| Different polarizations and frequencies | Compare HH and HV backscatter change. Cross-check with Sentinel-1 (C-band, via NASA OPERA). |
 | Time series from different dates | Time slider over NISAR's 12-day repeat passes |
 | Ancillary data (population etc.) | Population, facilities, roads, night lights, fires |
 | Human drivers and impact on communities | War damage is human-caused surface change, and the whole tool is about impact on people |
@@ -34,7 +34,8 @@ The challenge asks for an **interactive application that uses NISAR radar data t
 
 | Decision | Detail |
 |---|---|
-| War only | No floods, earthquakes or other natural disasters. Rainfall is used only to rule out rain as the cause of a radar change. |
+| War only | No floods, earthquakes or other natural disasters. |
+| Small data set | 14 sources only, each feeding a map layer or an agent result (see [DATASETS.md](DATASETS.md)). |
 | No rebuilding | Reconstruction plans and rebuild tracking are out of scope. |
 | No live vehicle tracking | Not possible with this data (NISAR and Sentinel-1 give snapshots every 6 to 12 days), and dangerous in a war. |
 | No Chinese sources | Space Apps rules bar China or Chinese-owned entities. |
@@ -47,25 +48,17 @@ UNOSAT, Conflict Ecology, UNDP RAPIDA, Copernicus EMS, Microsoft HASTE, NASA ARI
 
 CIVISAR **uses damage as an input** and goes on to the emergency response: how serious it is for people, what they lost, what responders need, where they can go and how to get there. We still produce NISAR damage mapping (the challenge requires it) and check it against UNOSAT and UNDP data.
 
-## 5. Global scope and demo areas
+## 5. Demo area: south Lebanon (design is global)
 
-**CIVISAR works worldwide.** Every core dataset is global: NISAR covers almost all land every 12 days, and Sentinel-1, Black Marble, FIRMS, IODA, OSM, Meta and IOM DTM are global or near-global. The system watches any area where war is happening:
+**The hackathon demo is south Lebanon only**, because judges need one deep, checked example. NISAR coverage was checked on 13 November 2026: 336 granules on three tracks. GCOV passes: track 151 descending has 11 passes (24 Jun to 3 Nov 2026), track 172 ascending 10, track 100 ascending 8. Track 151 is the main time series. Reference damage data comes from UNDP/CNRS-L and UNOSAT. Public NISAR data starts 17 June 2026, so it mostly shows the period after fighting paused.
+
+**How it grows worldwide later.** Every dataset we use is global or near-global, so the same system can watch any area where war is happening:
 
 1. **Watch list of conflict areas, made automatically.** Areas with recent conflict events (ACLED, weekly) are added to the watch list. Analysts can also add areas by hand.
 2. **Daily global pre-alerts.** Fires (FIRMS) and sudden night-light drops (Black Marble) are checked every day inside watched areas.
 3. **Radar confirmation.** When a new NISAR or Sentinel-1 pass covers a watched area, change detection runs on it.
 
-Radar processing for the whole planet every pass is not needed and is too heavy. Running it only inside watched areas keeps it global and practical.
-
-For the hackathon we **demo on selected areas**, because judges need a deep, checked example. NISAR coverage was checked on 13 November 2026 (details in [DATASETS.md](DATASETS.md)):
-
-| Priority | Area | NISAR granules | Notes |
-|---|---|---|---|
-| Main | **South Lebanon** | 336 (3 tracks) | Reference damage data from UNDP/CNRS-L and Sentinel-1 studies. Public NISAR data starts 17 June 2026, so it mostly shows the period after fighting paused. |
-| Backup | **Gaza** | 256 (3 tracks) | Richest reference data. Highest risk of harm, so restricted, delayed mode only. |
-| Extra | **Kyiv** | 250 (4 tracks) | Good for power, water and hospital links. |
-
-NISAR GCOV passes over south Lebanon: track 151 descending has 11 passes (24 Jun to 3 Nov 2026), track 172 ascending 10, track 100 ascending 8. Track 151 is the main time series.
+Radar processing for the whole planet every pass is not needed and is too heavy. Running it only inside watched areas keeps it global and practical. In the demo, south Lebanon is the one watched area.
 
 ## 5a. Automatic detection and alerts
 
@@ -94,19 +87,19 @@ A satellite fire detection is a heat signal, not proof of a strike. The alert sa
 ## 6. Features
 
 ### 6.1 Damage and severity
-- Candidate damage from NISAR: backscatter change (GCOV), coherence loss (GSLC/GUNW), cluster size, and persistence across passes.
+- Candidate damage from NISAR: backscatter change (GCOV), coherence loss (GSLC), cluster size, and persistence across passes. Sentinel-1 (OPERA RTC) adds dates between NISAR passes.
 - Map to UNOSAT classes: destroyed, severely damaged, moderately damaged, possibly damaged.
-- Validate against UNOSAT, UNDP and Conflict Ecology data for the same area.
+- Validate against UNOSAT and UNDP data for the same area.
 - Radar shows candidates, not confirmed damage, and the wording says so.
 
 ### 6.2 Affected buildings and facilities
-- Building types from OSM and healthsites.io: hospitals, clinics, schools, homes, places of worship, water plants and pumps, power substations, halls and warehouses.
-- Overlay reported attacks on facilities (WHO, Insecurity Insight).
+- Building types from OSM / HOTOSM: hospitals, clinics, schools, homes, places of worship, water plants and pumps, power substations, halls and warehouses.
+- Overlay reported attacks on facilities (Insecurity Insight).
 - Facility status: damaged, working or unknown, with source and date.
 - **Never infer "working" from radar alone.** "No detected damage" is not "open".
 
 ### 6.3 People affected and how serious it is
-- Population per area from WorldPop and NASA SEDAC, shown as ranges.
+- Population per area from WorldPop, shown as ranges.
 - Estimated displaced: people living in destroyed or severely damaged buildings (UNOSAT housing-unit approach: destroyed and severe 100%, moderate 50%, possible 20%).
 - Per-neighbourhood severity rank, with its five parts shown separately so responders see why: damage level, people there, critical facilities hit, power or water lost, roads cut.
 
@@ -114,7 +107,7 @@ A satellite fire detection is a heat signal, not proof of a strike. The alert sa
 - **Power:** night-light loss from Black Marble NOAA-20/21.
 - **Water:** damaged water plants and pumps, and the chain substation → pump → hospital.
 - **Health:** nearest working hospital, and who has lost access to one.
-- **Communications:** network coverage where data exists.
+- **Communications:** internet outages from IODA.
 - **Fires:** active fires from FIRMS.
 
 ### 6.5 Emergency routing: both directions, officer chooses
@@ -132,7 +125,7 @@ For each request CIVISAR returns **several route options, not one**. The officer
 | Confirmed closures avoided | All options avoid confirmed closures |
 | Number and length of **unknown-status** segments | Risk of hitting an unreported blockage |
 | Bridges crossed and their status | Bridges are single points of failure |
-| Passes near damage clusters or reported explosive hazard | Hazard exposure |
+| Passes near damage clusters, fires or reported attacks | Hazard exposure |
 | Date of the newest evidence along the route | How fresh the information is |
 | Suitable for heavy vehicles (if road data allows) | Fire engines, water trucks |
 
@@ -150,7 +143,7 @@ Each flagged area (from section 5a) has a short summary that answers **"what hap
 | Vulnerable groups | Children, elderly, women (ranges) |
 | Services lost and what to bring | Water lost → bring water. Power lost → bring generators and lights. Health access lost → send a medical team. Comms down → bring radios. |
 | Facilities hit | e.g. 1 clinic damaged, 2 schools possibly damaged |
-| Hazards | Fires, reported explosive hazard, unknown road segments |
+| Hazards | Fires, reported attacks, unknown road segments |
 | Nearest options | Nearest working hospital, candidate shelter buildings |
 | Route options | From section 6.5 |
 | Evidence | Source and date of every line |
@@ -164,7 +157,7 @@ No detailed logistics counts (such as toilets or tap stands). The summary can be
 **Supply: buildings first, then open land.** In an emergency the quickest shelter is usually an existing building near the affected people, not a new camp.
 
 1. **Nearest suitable buildings** (first choice): any large building with no detected NISAR change near the affected area: schools, halls, community centres, places of worship, sports halls, warehouses, public buildings. Usable floor area is estimated from the OSM footprint × number of levels (`building:levels`), minus a share for walls and corridors.
-2. **Open land** (second choice): flat (NASADEM slope), open (MODIS land cover, HLS), not wet (OPERA DSWx), near a road, away from damage clusters.
+2. **Open land** (second choice): flat (NASADEM slope), open land with no buildings (OSM land use), near a road, away from damage clusters.
 
 **Capacity uses emergency figures, not long-term camp figures.** The 45 m² per person figure is for long-term planned camps and is too high for an emergency. CIVISAR uses an adjustable setting:
 
@@ -174,7 +167,7 @@ No detailed logistics counts (such as toilets or tap stands). The summary can be
 | Short-term open site, services outside | 30 m² of site area | Sphere minimum without household plots |
 | Planned camp | 45 m² of site area | Sphere / UNHCR |
 
-The officer can change the setting. Temperature from NASA POWER decides between warm and cold figures.
+The officer can change the setting, including warm or cold weather.
 
 Example: "School X: about 2,400 m² usable floor, holds about 680 people at 3.5 m². 900 m from affected area, 1.1 km from nearest working clinic, no detected damage."
 
@@ -202,30 +195,48 @@ Internet outages from IODA (real time, country and region level), so summaries c
 ### 6.8b Strike context
 ACLED conflict events and FIRMS fires shown next to each radar change. Two independent sources agreeing upgrades a change to "corroborated".
 
-### 6.9 Explosive hazard warning
-
-UNMAS and mine-action data, aggregated to areas. Shown on routes, shelter sites and return areas.
-
-### 6.10 Time view and storytelling
+### 6.9 Time view and storytelling
 - Time slider over NISAR passes: watch damage appear and spread.
-- Before/after swipe of radar and optical images.
+- Before/after swipe of radar images, with GIBS true colour for context.
 - Polarization view: what HH and HV each show, as the challenge suggests.
 - Short plain-language "what the radar shows and why" notes.
 
 ## 7. The combined map
 
-One base map with switchable layer groups:
+One base map (NASA GIBS backgrounds) with two kinds of switchable layers: the data itself, and the results the agents produce from it.
 
-- 🔴 Damage (severity from NISAR, time slider)
-- 👥 People (density, affected, displaced)
-- 🏥 Facilities (type and status)
-- ⚡💧 Services (power, water, comms, fires)
-- 🛣 Roads and routes (open / closed / unknown, route options)
-- ⛺ Shelter and urgent sites (buildings and open land, with capacity)
-- 📍 Movement (aggregated)
-- ⚠ Hazards (explosive hazard, fires)
+### 7.1 Data layers
 
-Clicking an area opens one panel with the dispatch situation report (section 6.6). NASA GIBS and Worldview give quick base layers.
+| Layer | Dataset |
+|---|---|
+| NISAR change (time slider, HH/HV) | NISAR GCOV, GSLC |
+| Sentinel-1 change | OPERA RTC-S1 |
+| Night lights before / after | Black Marble NRT |
+| Fires | FIRMS |
+| Internet outages | IODA |
+| People density | WorldPop |
+| Buildings and facilities | OSM / HOTOSM |
+| Roads | OSM / HOTOSM |
+| Conflict events | ACLED |
+| Reported attacks | Insecurity Insight |
+| Validation overlay (analyst view) | UNOSAT, UNDP |
+
+### 7.2 Agent result layers
+
+Each result carries its evidence label (section 9).
+
+| Layer | Agent | Shows |
+|---|---|---|
+| 🔴 Damage classes | Damage | Buildings coloured destroyed / severe / moderate / possible |
+| 🏥 Facility status | Facility | Each hospital, school, water or power site: damaged, working or unknown |
+| ⚡💧 Services lost | Services | Areas with power, water or comms lost |
+| 👥 Affected and displaced | People | Ranges per area |
+| ⛺ Shelter candidates | Shelter | Nearest suitable buildings and open land, with capacity |
+| 🛣 Route options | Route | Inbound and outbound options (logged-in responders only) |
+| 📍 Movement trend | Movement | Leaving / arriving areas (aggregated) |
+| ⚠ New alerts | Alert | Pins for new fires, light drops, outages and radar changes |
+
+Clicking any building or area opens one panel with every agent's result for that spot, the area summary (section 6.6) and the sources behind each line.
 
 ## 8. AI agents
 
@@ -233,17 +244,20 @@ All numbers come from real data and GIS calculations. The AI never invents numbe
 
 | Agent | Job |
 |---|---|
-| Damage | NISAR change analysis and severity classes |
-| Impact | Population, affected and displaced, facilities hit, severity rank |
-| Services | Power, water, health access, comms, fires |
-| Route | Inbound and outbound route options, recalculation on new closures |
-| Needs | Water, shelter space, toilets and supplies per area |
-| Shelter | Finds buildings and open land, calculates capacity |
-| Movement | Night-light change, camp growth, DTM |
-| Corroboration | Matches radar changes with incident reports, tracks source independence |
-| Orchestrator | Connects agents: a new closure updates routes, then reports. A derived claim never carries a higher evidence level than its weakest input. |
-| Report | Writes the dispatch situation report and briefs in plain language, with sources |
-| Safety | Blocks anything that breaks the rules in section 10 |
+| Agent | Job | Reads |
+|---|---|---|
+| Damage | NISAR change analysis and severity classes | NISAR, OPERA RTC-S1, UNOSAT/UNDP (check only) |
+| Facility | Facility type and status | OSM, Damage results, Insecurity Insight |
+| Services | Power, water, health access, comms, fires; what to bring | Black Marble, IODA, FIRMS, Facility results |
+| People | Population, affected and displaced, severity rank | WorldPop, Damage results, IOM DTM |
+| Shelter | Finds buildings and open land, calculates capacity | OSM, NASADEM, Damage and People results |
+| Route | Inbound and outbound route options, recalculation on new closures | OSM roads, Damage results, FIRMS |
+| Movement | Area-level movement trend | Meta movement, IOM DTM, Black Marble |
+| Alert | Finds new changes by itself and raises alerts | FIRMS, Black Marble, IODA, NISAR, OPERA RTC-S1, ACLED |
+| Corroboration | Matches radar changes with reports, tracks source independence | ACLED, Insecurity Insight, FIRMS |
+| Orchestrator | Connects agents: a new closure updates routes, then reports. A derived claim never carries a higher evidence level than its weakest input. | all results |
+| Report | Writes the area summary and briefs in plain language, with sources | all results |
+| Safety | Blocks anything that breaks the rules in section 10 | all outputs |
 
 ### 8.1 Making the data easy for agents
 
@@ -289,18 +303,18 @@ So agents can work reliably and quickly, the data follows simple shared rules (d
 2. Affected population, displaced estimate and severity rank.
 3. Facility types hit.
 4. Route options in both directions (dispatch in, evacuation out), with the officer choosing one.
-5. Dispatch situation report with needs calculation.
+5. Area summary: people affected, services lost and what to bring.
 6. Shelter finder: nearest buildings with capacity, then open land.
-7. Night-light power layer via Worldview/GIBS.
+7. Night-light power layer and fire alerts.
+8. Agent result layers on the map (section 7.2).
 
-Smaller demo parts: movement signals, full agent system, explosive hazard warning, polarization story.
+Smaller demo parts: movement trend, full agent system, polarization story.
 
 ## 13. Open items and next steps
 
-1. List NISAR acquisition dates per track over south Lebanon and pick before/after pairs.
-2. Check SAOCOM coverage over south Lebanon (registration needed).
-3. Download UNOSAT / UNDP reference data for the chosen area.
-4. Check OSM completeness for roads, buildings and `building:levels` in the area.
-5. Verify items marked **(unverified)**.
-6. Decide the demo form, then write the architecture.
-7. Prepare the safety-agent demonstration.
+1. Pick NISAR before/after pairs on track 151 over south Lebanon.
+2. Download UNOSAT / UNDP reference data for the chosen area.
+3. Check OSM completeness for roads, buildings and `building:levels` in the area.
+4. Verify items marked **(unverified)**.
+5. Decide the demo form, then write the architecture.
+6. Prepare the safety-agent demonstration.
