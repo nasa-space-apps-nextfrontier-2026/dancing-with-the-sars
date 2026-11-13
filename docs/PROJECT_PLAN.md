@@ -39,7 +39,8 @@ The challenge asks for an **interactive application that uses NISAR radar data t
 | No rebuilding | Reconstruction plans and rebuild tracking are out of scope. |
 | No live vehicle tracking | Not possible with this data (NISAR and Sentinel-1 give snapshots every 6 to 12 days), and dangerous in a war. |
 | No Chinese sources | Space Apps rules bar China or Chinese-owned entities. |
-| NASA data first | At least one NASA or partner-agency dataset is needed for Global Judging. Ours is NISAR from the challenge Resources tab. Everything used is cited. |
+| Resources tab data first | At least one dataset from the challenge Resources tab is needed. Ours is **NISAR** (🟢 linked on the tab). Four more NASA datasets come through the tab's tools, NASA Earthdata Search and ASF Vertex (🔵): OPERA RTC-S1, Black Marble, FIRMS and NASADEM. So 6 of our 14 datasets come from the tab or its tools. Everything used is cited. |
+| APIs from the tab tools | NISAR and NASA data are found with the **ASF Search API** (behind ASF Vertex) and the **CMR API** (behind Earthdata Search). They are downloaded with **earthaccess** and an **Earthdata Login** token, as the NISAR Data User Guide describes. Full API plan in [DATASETS.md](DATASETS.md) section 5. |
 | One combined map | One map with switchable layer groups and one click panel. |
 
 ## 4. What already exists
@@ -207,19 +208,23 @@ One base map (NASA GIBS backgrounds) with two kinds of switchable layers: the da
 
 ### 7.1 Data layers
 
-| Layer | Dataset |
-|---|---|
-| NISAR change (time slider, HH/HV) | NISAR GCOV, GSLC |
-| Sentinel-1 change | OPERA RTC-S1 |
-| Night lights before / after | Black Marble NRT |
-| Fires | FIRMS |
-| Internet outages | IODA |
-| People density | WorldPop |
-| Buildings and facilities | OSM / HOTOSM |
-| Roads | OSM / HOTOSM |
-| Conflict events | ACLED |
-| Reported attacks | Insecurity Insight |
-| Validation overlay (analyst view) | UNOSAT, UNDP |
+Marks: 🟢 linked on the Resources tab, 🔵 found and downloaded through a Resources tab tool, ⚪ other source.
+
+| Layer | Dataset | Mark |
+|---|---|---|
+| NISAR change (time slider, HH/HV) | NISAR GCOV, GSLC | 🟢 |
+| Sentinel-1 change | OPERA RTC-S1 | 🔵 |
+| Night lights before / after | Black Marble NRT | 🔵 |
+| Fires | FIRMS | 🔵 |
+| Internet outages | IODA | ⚪ |
+| People density | WorldPop | ⚪ |
+| Buildings and facilities | OSM / HOTOSM | ⚪ |
+| Roads | OSM / HOTOSM | ⚪ |
+| Conflict events | ACLED | ⚪ |
+| Reported attacks | Insecurity Insight | ⚪ |
+| Validation overlay (analyst view) | UNOSAT, UNDP | ⚪ |
+
+NASADEM (🔵) is not its own layer; the Shelter agent uses it for its slope check.
 
 ### 7.2 Agent result layers
 
@@ -267,7 +272,7 @@ So agents can work reliably and quickly, the data follows simple shared rules (d
 2. **Pre-computed tables.** Damage, population, services, facilities and shelters are calculated once per NISAR pass and stored as tables. Agents read the tables instead of processing raw radar every time.
 3. **Every value has a label, source and date.** Each number carries its evidence level (section 9), dataset name and date, so agents can cite it and never present a guess as fact.
 4. **Ranges, not single numbers.** Estimates are stored as low and high values.
-5. **Dataset records.** Each dataset has a record (name, level, date, version, coverage, licence, URL) as listed in [DATASETS.md](DATASETS.md), so agents can explain where data came from.
+5. **Dataset records.** Each dataset has a record (name, level, date, version, coverage, licence, URL, Resources tab mark, API used) as listed in [DATASETS.md](DATASETS.md), so agents can explain where data came from.
 6. **Fixed question types.** Agents answer a known set of questions, for example: *how many people are affected in area X*, *what services were lost*, *route options from A to B*, *nearest shelter buildings with capacity*, *what changed since the last pass*. This keeps answers checkable.
 7. **Safety tags on data.** Sensitive items (shelters, routes, undamaged critical sites) are tagged so the safety agent can block them automatically for unauthorised users.
 
@@ -312,9 +317,10 @@ Smaller demo parts: movement trend, full agent system, polarization story.
 
 ## 13. Open items and next steps
 
-1. Pick NISAR before/after pairs on track 151 over south Lebanon.
-2. Download UNOSAT / UNDP reference data for the chosen area.
-3. Check OSM completeness for roads, buildings and `building:levels` in the area.
-4. Verify items marked **(unverified)**.
-5. Decide the demo form, then write the architecture.
-6. Prepare the safety-agent demonstration.
+1. Each team member makes a free Earthdata Login account (needed to download NISAR). Get the free FIRMS map key and ACLED account.
+2. Pick NISAR before/after pairs on track 151 over south Lebanon (ASF Search API).
+3. Download UNOSAT / UNDP reference data for the chosen area.
+4. Check OSM completeness for roads, buildings and `building:levels` in the area.
+5. Verify items marked **(unverified)**.
+6. Decide the demo form, then write the architecture.
+7. Prepare the safety-agent demonstration.
