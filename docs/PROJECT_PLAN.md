@@ -47,9 +47,17 @@ UNOSAT, Conflict Ecology, UNDP RAPIDA, Copernicus EMS, Microsoft HASTE, NASA ARI
 
 CIVISAR **uses damage as an input** and goes on to the emergency response: how serious it is for people, what they lost, what responders need, where they can go and how to get there. We still produce NISAR damage mapping (the challenge requires it) and check it against UNOSAT and UNDP data.
 
-## 5. Study areas
+## 5. Global scope and demo areas
 
-NISAR coverage was checked through the ASF Search API on 13 November 2026 (details in [DATASETS.md](DATASETS.md)):
+**CIVISAR works worldwide.** Every core dataset is global: NISAR covers almost all land every 12 days, and Sentinel-1, Black Marble, FIRMS, IODA, OSM, Meta and IOM DTM are global or near-global. The system watches any area where war is happening:
+
+1. **Watch list of conflict areas, made automatically.** Areas with recent conflict events (ACLED, weekly) are added to the watch list. Analysts can also add areas by hand.
+2. **Daily global pre-alerts.** Fires (FIRMS) and sudden night-light drops (Black Marble) are checked every day inside watched areas.
+3. **Radar confirmation.** When a new NISAR or Sentinel-1 pass covers a watched area, change detection runs on it.
+
+Radar processing for the whole planet every pass is not needed and is too heavy. Running it only inside watched areas keeps it global and practical.
+
+For the hackathon we **demo on selected areas**, because judges need a deep, checked example. NISAR coverage was checked on 13 November 2026 (details in [DATASETS.md](DATASETS.md)):
 
 | Priority | Area | NISAR granules | Notes |
 |---|---|---|---|
@@ -57,7 +65,31 @@ NISAR coverage was checked through the ASF Search API on 13 November 2026 (detai
 | Backup | **Gaza** | 256 (3 tracks) | Richest reference data. Highest risk of harm, so restricted, delayed mode only. |
 | Extra | **Kyiv** | 250 (4 tracks) | Good for power, water and hospital links. |
 
-Next step: list acquisition dates per track and pick before/after pairs on the same track.
+NISAR GCOV passes over south Lebanon: track 151 descending has 11 passes (24 Jun to 3 Nov 2026), track 172 ascending 10, track 100 ascending 8. Track 151 is the main time series.
+
+## 5a. Automatic detection and alerts
+
+The system finds changes by itself. Nobody has to select an area first.
+
+| Trigger | Source | How often | What happens |
+|---|---|---|---|
+| **Fire detected** | FIRMS VIIRS active fire (near real time) | Several times a day | Fire alert for the area (see below) |
+| Night-light drop | Black Marble NRT | Daily | Possible power loss alert |
+| Internet outage | IODA | Real time | Comms-loss alert |
+| Building change | NISAR (12 days), Sentinel-1 OPERA RTC (a few days) | Each pass | Change area flagged with damage class |
+| Conflict event reported | ACLED | Weekly | Context, corroboration |
+
+Alerts appear on a **new alerts list** and on the map. When two independent sources agree (for example a FIRMS fire and a later radar change at the same place), the alert is upgraded to **corroborated**.
+
+### Fire alerts sent to officers
+When a fire is detected near people or critical facilities, CIVISAR builds an alert for logged-in officers with:
+
+- where the fire is and when it was detected, with the satellite source;
+- people living around it (range) and facilities nearby (hospital, school, fuel, power);
+- **available route options** for fire and rescue units to reach it, and for people to leave the area (section 6.5);
+- services already lost in that area (power, water, comms).
+
+A satellite fire detection is a heat signal, not proof of a strike. The alert says "fire detected", with its confidence level, and never claims the cause.
 
 ## 6. Features
 
@@ -108,25 +140,22 @@ The officer selects a route and starts navigation (in-app turn-by-turn, or hand-
 
 Rules: routes are labelled **"no reported closure", never "safe"**. Only logged-in, authorised responders see routes.
 
-### 6.6 Dispatch situation report: what to prepare
+### 6.6 Area summary for officers
 
-When an officer selects an affected area, CIVISAR builds a short report that answers **"what has happened here and what do we need to bring?"**
+Each flagged area (from section 5a) has a short summary that answers **"what happened here and what should we bring?"** It stays simple:
 
-| Section | Content | Basis |
-|---|---|---|
-| People affected | e.g. "About 4,000–6,500 people live in the damaged area. About 1,200–2,000 probably displaced." | Population plus damage classes |
-| Vulnerable groups | Children, elderly, women (ranges) | WorldPop age and sex |
-| Services lost | Water ✗, power ✗, health access ✗, comms unknown | Services layer |
-| Facilities hit | e.g. 1 clinic damaged, 2 schools possibly damaged | Facility layer |
-| Estimated needs (per day) | Water litres, shelter space, toilets | Section 6.7 standards |
-| Hazards | Fires, reported explosive hazard, unknown road segments | FIRMS, UNMAS, roads |
-| Nearest options | Nearest working hospital, candidate shelter buildings, water points | Facility and shelter layers |
-| Route options | From section 6.5 | |
-| Evidence | Source and date of every line | Evidence labels |
+| Section | Content |
+|---|---|
+| People affected | e.g. "About 4,000–6,500 people live here. About 1,200–2,000 probably displaced." |
+| Vulnerable groups | Children, elderly, women (ranges) |
+| Services lost and what to bring | Water lost → bring water. Power lost → bring generators and lights. Health access lost → send a medical team. Comms down → bring radios. |
+| Facilities hit | e.g. 1 clinic damaged, 2 schools possibly damaged |
+| Hazards | Fires, reported explosive hazard, unknown road segments |
+| Nearest options | Nearest working hospital, candidate shelter buildings |
+| Route options | From section 6.5 |
+| Evidence | Source and date of every line |
 
-Example needs calculation for 2,000 displaced people: 2,000 × 15 L = **30,000 L of water per day** (minimum), about **8 tap stands** (1 per 250 people), about **100 toilets** (1 per 20 people, Sphere), and **7,000 m² of covered space** at 3.5 m² per person.
-
-The report can be shared as a short printable or offline brief for teams with poor connectivity.
+No detailed logistics counts (such as toilets or tap stands). The summary can be shared as a short printable or offline brief.
 
 ### 6.7 Shelter and urgent-site finder
 
@@ -147,24 +176,31 @@ The report can be shared as a short printable or offline brief for teams with po
 
 The officer can change the setting. Temperature from NASA POWER decides between warm and cold figures.
 
-Example: "School X: about 2,400 m² usable floor, holds about 680 people at 3.5 m². 900 m from affected area, 1.1 km from nearest working clinic, no detected damage. Needs about 10,200 L of water a day."
+Example: "School X: about 2,400 m² usable floor, holds about 680 people at 3.5 m². 900 m from affected area, 1.1 km from nearest working clinic, no detected damage."
 
 Each site also shows distance to affected people, nearest working water and health care, road access, and any hazard warnings. Sites are ranked by how many affected people they can take within a short distance.
 
 Sites are **candidates for checking**. The tool cannot see military danger or unexploded ordnance inside a building. They go only to authorised coordinators, and a protection and explosive-ordnance check is required before use.
 
-### 6.8 Population movement (aggregated)
+### 6.8 Population movement trend (aggregated)
 
-Individuals are never tracked. Aggregate signals only:
+Individuals are never tracked. The movement trend combines:
 
-| Signal | Data | Shows |
+| Signal | Data | How often |
 |---|---|---|
-| Lights dropping or appearing | Black Marble | Activity fell or rose (proxy) |
-| New tent or camp areas | NISAR or Sentinel-1 change on open land | Camp growth |
-| Reported displacement | IOM DTM, UNHCR | Official numbers |
-| Estimated displaced | Section 6.3 | Probably lost homes |
+| Daily movement range change | Meta Movement Distribution Maps (HDX, CC BY) | Every 2 weeks |
+| Reported displacement | IOM DTM API / HDX | Weekly |
+| Lights dropping or appearing | Black Marble NRT | Daily |
+| New tent or camp areas | NISAR or Sentinel-1 change on open land | Each pass |
+| Estimated displaced | Section 6.3 | Each pass |
 
-Always aggregated and delayed. Exact camp locations are never public.
+Output reads like "people leaving Area A, arriving around Town B", at area level only. Always aggregated and delayed. Exact camp locations are never public.
+
+### 6.8a Comms-loss layer
+Internet outages from IODA (real time, country and region level), so summaries can say "internet down since X".
+
+### 6.8b Strike context
+ACLED conflict events and FIRMS fires shown next to each radar change. Two independent sources agreeing upgrades a change to "corroborated".
 
 ### 6.9 Explosive hazard warning
 

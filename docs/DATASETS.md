@@ -51,7 +51,7 @@ Related guides from the Resources tab:
 | Dataset | Agency | Use for us | Notes |
 |---|---|---|---|
 | **SAOCOM** | CONAE (Argentina) | **Second L-band source.** Same band as NISAR, so it is a good cross-check or gap filler. | Needs registration (ONE CLICK profile). Check coverage over our area. https://catalogos.conae.gov.ar/catalogo/catalogoSatSaocomInfo.html |
-| RADARSAT Constellation Mission (RCM) | CSA (Canada) | C-band cross-check, if open scenes exist over our area | Open data portal: https://donnees-data.asc-csa.gc.ca/en/dataset/rcm |
+| RADARSAT Constellation Mission (RCM) | CSA (Canada) | C-band cross-check, if open scenes exist over our area. Open data mostly covers Canada. | Open data folder: https://donnees-data.asc-csa.gc.ca/users/OpenData_DonneesOuvertes/pub/RCM/ · archive: EODMS |
 | RADARSAT-1 | CSA | Historic archive (1995–2013). Not useful for current war damage. | https://donnees-data.asc-csa.gc.ca/en/dataset/radarsat1 |
 | CSA SAR Python tutorial | CSA | Learning and quick-start code for SAR processing | https://github.com/asc-csa/Synthetic_Aperture_Radar_Tutorial |
 | Sentinel-1 (via NASA OPERA RTC-S1, DIST-S1) | ESA, processed by NASA | Extra dates between NISAR passes. Reference method used by existing war-damage tools. | Via Earthdata / ASF |
@@ -110,6 +110,52 @@ US-only datasets on those pages (USDA, NLCD, NAIP, CropScape, PRISM, SSURGO, NWI
 | Logistics Cluster | Road access constraints | |
 | WorldPop | Population about 100 m, age and sex | Main population source |
 | Pacific Institute Water Conflict Chronology | Attacks on water systems | Context |
+
+## 5a. Exact dataset IDs (NASA CMR, checked 13 Nov 2026)
+
+Newest data is over south Lebanon on the check date. All are global unless noted.
+
+| Use | Short name | CMR concept ID | Newest data |
+|---|---|---|---|
+| Damage (main) | NISAR_L2_GCOV_V1 (validated) | C3622241360-ASF | 3 Nov 2026 |
+| Damage (earlier dates) | NISAR_L2_GCOV_PROVISIONAL_V1 | C2854338529-ASF | 19 Oct 2026 |
+| Coherence | NISAR_L2_GSLC_V1 / NISAR_L2_GSLC_PROVISIONAL_V1 | C3622244601-ASF / C2854332392-ASF | 3 Nov 2026 |
+| Interferogram | NISAR_L2_GUNW_V1 | C3622247503-ASF | none over Lebanon yet |
+| Fast products | NISAR_UR_L2 | C2887502657-ASF | none over Lebanon |
+| Radar between NISAR passes | OPERA_L2_RTC-S1_V1 | C2777436413-ASF | 10 Nov 2026 |
+| Radar disturbance alert | OPERA_L3_DIST-ALERT-S1_V1 | C4090131664-ASF | 28 Feb 2026 only, not current over Lebanon |
+| Optical disturbance alert | OPERA_L3_DIST-ALERT-HLS_V1 | C2746980408-LPCLOUD | 5 Nov 2026 |
+| Optical images | HLSS30 / HLSL30 v2.0 | C2021957295-LPCLOUD / C2021957657-LPCLOUD | 5 Nov 2026 |
+| Power (live) | VJ146A2_NRT (NOAA-20) | C4193331158-LANCEMODIS | 12 Nov 2026 |
+| Power (live) | VJ246A2_NRT (NOAA-21) | C4249684820-LANCEMODIS | 12 Nov 2026 |
+| Power (archive) | VJ146A2 | C3370789118-LAADS | 28 Oct 2026 |
+| Fires (live) | VJ114IMGTDL_NRT (NOAA-20 375 m) | C3264430167-LANCEMODIS | 13 Nov 2026 |
+| Fires (live) | VJ214IMGTDL_NRT (NOAA-21 375 m) | C4377939055-LANCEMODIS | |
+| Population | CIESIN_SEDAC_GPWv4_POPCOUNT_R11 | C3540918004-ESDIS | 2020 |
+| Roads (old) | CIESIN_SEDAC_GROADS_V1 | C3550192909-ESDIS | 2010 |
+| Elevation | NASADEM_HGT | C2763264762-LPCLOUD | static |
+| Land cover | MCD12Q1 v061 | C2484079608-LPCLOUD | yearly |
+| Surface water | OPERA_L3_DSWX-S1_V1 | C2949811996-POCLOUD | |
+| Rain | GPM_3IMERGDE v07 | C2723754850-GES_DISC | daily |
+
+### GIBS map layers (ready to show)
+`VIIRS_NOAA20_GapFilled_BRDF_Corrected_DayNightBand_Radiance`, `VIIRS_NOAA21_GapFilled_BRDF_Corrected_DayNightBand_Radiance` (night lights), `VIIRS_NOAA20_Thermal_Anomalies_375m_All`, `VIIRS_NOAA21_Thermal_Anomalies_375m_All` (fires), `OPERA_L2_Radiometric_Terrain_Corrected_SAR_Sentinel-1`, `OPERA_L3_DIST-ALERT-HLS_Color_Index`, `HLS_S30_Nadir_BRDF_Adjusted_Reflectance`, `GPW_Population_Density_2020`, `Landsat_Human_Built-up_And_Settlement_Extent`, `Reference_Features`, `Reference_Labels`.
+
+## 5b. Live and frequently updated sources
+
+| What | Source | How often | Access |
+|---|---|---|---|
+| Fires | FIRMS (NASA) | Several times a day | FIRMS API (free map key), GIBS |
+| Electricity | Black Marble NRT (NASA) | Daily | Earthdata, GIBS |
+| Internet outages | IODA, Georgia Tech | Real time | Public API, tested (Lebanon code `LB`) |
+| Population movement | Meta Movement Distribution Maps | Every 2 weeks, 90 days kept | HDX `movement-distribution`, CC BY |
+| Displacement | IOM DTM | Weekly | DTM API, HDX `lbn-iom-dtm-from-api`, `global-iom-dtm-from-api` |
+| Conflict events | ACLED | Weekly | HDX `lebanon-acled-conflict-data` (counts), API with free account |
+| Buildings and roads | OSM (Overpass), HOTOSM exports | Live edits; exports monthly | HDX `hotosm_lbn_buildings`, `hotosm_lbn_roads` |
+| Attacks on aid, health, education | Insecurity Insight | Weekly to monthly | HDX `aid-security-risk-in-lebanon` |
+| Health facilities | healthsites.io | About every 90 days | HDX `lebanon-healthsites` |
+| Detailed population | Meta high-resolution population (with age and sex) | Static | HDX (Lebanon and most countries) |
+| Humanitarian indicators | HDX HAPI | Daily | HDX `hdx-hapi-lbn` |
 
 ## 6. Not used
 
