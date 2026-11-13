@@ -94,11 +94,17 @@ Fewest clicks: any place, alert or facility → its routes (1 click). Alert → 
 - New building changes appear **72 hours after a pass, at neighbourhood level**.
 - No vehicle, convoy or phone tracking, and the routes screen says so.
 
-## 6. Differences between the design and the plan (to decide)
+## 6. Sign-in (decided: login required)
+
+Decided on 13 Nov 2026: **login is required**, as in the plan's safety rules. The design currently has no sign-in screen, so it needs two more screens:
+
+- **Sign-in screen** for authorised responders and coordinators.
+- **Logged-out view**: the public-safe map only (data layers and area-level results). Routes, shelter candidates, displacement sites, area briefs and dispatch reports are hidden, with a short line saying they need sign-in. The demo shows an unauthorised user trying to reach shelter locations and being blocked.
+
+## 7. Other differences between the design and the plan (to decide)
 
 | Topic | Plan says | Design says |
 |---|---|---|
-| Sign-in | Routes, shelters and dispatch reports only after login; demo shows a logged-out user blocked | "There is no sign-in screen" |
 | Navigation | In-app turn list, or hand-off to the phone's map app | Navigation inside CIVISAR only, no hand-off to a phone app |
 | Delay of new detections | Delayed by days | 72 hours after a pass |
 | Fire sources | NOAA-20 and NOAA-21 | Alert card also lists S-NPP |

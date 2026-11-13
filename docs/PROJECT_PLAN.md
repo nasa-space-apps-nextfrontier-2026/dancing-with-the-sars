@@ -324,5 +324,5 @@ Smaller demo parts: movement trend, full agent system, polarization story.
 3. Download UNOSAT / UNDP reference data for the chosen area.
 4. Check OSM completeness for roads, buildings and `building:levels` in the area.
 5. Verify items marked **(unverified)**.
-6. Settle the four differences between the UI design and this plan ([UI_DESIGN.md](UI_DESIGN.md) section 6), then write the architecture. Demo form decided: web app.
+6. Add the sign-in screen and logged-out view to the UI design (login required, decided). Settle the three other differences ([UI_DESIGN.md](UI_DESIGN.md) section 7), then write the architecture. Demo form decided: web app.
 7. Prepare the safety-agent demonstration.
