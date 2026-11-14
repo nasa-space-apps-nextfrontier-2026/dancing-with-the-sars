@@ -8,4 +8,6 @@ geoalchemy2>=0.15,<1
 alembic>=1.13,<2
 geopandas==1.2.0
 h3==4.5.0
+numpy==2.3.3
+rasterio==1.5.2
 shapely==2.2.0
