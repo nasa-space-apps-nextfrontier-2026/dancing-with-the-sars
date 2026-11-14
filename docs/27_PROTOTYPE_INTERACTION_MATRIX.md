@@ -1,5 +1,7 @@
 # Prototype interaction matrix
 
+> **Phase 5.1 update:** React now has routes for all ten prototype views and working source filters, inspector tabs, route direction, shelter density, sign-in, print and main dock controls. Prototype pass playback, map callouts, exact route/shelter selection and phone alert detail remain unavailable. See [Phase 5.1 report](30_PHASE5_1_UI_FIDELITY_COMPLETION.md) for current behavior and gaps. Earlier status rows below are the Phase 5 baseline.
+
 | UI element | Prototype behavior / reference | React behavior | API / role | Status and test / mismatch |
 |---|---|---|---|---|
 | Header navigation | `topbar`, `data-go`, lines 1203–1212, 1284+ | React Router links | Route roles | Operational; visual header differs |

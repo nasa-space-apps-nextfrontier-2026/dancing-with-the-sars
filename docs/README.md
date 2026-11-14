@@ -59,4 +59,6 @@ Start with the source audit, scope, architecture and your member task file. Free
 
 ## Actual validation
 
+The [Phase 5.1 UI fidelity report](30_PHASE5_1_UI_FIDELITY_COMPLETION.md) records the ten React view structures, repeatable Chrome screenshot pairs and the remaining major visual deviations. Browser capture is working; prototype fidelity is not yet accepted.
+
 See [planning verification](16_PLANNING_VERIFICATION.md) for executed checks and limits. [Application acceptance](10_TESTING_AND_ACCEPTANCE_PLAN.md) contains future tests and does not imply they already ran. [Git workflow](11_DEVOPS_DEPLOYMENT_AND_GIT_WORKFLOW.md) distinguishes local branch setup from optional remote publication.

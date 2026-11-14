@@ -1,5 +1,7 @@
 # Prototype visual verification
 
+> **Phase 5.1 update (14 November 2026):** Chrome DevTools screenshot capture now works. The original Phase 5 blocker and the table below describe the earlier run. Current paired images for all ten base views at five sizes are in `docs/visual/phase5_1_current/`; the repeatable command is `node frontend/scripts/capture-visual.mjs`. The interactive overlay is `compare.html`. Shared header, dock icons, view structures and source screen have advanced. The reviewed 1440×900 main and area pairs still show major deviations, including the blank headless MapLibre canvas. Overall status is **MAJOR DEVIATION**. See [Phase 5.1 report](30_PHASE5_1_UI_FIDELITY_COMPLETION.md).
+
 Reference checksum: `ABA74D61000B83956D61CE4A50A1CBDDB03C81C714F433C804FC417122A2D037` (`docs/design/civisar-prototype.html`).
 
 **Final acceptance: NOT VERIFIED.** No matched screenshot pairs or image diffs were captured. The browser inventory reported its browser access host unavailable. A Windows Brave window showed that a local prototype tab exists, but window activation and user input interrupted capture. No pixel fidelity claim follows from the passing build or DOM tests.
