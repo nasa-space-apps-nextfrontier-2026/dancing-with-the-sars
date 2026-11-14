@@ -9,7 +9,7 @@ Decided 14 November 2026. This is the single source of truth for who does what a
 | Member 1 | **Udula** | ML: NISAR damage model end to end. **All large radar downloads** and model training on the strong machine |
 | Member 2 | **Thanoban** | ML on small data: night-light power-loss model, fire event model, strike-enrichment tests. Trains on free Google Colab ([plan](18_THANOBAN_ML_PLAN_AND_COLAB.md)). No backend, no radar downloads. Demo, video and submission from H38 |
 | Member 3 | **Rashiru** | **All frontend, all backend and all data work** (with Claude Code and Claude Design), and **manager of all PRs** |
-| Member 4 | **Chames** | No tasks assigned (14 Nov 2026). Standby: first candidates to take from Rashiru are data tasks M2-01 to M2-05 and worker/hosting M3-04 |
+| Member 4 | **Chames** | Not working on the project (14 Nov 2026 decision). No tasks, no reviews |
 
 ## ML rules
 

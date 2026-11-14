@@ -16,7 +16,7 @@ Updated 14 Nov 2026: the task IDs M1 to M4 are work-package IDs; the owner is th
 | Member 1 | Udula | NISAR damage model end to end; all large radar downloads and training (strong machine) | [Udula tasks](tasks/MEMBER_1_UDULA_NISAR_ML.md) | `feature/m1-*` |
 | Member 2 | Thanoban | Small-data ML (night-light power loss, fire events), strike-enrichment evidence tests, demo and submission. Trains on free Google Colab, not locally ([plan](18_THANOBAN_ML_PLAN_AND_COLAB.md)). No backend | [Thanoban tasks](tasks/MEMBER_2_THANOBAN_SMALL_DATA_ML.md) | `feature/m1-04-*` |
 | Member 3 | Rashiru | **All frontend and all backend** (database, sign-in, safety, API, data, alerts, routes, shelters, worker, hosting) and **manager of all PRs** | [Rashiru tasks](tasks/MEMBER_3_RASHIRU_FRONTEND_BACKEND.md) | `feature/m2-*`, `feature/m3-*`, `feature/m4-*` |
-| Member 4 | Chames | No tasks assigned (14 Nov 2026 decision) | [Chames note](tasks/MEMBER_4_CHAMES_BACKEND_DATA.md) | none |
+| Member 4 | Chames | Not working on the project (14 Nov 2026 decision). No tasks, no reviews | [Chames note](tasks/MEMBER_4_CHAMES_BACKEND_DATA.md) | none |
 
 Branches, PR rules and code ownership are in [17_TEAM_ASSIGNMENT_AND_BRANCHES.md](17_TEAM_ASSIGNMENT_AND_BRANCHES.md).
 
@@ -63,7 +63,7 @@ R/A = one accountable implementer; C = named cross-review or domain consultation
 
 ## Workload balance
 
-Approximate active hours after the 14 Nov 2026 decision: Udula about 25, Thanoban about 22 plus the demo, **Rashiru about 85** (all frontend, all backend, all data work and PR management). That is more than one person can do in 48 hours, even with Claude Code and Claude Design, so the cut order in ARCHITECTURE.md is mandatory, not optional: after the NISAR map, sign-in with roles and the safety rules, cut Gemini box, coherence, phone layout and print, open-land shelters, late slider passes. Start every screen on mock data at H2. Once the ML tasks are done (about H30), Udula and Thanoban can take over named tasks from Rashiru by agreement, through a PR that changes the owner field. Chames, if available, can take M2-01 to M2-05 and M3-04 first.
+Approximate active hours after the 14 Nov 2026 decision: Udula about 25, Thanoban about 22 plus the demo, **Rashiru about 85** (all frontend, all backend, all data work and PR management). That is more than one person can do in 48 hours, even with Claude Code and Claude Design, so the cut order in ARCHITECTURE.md is mandatory, not optional: after the NISAR map, sign-in with roles and the safety rules, cut Gemini box, coherence, phone layout and print, open-land shelters, late slider passes. Start every screen on mock data at H2. Once the ML tasks are done (about H30), Udula and Thanoban can take over named tasks from Rashiru by agreement, through a PR that changes the owner field.
 
 ## Team conventions
 

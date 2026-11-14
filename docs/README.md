@@ -33,7 +33,7 @@ Start with the source audit, scope, architecture and your member task file. Free
 - [Udula (Member 1): NISAR ML](tasks/MEMBER_1_UDULA_NISAR_ML.md)
 - [Thanoban (Member 2): small-data ML](tasks/MEMBER_2_THANOBAN_SMALL_DATA_ML.md)
 - [Rashiru (Member 3): all frontend and backend](tasks/MEMBER_3_RASHIRU_FRONTEND_BACKEND.md)
-- [Chames (Member 4): no tasks assigned](tasks/MEMBER_4_CHAMES_BACKEND_DATA.md)
+- [Chames (Member 4): not on the project](tasks/MEMBER_4_CHAMES_BACKEND_DATA.md)
 - [Contract inventory and eight synthetic JSON examples](contracts/README.md)
 - [Draft OpenAPI](contracts/openapi.yaml)
 - [Planning manifest](contracts/planning_manifest.json)
