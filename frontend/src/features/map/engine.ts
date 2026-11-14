@@ -150,7 +150,7 @@ export class MapEngine {
     const is3D = mode === C.SceneMode.SCENE3D
     const v = new C.Viewer(el, {
       baseLayer: false, sceneMode: mode, animation: false, timeline: false, baseLayerPicker: false, geocoder: false, homeButton: false,
-      sceneModePicker: false, navigationHelpButton: false, fullscreenButton: false, infoBox: false, selectionIndicator: false,
+      sceneModePicker: false, navigationHelpButton: false, fullscreenButton: false, infoBox: false, selectionIndicator: false, showRenderLoopErrors: false,
       creditContainer: creditEl ?? document.createElement('div'), msaaSamples: 4,
       ...(this.token && is3D ? { terrain: C.Terrain.fromWorldTerrain({ requestVertexNormals: true, requestWaterMask: true }) } : {}),
     })
@@ -170,6 +170,21 @@ export class MapEngine {
     sc.light = new C.SunLight({ intensity: 2.2 })
     if (this.token && is3D) { v.shadows = true; v.shadowMap.softShadows = true; v.shadowMap.darkness = 0.45; v.shadowMap.size = 2048 }
     sc.postProcessStages.fxaa.enabled = true
+    sc.screenSpaceCameraController.minimumZoomDistance = 25 // never reach the anchored point itself
+    // self-heal: if Cesium ever hits a render error, reset the camera and restart rendering instead of freezing
+    const recover = (err: unknown) => {
+      console.warn('Render error, recovering', err)
+      this.orbitT = null; this.anchorTarget = null; this.flying = false
+      try { v.camera.cancelFlight(); v.camera.lookAtTransform(C.Matrix4.IDENTITY) } catch { /* camera already invalid */ }
+      if (is3D) v.camera.setView({ destination: C.Cartesian3.fromDegrees(BIRD.lon, BIRD.lat, BIRD.h), orientation: { heading: C.Math.toRadians(BIRD.heading), pitch: C.Math.toRadians(BIRD.pitch), roll: 0 } })
+      else v.camera.setView({ destination: REGION() })
+      setTimeout(() => { if (!v.isDestroyed()) v.useDefaultRenderLoop = true }, 0)
+      this.ev.orbit(false)
+      this.ev.banner('The map hit a rendering error and was reset to the regional view.')
+    }
+    sc.renderError.addEventListener((_s: C.Scene, err: unknown) => recover(err))
+    // watchdog: errors thrown outside Cesium's own guard also stop the loop; restart it the same way
+    const dog = setInterval(() => { if (this.destroyed || v.isDestroyed()) return clearInterval(dog); if (!v.useDefaultRenderLoop) recover('render loop stopped') }, 1000)
     return v
   }
   private setupImagery(v: C.Viewer) {
@@ -439,7 +454,8 @@ export class MapEngine {
     }
     if (this.flying) this.setPhase(h > 22000 ? 1 : h > 2600 ? 2 : 3)
     const o = this.orbitT
-    if (o) {
+    if (o && !(isFinite(o.range) && o.range > 10)) { this.orbitT = null; this.ev.orbit(false) }
+    else if (o) {
       // time-based: same angular speed at any frame rate; gentle ease-in for the first second
       const t = performance.now(), dt = Math.min(0.1, (t - o.last) / 1000); o.last = t
       const done = 2 * Math.PI - o.left, ease = isFinite(o.left) ? Math.min(1, 0.25 + done / 0.6) : 1
@@ -532,7 +548,7 @@ export class MapEngine {
     this.v3?.camera.lookAtTransform(C.Matrix4.IDENTITY)
     this.ev.orbit(false)
   }
-  private startFlight() { this.release(); this.clearBuildingHighlight(); this.v3?.camera.cancelFlight(); return ++this.flightId }
+  private startFlight() { this.v3?.camera.cancelFlight(); this.release(); this.clearBuildingHighlight(); return ++this.flightId }
   private fly(opts: Parameters<C.Camera['flyToBoundingSphere']>[1] & { sphere: C.BoundingSphere }) {
     return new Promise<void>(r => this.v3!.camera.flyToBoundingSphere(opts.sphere, { ...opts, complete: r, cancel: r }))
   }
@@ -596,7 +612,7 @@ export class MapEngine {
     const range = C.Cartesian3.distance(v.camera.positionWC, target)
     // read heading/pitch relative to the target so the turn starts exactly where the camera is (no jump)
     this.anchor(target)
-    this.orbitT = { target, range, pitch: Math.min(v.camera.pitch, C.Math.toRadians(-12)), heading: v.camera.heading, speed: (2 * Math.PI) / 40, left: Infinity, last: performance.now(), arrival: false }
+    this.orbitT = { target, range: Math.max(range, 60), pitch: Math.min(v.camera.pitch, C.Math.toRadians(-12)), heading: v.camera.heading, speed: (2 * Math.PI) / 40, left: Infinity, last: performance.now(), arrival: false }
     this.ev.orbit(true)
     return true
   }

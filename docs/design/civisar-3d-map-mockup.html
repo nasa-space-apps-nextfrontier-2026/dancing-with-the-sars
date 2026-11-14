@@ -437,7 +437,7 @@ function updateCredit(){
 function makeViewer(el, mode){
   const opts = {baseLayer:false, sceneMode:mode, animation:false, timeline:false, baseLayerPicker:false, geocoder:false,
     homeButton:false, sceneModePicker:false, navigationHelpButton:false, fullscreenButton:false, infoBox:false,
-    selectionIndicator:false, creditContainer: mode===C.SceneMode.SCENE3D ? $("#ccx") : document.createElement("div"), msaaSamples:4};
+    selectionIndicator:false, showRenderLoopErrors:false, creditContainer: mode===C.SceneMode.SCENE3D ? $("#ccx") : document.createElement("div"), msaaSamples:4};
   if (S.token && mode===C.SceneMode.SCENE3D) opts.terrain = C.Terrain.fromWorldTerrain({requestVertexNormals:true, requestWaterMask:true});
   const v = new C.Viewer(el, opts);
   setupImagery(v);
@@ -455,6 +455,19 @@ function makeViewer(el, mode){
   sc.light = new C.SunLight({intensity:2.2});
   if (S.token && mode===C.SceneMode.SCENE3D) { v.shadows = true; v.shadowMap.softShadows = true; v.shadowMap.darkness = 0.45; v.shadowMap.size = 2048; }
   sc.postProcessStages.fxaa.enabled = true;
+  sc.screenSpaceCameraController.minimumZoomDistance = 25; // never reach the anchored point itself
+  // self-heal: if Cesium ever hits a render error, reset the camera and restart rendering instead of freezing
+  const recover = (err) => {
+    console.warn("Render error, recovering", err);
+    S.orbit = false; S.orbitT = null; S.anchorT = null; S.flying = false;
+    try { v.camera.cancelFlight(); v.camera.lookAtTransform(C.Matrix4.IDENTITY); } catch (e) {}
+    v.camera.setView({destination:C.Cartesian3.fromDegrees(BIRD.lon,BIRD.lat,BIRD.h), orientation:{heading:C.Math.toRadians(BIRD.heading), pitch:C.Math.toRadians(BIRD.pitch), roll:0}});
+    setTimeout(() => { v.useDefaultRenderLoop = true; }, 0);
+    if (typeof banner === "function") banner("The 3D view hit a rendering error and was reset to the regional view.");
+  };
+  sc.renderError.addEventListener((scene, err) => recover(err));
+  // watchdog: errors thrown outside Cesium's own guard also stop the loop; restart it the same way
+  const dog = setInterval(() => { if (v.isDestroyed()) return clearInterval(dog); if (!v.useDefaultRenderLoop) recover("render loop stopped"); }, 1000);
   return v;
 }
 
@@ -818,6 +831,7 @@ function tick(v){
   }
   if (S.flying) setPhase(h > 22000 ? 1 : h > 2600 ? 2 : 3);
   const o = S.orbitT;
+  if (S.orbit && o && !(isFinite(o.range) && o.range > 10)) { S.orbit = false; S.orbitT = null; }
   if (S.orbit && o) {
     // time-based: same angular speed at any frame rate; gentle ease-in at the start
     const t = performance.now(), dt = Math.min(0.1, (t - o.last)/1000); o.last = t;
@@ -851,7 +865,7 @@ function release(){
   S.v3 && S.v3.camera.lookAtTransform(C.Matrix4.IDENTITY);
   $("#orbitBtn").setAttribute("aria-pressed","false");
 }
-function startFlight(){ release(); if (S.edge) S.edge.selected=[]; S.v3 && S.v3.camera.cancelFlight(); return ++flightId; }
+function startFlight(){ S.v3 && S.v3.camera.cancelFlight(); release(); if (S.edge) S.edge.selected=[]; return ++flightId; }
 const flyP = (v, sphere, o) => new Promise(r => v.camera.flyToBoundingSphere(sphere, Object.assign({}, o, {complete:r, cancel:r})));
 function flyBird(duration){
   const id = startFlight(), v=S.v3; if(!v) return;
@@ -909,7 +923,7 @@ function startOrbit(){
   v.camera.cancelFlight(); S.flying = false;
   const range = C.Cartesian3.distance(v.camera.positionWC, target);
   anchor(target);
-  S.orbitT = {target, range, pitch:Math.min(v.camera.pitch, C.Math.toRadians(-12)), heading:v.camera.heading, speed:2*Math.PI/40, left:Infinity, last:performance.now(), arrival:false};
+  S.orbitT = {target, range:Math.max(range, 60), pitch:Math.min(v.camera.pitch, C.Math.toRadians(-12)), heading:v.camera.heading, speed:2*Math.PI/40, left:Infinity, last:performance.now(), arrival:false};
   S.orbit = true; $("#orbitBtn").setAttribute("aria-pressed","true");
 }
 // stops turning but keeps the camera anchored on the place
