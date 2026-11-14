@@ -62,6 +62,17 @@ def _value(area: str, metric: str, low: int, high: int, label: str, sources: lis
             "freshness": "Stale", "cached": True, "limitations": limitations}
 
 
+def services_from(visible_alerts: list[Any]) -> list[dict[str, Any]]:
+    """Power from released "Possible power loss" alerts; water, health and comms stay Unknown."""
+    power = [a for a in visible_alerts if a.type == "possible_power_loss"]
+    return [{"type": "power", "status": "Possible loss" if power else "Unknown",
+             "label": power[0].label if power else "Unknown",
+             "source": list(power[0].source) if power else [],
+             "date": iso(power[0].detected_at) if power else None},
+            *({"type": t, "status": "Unknown", "label": "Unknown", "source": [], "date": None}
+              for t in ("water", "health", "comms"))]
+
+
 def area_summary(engine: Any, area_id: str, identity: Identity) -> dict[str, Any] | None:
     """Held (unreleased) records are left out for every role; Admin is not a bypass for the hold or for area scope (doc 07)."""
     from sqlalchemy import text
@@ -88,7 +99,7 @@ def area_summary(engine: Any, area_id: str, identity: Identity) -> dict[str, Any
             "SELECT record FROM metric_values WHERE area_id = :a AND run_id = :r"),
             {"a": area_id, "r": art.run_id if art else ""}).all()
         alerts = conn.execute(text(
-            "SELECT alert_id, type, label, release_at, source FROM alerts WHERE area_id = :a "
+            "SELECT alert_id, type, label, release_at, source, detected_at FROM alerts WHERE area_id = :a "
             "ORDER BY detected_at DESC"), {"a": area_id}).all()
 
     shown = [r for r in results if is_released(r.release_at)]
@@ -123,11 +134,7 @@ def area_summary(engine: Any, area_id: str, identity: Identity) -> dict[str, Any
 
     visible_alerts = [a for a in alerts if is_released(a.release_at)]
     power = [a for a in visible_alerts if a.type == "possible_power_loss"]
-    services = [{"type": "power", "status": "Possible loss" if power else "Unknown",
-                 "label": power[0].label if power else "Unknown",
-                 "source": list(power[0].source) if power else [], "date": None},
-                *({"type": t, "status": "Unknown", "label": "Unknown", "source": [], "date": None}
-                  for t in ("water", "health", "comms"))]
+    services = services_from(visible_alerts)
     bring = [{"item": "Generators and lights", "basis_value_ids": [a.alert_id for a in power], "quantity": None}
              ] if power else []
     bring.append({"item": "Verify water and health services before supply planning",

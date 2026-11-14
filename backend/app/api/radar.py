@@ -20,6 +20,10 @@ RADAR_PATHS = {"/layers", "/layers/{layer_id}", "/layers/{layer_id}/tiles/{z}/{x
                "/layers/{layer_id}/timeseries", "/areas/{area_id}/damage",
                "/values/{value_id}/trace"}
 LIVE_PATHS = {"/alerts", "/alerts/{alert_id}", "/status"}
+AREA_PATHS = {"/areas", "/areas/{area_id}/values", "/areas/{area_id}/people", "/areas/{area_id}/services",
+              "/areas/{area_id}/validation", "/areas/{area_id}/facilities", "/sources", "/sources/{source_id}"}
+ADMIN_PATHS = {"/admin/audit", "/admin/users/{user_id}/roles", "/admin/jobs/{job_id}/retry",
+               "/alerts/{alert_id}/reviews"}
 BRIEF_PATHS = {"/areas/{area_id}/summary", "/briefs", "/briefs/{report_id}", "/briefs/{report_id}/print"}
 
 
@@ -34,6 +38,10 @@ async def handle(request: Request, path: str, identity: Identity | None,
                  error: Callable[[str, str, int, Request], Response]) -> Any:
     if path in BRIEF_PATHS:
         return await handle_briefs(request, path, identity, error)
+    if path in AREA_PATHS:
+        return handle_areas(request, path, identity, error)
+    if path in ADMIN_PATHS:
+        return await handle_admin(request, path, identity, error)
     if path in LIVE_PATHS:
         return handle_live(request, path, identity, error)
     if path not in RADAR_PATHS:
@@ -144,10 +152,14 @@ async def handle_briefs(request: Request, path: str, identity: Identity | None,
                 dt.datetime.fromisoformat(body["as_of"])
             except ValueError:
                 return error("INVALID_REQUEST", "'as_of' must be an ISO date or time.", 422, request)
+            from backend.app.services import admin_real
+
             try:
                 brief = briefs_real.create(engine(), identity, body["area_id"])
             except PermissionError:
                 return error("FORBIDDEN", "Your role cannot access this resource.", 403, request)
+            admin_real.audit(engine(), identity.user_id, "brief_create", "brief",
+                             "success" if brief else "not_found", request.state.request_id)
             return brief if brief is not None else error("NOT_FOUND", "Area not found.", 404, request)
     except summary_real.Unavailable:
         return error("UNAVAILABLE", "Population data is not loaded; people ranges are unavailable.", 503, request)
@@ -159,3 +171,149 @@ async def handle_briefs(request: Request, path: str, identity: Identity | None,
             "Cache-Control": "private, no-store",
             "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'"})
     return brief
+
+
+def _page(q: Any, default: int, maximum: int) -> tuple[int, int] | None:
+    try:
+        limit, offset = int(q.get("limit", str(default))), int(q.get("cursor", "0"))
+    except ValueError:
+        return None
+    return (limit, offset) if 1 <= limit <= maximum and offset >= 0 else None
+
+
+def _iso(value: str | None) -> Any:
+    """None when absent; False when not an ISO date/time; otherwise an aware datetime."""
+    import datetime as dt
+
+    if not value:
+        return None
+    try:
+        t = dt.datetime.fromisoformat(value)
+    except ValueError:
+        return False
+    return t if t.tzinfo else t.replace(tzinfo=dt.UTC)
+
+
+def handle_areas(request: Request, path: str, identity: Identity | None,
+                 error: Callable[[str, str, int, Request], Response]) -> Any:
+    import json
+
+    from backend.app.services import areas_real, summary_real
+
+    p, q = request.path_params, request.query_params
+    if path in ("/sources", "/sources/{source_id}"):
+        f = radar_real.data_root() / "local" / "radar_contract" / "sources.json"
+        if not f.exists():
+            return error("UNAVAILABLE", "No approved source catalogue is loaded.", 503, request)
+        records = json.loads(f.read_text(encoding="utf-8"))
+        if path == "/sources/{source_id}":
+            found = next((r for r in records if r["source_id"] == p["source_id"]), None)
+            return found if found is not None else error("NOT_FOUND", "Source not found.", 404, request)
+        page = _page(q, 50, 100)
+        if page is None:
+            return error("INVALID_REQUEST", "Bad cursor.", 422, request)
+        limit, offset = page
+        return {"synthetic": False, "items": records[offset:offset + limit],
+                "next_cursor": str(offset + limit) if offset + limit < len(records) else None}
+    if path == "/areas/{area_id}/facilities":
+        return error("UNAVAILABLE", "Facility data is not loaded yet.", 503, request)
+    if path == "/areas":
+        page = _page(q, 100, 500)
+        if page is None:
+            return error("INVALID_REQUEST", "limit must be 1-500 and cursor not negative.", 422, request)
+        bbox = None
+        if q.get("bbox"):
+            try:
+                w, s, e, n = (float(x) for x in q["bbox"].split(","))
+            except ValueError:
+                return error("INVALID_REQUEST", "bbox must be minLon,minLat,maxLon,maxLat.", 422, request)
+            if not (-180 <= w < e <= 180 and -90 <= s < n <= 90):
+                return error("INVALID_REQUEST", "bbox must be minLon,minLat,maxLon,maxLat.", 422, request)
+            bbox = (w, s, e, n)
+        return areas_real.list_areas(engine(), identity, bbox, *page)
+    area = p["area_id"]
+    if path == "/areas/{area_id}/values":
+        page = _page(q, 100, 100)
+        as_of = _iso(q.get("as_of"))
+        if page is None or as_of is False:
+            return error("INVALID_REQUEST", "Bad cursor or as_of.", 422, request)
+        found = areas_real.values(engine(), area, q.get("metric"), q.get("as_of"), *page)
+    elif path == "/areas/{area_id}/people":
+        if _iso(q.get("as_of")) is False:
+            return error("INVALID_REQUEST", "'as_of' must be an ISO date or time.", 422, request)
+        try:
+            found = areas_real.people(engine(), area, identity)
+        except summary_real.Unavailable:
+            return error("UNAVAILABLE", "Population data is not loaded; people ranges are unavailable.",
+                         503, request)
+    elif path == "/areas/{area_id}/services":
+        found = areas_real.services(engine(), area)
+    else:
+        found = areas_real.validation(engine(), area)
+    return found if found is not None else error("NOT_FOUND", "Area not found.", 404, request)
+
+
+async def _body(request: Request, keys: set[str]) -> dict | None:
+    import json
+
+    try:
+        body = await request.json()
+    except (ValueError, json.JSONDecodeError):
+        return None
+    return body if isinstance(body, dict) and set(body) == keys else None
+
+
+async def handle_admin(request: Request, path: str, identity: Identity | None,
+                       error: Callable[[str, str, int, Request], Response]) -> Any:
+    from backend.app.core.permissions import ROLE_LEVEL
+    from backend.app.services import admin_real
+
+    p, rid = request.path_params, request.state.request_id
+    if path == "/admin/audit":
+        page = _page(request.query_params, 100, 100)
+        start, end = _iso(request.query_params.get("from")), _iso(request.query_params.get("to"))
+        if page is None or start is False or end is False:
+            return error("INVALID_REQUEST", "Bad cursor, from or to.", 422, request)
+        return admin_real.list_audit(engine(), start, end, *page)
+
+    if path == "/alerts/{alert_id}/reviews":
+        body = await _body(request, {"status", "note"})
+        if (body is None or body["status"] not in admin_real.REVIEW_STATUSES
+                or not isinstance(body["note"], str) or len(body["note"]) > 1000):
+            return error("INVALID_REQUEST", "Body must be {status, note}; status one of "
+                         + ", ".join(admin_real.REVIEW_STATUSES) + "; note up to 1000 characters.",
+                         422, request)
+        review = admin_real.review_alert(engine(), identity, p["alert_id"], body["status"], body["note"])
+        admin_real.audit(engine(), identity.user_id, "alert_review", "alert",
+                         "success" if review else "not_found", rid)
+        return review if review is not None else error("NOT_FOUND", "Alert not found.", 404, request)
+
+    if path == "/admin/users/{user_id}/roles":
+        body = await _body(request, {"role", "area_scopes", "reason"})
+        if (body is None or body["role"] not in ROLE_LEVEL or not isinstance(body["area_scopes"], list)
+                or not all(isinstance(x, str) and x for x in body["area_scopes"])
+                or not isinstance(body["reason"], str) or not body["reason"].strip()
+                or len(body["reason"]) > 500):
+            return error("INVALID_REQUEST", "Body must be {role, area_scopes, reason}.", 422, request)
+        try:
+            out = admin_real.set_access(engine(), identity, p["user_id"], body["role"],
+                                        body["area_scopes"], body["reason"].strip())
+        except admin_real.Conflict as exc:
+            return error("CONFLICT", str(exc), 409, request)
+        admin_real.audit(engine(), identity.user_id, "role_change", "user",
+                         "success" if out else "not_found", rid)
+        return out if out is not None else error("NOT_FOUND", "User not found.", 404, request)
+
+    # /admin/jobs/{job_id}/retry
+    body = await _body(request, {"idempotency_key"})
+    key = body["idempotency_key"] if body else None
+    if not isinstance(key, str) or not 1 <= len(key) <= 100:
+        return error("INVALID_REQUEST", "Body must be {idempotency_key} (1-100 characters).", 422, request)
+    if p["job_id"] not in admin_real.JOB_IDS:
+        return error("NOT_FOUND", "Job not found.", 404, request)
+    try:
+        job = admin_real.retry_job(engine(), identity, p["job_id"], key)
+    except admin_real.Conflict as exc:
+        return error("CONFLICT", str(exc), 409, request)
+    admin_real.audit(engine(), identity.user_id, "job_retry", "job", job["status"], rid)
+    return job

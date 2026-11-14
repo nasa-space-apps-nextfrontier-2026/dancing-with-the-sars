@@ -69,3 +69,29 @@ def read_session(token: str | None) -> tuple[Identity, str] | None:
 def revoke_session(token: str | None) -> None:
     if token:
         _sessions.pop(hashlib.sha256(token.encode()).hexdigest(), None)
+
+def revoke_user(user_id: str) -> int:
+    """End every session of one user (used after a role change)."""
+    keys = [k for k, (identity, _, _) in _sessions.items() if identity.user_id == user_id]
+    for k in keys:
+        _sessions.pop(k, None)
+    return len(keys)
+
+# Login rate limit (doc 07): 5 failures per username + client in 15 minutes -> wait.
+LOGIN_WINDOW = 15 * 60
+LOGIN_MAX_FAILURES = 5
+_login_failures: dict[str, list[float]] = {}
+
+def login_retry_after(key: str) -> int | None:
+    now = time.time()
+    recent = [t for t in _login_failures.get(key, []) if t > now - LOGIN_WINDOW]
+    _login_failures[key] = recent
+    if len(recent) >= LOGIN_MAX_FAILURES:
+        return int(recent[0] + LOGIN_WINDOW - now) + 1
+    return None
+
+def note_login_failure(key: str) -> None:
+    _login_failures.setdefault(key, []).append(time.time())
+
+def clear_login_failures(key: str) -> None:
+    _login_failures.pop(key, None)

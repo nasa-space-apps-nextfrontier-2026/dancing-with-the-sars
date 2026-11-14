@@ -145,3 +145,17 @@ def run_power_loss(engine: Any, history_path: str | None) -> dict:
     latest = max((a["detected_at"] for a in alerts), default=None)
     store(engine, LIGHTS_SOURCE, alerts, latest, {"cells_flagged": len(alerts)})
     return {"source": LIGHTS_SOURCE, "status": "ok", "alerts": len(alerts)}
+
+
+def prune(engine: Any, audit_days: int = 30) -> dict:
+    """Daily retention (doc 07): audit rows older than 30 days and briefs past their expiry."""
+    from sqlalchemy import text
+
+    cutoff = now_utc() - dt.timedelta(days=audit_days)
+    try:
+        with engine.begin() as conn:
+            audit = conn.execute(text("DELETE FROM audit_events WHERE at < :c"), {"c": cutoff}).rowcount
+            briefs = conn.execute(text("DELETE FROM briefs WHERE expires_at < :n"), {"n": now_utc()}).rowcount
+    except Exception as exc:  # noqa: BLE001 - one failing job never stops the others
+        return {"job": "prune", "status": "failed", "error": type(exc).__name__}
+    return {"job": "prune", "status": "ok", "audit_deleted": audit, "briefs_deleted": briefs}

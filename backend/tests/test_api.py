@@ -77,8 +77,9 @@ def test_synthetic_area_and_source_match_canonical_contract(monkeypatch):
     get_settings.cache_clear()
 
 
-def test_synthetic_adapter_does_not_serve_as_real_data(monkeypatch):
+def test_synthetic_adapter_does_not_serve_as_real_data(monkeypatch, tmp_path):
     monkeypatch.setenv('DEMO_SYNTHETIC', 'false')
+    monkeypatch.setenv('DATA_ROOT', str(tmp_path))  # no real catalogue on this "server"
     monkeypatch.setenv('CIVISAR_DEMO_USERS_JSON', json.dumps({
         'analyst': {'password_hash': hash_password('local-test-password'),
                     'role': 'analyst', 'area_scopes': ['demo-area-01']}}))

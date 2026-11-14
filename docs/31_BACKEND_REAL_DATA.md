@@ -9,7 +9,7 @@ docker compose up -d db                      # or: $env:CIVISAR_DB_PORT=5433 if 
 .\.venv\Scripts\python.exe -m alembic -c backend/alembic.ini upgrade head
 ```
 
-Migrations: `0001_initial_postgis` (Rashiru), `0002_metric_value_records` (contract value id, release time and full record), `0003_alerts_and_source_status` (worker alerts and per-source fetch status) and `0004_briefs` (stored briefs). Every upgrade and downgrade were tested on `postgis/postgis:16-3.4`.
+Migrations: `0001_initial_postgis` (Rashiru), `0002_metric_value_records` (contract value id, release time and full record), `0003_alerts_and_source_status` (worker alerts and per-source fetch status) `0004_briefs` (stored briefs) and `0005_audit_reviews_access_jobs` (audit log, alert reviews, admin role changes, manual job runs). Every upgrade and downgrade were tested on `postgis/postgis:16-3.4`.
 
 ## 2. Load the radar results
 
@@ -44,6 +44,7 @@ CIVISAR_DEMO_USERS_JSON=...   # from python -m scripts.create_demo_user (default
 - **Fires**: Thanoban's `worker.services.firms_feed.current_events()` (public FIRMS feed, no key) -> "Fire detected" alerts. First real run (14 Nov 2026): 2 detections in the demo box over 7 days, latest 12 Nov.
 - **Possible power loss**: Thanoban's `power_loss_events()` on the per-cell night-light history set in `NIGHTLIGHT_HISTORY`; reports "unavailable" when the file is not on the machine.
 - Alerts keep only the H3 r8 neighbourhood (no coordinates). Same event -> same alert id. A failed fetch keeps the last good alerts and records the failure (shown as Cached).
+- **Clean-up** (daily): deletes audit rows older than 30 days and briefs past their expiry (doc 07 retention).
 - `FIRE_RELEASE_DELAY_HOURS` (default 0): fire alerts go to signed-in roles at once; the team can set a delay.
 
 ## 4. Real-data routes
@@ -59,6 +60,17 @@ CIVISAR_DEMO_USERS_JSON=...   # from python -m scripts.create_demo_user (default
 | `GET /alerts/{alert_id}` | analyst+ | One alert, or 404 (also when outside the user's scope) |
 | `GET /status` | public | Last success, freshness and Cached flag per source (FIRMS, NISAR). Never shows error text. |
 | `GET /values/{value_id}/trace` | analyst+ | The value, its source records and the model tests of its run |
+| `GET /areas?bbox&cursor&limit` | analyst+ | H3 r8 neighbourhoods in the user's scope (bbox = minLon,minLat,maxLon,maxLat) |
+| `GET /areas/{area_id}/values?metric&as_of` | analyst+ | Released MetricValue records for the area |
+| `GET /areas/{area_id}/people` | analyst+ | The three people ranges; 503 until population is loaded |
+| `GET /areas/{area_id}/services` | analyst+ | Power from released power-loss alerts; water, health, comms Unknown |
+| `GET /areas/{area_id}/validation` | analyst+ | Empty list with `availability: unavailable...`: no independent damage assessment exists yet |
+| `GET /areas/{area_id}/facilities` | analyst+ | 503 until Kisara's facility data is loaded (never an empty "no facilities") |
+| `GET /sources`, `GET /sources/{id}` | public | Source records from the contract export; 503 when none are loaded |
+| `POST /alerts/{alert_id}/reviews` | analyst+, CSRF | Body `{status, note}`, status `reviewed` / `needs_follow_up` / `not_relevant`. Only on alerts the reviewer may see. |
+| `GET /admin/audit?from&to&cursor` | admin | Last 30 days: actor, action, coarse resource type, outcome, time |
+| `PATCH /admin/users/{user_id}/roles` | admin, CSRF | Body `{role, area_scopes, reason}`. Ends that user's sessions; applies at their next sign-in. An admin cannot remove their own admin role (409). |
+| `POST /admin/jobs/{job_id}/retry` | admin, CSRF | `fires` or `night_lights`, body `{idempotency_key}`. The same key never runs twice; reused for another job -> 409. |
 | `GET /areas/{area_id}/summary` | analyst+ | AreaSummary: people ranges, services, hazards, evidence. **503 until the population file is loaded** (see 4a). |
 | `POST /briefs` | analyst+, CSRF | Body `{area_id, as_of}`. Freezes the summary into a brief (expires after 8 hours). |
 | `GET /briefs/{report_id}` | signed in | The brief, re-checked on every read: area scope, expiry, role sections |
@@ -73,6 +85,9 @@ CIVISAR_DEMO_USERS_JSON=...   # from python -m scripts.create_demo_user (default
 - The WorldPop source record is not in `sources.json` yet, so brief footnotes list only the radar sources.
 
 ## 5. Safety rules in the server
+
+- **Sign-in**: 5 failed attempts per username and client in 15 minutes -> 429 with `Retry-After`. Roles set by an admin are read from the database at sign-in; if the database is down, sign-in fails (503) rather than falling back to an old role. `/roles` lists the role's capabilities (doc 07 matrix).
+- **Audit** (`audit_events`): sign-in (failed ones as `anonymous`, never the typed name), sign-out, 403 denials, brief creation, alert reviews, role changes, job runs. Only actor, action, coarse resource type, outcome, time and request id: no coordinates, tokens, passwords or request bodies.
 
 - **Area scope** (`backend/app/policy/scope.py`): `south-lebanon-demo` covers every H3 cell whose centre is in the demo box; an H3 cell covers its finer children; fixture ids match exactly. Areas outside the scope get 403.
 - **72-hour hold** (`backend/app/policy/release.py`): records whose `release_at` has not passed are hidden from every role. Admin is not a bypass for the hold or for area scope (doc 07).

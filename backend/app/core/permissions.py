@@ -20,3 +20,16 @@ def allowed(identity: Identity | None, role: str, area_id: str | None = None) ->
 
 def is_private_layer(layer_id: str) -> bool:
     return layer_id not in ('public-safe-demo',)
+
+# Cumulative capabilities per role (doc 07 role matrix); always intersected with area scope.
+_CAPS = {
+    'analyst': ['view_damage', 'view_people', 'view_services', 'view_alerts', 'view_validation',
+                'review_alerts', 'create_briefs', 'trace_values'],
+    'officer': ['view_routes', 'report_closures'],
+    'coordinator': ['confirm_closures', 'view_shelters', 'record_field_checks'],
+    'admin': ['manage_roles', 'retry_jobs', 'view_audit'],
+}
+
+def capabilities(role: str) -> list[str]:
+    level = ROLE_LEVEL.get(role, 0)
+    return [cap for r, caps in _CAPS.items() if ROLE_LEVEL[r] <= level for cap in caps]

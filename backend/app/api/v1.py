@@ -3,8 +3,16 @@ from pathlib import Path
 
 from backend.app.api import radar
 from backend.app.core.config import get_settings
-from backend.app.core.permissions import allowed, is_private_layer
-from backend.app.core.security import authenticate, issue_session, read_session, revoke_session
+from backend.app.core.permissions import allowed, capabilities, is_private_layer
+from backend.app.core.security import (
+    authenticate,
+    clear_login_failures,
+    issue_session,
+    login_retry_after,
+    note_login_failure,
+    read_session,
+    revoke_session,
+)
 from backend.app.services.radar_catalog import layer_catalog, observation_series
 from backend.app.services.synthetic_area import area_summary, enabled, source_record
 from fastapi import FastAPI, Request
@@ -27,6 +35,12 @@ def error(code: str, message: str, status: int, request: Request) -> JSONRespons
 
 def current(request: Request):
     return read_session(request.cookies.get('civisar_session'))
+
+def audit(request: Request, actor: str, action: str, resource_type: str, outcome: str) -> None:
+    """Real-data mode only (the synthetic demo has no database)."""
+    if not enabled():
+        from backend.app.services import admin_real
+        admin_real.audit(radar.engine(), actor, action, resource_type, outcome, request.state.request_id)
 
 def scope_from_request(request: Request, path: str) -> str | None:
     return request.path_params.get('area_id') or request.query_params.get('area_id')
@@ -59,11 +73,28 @@ def attach_routes(app: FastAPI) -> None:
                         data = Login.model_validate(await request.json())
                     except (ValueError, json.JSONDecodeError):
                         return error('INVALID_REQUEST', 'Invalid login request.', 422, request)
+                    limit_key = data.username.strip().lower() + '|' + (request.client.host if request.client else '')
+                    wait = login_retry_after(limit_key)
+                    if wait is not None:
+                        audit(request, 'anonymous', 'login', 'session', 'blocked')
+                        response = error('RATE_LIMITED', 'Too many failed sign-ins. Try again later.', 429, request)
+                        response.headers['Retry-After'] = str(wait)
+                        return response
                     identity = authenticate(data.username, data.password)
                     if identity is None:
+                        note_login_failure(limit_key)
+                        audit(request, 'anonymous', 'login', 'session', 'failure')  # never the typed name
                         return error('UNAUTHENTICATED', 'Invalid credentials.', 401, request)
+                    clear_login_failures(limit_key)
+                    if not enabled():
+                        from backend.app.services import admin_real
+                        try:  # a role set by an admin replaces the env one; fail closed
+                            identity = admin_real.apply_access(radar.engine(), identity)
+                        except admin_real.StoreError:
+                            return error('UNAVAILABLE', 'Sign-in is unavailable right now.', 503, request)
+                    audit(request, identity.user_id, 'login', 'session', 'success')
                     token, csrf = issue_session(identity)
-                    response = JSONResponse({'synthetic': True, 'user_id': identity.user_id,
+                    response = JSONResponse({'synthetic': get_settings().demo_synthetic, 'user_id': identity.user_id,
                         'role': identity.role, 'area_scopes': list(identity.area_scopes), 'csrf_token': csrf})
                     response.set_cookie('civisar_session', token, httponly=True,
                         secure=get_settings().cookie_secure, samesite='lax', max_age=28800)
@@ -71,8 +102,13 @@ def attach_routes(app: FastAPI) -> None:
                     return response
                 denial = authorize(request, _role, _path)
                 if denial:
+                    if denial.status_code == 403:
+                        session = current(request)
+                        audit(request, session[0].user_id if session else 'anonymous', 'access_denied',
+                              _path.strip('/').split('/')[0] or 'root', 'denied')
                     return denial
                 if _path == '/session' and _method == 'DELETE':
+                    audit(request, current(request)[0].user_id, 'logout', 'session', 'success')
                     revoke_session(request.cookies.get('civisar_session'))
                     response = Response(status_code=204)
                     response.delete_cookie('civisar_session')
@@ -91,11 +127,12 @@ def attach_routes(app: FastAPI) -> None:
                             'release_policy': '72h_and_review'}
                 if _path == '/session' and _method == 'GET':
                     identity, csrf = current(request)
-                    return {'synthetic': True, 'user_id': identity.user_id, 'role': identity.role,
-                            'area_scopes': list(identity.area_scopes), 'csrf_token': csrf}
+                    return {'synthetic': get_settings().demo_synthetic, 'user_id': identity.user_id,
+                            'role': identity.role, 'area_scopes': list(identity.area_scopes), 'csrf_token': csrf}
                 if _path == '/roles':
                     identity, _ = current(request)
-                    return {'synthetic': True, 'role': identity.role,
+                    return {'synthetic': get_settings().demo_synthetic, 'role': identity.role,
+                            'capabilities': capabilities(identity.role),
                             'area_scopes': list(identity.area_scopes)}
                 if _path == '/sources':
                     if not enabled():
