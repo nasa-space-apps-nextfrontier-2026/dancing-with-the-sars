@@ -1,10 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { BrowserRouter, Link, Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 import { api, type Session } from '../services/api'
 import { fixtures } from '../types/contracts'
 import { EvidenceLabel, DataAge, SystemState } from '../components/Evidence'
 import { MapPanel } from '../components/MapPanel'
-import { AreaExplorer } from '../features/area/AreaExplorer'
+import { PrototypeMain } from '../features/prototype/PrototypeMain'
 import { useAuth } from './useAuth'
 
 const pages = [
@@ -13,7 +13,7 @@ const pages = [
 ] as const
 
 function PublicPreview() { return <section><h2>Public-safe preview</h2><p>Sign in for authorized area analysis. No routes, shelters, dispatch locations or sensitive facilities appear here.</p><MapPanel/><SystemState kind="unavailable" message="No approved public layers are loaded in this scaffold."/></section> }
-function MainMap() { return <section><h2>NISAR change workspace</h2><p>January → June candidate comparison requires verified radar products. Source-reported gap: 20 January–17 June 2026; no passes are interpolated.</p><div className="map-grid"><aside><h3>Agent results</h3><SystemState kind="unavailable" message="No verified analysis yet."/><h3>Data layers</h3><p>NISAR CORE · HH / HV / HH−HV · no real raster loaded</p></aside><AreaExplorer/><aside><h3>Alert feed</h3><p>Synthetic example only</p><EvidenceLabel label={fixtures.alert.label}/><Link to="/alerts">Inspect example alert</Link></aside></div></section> }
+function MainMap() { return <PrototypeMain /> }
 function AlertDetail() { const a=fixtures.alert; return <section><h2>Alert detail</h2><p>{a.title}</p><EvidenceLabel label={a.label}/><DataAge freshness={a.freshness} cached={a.cached}/><p>{a.warning}</p><p>1 km and 3 km rings are reserved for authorized real data; this fixture has no coordinates.</p></section> }
 function AreaSummary() { const a=fixtures.area; return <section><h2>Area summary</h2><p>People first: synthetic baseline {a.people.residents.low}–{a.people.residents.high} {a.people.residents.unit}.</p><EvidenceLabel label={a.people.residents.label}/><p>{a.warning}</p><h3>What to bring</h3><p>Verify reported services before supply planning. No quantities are inferred.</p></section> }
 function AreaBrief() { return <section className="brief"><h2>Area brief · synthetic</h2><p>Printable A4 placeholder. Actual reports require server authorization and source footnotes.</p><button onClick={() => window.print()}>Print illustrative brief</button></section> }
@@ -37,7 +37,8 @@ export function App() {
   const { state, signIn, signOut, retry } = useAuth()
   const session = state.kind === 'signed_in' ? state.session : null
   const [theme, setTheme] = useState<'light' | 'dark'>('light')
-  return <BrowserRouter><div className={`app ${theme}`}>
+  useEffect(() => { document.documentElement.dataset.theme = theme }, [theme])
+  return <BrowserRouter><div className={`app prototype ${theme}`}>
     <header><div><strong>CIVISAR</strong><span> NASA Space Apps ? Dancing with the SARs</span></div><div>
       <span className="demo-mark">Illustrative demo data</span>
       <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} aria-label="Toggle theme">{theme === 'light' ? 'Dark' : 'Light'} theme</button>

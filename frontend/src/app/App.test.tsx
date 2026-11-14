@@ -81,4 +81,14 @@ describe('public-safe shell',()=>{
     expect(await screen.findByText(/Access denied for this area/)).toBeTruthy()
     expect(screen.getByText('NISAR change workspace')).toBeTruthy()
   })
+
+  it('opens prototype dock panels and filters empty alerts without inventing results', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({ok:true,json:async()=>({user_id:'analyst',role:'analyst',area_scopes:['demo-area-01'],csrf_token:'csrf',synthetic:true})})))
+    render(<App/>)
+    fireEvent.click(await screen.findByRole('button',{name:/Layers/}))
+    expect(screen.getByRole('complementary',{name:'Layers'})).toBeTruthy()
+    fireEvent.click(screen.getByRole('button',{name:/Alerts/}))
+    fireEvent.click(screen.getByRole('button',{name:'Radar'}))
+    expect(screen.getByText(/No verified radar alerts loaded/)).toBeTruthy()
+  })
 })

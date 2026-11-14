@@ -4,6 +4,8 @@
 
 **Implementation status:** [Phase 4 full-stack report](24_PHASE4_FULLSTACK_IMPLEMENTATION_REPORT.md) and [radar artifact handoff](25_RADAR_ARTIFACT_HANDOFF.md). The original source references below remain unchanged.
 
+**Phase 5 prototype work:** [UI audit](26_PROTOTYPE_UI_AUDIT.md), [interaction matrix](27_PROTOTYPE_INTERACTION_MATRIX.md), [visual verification](28_PROTOTYPE_VISUAL_VERIFICATION.md), and [implementation report](29_PHASE5_PROTOTYPE_IMPLEMENTATION_REPORT.md). Visual fidelity is not yet verified.
+
 Prepared 14 November 2026 from seven unchanged source references. This is a planning-only deliverable: no app, radar acquisition, live-data validation or deployment has been performed. Scientific observations are the source authors' **13 November 2026 snapshot**. Recommendations remain PROPOSED; missing scientific evidence stays VERIFY/BLOCKED.
 
 Start with the source audit, scope, architecture and your member task file. Freeze shared contracts at hour 2. Safety, role enforcement and provenance are release blockers.
