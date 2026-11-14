@@ -1,0 +1,36 @@
+{
+  "kind": "facilities_manifest",
+  "aoi": "south-lebanon-demo",
+  "bbox_wgs84": {
+    "west": 35.0,
+    "south": 33.0,
+    "east": 36.0,
+    "north": 33.6
+  },
+  "query": "Overpass API, demo box (35.0, 33.0, 36.0, 33.6), tags: amenity=clinic, amenity=hospital, amenity=school, healthcare=clinic, healthcare=hospital, man_made=water_tower, man_made=water_well, power=plant, power=substation; excluded: military=*, amenity=police, amenity=prison",
+  "source": "OpenStreetMap (Overpass API)",
+  "credit": "OpenStreetMap contributors",
+  "licence": "Open Data Commons Open Database License (ODbL)",
+  "generated_date": "2026-11-14",
+  "count_per_type": {
+    "clinic": 32,
+    "hospital": 45,
+    "power": 134,
+    "school": 187,
+    "water": 145
+  },
+  "total": 543,
+  "columns": [
+    "facility_id",
+    "type",
+    "name",
+    "lat",
+    "lon",
+    "cell_id",
+    "source",
+    "osm_timestamp",
+    "status",
+    "status_source"
+  ],
+  "output": "C:\\Users\\USER\\Desktop\\dancing-with-the-sars\\data\\manifests\\facilities.json"
+}
