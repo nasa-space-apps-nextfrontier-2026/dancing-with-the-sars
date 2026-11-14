@@ -28,3 +28,10 @@ def test_search_stops_when_page_is_short_and_manifest_counts():
     info = manifest(rows)
     assert info["counts"] == {"VJ146A2_NRT": 2}
     assert info["newest"]["VJ146A2_NRT"] == "2026-11-12"
+
+
+def test_start_and_end_dates_become_a_temporal_range():
+    url = build_query("VJ146A2", start="2026-07-01", end="2026-11-14")
+    assert "temporal=2026-07-01T00%3A00%3A00Z%2C2026-11-14T23%3A59%3A59Z" in url
+    assert "temporal=%2C" not in build_query("VJ146A2", end=None)
+    assert "temporal" not in build_query("VJ146A2")

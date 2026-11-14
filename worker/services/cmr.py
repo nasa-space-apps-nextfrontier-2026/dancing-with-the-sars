@@ -37,8 +37,15 @@ def build_query(short_name: str, bbox=DEMO_BBOX, start: str | None = None,
         "sort_key": "-start_date",
     }
     if start or end:
-        params["temporal"] = f"{start or ''},{end or ''}"
+        params["temporal"] = f"{_day(start, 'T00:00:00Z')},{_day(end, 'T23:59:59Z')}"
     return CMR_URL + "?" + urllib.parse.urlencode(params)
+
+
+def _day(value: str | None, suffix: str) -> str:
+    """Accept YYYY-MM-DD or a full timestamp; empty stays empty (open-ended)."""
+    if not value:
+        return ""
+    return value + suffix if len(value) == 10 else value
 
 
 def parse_response(short_name: str, payload: dict) -> list[Granule]:
