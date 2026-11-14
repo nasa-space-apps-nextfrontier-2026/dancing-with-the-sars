@@ -1,0 +1,106 @@
+{
+  "kind": "buildings_height",
+  "task": "U-02",
+  "synthetic": false,
+  "built_at": "2026-11-14T13:58:10Z",
+  "inputs": {
+    "buildings_base": {
+      "file": "data/local/buildings_base.parquet",
+      "sha256": "a45da7e1a3ea8543ec81688d28f22c0cda3d90c77a850d9b63dd37ebfa5f1399"
+    },
+    "ghs_obat": {
+      "file": "GHS_OBAT_CSV_LBN_E2020_R2024A_V1_0.csv",
+      "sha256": "9d1b4cda08c1c1a006f9580855b4e2852b92c370cf2cac691c9298122a0a0fcb",
+      "rows_in_box": 290362
+    }
+  },
+  "sources": {
+    "osm": "OpenStreetMap building:levels (ODbL 1.0, (c) OpenStreetMap contributors)",
+    "ghsl": "GHS-OBAT R2024A, European Commission JRC, CC BY 4.0, doi:10.2905/f41a22f1-5741-4c41-86eb-6384654f6927. Height = GHS-BUILT-H ANBH (100 m, ~2018) under Overture footprints",
+    "default": "Fixed range by building use (DEFAULT_RANGE in pipelines/buildings/heights.py)",
+    "not_used": "3D-GloBFP (all authors at Chinese institutions; excluded by project rule)"
+  },
+  "method": {
+    "order": [
+      "osm",
+      "ghsl",
+      "default"
+    ],
+    "storey_m": 3.0,
+    "osm_spread": 0.1,
+    "ghsl_below_m": 3.0,
+    "ghsl_above_m": 4.5,
+    "ghsl_floor_m": 2.5,
+    "ghsl_floor_range_m": [
+      3.0,
+      7.0
+    ],
+    "match_radius_m": 10.0,
+    "nearby_radius_m": 20.0,
+    "default_range_m": {
+      "residential": [
+        3.0,
+        12.0
+      ],
+      "school": [
+        4.0,
+        12.0
+      ],
+      "clinic": [
+        3.0,
+        9.0
+      ],
+      "hospital": [
+        6.0,
+        24.0
+      ],
+      "water": [
+        3.0,
+        15.0
+      ],
+      "power": [
+        3.0,
+        6.0
+      ],
+      "other": [
+        3.0,
+        9.0
+      ],
+      "unknown": [
+        3.0,
+        9.0
+      ]
+    }
+  },
+  "output": "data/local/buildings_height.parquet",
+  "output_sha256": "8adf0b0bc15fafcdedd991d576828a8ec2b85f788a55fbebbb0596600d227b29",
+  "buildings": 268536,
+  "height_source_share": {
+    "ghsl": 0.9003,
+    "default": 0.0981,
+    "osm": 0.0016
+  },
+  "ghsl_matched": {
+    "footprint": 178102,
+    "nearby": 64082,
+    "none": 26352
+  },
+  "ghsl_at_floor": 84400,
+  "use_ghsl_counts": {
+    "residential": 241486,
+    "not_matched": 26352,
+    "non_residential": 567,
+    "outside_built_up": 131
+  },
+  "height_range_m": {
+    "low_median": 3.0,
+    "high_median": 8.1
+  },
+  "limits": [
+    "Heights describe the building stock around 2018, before the war; they are not damage results.",
+    "GHSL heights are 100 m grid means: a tall building among low ones is underestimated.",
+    "31% of buildings have a GHSL value at the 2.5 m floor (not resolved); those get 3-7 m.",
+    "First check (14 Nov 2026) on 414 OSM-tagged buildings: GHSL within 3 m for 39%, range holds the tagged height for 51%; good for 1-2 storeys (78%), poor above (22-32%), towers about 11 m too low. These ranges are not final: U-03 calibrates them (docs/progress/BUILDING_HEIGHT_CHECK.md)."
+  ],
+  "rebuild": "python -m pipelines.buildings.heights"
+}
