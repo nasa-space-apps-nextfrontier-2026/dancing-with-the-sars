@@ -14,7 +14,8 @@ def allowed(identity: Identity | None, role: str, area_id: str | None = None) ->
         return role == 'public'
     if ROLE_LEVEL[identity.role] < required_level(role):
         return False
-    return not (area_id is not None and area_id not in identity.area_scopes)
+    return not (area_id is not None and '*' not in identity.area_scopes
+                and area_id not in identity.area_scopes)
 
 def is_private_layer(layer_id: str) -> bool:
     return layer_id not in ('public-safe-demo',)

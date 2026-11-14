@@ -2,7 +2,7 @@
   "schema_version": "0.1",
   "kind": "nisar_model_tests",
   "synthetic": false,
-  "created_at": "2026-11-14T07:15:16+00:00",
+  "created_at": "2026-11-14T07:46:23+00:00",
   "run_id": "e99a9b63914b68e6",
   "method": "isolation_forest",
   "quiet_controls": "UCDP candidate events (where_prec<=1, 2026-01-19..2026-06-24, n=428); no event within 2.0 km",
@@ -505,6 +505,55 @@
       ]
     }
   ],
+  "sentinel1_check": {
+    "before_dates": [
+      "20251214",
+      "20251220",
+      "20251226",
+      "20260101",
+      "20260107",
+      "20260113"
+    ],
+    "after_dates": [
+      "20260625",
+      "20260701",
+      "20260707",
+      "20260713",
+      "20260719"
+    ],
+    "agree_rule": "Sentinel-1 VV change robust z <= -2.0",
+    "by_class": {
+      "destroyed_or_severe_candidate": {
+        "cells": 17,
+        "s1_agrees": 2,
+        "share": 0.11764705882352941
+      },
+      "moderate_candidate": {
+        "cells": 26,
+        "s1_agrees": 4,
+        "share": 0.15384615384615385
+      },
+      "no_detected_change": {
+        "cells": 5518,
+        "s1_agrees": 122,
+        "share": 0.022109459949256977
+      },
+      "other_change": {
+        "cells": 84,
+        "s1_agrees": 0,
+        "share": 0.0
+      },
+      "possible_candidate": {
+        "cells": 134,
+        "s1_agrees": 7,
+        "share": 0.05223880597014925
+      }
+    },
+    "candidates_share": 0.07344632768361582,
+    "no_change_share": 0.022109459949256977,
+    "ratio": 3.3219412799851815,
+    "corroborated_cells": 13
+  },
   "claims_allowed": [
     "candidate change in dense built-up areas",
     "known false-alarm rate on quiet hold-out"

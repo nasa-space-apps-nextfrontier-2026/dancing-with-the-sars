@@ -1,16 +1,27 @@
 import json
+from functools import lru_cache
 from pathlib import Path
 
 from backend.app.core.config import get_settings
 from backend.app.core.permissions import allowed, is_private_layer
 from backend.app.core.security import authenticate, issue_session, read_session, revoke_session
 from backend.app.handlers import HANDLERS
+from backend.app.services.published import Store
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 ROOT = Path(__file__).resolve().parents[3]
 SPEC = json.loads((ROOT / 'docs/contracts/openapi.yaml').read_text(encoding='utf-8'))
+
+@lru_cache
+def _store(directory: str) -> Store:
+    return Store(directory)
+
+
+def store() -> Store:
+    return _store(get_settings().published_dir)
+
 
 class Login(BaseModel):
     username: str
@@ -81,10 +92,24 @@ def attach_routes(app: FastAPI) -> None:
                 if _path == '/health':
                     return {'status': 'ok', 'synthetic': get_settings().demo_synthetic}
                 if _path == '/status':
-                    return {'synthetic': True, 'sources': [], 'message': 'No live sources configured'}
+                    return store().status()
                 if _path == '/public/map':
-                    return {'synthetic': True, 'resolution': 8, 'layers': [], 'suppressed': True,
-                            'release_policy': '72h_and_review'}
+                    return store().public_map(get_settings().public_release_approved)
+                if _method == 'GET' and _path in ('/areas', '/areas/{area_id}/damage',
+                                                  '/areas/{area_id}/values', '/alerts',
+                                                  '/alerts/{alert_id}'):
+                    scopes = current(request)[0].area_scopes
+                    if _path == '/areas':
+                        limit = min(max(int(request.query_params.get('limit', 200)), 1), 1000)
+                        return store().areas(scopes, limit, int(request.query_params.get('cursor', 0) or 0))
+                    if _path == '/areas/{area_id}/damage':
+                        return store().damage(request.path_params['area_id'])
+                    if _path == '/areas/{area_id}/values':
+                        return store().values(request.path_params['area_id'])
+                    if _path == '/alerts':
+                        return store().alerts(scopes)
+                    found = store().alert(request.path_params['alert_id'], scopes)
+                    return found or error('NOT_FOUND', 'No such alert in your scope.', 404, request)
                 if _path == '/session' and _method == 'GET':
                     identity, csrf = current(request)
                     return {'synthetic': True, 'user_id': identity.user_id, 'role': identity.role,

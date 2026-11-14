@@ -61,6 +61,17 @@ The top level is unreliable: 1,301 training cells cannot estimate a 0.1% tail. T
 
 Overall there is **no clear link** between candidates and recorded events. Only the highest-scoring cells lean towards events. Possible reasons: single-building strikes are below the cell size; much destruction may predate the BETA "before" images; backscatter alone is a weak signal.
 
+**Sentinel-1 cross-check** (independent satellite, C-band; `pipelines/radar/nisar/s1_check.py`). OPERA RTC-S1, track 21 descending, 6 dates before (14 Dec 2025 – 13 Jan 2026) and 5 after (25 Jun – 19 Jul 2026), put on the same 20 m grid. "Agrees" means the cell's Sentinel-1 VV change is at least 2 robust standard deviations below the typical cell.
+
+| NISAR class | Sentinel-1 agrees | 95% interval |
+|---|---|---|
+| All candidates | 13 of 177 (7.3%) | 4.3–12.2% |
+| Moderate or destroyed/severe | 6 of 43 (14.0%) | 6.6–27.3% |
+| No detected change | 122 of 5,518 (2.2%) | 1.9–2.6% |
+| Other change | 0 of 84 | |
+
+Sentinel-1 shows a strong drop about **3.3 times as often** in NISAR candidates as in no-change cells, and the intervals do not overlap. Across all assessed cells, the NISAR HH change and the Sentinel-1 VV change are weakly but clearly related (Spearman 0.19, n = 5,779). The 13 candidates seen by both satellites get the evidence label **corroborated**; the other candidates stay **observed**. Most candidates are not confirmed by Sentinel-1, so single-satellite candidates remain low-certainty.
+
 **Time slider** (each pass vs the June–July baseline): 136–181 candidates per pass; hold-out moderate false alarms 0.1–0.5%. The 22 Oct and 3 Nov passes are V1 products compared with a PROVISIONAL baseline.
 
 ## 4. What may and may not be claimed
@@ -70,6 +81,7 @@ Overall there is **no clear link** between candidates and recorded events. Only 
 | "Candidate change in dense built-up areas" | Confirmed damage or collapse |
 | A known false-alarm rate on quiet hold-out areas | Precision, recall or accuracy |
 | Change over time between passes | Destroyed vs severe as separate classes |
+| "Corroborated" for the 13 cells both satellites flag | Corroborated as proof of damage |
 | | Totals (radar misses damage, so counts are minimums) |
 
 ## 5. Data sources and licences
@@ -77,6 +89,7 @@ Overall there is **no clear link** between candidates and recorded events. Only 
 - NISAR L2 GCOV: NASA/ISRO, via ASF DAAC (open).
 - OSM buildings: HOTOSM export on HDX, ODbL.
 - NASADEM elevation: NASA/JPL via LP DAAC (open).
+- Sentinel-1 RTC (OPERA_L2_RTC-S1): Copernicus Sentinel data, processed by NASA OPERA, via ASF DAAC (open; Sentinel EULA accepted).
 - UCDP Candidate GED 2026 (Jan–Sep): Uppsala Conflict Data Program, CC BY 4.0.
 - ACLED is **not** used: its terms forbid using ACLED data to train or test models.
 - Insecurity Insight is **not** used for locations: its coordinates are censored.
