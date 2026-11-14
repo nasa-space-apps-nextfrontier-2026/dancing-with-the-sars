@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
+<<<<<<< ours
+import { Map as LibreMap, NavigationControl, ScaleControl, setWorkerUrl } from 'maplibre-gl'
+import mapWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url'
+import type { Layer, RadarObservation } from '../types/contracts'
+=======
 import { Map as LibreMap, setWorkerUrl, type StyleSpecification } from 'maplibre-gl'
 import mapWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url'
+>>>>>>> theirs
 import 'maplibre-gl/dist/maplibre-gl.css'
 
 setWorkerUrl(mapWorkerUrl)
@@ -9,6 +15,75 @@ export type RadarMode = 'before' | 'after' | 'change' | 'swipe'
 export type Polarization = 'HH' | 'HV' | 'HH-HV'
 export type RadarView = { mode: RadarMode; polarization: Polarization; opacity: number; split: number }
 
+<<<<<<< ours
+export const BASEMAP_STYLE_URL = import.meta.env.VITE_BASEMAP_STYLE_URL
+  || 'https://tiles.openfreemap.org/styles/liberty'
+
+export function canRenderAnalyticalRaster(layer?: Layer, observation?: RadarObservation) {
+  return Boolean(layer?.extent && layer?.tile_url && observation?.raster_available
+    && observation.valid_pixel_count > 0)
+}
+
+export function MapPanel({ onSelectDemoArea, radar, layer, observation }: {
+  onSelectDemoArea?: () => void
+  radar?: RadarView
+  layer?: Layer
+  observation?: RadarObservation
+}) {
+  const node = useRef<HTMLDivElement>(null)
+  const [failure, setFailure] = useState(false)
+  const rasterReady = canRenderAnalyticalRaster(layer, observation)
+
+  useEffect(() => {
+    if (!node.current) return
+    setFailure(false)
+    try {
+      const map = new LibreMap({
+        container: node.current,
+        style: BASEMAP_STYLE_URL,
+        center: [35.48, 33.25],
+        zoom: node.current.clientWidth < 600 ? 7.4 : 8.35,
+        minZoom: 5,
+        maxZoom: 16,
+        attributionControl: true,
+      })
+      map.addControl(new NavigationControl({ showCompass: true, visualizePitch: true }), 'top-right')
+      map.addControl(new ScaleControl({ unit: 'metric', maxWidth: 120 }), 'bottom-left')
+      map.on?.('error', event => {
+        console.error('MapLibre render failed', event.error)
+        setFailure(true)
+      })
+      map.on?.('load', () => {
+        if (!rasterReady || !layer || !observation) return
+        map.addSource('civisar-analysis', {
+          type: 'raster', tiles: [layer.tile_url], tileSize: 256, attribution: layer.attribution,
+        })
+        map.addLayer({
+          id: 'civisar-analysis', type: 'raster', source: 'civisar-analysis',
+          paint: { 'raster-opacity': (radar?.opacity ?? 75) / 100 },
+        })
+      })
+      return () => map.remove()
+    } catch (error) {
+      console.error('MapLibre initialization failed', error)
+      setFailure(true)
+    }
+  }, [layer, observation, radar?.opacity, rasterReady])
+
+  const date = observation ? new Date(observation.acquired_at).toLocaleDateString('en-GB', {
+    day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC',
+  }) : null
+  return <div className="map-wrap">
+    <div ref={node} className="map" role="img" aria-label={
+      `Geographic map of south Lebanon${date ? `; selected catalogue acquisition ${date}` : ''}; `
+      + (rasterReady ? 'analytical raster displayed' : 'analytical raster unavailable')
+    } />
+    <div className="map-badge">{rasterReady
+      ? `${radar?.polarization ?? 'HH'} analytical raster · ${date}`
+      : 'Geographic context · Analytical raster unavailable'}</div>
+    {onSelectDemoArea && <button className="map-select" onClick={onSelectDemoArea}>Select demo analysis area</button>}
+    {failure && <p className="map-fallback">Basemap could not be loaded. Observation metadata remains accessible.</p>}
+=======
 function syntheticGrid() {
   const features = Array.from({ length: 48 }, (_, index) => {
     const column = index % 8
@@ -96,5 +171,6 @@ export function MapPanel({ onSelectDemoArea, radar }: {
       : 'Illustrative demo data · No imagery loaded'}</div>
     {onSelectDemoArea && <button className="map-select" onClick={onSelectDemoArea}>Select synthetic demo area</button>}
     {failure && <p className="map-fallback">Map renderer unavailable. Area list remains accessible.</p>}
+>>>>>>> theirs
   </div>
 }

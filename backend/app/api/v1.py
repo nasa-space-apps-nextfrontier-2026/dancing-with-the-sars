@@ -5,6 +5,7 @@ from backend.app.core.config import get_settings
 from backend.app.core.permissions import allowed, is_private_layer
 from backend.app.core.security import authenticate, issue_session, read_session, revoke_session
 from backend.app.services.synthetic_area import area_summary, enabled, source_record
+from backend.app.services.radar_catalog import layer_catalog, observation_series
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel
@@ -108,7 +109,16 @@ def attach_routes(app: FastAPI) -> None:
                     return summary if summary is not None else error(
                         'NOT_FOUND', 'Area not found.', 404, request)
                 if _path == '/layers':
-                    return {'synthetic': True, 'items': [], 'next_cursor': None}
+                    if not enabled():
+                        return error('UNAVAILABLE', 'No approved layer catalogue is loaded.', 503, request)
+                    return {'synthetic': True, 'items': layer_catalog(), 'next_cursor': None}
+                if _path == '/layers/{layer_id}/timeseries':
+                    if not enabled():
+                        return error('UNAVAILABLE', 'No approved observation catalogue is loaded.', 503, request)
+                    series = observation_series(request.path_params['layer_id'],
+                                                request.query_params.get('area_id'))
+                    return series if series is not None else error(
+                        'NOT_FOUND', 'Observation series not found.', 404, request)
                 if (_path.startswith('/layers/') and 'layer_id' in request.path_params
                         and request.path_params['layer_id'] == 'public-safe-demo'):
                     return error('NOT_FOUND', 'No published layer is available.', 404, request)

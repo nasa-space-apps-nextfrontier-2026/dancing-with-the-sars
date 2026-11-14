@@ -14,4 +14,30 @@ export type RouteOption = typeof route
 export type ShelterCandidate = typeof shelter
 export type SourceRecord = typeof source
 export type MetricValue = typeof value
+export type RadarObservation = {
+  observation_id: string
+  source_id: string
+  acquired_at: string
+  processing_version: string
+  product_maturity: 'beta' | 'provisional' | 'validated'
+  polarizations: string[]
+  raster_crs: string
+  valid_pixel_count: number
+  raster_available: boolean
+  qa_status: string
+  evidence_label: 'Observed' | 'Estimated' | 'Unknown'
+  limitations: string[]
+}
+export type MissingInterval = { start: string; end: string; reason: string }
+export type RadarSeries = {
+  synthetic: boolean
+  layer_id: string
+  area_id: string
+  track: number
+  frame: number
+  orbit: string
+  points: RadarObservation[]
+  missing_intervals: MissingInterval[]
+}
+export type LayerList = { synthetic: boolean; items: Layer[]; next_cursor: string | null }
 export const fixtures = { area, alert, layer, route, shelter, source, value }

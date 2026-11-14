@@ -18,6 +18,8 @@ npm ci
 npm run dev
 ```
 
+Once frontend dependencies are installed, you can also start the frontend directly from the repository root with `npm.cmd run dev`. The root script forwards to the Vite application in `frontend/`.
+
 In a second PowerShell at repository root:
 
 ```powershell

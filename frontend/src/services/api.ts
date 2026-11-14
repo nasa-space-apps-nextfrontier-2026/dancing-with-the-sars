@@ -1,4 +1,4 @@
-import type { AreaSummary, SourceRecord } from '../types/contracts'
+import type { AreaSummary, LayerList, RadarSeries, SourceRecord } from '../types/contracts'
 
 export type ApiError = { error: { code: string; message: string; request_id: string; details: unknown[] }; synthetic: boolean }
 export const UNAUTHENTICATED_EVENT = 'civisar:unauthenticated'
@@ -31,4 +31,7 @@ export const api = {
   session: () => request<Session>('/session'),
   areaSummary: (areaId:string) => request<AreaSummary>(`/areas/${encodeURIComponent(areaId)}/summary`),
   sourceRecord: (sourceId:string) => request<SourceRecord>(`/sources/${encodeURIComponent(sourceId)}`),
+  layers: (areaId:string) => request<LayerList>(`/layers?area_id=${encodeURIComponent(areaId)}`),
+  layerTimeseries: (layerId:string,areaId:string) => request<RadarSeries>(
+    `/layers/${encodeURIComponent(layerId)}/timeseries?area_id=${encodeURIComponent(areaId)}`),
 }

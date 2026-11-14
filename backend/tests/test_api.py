@@ -96,6 +96,34 @@ def test_synthetic_adapter_does_not_serve_as_real_data(monkeypatch):
         get_settings.cache_clear()
 
 
+def test_radar_catalogue_exposes_dates_but_no_renderable_pixels(monkeypatch):
+    users = {'analyst': {'password_hash': hash_password('local-test-password'),
+                         'role': 'analyst', 'area_scopes': ['demo-area-01']}}
+    monkeypatch.setenv('CIVISAR_DEMO_USERS_JSON', json.dumps(users))
+    get_settings.cache_clear()
+    try:
+        with TestClient(app) as visitor:
+            login = visitor.post('/api/v1/session', json={
+                'username': 'analyst', 'password': 'local-test-password'})
+            assert login.status_code == 200
+            layers = visitor.get('/api/v1/layers?area_id=demo-area-01')
+            assert layers.status_code == 200
+            assert layers.json()['items'][0]['extent'] is None
+            series = visitor.get(
+                '/api/v1/layers/demo-damage-r8/timeseries?area_id=demo-area-01')
+            assert series.status_code == 200
+            payload = series.json()
+            assert [point['acquired_at'] for point in payload['points']] == [
+                '2026-01-19T00:00:00Z', '2026-06-24T00:00:00Z']
+            assert all(point['valid_pixel_count'] == 0 for point in payload['points'])
+            assert all(point['raster_available'] is False for point in payload['points'])
+            assert payload['missing_intervals'] == [{
+                'start': '2026-01-20', 'end': '2026-06-17',
+                'reason': 'Source-reported acquisition gap; not interpolated'}]
+    finally:
+        get_settings.cache_clear()
+
+
 def test_session_restoration_logout_and_expiry(monkeypatch):
     from backend.app.core import security
 
