@@ -4,16 +4,19 @@ Read this to see where Thanoban's ML work stands. Udula: this is what you need t
 
 ## Status
 
-| Item | State |
-|---|---|
-| Colab set-up (CLI in WSL2, signed in, free account) | Done and tested |
-| Black Marble granule search (CMR) for the demo box | Done, ran on Colab, 4 unit tests pass |
-| Black Marble download and cropping | Next (needs an Earthdata Login token as a Colab secret) |
-| Model A: night-light power-loss | Not started (starts after downloads) |
-| Model B: fire events (FIRMS) | Not started (needs the FIRMS map key) |
-| Model C: strike-enrichment tests | Not started (harness first on mock data) |
+| Item | State | PR |
+|---|---|---|
+| Colab set-up (CLI in WSL2, signed in, free account) | Done and tested | |
+| Black Marble granule search (CMR) for the demo box | Merged into `dev` | [#3](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/3) |
+| 120-day default window and date-range search | Open, needs review | [#7](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/7) |
+| Model A: night-light power-loss rule (baseline of 60 clear nights, drop below 50% on 2 clear nights, `unknown` when evidence is thin) | Code and 7 tests done on synthetic data; open, needs review | [#4](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/4) |
+| Model B: fire events (filter, permanent hot spots, 1 km / 12 h clustering) | Code and 6 tests done on synthetic points; open, needs review | [#5](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/5) |
+| Model C: strike-enrichment tests (near vs far, same-district control) | Harness and 4 tests done on mock data; open, needs review | [#6](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/6) |
+| Black Marble download and cropping on Colab | Blocked: needs an Earthdata Login token as a Colab secret | |
+| FIRMS download | Blocked: needs the FIRMS map key | |
+| Tuning thresholds on real data | Not started (after downloads) | |
 
-Code is on branch `feature/m1-04-nightlight-discovery` (commit `f56ecff`), in `worker/services/` (`cmr.py`, `discover_nightlights.py`) with tests in `worker/tests/test_services.py`. It is not merged into `dev` yet; it needs a PR approved by Udula, then merged by Rashiru.
+All code is in `worker/services/` and `worker/evaluation/` (standard library only) with tests in `worker/tests/`. **Udula: please review PRs #7, #4, #5 and #6** (you are the assigned reviewer); Rashiru merges after your approval. No real data is used yet, so the numbers in the models are starting values, not tuned results.
 
 ## How the work runs
 
@@ -64,9 +67,9 @@ What this means:
 
 ## Next steps (in order)
 
-1. Add a start date to the CMR search and list the last 120 nights for both satellites.
-2. Download the cropped tile for one night on Colab with an Earthdata token and check the radiance and quality flags.
-3. Build the per-cell baseline table (60 clear nights), with `Unknown` when there are too few clear nights.
-4. Fire events from FIRMS: filter, remove permanent hot spots, cluster within 1 km and 12 h.
-5. Strike-test harness on mock data, ready for Udula's table.
-6. Open a PR into `dev` for each of these (one task per branch).
+1. Get the Earthdata Login token and the FIRMS map key and store them as Colab Secrets.
+2. Download one night's cropped Black Marble tile on Colab and check the radiance and quality flags (which flag means clear sky).
+3. Build the per-cell history table for the last 120 nights and run the rule from PR #4 on real data; tune the thresholds from the quiet cells' own scores.
+4. Download recent FIRMS points for the demo box, run the fire model from PR #5, and tune the permanent-spot rule.
+5. Run the strike tests from PR #6 on Udula's damage table when the first version arrives (by H16); confirm column names at H2.
+6. Hand callable functions to Rashiru (H12) and the test numbers for the Sources page (H32).
