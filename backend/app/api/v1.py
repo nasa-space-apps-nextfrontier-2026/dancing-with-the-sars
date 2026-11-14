@@ -4,8 +4,8 @@ from pathlib import Path
 from backend.app.core.config import get_settings
 from backend.app.core.permissions import allowed, is_private_layer
 from backend.app.core.security import authenticate, issue_session, read_session, revoke_session
-from backend.app.services.synthetic_area import area_summary, enabled, source_record
 from backend.app.services.radar_catalog import layer_catalog, observation_series
+from backend.app.services.synthetic_area import area_summary, enabled, source_record
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel
