@@ -9,7 +9,7 @@ docker compose up -d db                      # or: $env:CIVISAR_DB_PORT=5433 if 
 .\.venv\Scripts\python.exe -m alembic -c backend/alembic.ini upgrade head
 ```
 
-Migrations: `0001_initial_postgis` (Rashiru), `0002_metric_value_records` (contract value id, release time and full record) and `0003_alerts_and_source_status` (worker alerts and per-source fetch status). Both upgrade and downgrade were tested on `postgis/postgis:16-3.4`.
+Migrations: `0001_initial_postgis` (Rashiru), `0002_metric_value_records` (contract value id, release time and full record), `0003_alerts_and_source_status` (worker alerts and per-source fetch status) and `0004_briefs` (stored briefs). Every upgrade and downgrade were tested on `postgis/postgis:16-3.4`.
 
 ## 2. Load the radar results
 
@@ -59,6 +59,18 @@ CIVISAR_DEMO_USERS_JSON=...   # from python -m scripts.create_demo_user (default
 | `GET /alerts/{alert_id}` | analyst+ | One alert, or 404 (also when outside the user's scope) |
 | `GET /status` | public | Last success, freshness and Cached flag per source (FIRMS, NISAR). Never shows error text. |
 | `GET /values/{value_id}/trace` | analyst+ | The value, its source records and the model tests of its run |
+| `GET /areas/{area_id}/summary` | analyst+ | AreaSummary: people ranges, services, hazards, evidence. **503 until the population file is loaded** (see 4a). |
+| `POST /briefs` | analyst+, CSRF | Body `{area_id, as_of}`. Freezes the summary into a brief (expires after 8 hours). |
+| `GET /briefs/{report_id}` | signed in | The brief, re-checked on every read: area scope, expiry, role sections |
+| `GET /briefs/{report_id}/print` | signed in | Plain printable HTML with a RESTRICTED banner and source footnotes; loads nothing from outside |
+
+## 4a. Area summary and briefs
+
+- **People** come only from `DATA_ROOT/local/population.csv.gz` (Kisara, K-04): columns `cell_id` (H3 r9), `pop_low`, `pop_high`, `pop_year`. The contract needs whole-number ranges, so without this file the summary and briefs answer 503 instead of inventing numbers. **Team note:** the contract has no way to say "people Unknown"; raise at H2 if the file will be late.
+- Residents = all cells in the neighbourhood; potentially affected = cells with a radar candidate; potentially displaced uses the UNOSAT housing shares (destroyed/severe 100%, moderate 50%, possible 20%). Derived values take the weakest label of their inputs. All are pre-displacement estimates, not people there now.
+- Services: power from released "Possible power loss" alerts; water, health and comms stay Unknown. No severity rank until facilities, services and roads are loaded. Route options and shelter candidates are empty and listed as omitted.
+- Briefs never include records still on the 72-hour hold, even when an admin creates them, because other people may read or print them. Route and shelter sections are removed again at read time for roles below officer / coordinator. Out-of-scope or expired briefs answer 404.
+- The WorldPop source record is not in `sources.json` yet, so brief footnotes list only the radar sources.
 
 ## 5. Safety rules in the server
 
@@ -67,4 +79,4 @@ CIVISAR_DEMO_USERS_JSON=...   # from python -m scripts.create_demo_user (default
 - **Files**: tiles are read only from `DATA_ROOT/private/nisar/change/`; any other path in a manifest is refused.
 - Logged-out users never get radar layers, tiles, damage or series.
 
-Tests: `tests/security/` (scope, hold, roles, tiles, file allow-list) and `backend/tests/test_load_radar_results.py`.
+Tests: `tests/security/` (scope, hold, roles, tiles, file allow-list, summary and briefs) and `backend/tests/test_load_radar_results.py`.

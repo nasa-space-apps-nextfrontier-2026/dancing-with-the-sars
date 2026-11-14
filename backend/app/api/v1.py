@@ -81,7 +81,7 @@ def attach_routes(app: FastAPI) -> None:
                     return {'status': 'ok', 'synthetic': get_settings().demo_synthetic}
                 if not enabled():
                     session = current(request)
-                    real = radar.handle(request, _path, session[0] if session else None, error)
+                    real = await radar.handle(request, _path, session[0] if session else None, error)
                     if real is not None:
                         return real
                 if _path == '/status':
