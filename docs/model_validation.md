@@ -14,6 +14,7 @@ Owner: Udula (M1). Run date: 14 November 2026. Numbers come from `data/manifests
 | Time slider | 8 later passes, 11 Aug → 3 Nov 2026, each compared with the June–July baseline |
 | Area units | H3 resolution 9 cells (about 0.1 km²); results published at resolution 8 |
 | Assessed cells | Cells at least 25% covered by OSM buildings plus 30 m (5,783 of 11,362 built-up cells) |
+| Masks | Water (mean HV), terrain (NASADEM: layover, shadow, slope > 25°), GCOV validity mask |
 | Model | Isolation Forest (scikit-learn), with robust Mahalanobis distance as a cross-check |
 | Training areas | Cells with no UCDP event (exact location) within 2 km, 19 Jan – 24 Jun 2026 |
 | Classes | Quantiles of training scores: above 95% possible, above 99% moderate, above 99.9% destroyed or severe; HH must fall (collapse direction), otherwise "other change" |
@@ -28,14 +29,15 @@ Owner: Udula (M1). Run date: 14 November 2026. Numbers come from `data/manifests
 | Stripes in the change image | Up to 3.3 dB smooth column trend (known BETA banding) | Removed by destriping, estimated on all valid land pixels |
 | Water | Clear split in mean HV (water about −23 dB, land about −15 dB) | Masked below −20.5 dB, plus 40 m |
 | 23 Aug 2026 pass | HV about 2 dB brighter, with large bands | Flagged in the change index |
+| Terrain (NASADEM) | Slopes over 25°: 5.2% of the area; layover 0.05%; shadow none | Masked as Unknown (5.8% of the area) |
 
 ## 3. Results
 
-**Hold-out quiet cells** (spatial blocks never used for training, 347 cells):
+**Hold-out quiet cells** (spatial blocks never used for training, 345 cells):
 
 | Level | Design rate | Observed |
 |---|---|---|
-| Possible | 5% | 8.6% |
+| Possible | 5% | 8.7% |
 | Moderate | 1% | 1.2% |
 | Destroyed or severe | 0.1% | 1.2% |
 
@@ -47,18 +49,19 @@ The top level is unreliable: 1,301 training cells cannot estimate a 0.1% tail. T
 |---|---|---|---|
 | All built-up densities | 4 | 16 | Terrain edges, farm fields, coastline |
 | Building density ≥ 25% | 15 | 5 | Terrain edges, noise |
+| + terrain mask (final) | 15 (3 unclear) | 2 | Terrain edge, texture boundary |
 
 **Strike context** (UCDP events; association only, not ground truth; for Thanoban's M1-04 to formalise):
 
 | Measure | Value |
 |---|---|
-| Candidate rate, cells within 1 km of an event | 3.3% |
-| Candidate rate, cells 5 km or more away | 3.7% |
-| Top 20 cells within 1 km of an event | 55% (vs 37% of all assessed cells) |
+| Candidate rate, cells within 1 km of an event | 3.2% |
+| Candidate rate, cells 5 km or more away | 4.3% |
+| Top 20 cells within 1 km of an event | 50% (vs 37% of all assessed cells) |
 
 Overall there is **no clear link** between candidates and recorded events. Only the highest-scoring cells lean towards events. Possible reasons: single-building strikes are below the cell size; much destruction may predate the BETA "before" images; backscatter alone is a weak signal.
 
-**Time slider** (each pass vs the June–July baseline): 144–173 candidates per pass; hold-out moderate false alarms 0.1–0.4%. The 22 Oct and 3 Nov passes are V1 products compared with a PROVISIONAL baseline.
+**Time slider** (each pass vs the June–July baseline): 136–181 candidates per pass; hold-out moderate false alarms 0.1–0.5%. The 22 Oct and 3 Nov passes are V1 products compared with a PROVISIONAL baseline.
 
 ## 4. What may and may not be claimed
 
@@ -73,6 +76,7 @@ Overall there is **no clear link** between candidates and recorded events. Only 
 
 - NISAR L2 GCOV: NASA/ISRO, via ASF DAAC (open).
 - OSM buildings: HOTOSM export on HDX, ODbL.
+- NASADEM elevation: NASA/JPL via LP DAAC (open).
 - UCDP Candidate GED 2026 (Jan–Sep): Uppsala Conflict Data Program, CC BY 4.0.
 - ACLED is **not** used: its terms forbid using ACLED data to train or test models.
 - Insecurity Insight is **not** used for locations: its coordinates are censored.
@@ -92,5 +96,4 @@ The zero-coherence floor for 72 looks is about 0.10. Across the 156-day gap, coh
 
 ## 7. Open items
 
-- Slope and radar-shadow masks (NASADEM) are not applied yet.
 - UCDP events stop at 15 Sep 2026, so later slider passes have incomplete quiet-area selection.

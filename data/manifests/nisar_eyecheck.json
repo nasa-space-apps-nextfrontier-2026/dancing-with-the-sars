@@ -1,0 +1,42 @@
+{
+  "schema_version": "0.1",
+  "kind": "nisar_top20_eye_check",
+  "synthetic": false,
+  "run_id": "e99a9b63914b68e6",
+  "checked_at": "2026-11-14T06:59:09+00:00",
+  "method": "Top 20 candidate cells by anomaly score; 1.2 km chips of mean HH before, mean HH after and change, OSM building outlines",
+  "rounds": [
+    {
+      "rules": "built-up = OSM buildings + 30 m, water mask, destriping; all densities",
+      "plausible_damage": 4,
+      "false": 16,
+      "false_causes": {
+        "coastline_edge": 3,
+        "terrain_edge": 8,
+        "farm_fields": 5
+      },
+      "action": "minimum built density 0.25 (sparse cells not assessed)"
+    },
+    {
+      "rules": "as above + built density >= 0.25",
+      "plausible_damage": 15,
+      "false": 5,
+      "false_causes": {
+        "terrain_edge": 3,
+        "texture_or_noise": 2
+      }
+    },
+    {
+      "rules": "as above + terrain mask (NASADEM: layover, shadow, slope > 25 deg)",
+      "plausible_damage": 15,
+      "unclear": 3,
+      "false": 2,
+      "false_causes": {
+        "terrain_edge": 1,
+        "texture_boundary": 1
+      }
+    }
+  ],
+  "limits": "Visual plausibility only, not ground truth. No damage labels exist for this area and period.",
+  "note": "Cell locations are kept in the private damage table only (repo is public; safety rules)."
+}

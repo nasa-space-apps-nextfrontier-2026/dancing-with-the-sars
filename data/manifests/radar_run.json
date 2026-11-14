@@ -1,0 +1,86 @@
+{
+  "schema_version": "0.1",
+  "kind": "nisar_radar_run",
+  "synthetic": false,
+  "created_at": "2026-11-14T07:15:16+00:00",
+  "run_id": "e99a9b63914b68e6",
+  "owner": "M1 (Udula)",
+  "receivers": [
+    "M2 (Chames)",
+    "M3 (Rashiru)"
+  ],
+  "damage_cells": {
+    "path": "data/private/nisar/model/damage_cells.parquet",
+    "sha256": "22eb30068711db508c42d12f454661ec0d3e590ee2bd2e70bd9acb475edf5d3f",
+    "key": "h3_r9 (lowercase hex string); h3_r8 parent for display",
+    "columns": [
+      "n_built_px",
+      "n_valid_px",
+      "d_hh",
+      "d_hv",
+      "d_pol",
+      "strong_drop_share",
+      "incidence",
+      "built_density",
+      "low_coverage",
+      "h3_r9",
+      "h3_r8",
+      "sparse_cell",
+      "score_mahalanobis",
+      "score",
+      "split",
+      "damage_class",
+      "confidence",
+      "reasons",
+      "run_id",
+      "pair_before",
+      "pair_after",
+      "version_confounded",
+      "synthetic"
+    ],
+    "classes": [
+      "destroyed_or_severe_candidate",
+      "moderate_candidate",
+      "no_detected_change",
+      "other_change",
+      "possible_candidate",
+      "unknown"
+    ],
+    "safety_tag": "restricted (building-level inference); publish r8 aggregates only, 72 h delay"
+  },
+  "time_slider_cells": [
+    "data/private/nisar/model/slider/2026-08-11/damage_cells.parquet",
+    "data/private/nisar/model/slider/2026-08-23/damage_cells.parquet",
+    "data/private/nisar/model/slider/2026-09-04/damage_cells.parquet",
+    "data/private/nisar/model/slider/2026-09-16/damage_cells.parquet",
+    "data/private/nisar/model/slider/2026-09-28/damage_cells.parquet",
+    "data/private/nisar/model/slider/2026-10-10/damage_cells.parquet",
+    "data/private/nisar/model/slider/2026-10-22/damage_cells.parquet",
+    "data/private/nisar/model/slider/2026-11-03/damage_cells.parquet"
+  ],
+  "change_images": {
+    "index": "data/manifests/nisar_change_index.json",
+    "layers": 38,
+    "crs_epsg": 32636,
+    "storage": {
+      "dtype": "int16",
+      "scale": 0.01,
+      "nodata": -32768,
+      "format": "COG"
+    },
+    "safety_tag": "restricted"
+  },
+  "tests": "data/manifests/model_tests.json",
+  "licences": {
+    "NISAR": "NASA/ISRO open data via ASF DAAC",
+    "OSM buildings": "ODbL (HOTOSM export)",
+    "UCDP events": "CC BY 4.0"
+  },
+  "reproduce": [
+    "python -m pipelines.radar.nisar.discover",
+    "python -m pipelines.radar.nisar.download --tiers A-before A-after B",
+    "python -m pipelines.radar.nisar.process --buildings <hotosm parquet> --events <ucdp csv>",
+    "python -m pipelines.radar.nisar.change_images",
+    "python -m pipelines.radar.nisar.evaluate --events <ucdp csv>"
+  ]
+}

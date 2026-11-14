@@ -1,0 +1,472 @@
+{
+  "schema_version": "0.1",
+  "kind": "nisar_change_index",
+  "synthetic": false,
+  "created_at": "2026-11-14T07:14:53+00:00",
+  "crs_epsg": 32636,
+  "bounds": [
+    685580.0,
+    3653060.0,
+    780300.0,
+    3721840.0
+  ],
+  "pixel_m": 20,
+  "units": "dB",
+  "storage": {
+    "dtype": "int16",
+    "scale": 0.01,
+    "nodata": -32768,
+    "format": "COG"
+  },
+  "safety_tag": "restricted",
+  "release_rule": "public only as neighbourhood (H3 r8) results, 72 h after the pass",
+  "notes": [
+    "change_A mixes BETA (before) and PROVISIONAL (after) products",
+    "change layers are destriped (smooth column/row trends removed)",
+    "water, invalid, layover, shadow and steep-slope (>25 deg) pixels are nodata"
+  ],
+  "layers": [
+    {
+      "name": "before_mean_HH",
+      "kind": "mean",
+      "polarization": "HH",
+      "dates": [
+        "2025-10-27",
+        "2025-11-08",
+        "2025-11-20",
+        "2025-12-26",
+        "2026-01-07",
+        "2026-01-19"
+      ],
+      "path": "data/private/nisar/change/before_mean_HH.tif",
+      "sha256": "003829eb2c3080060b691e4f407b4250dd793972b4d1a375bbe8dd6d3a121bdf",
+      "flags": []
+    },
+    {
+      "name": "after_mean_HH",
+      "kind": "mean",
+      "polarization": "HH",
+      "dates": [
+        "2026-06-24",
+        "2026-07-06",
+        "2026-07-18"
+      ],
+      "path": "data/private/nisar/change/after_mean_HH.tif",
+      "sha256": "dd2bdf5711b827455a3f90524f044d2c1d5cc20c0e4298b5b3116b12d5d5b072",
+      "flags": []
+    },
+    {
+      "name": "change_A_HH",
+      "kind": "change",
+      "polarization": "HH",
+      "dates": [
+        "2025-10-27",
+        "2026-01-19",
+        "2026-06-24",
+        "2026-07-18"
+      ],
+      "path": "data/private/nisar/change/change_A_HH.tif",
+      "sha256": "d012462a9a5690fc56566388dfbbd22cd0829dc18fc3a2be16388a18d130884c",
+      "flags": []
+    },
+    {
+      "name": "before_mean_HV",
+      "kind": "mean",
+      "polarization": "HV",
+      "dates": [
+        "2025-10-27",
+        "2025-11-08",
+        "2025-11-20",
+        "2025-12-26",
+        "2026-01-07",
+        "2026-01-19"
+      ],
+      "path": "data/private/nisar/change/before_mean_HV.tif",
+      "sha256": "e2bb15dd8496a4b09ec34827f2666edcec93ceeafd08600d9fbf87472b23fac1",
+      "flags": []
+    },
+    {
+      "name": "after_mean_HV",
+      "kind": "mean",
+      "polarization": "HV",
+      "dates": [
+        "2026-06-24",
+        "2026-07-06",
+        "2026-07-18"
+      ],
+      "path": "data/private/nisar/change/after_mean_HV.tif",
+      "sha256": "9e5d334594c29b60ca646da28b8d01a7b97340bcffeb350c5bcc68e772003ce2",
+      "flags": []
+    },
+    {
+      "name": "change_A_HV",
+      "kind": "change",
+      "polarization": "HV",
+      "dates": [
+        "2025-10-27",
+        "2026-01-19",
+        "2026-06-24",
+        "2026-07-18"
+      ],
+      "path": "data/private/nisar/change/change_A_HV.tif",
+      "sha256": "e242e76daf4df7c8903cb821ca3bad17e75bfb3d94a5874daa164e4a9b7e0fc0",
+      "flags": []
+    },
+    {
+      "name": "pass_2026-08-11_HH",
+      "kind": "pass",
+      "polarization": "HH",
+      "dates": [
+        "2026-08-11"
+      ],
+      "path": "data/private/nisar/change/pass_2026-08-11_HH.tif",
+      "sha256": "2d90eac985dbaeed6921cba28fc5e5f3a86298c8d62a70eda167c5b8fcae0111",
+      "flags": []
+    },
+    {
+      "name": "change_2026-08-11_HH",
+      "kind": "change_vs_june_baseline",
+      "polarization": "HH",
+      "dates": [
+        "2026-08-11"
+      ],
+      "path": "data/private/nisar/change/change_2026-08-11_HH.tif",
+      "sha256": "258a15d91f3f540901773c406446257ef01e95a05422401a151dad14ba489112",
+      "flags": []
+    },
+    {
+      "name": "pass_2026-08-23_HH",
+      "kind": "pass",
+      "polarization": "HH",
+      "dates": [
+        "2026-08-23"
+      ],
+      "path": "data/private/nisar/change/pass_2026-08-23_HH.tif",
+      "sha256": "227957834e94a38404b3ae9812a9fdb46ce38e6ad246c5d448cf544ac23ae9ae",
+      "flags": []
+    },
+    {
+      "name": "change_2026-08-23_HH",
+      "kind": "change_vs_june_baseline",
+      "polarization": "HH",
+      "dates": [
+        "2026-08-23"
+      ],
+      "path": "data/private/nisar/change/change_2026-08-23_HH.tif",
+      "sha256": "174522f8e6726a5a5f07d3d84e1ba2b06125cae91a2e0419c755e538dee94b81",
+      "flags": []
+    },
+    {
+      "name": "pass_2026-09-04_HH",
+      "kind": "pass",
+      "polarization": "HH",
+      "dates": [
+        "2026-09-04"
+      ],
+      "path": "data/private/nisar/change/pass_2026-09-04_HH.tif",
+      "sha256": "ba252ee3e0ba2c574e23bdd484f25ba4f1a2f20009f593da3f440a9c562dcb79",
+      "flags": []
+    },
+    {
+      "name": "change_2026-09-04_HH",
+      "kind": "change_vs_june_baseline",
+      "polarization": "HH",
+      "dates": [
+        "2026-09-04"
+      ],
+      "path": "data/private/nisar/change/change_2026-09-04_HH.tif",
+      "sha256": "a455b6d31af3174da871da12f77f2685a33986e3b2090c502a69fdd7ebccca8c",
+      "flags": []
+    },
+    {
+      "name": "pass_2026-09-16_HH",
+      "kind": "pass",
+      "polarization": "HH",
+      "dates": [
+        "2026-09-16"
+      ],
+      "path": "data/private/nisar/change/pass_2026-09-16_HH.tif",
+      "sha256": "be27a532c1f6cef01fd01077799baae4d816edea11f1ba4dd8599148ed6643f8",
+      "flags": []
+    },
+    {
+      "name": "change_2026-09-16_HH",
+      "kind": "change_vs_june_baseline",
+      "polarization": "HH",
+      "dates": [
+        "2026-09-16"
+      ],
+      "path": "data/private/nisar/change/change_2026-09-16_HH.tif",
+      "sha256": "b5dc647cf579d724cec480fe16bccf4fdd982adf09f8ce41991d8c1ff3ba6853",
+      "flags": []
+    },
+    {
+      "name": "pass_2026-09-28_HH",
+      "kind": "pass",
+      "polarization": "HH",
+      "dates": [
+        "2026-09-28"
+      ],
+      "path": "data/private/nisar/change/pass_2026-09-28_HH.tif",
+      "sha256": "bbb3b5bd0797a2a2fdb3235401abfae89eb49f81dc1fbf5cdfd1b91f79854fb8",
+      "flags": []
+    },
+    {
+      "name": "change_2026-09-28_HH",
+      "kind": "change_vs_june_baseline",
+      "polarization": "HH",
+      "dates": [
+        "2026-09-28"
+      ],
+      "path": "data/private/nisar/change/change_2026-09-28_HH.tif",
+      "sha256": "e760f85ecd0ae0afe41252ed2820fc9488ff86a6b1890e9629b62ad0309863f9",
+      "flags": []
+    },
+    {
+      "name": "pass_2026-10-10_HH",
+      "kind": "pass",
+      "polarization": "HH",
+      "dates": [
+        "2026-10-10"
+      ],
+      "path": "data/private/nisar/change/pass_2026-10-10_HH.tif",
+      "sha256": "428fb0f04f69142e210054ccf47dd5105c7e3dee5bf11d82249c39affb3d0382",
+      "flags": []
+    },
+    {
+      "name": "change_2026-10-10_HH",
+      "kind": "change_vs_june_baseline",
+      "polarization": "HH",
+      "dates": [
+        "2026-10-10"
+      ],
+      "path": "data/private/nisar/change/change_2026-10-10_HH.tif",
+      "sha256": "d7378245c670acdf6a9fcc61392afd0142b09a0ae65b6e1d892f450461e68184",
+      "flags": []
+    },
+    {
+      "name": "pass_2026-10-22_HH",
+      "kind": "pass",
+      "polarization": "HH",
+      "dates": [
+        "2026-10-22"
+      ],
+      "path": "data/private/nisar/change/pass_2026-10-22_HH.tif",
+      "sha256": "0d08fdaa6cafa7881be461803fa6727d2a692846485d84cd757e241929c772da",
+      "flags": []
+    },
+    {
+      "name": "change_2026-10-22_HH",
+      "kind": "change_vs_june_baseline",
+      "polarization": "HH",
+      "dates": [
+        "2026-10-22"
+      ],
+      "path": "data/private/nisar/change/change_2026-10-22_HH.tif",
+      "sha256": "4bf8369d78747cbc03b1b64fc79f9eddb4a157fab51e8c2659f9e7ac564974e8",
+      "flags": []
+    },
+    {
+      "name": "pass_2026-11-03_HH",
+      "kind": "pass",
+      "polarization": "HH",
+      "dates": [
+        "2026-11-03"
+      ],
+      "path": "data/private/nisar/change/pass_2026-11-03_HH.tif",
+      "sha256": "a73cd1562ab12dcb1ff5db8282100f95f04c8465afd8a38cddc8661a83bf7e79",
+      "flags": []
+    },
+    {
+      "name": "change_2026-11-03_HH",
+      "kind": "change_vs_june_baseline",
+      "polarization": "HH",
+      "dates": [
+        "2026-11-03"
+      ],
+      "path": "data/private/nisar/change/change_2026-11-03_HH.tif",
+      "sha256": "06c65e777ef016f07de9eed4529077f2c3f35b4ec56d407569647cfb04b984f4",
+      "flags": []
+    },
+    {
+      "name": "pass_2026-08-11_HV",
+      "kind": "pass",
+      "polarization": "HV",
+      "dates": [
+        "2026-08-11"
+      ],
+      "path": "data/private/nisar/change/pass_2026-08-11_HV.tif",
+      "sha256": "32ba6682dda6671f268c52cfc296017b6b69c7072a7e8761b2870f5bccbb7b44",
+      "flags": []
+    },
+    {
+      "name": "change_2026-08-11_HV",
+      "kind": "change_vs_june_baseline",
+      "polarization": "HV",
+      "dates": [
+        "2026-08-11"
+      ],
+      "path": "data/private/nisar/change/change_2026-08-11_HV.tif",
+      "sha256": "b16c8137fa509356eb0742c74d3c1b4553525a792163f7074f39c6f55230b9f7",
+      "flags": []
+    },
+    {
+      "name": "pass_2026-08-23_HV",
+      "kind": "pass",
+      "polarization": "HV",
+      "dates": [
+        "2026-08-23"
+      ],
+      "path": "data/private/nisar/change/pass_2026-08-23_HV.tif",
+      "sha256": "890abcb27753fc7782bcd0375f9dbe49fcc9286b374ce0c2eb57749a5d3a14b7",
+      "flags": [
+        "HV about 2 dB brighter than neighbouring passes (14 Nov QA)"
+      ]
+    },
+    {
+      "name": "change_2026-08-23_HV",
+      "kind": "change_vs_june_baseline",
+      "polarization": "HV",
+      "dates": [
+        "2026-08-23"
+      ],
+      "path": "data/private/nisar/change/change_2026-08-23_HV.tif",
+      "sha256": "3f66222591e3e93bdcbfc607b07daab846830103ad9e5fc19b19c0e4c3004993",
+      "flags": [
+        "HV about 2 dB brighter than neighbouring passes (14 Nov QA)"
+      ]
+    },
+    {
+      "name": "pass_2026-09-04_HV",
+      "kind": "pass",
+      "polarization": "HV",
+      "dates": [
+        "2026-09-04"
+      ],
+      "path": "data/private/nisar/change/pass_2026-09-04_HV.tif",
+      "sha256": "1bfa9824981bd3cd7e2d01507a070d1244fae0104788158b38136ef91b4914cf",
+      "flags": []
+    },
+    {
+      "name": "change_2026-09-04_HV",
+      "kind": "change_vs_june_baseline",
+      "polarization": "HV",
+      "dates": [
+        "2026-09-04"
+      ],
+      "path": "data/private/nisar/change/change_2026-09-04_HV.tif",
+      "sha256": "98a775ab89d55aea2bd680ce9c764503a0136e416760ed2f70915fa8fe68c931",
+      "flags": []
+    },
+    {
+      "name": "pass_2026-09-16_HV",
+      "kind": "pass",
+      "polarization": "HV",
+      "dates": [
+        "2026-09-16"
+      ],
+      "path": "data/private/nisar/change/pass_2026-09-16_HV.tif",
+      "sha256": "5a0af887a5b79c6ea77635bbbe2739846ea215f895d7ef11e1f0b050f7fc351a",
+      "flags": []
+    },
+    {
+      "name": "change_2026-09-16_HV",
+      "kind": "change_vs_june_baseline",
+      "polarization": "HV",
+      "dates": [
+        "2026-09-16"
+      ],
+      "path": "data/private/nisar/change/change_2026-09-16_HV.tif",
+      "sha256": "97ff7cddd5a4c5210a6e0e52187bb5053b25aaab05165c0a7ca70d680b6f112c",
+      "flags": []
+    },
+    {
+      "name": "pass_2026-09-28_HV",
+      "kind": "pass",
+      "polarization": "HV",
+      "dates": [
+        "2026-09-28"
+      ],
+      "path": "data/private/nisar/change/pass_2026-09-28_HV.tif",
+      "sha256": "4618ca09ab4f467307f1fd23ac7b5dbd547d45927cc9e7c2a04db58fc869643a",
+      "flags": []
+    },
+    {
+      "name": "change_2026-09-28_HV",
+      "kind": "change_vs_june_baseline",
+      "polarization": "HV",
+      "dates": [
+        "2026-09-28"
+      ],
+      "path": "data/private/nisar/change/change_2026-09-28_HV.tif",
+      "sha256": "a107e2cf6f7c7c52c93972c918185c050234f0616bcbe03fce87f0d8f71d856f",
+      "flags": []
+    },
+    {
+      "name": "pass_2026-10-10_HV",
+      "kind": "pass",
+      "polarization": "HV",
+      "dates": [
+        "2026-10-10"
+      ],
+      "path": "data/private/nisar/change/pass_2026-10-10_HV.tif",
+      "sha256": "a0c053f506485390d42750912a4fb8b275e84b8db54433c13e3b123be733d071",
+      "flags": []
+    },
+    {
+      "name": "change_2026-10-10_HV",
+      "kind": "change_vs_june_baseline",
+      "polarization": "HV",
+      "dates": [
+        "2026-10-10"
+      ],
+      "path": "data/private/nisar/change/change_2026-10-10_HV.tif",
+      "sha256": "d2fdbaf2f7352171bbd88bd0971c9f4342080d07adbd424c6fcb4effd8b8d694",
+      "flags": []
+    },
+    {
+      "name": "pass_2026-10-22_HV",
+      "kind": "pass",
+      "polarization": "HV",
+      "dates": [
+        "2026-10-22"
+      ],
+      "path": "data/private/nisar/change/pass_2026-10-22_HV.tif",
+      "sha256": "11d893e2191a769debec600c3b301eb3f10604bcf5958b21077afe548850353e",
+      "flags": []
+    },
+    {
+      "name": "change_2026-10-22_HV",
+      "kind": "change_vs_june_baseline",
+      "polarization": "HV",
+      "dates": [
+        "2026-10-22"
+      ],
+      "path": "data/private/nisar/change/change_2026-10-22_HV.tif",
+      "sha256": "c7d62653b77fbb3dfd0ac46beb8c8a1089b7da59132ff38c43b6fa841ad879cd",
+      "flags": []
+    },
+    {
+      "name": "pass_2026-11-03_HV",
+      "kind": "pass",
+      "polarization": "HV",
+      "dates": [
+        "2026-11-03"
+      ],
+      "path": "data/private/nisar/change/pass_2026-11-03_HV.tif",
+      "sha256": "15215a5c2ffeffe35ad09cbe749820fdff5f8302c446be543c9f93620a2c5192",
+      "flags": []
+    },
+    {
+      "name": "change_2026-11-03_HV",
+      "kind": "change_vs_june_baseline",
+      "polarization": "HV",
+      "dates": [
+        "2026-11-03"
+      ],
+      "path": "data/private/nisar/change/change_2026-11-03_HV.tif",
+      "sha256": "11544ac1b4f1fd9fad92e7a1fe3203eb5e6d0ee8880be0f9cc5834a8066407f2",
+      "flags": []
+    }
+  ]
+}
