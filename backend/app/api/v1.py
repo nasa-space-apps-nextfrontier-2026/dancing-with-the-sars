@@ -4,6 +4,7 @@ from pathlib import Path
 from backend.app.core.config import get_settings
 from backend.app.core.permissions import allowed, is_private_layer
 from backend.app.core.security import authenticate, issue_session, read_session, revoke_session
+from backend.app.handlers import HANDLERS
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -69,6 +70,9 @@ def attach_routes(app: FastAPI) -> None:
                 denial = authorize(request, _role, _path)
                 if denial:
                     return denial
+                handler_fn = HANDLERS.get((_method, _path))
+                if handler_fn:
+                    return await handler_fn(request, request.path_params)
                 if _path == '/session' and _method == 'DELETE':
                     revoke_session(request.cookies.get('civisar_session'))
                     response = JSONResponse({}, status_code=204)
