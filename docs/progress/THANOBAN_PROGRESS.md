@@ -12,7 +12,7 @@ Read this to see where Thanoban's ML work stands. Udula: this is what you need t
 | Model A: night-light power-loss rule (baseline of 60 clear nights, drop below 50% on 2 clear nights, `unknown` when evidence is thin) | Code and 7 tests done on synthetic data; open, needs review | [#4](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/4) |
 | Model B: fire events (filter, permanent hot spots, 1 km / 12 h clustering) | Code and 6 tests done on synthetic points; open, needs review | [#5](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/5) |
 | Model C: strike-enrichment tests (near vs far, same-district control) | Harness and 4 tests done on mock data; open, needs review | [#6](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/6) |
-| Black Marble download and cropping on Colab | Works for the archive (one tile tested). Near-real-time needs the LANCE licence accepted in the Earthdata account | |
+| Black Marble download and cropping on Colab | Works for the archive (one tile tested) and near-real-time (LANCE app authorised) | |
 | FIRMS download | Blocked: needs the FIRMS map key | |
 | Tuning thresholds on real data | Not started (after downloads) | |
 
@@ -60,7 +60,7 @@ Downloaded one night's Black Marble tile on Colab, cropped it to the demo box, t
 What this means for the model:
 1. **The demo box includes sea**, so many pixels are dark. Per-pixel ratios on dark pixels are unstable. The rule must work on **cell totals over land pixels** (H3 cells with a minimum baseline), and the `MIN_BASELINE_RADIANCE` value in PR #4 has to be applied per cell, not per pixel. I will tune this on real history.
 2. "Clear night" will be defined as quality flag 0 and cloud bits 6–7 equal to 0, as in the Black Marble guide. To be checked against the product guide before tuning.
-3. **Near-real-time files (last 7 days) are blocked.** The server redirects to a data-licence page, so the Earthdata account has to accept the LANCE / LAADS licence first (an account action on the Earthdata website). The archive works without it, but it ends on 28 Oct (NOAA-20), so the last two weeks need the licence.
+3. **Near-real-time files (last 7 days) now work.** They were blocked until the Earthdata account authorised the application **"LANCE"** (Earthdata profile > Applications > Approve More Applications, then the auto-authorise list). After that the NRT URL on `nrt3.modaps.eosdis.nasa.gov` returns HTTP 200 with the token. The archive needs the "LAADS DAAC Cumulus" app, which was already authorised. **Udula:** NISAR downloads from ASF need the application "Alaska Satellite Facility Data Access" authorised on your own Earthdata account the same way.
 
 ## What Thanoban hands over, and when
 
@@ -87,7 +87,7 @@ What this means for the model:
 
 ## Next steps (in order)
 
-1. Accept the LANCE / LAADS licence in the Earthdata account (for near-real-time data) and get the FIRMS map key.
+1. Get the FIRMS map key (it is emailed to the account owner).
 2. Download the last 60 clear nights as cropped tiles on Colab and build the per-cell history.
 3. Build the per-cell history table for the last 120 nights and run the rule from PR #4 on real data; tune the thresholds from the quiet cells' own scores.
 4. Download recent FIRMS points for the demo box, run the fire model from PR #5, and tune the permanent-spot rule.
