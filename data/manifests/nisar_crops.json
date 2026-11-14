@@ -1,0 +1,925 @@
+{
+  "schema_version": "0.1",
+  "kind": "nisar_crop_index",
+  "synthetic": false,
+  "crops": {
+    "NISAR_L2_PR_GCOV_023_151_D_072_2005_DHDH_A_20260624T162513_20260624T162548_P05023_N_F_J_001": {
+      "tier": "A-after",
+      "date": "2026-06-24",
+      "maturity": "PROVISIONAL",
+      "crid": "P05023",
+      "mode": "full",
+      "seconds": 115.9,
+      "cropped_at": "2026-11-14T04:41:18+00:00",
+      "epsg": 32636,
+      "pixel_spacing_m": [
+        20.0,
+        20.0
+      ],
+      "shape": [
+        3439,
+        4736
+      ],
+      "bounds": [
+        685580.0,
+        3653060.0,
+        780300.0,
+        3721840.0
+      ],
+      "outputs": [
+        {
+          "term": "HHHH",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_023_151_D_072_2005_DHDH_A_20260624T162513_20260624T162548_P05023_N_F_J_001_HHHH.tif",
+          "sha256": "e4591092437faffcaa12504d28c69a043216348c6fd9220902a0295ef42cc103",
+          "valid_fraction": 0.9999728619649018,
+          "units": "linear power"
+        },
+        {
+          "term": "HVHV",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_023_151_D_072_2005_DHDH_A_20260624T162513_20260624T162548_P05023_N_F_J_001_HVHV.tif",
+          "sha256": "41c56a0616c8afb075b688726358678b7d85e0d0f2dee396323bb41240d06b87",
+          "valid_fraction": 0.9999728619649018,
+          "units": "linear power"
+        },
+        {
+          "term": "mask",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_023_151_D_072_2005_DHDH_A_20260624T162513_20260624T162548_P05023_N_F_J_001_mask.tif",
+          "sha256": "c696e3718cfe683e8175c21cbc3c69d7208b99588918e56f4f2e1179d7c01632",
+          "valid_fraction": null,
+          "units": null
+        },
+        {
+          "term": "numberOfLooks",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_023_151_D_072_2005_DHDH_A_20260624T162513_20260624T162548_P05023_N_F_J_001_numberOfLooks.tif",
+          "sha256": "ea387dae5ed840acb42af0cc4e52857bc6c8bb0dd5818fa994f2a4afedb803cd",
+          "valid_fraction": null,
+          "units": null
+        }
+      ]
+    },
+    "NISAR_L2_PR_GCOV_003_151_D_072_2005_DHDH_A_20251027T162510_20251027T162545_X05009_N_F_J_001": {
+      "tier": "A-before",
+      "date": "2025-10-27",
+      "maturity": "BETA",
+      "crid": "X05009",
+      "mode": "full",
+      "seconds": 129.1,
+      "cropped_at": "2026-11-14T04:44:20+00:00",
+      "epsg": 32636,
+      "pixel_spacing_m": [
+        20.0,
+        20.0
+      ],
+      "shape": [
+        3439,
+        4736
+      ],
+      "bounds": [
+        685580.0,
+        3653060.0,
+        780300.0,
+        3721840.0
+      ],
+      "outputs": [
+        {
+          "term": "HHHH",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_003_151_D_072_2005_DHDH_A_20251027T162510_20251027T162545_X05009_N_F_J_001_HHHH.tif",
+          "sha256": "ed901773595b7fb868f4baa75511aa28aa2c11f7528ef457521fff089e00a0e9",
+          "valid_fraction": 0.9999727391683629,
+          "units": "linear power"
+        },
+        {
+          "term": "HVHV",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_003_151_D_072_2005_DHDH_A_20251027T162510_20251027T162545_X05009_N_F_J_001_HVHV.tif",
+          "sha256": "3d753cdece6c883cb78fd8c74792422f8d515520bd41c32019b0d8f133f61546",
+          "valid_fraction": 0.9999727391683629,
+          "units": "linear power"
+        },
+        {
+          "term": "mask",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_003_151_D_072_2005_DHDH_A_20251027T162510_20251027T162545_X05009_N_F_J_001_mask.tif",
+          "sha256": "e9b814f36165be573c8a1b2119ead89b6e1ced6f733536e56b2237509df6a6d6",
+          "valid_fraction": null,
+          "units": null
+        },
+        {
+          "term": "numberOfLooks",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_003_151_D_072_2005_DHDH_A_20251027T162510_20251027T162545_X05009_N_F_J_001_numberOfLooks.tif",
+          "sha256": "13baea487137fe2417e89b887aa7c6ed218ed3ddce2ad840d889fa3515f89629",
+          "valid_fraction": null,
+          "units": null
+        }
+      ]
+    },
+    "NISAR_L2_PR_GCOV_004_151_D_072_2005_DHDH_A_20251108T162511_20251108T162546_X05009_N_F_J_001": {
+      "tier": "A-before",
+      "date": "2025-11-08",
+      "maturity": "BETA",
+      "crid": "X05009",
+      "mode": "full",
+      "seconds": 100.5,
+      "cropped_at": "2026-11-14T04:46:01+00:00",
+      "epsg": 32636,
+      "pixel_spacing_m": [
+        20.0,
+        20.0
+      ],
+      "shape": [
+        3439,
+        4736
+      ],
+      "bounds": [
+        685580.0,
+        3653060.0,
+        780300.0,
+        3721840.0
+      ],
+      "outputs": [
+        {
+          "term": "HHHH",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_004_151_D_072_2005_DHDH_A_20251108T162511_20251108T162546_X05009_N_F_J_001_HHHH.tif",
+          "sha256": "f1002c820f72320f38844665336dda8ac96e9a42de71f6083f42194e684c125b",
+          "valid_fraction": 0.9999725549735545,
+          "units": "linear power"
+        },
+        {
+          "term": "HVHV",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_004_151_D_072_2005_DHDH_A_20251108T162511_20251108T162546_X05009_N_F_J_001_HVHV.tif",
+          "sha256": "8901f57a6625c4c5859f7e97b824acd5cea9b30950430bb722feb0d3703298b8",
+          "valid_fraction": 0.9999725549735545,
+          "units": "linear power"
+        },
+        {
+          "term": "mask",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_004_151_D_072_2005_DHDH_A_20251108T162511_20251108T162546_X05009_N_F_J_001_mask.tif",
+          "sha256": "28cbd410780551c4ce5faad35f3bd8bd8bbdb7d0e67619e3420b662e07a97930",
+          "valid_fraction": null,
+          "units": null
+        },
+        {
+          "term": "numberOfLooks",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_004_151_D_072_2005_DHDH_A_20251108T162511_20251108T162546_X05009_N_F_J_001_numberOfLooks.tif",
+          "sha256": "f6afe8c7060db066221ef01311ca556a6d777c4d5b57590f4973500c575b42c4",
+          "valid_fraction": null,
+          "units": null
+        }
+      ]
+    },
+    "NISAR_L2_PR_GCOV_005_151_D_072_2005_DHDH_A_20251120T162511_20251120T162546_X05009_N_F_J_001": {
+      "tier": "A-before",
+      "date": "2025-11-20",
+      "maturity": "BETA",
+      "crid": "X05009",
+      "mode": "full",
+      "seconds": 146.8,
+      "cropped_at": "2026-11-14T04:48:28+00:00",
+      "epsg": 32636,
+      "pixel_spacing_m": [
+        20.0,
+        20.0
+      ],
+      "shape": [
+        3439,
+        4736
+      ],
+      "bounds": [
+        685580.0,
+        3653060.0,
+        780300.0,
+        3721840.0
+      ],
+      "outputs": [
+        {
+          "term": "HHHH",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_005_151_D_072_2005_DHDH_A_20251120T162511_20251120T162546_X05009_N_F_J_001_HHHH.tif",
+          "sha256": "973492aade7e5772101e681a006e19e7e39228d3dbad39dd4efc0c4d6b51595c",
+          "valid_fraction": 0.9999727391683629,
+          "units": "linear power"
+        },
+        {
+          "term": "HVHV",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_005_151_D_072_2005_DHDH_A_20251120T162511_20251120T162546_X05009_N_F_J_001_HVHV.tif",
+          "sha256": "29e1d4991af592c0f3e965c385214eca1bf821adc0d1ee4857b080ccd11bb6e4",
+          "valid_fraction": 0.9999727391683629,
+          "units": "linear power"
+        },
+        {
+          "term": "mask",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_005_151_D_072_2005_DHDH_A_20251120T162511_20251120T162546_X05009_N_F_J_001_mask.tif",
+          "sha256": "a6e166be4fd2b121b8023a6fb37b5df527c7c7ba2c9fa817710f745363cd4863",
+          "valid_fraction": null,
+          "units": null
+        },
+        {
+          "term": "numberOfLooks",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_005_151_D_072_2005_DHDH_A_20251120T162511_20251120T162546_X05009_N_F_J_001_numberOfLooks.tif",
+          "sha256": "ff314ca5d372ba61527623589e36bf9432d1ea08010f59d65ba1d32f6ca9d04d",
+          "valid_fraction": null,
+          "units": null
+        }
+      ]
+    },
+    "NISAR_L2_PR_GCOV_008_151_D_072_2005_DHDH_A_20251226T162513_20251226T162547_X05009_N_F_J_001": {
+      "tier": "A-before",
+      "date": "2025-12-26",
+      "maturity": "BETA",
+      "crid": "X05009",
+      "mode": "full",
+      "seconds": 135.4,
+      "cropped_at": "2026-11-14T04:50:43+00:00",
+      "epsg": 32636,
+      "pixel_spacing_m": [
+        20.0,
+        20.0
+      ],
+      "shape": [
+        3439,
+        4736
+      ],
+      "bounds": [
+        685580.0,
+        3653060.0,
+        780300.0,
+        3721840.0
+      ],
+      "outputs": [
+        {
+          "term": "HHHH",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_008_151_D_072_2005_DHDH_A_20251226T162513_20251226T162547_X05009_N_F_J_001_HHHH.tif",
+          "sha256": "ae757ab4e8fd2423678d2dc6e717fdc102c42f248724ce51b891845ed2e2189f",
+          "valid_fraction": 0.9999729233631712,
+          "units": "linear power"
+        },
+        {
+          "term": "HVHV",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_008_151_D_072_2005_DHDH_A_20251226T162513_20251226T162547_X05009_N_F_J_001_HVHV.tif",
+          "sha256": "b2dc8e03a2174029008c74370ccf07cb11845ea528d3b56d9c6c6552c99fd527",
+          "valid_fraction": 0.9999729233631712,
+          "units": "linear power"
+        },
+        {
+          "term": "mask",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_008_151_D_072_2005_DHDH_A_20251226T162513_20251226T162547_X05009_N_F_J_001_mask.tif",
+          "sha256": "d8bf84d60ce127d8181de603a1b4a32b75c2f9760f2151d7267c6310663cb9a4",
+          "valid_fraction": null,
+          "units": null
+        },
+        {
+          "term": "numberOfLooks",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_008_151_D_072_2005_DHDH_A_20251226T162513_20251226T162547_X05009_N_F_J_001_numberOfLooks.tif",
+          "sha256": "b22c32a23cb36123b07ddf9068298b34aed71240d9742c5474de2913913b7927",
+          "valid_fraction": null,
+          "units": null
+        }
+      ]
+    },
+    "NISAR_L2_PR_GCOV_009_151_D_072_2005_DHDH_A_20260107T162513_20260107T162548_X05009_N_F_J_001": {
+      "tier": "A-before",
+      "date": "2026-01-07",
+      "maturity": "BETA",
+      "crid": "X05009",
+      "mode": "full",
+      "seconds": 135.3,
+      "cropped_at": "2026-11-14T04:52:58+00:00",
+      "epsg": 32636,
+      "pixel_spacing_m": [
+        20.0,
+        20.0
+      ],
+      "shape": [
+        3439,
+        4736
+      ],
+      "bounds": [
+        685580.0,
+        3653060.0,
+        780300.0,
+        3721840.0
+      ],
+      "outputs": [
+        {
+          "term": "HHHH",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_009_151_D_072_2005_DHDH_A_20260107T162513_20260107T162548_X05009_N_F_J_001_HHHH.tif",
+          "sha256": "7030a2f4cc886bc1eacd98ace14c1ba12ccd5e60448f1244d268fbf293f325ec",
+          "valid_fraction": 0.9999723707787462,
+          "units": "linear power"
+        },
+        {
+          "term": "HVHV",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_009_151_D_072_2005_DHDH_A_20260107T162513_20260107T162548_X05009_N_F_J_001_HVHV.tif",
+          "sha256": "051e32ab4b32b9edb8a9c1033719c405645a3b75400b1cffae590c47f8283bbc",
+          "valid_fraction": 0.9999723707787462,
+          "units": "linear power"
+        },
+        {
+          "term": "mask",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_009_151_D_072_2005_DHDH_A_20260107T162513_20260107T162548_X05009_N_F_J_001_mask.tif",
+          "sha256": "67d52fcd75543bca74daeb220d477e8dee6d962e265fbf524ae263b45ccc9ffe",
+          "valid_fraction": null,
+          "units": null
+        },
+        {
+          "term": "numberOfLooks",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_009_151_D_072_2005_DHDH_A_20260107T162513_20260107T162548_X05009_N_F_J_001_numberOfLooks.tif",
+          "sha256": "0125fe30db850b8720ab8e96c540e230ab0699e8c8667915cab857b887382c4c",
+          "valid_fraction": null,
+          "units": null
+        }
+      ]
+    },
+    "NISAR_L2_PR_GCOV_010_151_D_072_2005_DHDH_A_20260119T162514_20260119T162549_X05010_N_F_J_001": {
+      "tier": "A-before",
+      "date": "2026-01-19",
+      "maturity": "BETA",
+      "crid": "X05010",
+      "mode": "full",
+      "seconds": 145.7,
+      "cropped_at": "2026-11-14T04:55:24+00:00",
+      "epsg": 32636,
+      "pixel_spacing_m": [
+        20.0,
+        20.0
+      ],
+      "shape": [
+        3439,
+        4736
+      ],
+      "bounds": [
+        685580.0,
+        3653060.0,
+        780300.0,
+        3721840.0
+      ],
+      "outputs": [
+        {
+          "term": "HHHH",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_010_151_D_072_2005_DHDH_A_20260119T162514_20260119T162549_X05010_N_F_J_001_HHHH.tif",
+          "sha256": "4a291c489b83bdc878c600c1e6b5b2be034a073147fe9476d15452a3105c424f",
+          "valid_fraction": 0.9999728005666324,
+          "units": "linear power"
+        },
+        {
+          "term": "HVHV",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_010_151_D_072_2005_DHDH_A_20260119T162514_20260119T162549_X05010_N_F_J_001_HVHV.tif",
+          "sha256": "da720f67eb8c702c37a6df0cbf1bc5d545caf653e2533fca1143b8e36d144c59",
+          "valid_fraction": 0.9999728005666324,
+          "units": "linear power"
+        },
+        {
+          "term": "mask",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_010_151_D_072_2005_DHDH_A_20260119T162514_20260119T162549_X05010_N_F_J_001_mask.tif",
+          "sha256": "56ab37108f9edbe8566eaa1409f22031817bc6d4e4bfb343d4f1b109eba31995",
+          "valid_fraction": null,
+          "units": null
+        },
+        {
+          "term": "numberOfLooks",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_010_151_D_072_2005_DHDH_A_20260119T162514_20260119T162549_X05010_N_F_J_001_numberOfLooks.tif",
+          "sha256": "4123982826b129427d0963f141f625f605f6d45380530a6a5bb12fce23b6b5a6",
+          "valid_fraction": null,
+          "units": null
+        }
+      ]
+    },
+    "NISAR_L2_PR_GCOV_024_151_D_072_2005_DHDH_A_20260706T162513_20260706T162547_P05023_N_F_J_001": {
+      "tier": "A-after",
+      "date": "2026-07-06",
+      "maturity": "PROVISIONAL",
+      "crid": "P05023",
+      "mode": "full",
+      "seconds": 150.9,
+      "cropped_at": "2026-11-14T04:57:55+00:00",
+      "epsg": 32636,
+      "pixel_spacing_m": [
+        20.0,
+        20.0
+      ],
+      "shape": [
+        3439,
+        4736
+      ],
+      "bounds": [
+        685580.0,
+        3653060.0,
+        780300.0,
+        3721840.0
+      ],
+      "outputs": [
+        {
+          "term": "HHHH",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_024_151_D_072_2005_DHDH_A_20260706T162513_20260706T162547_P05023_N_F_J_001_HHHH.tif",
+          "sha256": "91c68c17fd17d068e60621401db166e70996fa1751d7f3ca1de31a56a2584d9e",
+          "valid_fraction": 0.9999730461597102,
+          "units": "linear power"
+        },
+        {
+          "term": "HVHV",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_024_151_D_072_2005_DHDH_A_20260706T162513_20260706T162547_P05023_N_F_J_001_HVHV.tif",
+          "sha256": "63ff3f930defdc021c35823d29081a9f7446781c49d460c63eecbf7459eb246a",
+          "valid_fraction": 0.9999730461597102,
+          "units": "linear power"
+        },
+        {
+          "term": "mask",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_024_151_D_072_2005_DHDH_A_20260706T162513_20260706T162547_P05023_N_F_J_001_mask.tif",
+          "sha256": "14b518c9ef310b3bc7ef3522a4cdecbe7645ef95ba8e95dfd86defab30184bc6",
+          "valid_fraction": null,
+          "units": null
+        },
+        {
+          "term": "numberOfLooks",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_024_151_D_072_2005_DHDH_A_20260706T162513_20260706T162547_P05023_N_F_J_001_numberOfLooks.tif",
+          "sha256": "e05c2a2a01377de1756b1303b7f480f570e2889d19125a7606ee2e186e701e58",
+          "valid_fraction": null,
+          "units": null
+        }
+      ]
+    },
+    "NISAR_L2_PR_GCOV_025_151_D_072_2005_DHDH_A_20260718T162512_20260718T162547_P05023_N_F_J_001": {
+      "tier": "A-after",
+      "date": "2026-07-18",
+      "maturity": "PROVISIONAL",
+      "crid": "P05023",
+      "mode": "full",
+      "seconds": 184.3,
+      "cropped_at": "2026-11-14T05:00:59+00:00",
+      "epsg": 32636,
+      "pixel_spacing_m": [
+        20.0,
+        20.0
+      ],
+      "shape": [
+        3439,
+        4736
+      ],
+      "bounds": [
+        685580.0,
+        3653060.0,
+        780300.0,
+        3721840.0
+      ],
+      "outputs": [
+        {
+          "term": "HHHH",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_025_151_D_072_2005_DHDH_A_20260718T162512_20260718T162547_P05023_N_F_J_001_HHHH.tif",
+          "sha256": "eb5224fc639b31252a760995ac32827f100b4627755e37c697aa83dfa4ce596e",
+          "valid_fraction": 0.9999728005666324,
+          "units": "linear power"
+        },
+        {
+          "term": "HVHV",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_025_151_D_072_2005_DHDH_A_20260718T162512_20260718T162547_P05023_N_F_J_001_HVHV.tif",
+          "sha256": "1e7e701a21ba8598772f611d36250ac65c202c5c4b2c47bc41c79e935d54c77d",
+          "valid_fraction": 0.9999728005666324,
+          "units": "linear power"
+        },
+        {
+          "term": "mask",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_025_151_D_072_2005_DHDH_A_20260718T162512_20260718T162547_P05023_N_F_J_001_mask.tif",
+          "sha256": "32d4d17740ec0a139f7e8a1f0f329917cbac6e36c72d9d2454de3b8b0d51f545",
+          "valid_fraction": null,
+          "units": null
+        },
+        {
+          "term": "numberOfLooks",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_025_151_D_072_2005_DHDH_A_20260718T162512_20260718T162547_P05023_N_F_J_001_numberOfLooks.tif",
+          "sha256": "618582063ca1f2287d5f68cd884c09d3b003df731870a3848544bb29db16fc15",
+          "valid_fraction": null,
+          "units": null
+        }
+      ]
+    },
+    "NISAR_L2_PR_GCOV_027_151_D_072_2005_DHDH_A_20260811T162511_20260811T162545_P05023_N_F_J_001": {
+      "tier": "B",
+      "date": "2026-08-11",
+      "maturity": "PROVISIONAL",
+      "crid": "P05023",
+      "mode": "full",
+      "seconds": 146.2,
+      "cropped_at": "2026-11-14T05:03:25+00:00",
+      "epsg": 32636,
+      "pixel_spacing_m": [
+        20.0,
+        20.0
+      ],
+      "shape": [
+        3439,
+        4736
+      ],
+      "bounds": [
+        685580.0,
+        3653060.0,
+        780300.0,
+        3721840.0
+      ],
+      "outputs": [
+        {
+          "term": "HHHH",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_027_151_D_072_2005_DHDH_A_20260811T162511_20260811T162545_P05023_N_F_J_001_HHHH.tif",
+          "sha256": "787c7eade1acf87c4c1e6ada3e2a044709f9d7cabae305eea6fc9aabd2a387c9",
+          "valid_fraction": 0.9999728005666324,
+          "units": "linear power"
+        },
+        {
+          "term": "HVHV",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_027_151_D_072_2005_DHDH_A_20260811T162511_20260811T162545_P05023_N_F_J_001_HVHV.tif",
+          "sha256": "ea2d372e4a066448d5a4d3d9e8b3b72160f44c595010414368fd0a924db7278f",
+          "valid_fraction": 0.9999728005666324,
+          "units": "linear power"
+        },
+        {
+          "term": "mask",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_027_151_D_072_2005_DHDH_A_20260811T162511_20260811T162545_P05023_N_F_J_001_mask.tif",
+          "sha256": "858cd816c763fcd56ccb30ce6a93c6677720f41f0bcf6559fc51a73e6c4a5aac",
+          "valid_fraction": null,
+          "units": null
+        },
+        {
+          "term": "numberOfLooks",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_027_151_D_072_2005_DHDH_A_20260811T162511_20260811T162545_P05023_N_F_J_001_numberOfLooks.tif",
+          "sha256": "f97ebd37bb0581e0fa1e9ff16e703bd3a17b4c3f696ddd6a3e1535dbbbc82df8",
+          "valid_fraction": null,
+          "units": null
+        }
+      ]
+    },
+    "NISAR_L2_PR_GCOV_028_151_D_072_2005_DHDH_A_20260823T162510_20260823T162545_P05023_N_F_J_001": {
+      "tier": "B",
+      "date": "2026-08-23",
+      "maturity": "PROVISIONAL",
+      "crid": "P05023",
+      "mode": "full",
+      "seconds": 126.5,
+      "cropped_at": "2026-11-14T05:05:32+00:00",
+      "epsg": 32636,
+      "pixel_spacing_m": [
+        20.0,
+        20.0
+      ],
+      "shape": [
+        3439,
+        4736
+      ],
+      "bounds": [
+        685580.0,
+        3653060.0,
+        780300.0,
+        3721840.0
+      ],
+      "outputs": [
+        {
+          "term": "HHHH",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_028_151_D_072_2005_DHDH_A_20260823T162510_20260823T162545_P05023_N_F_J_001_HHHH.tif",
+          "sha256": "ae0567890673ca5ad0c69e1b91f66e43329f1f204d748465c40b3febd6193760",
+          "valid_fraction": 0.9999726777700935,
+          "units": "linear power"
+        },
+        {
+          "term": "HVHV",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_028_151_D_072_2005_DHDH_A_20260823T162510_20260823T162545_P05023_N_F_J_001_HVHV.tif",
+          "sha256": "96452f824e768e163b7e68fd6fdfc4afcb4d43e4f8ac6b57229ad131ceed2a12",
+          "valid_fraction": 0.9999726777700935,
+          "units": "linear power"
+        },
+        {
+          "term": "mask",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_028_151_D_072_2005_DHDH_A_20260823T162510_20260823T162545_P05023_N_F_J_001_mask.tif",
+          "sha256": "32b6b09181580faee42ce3921321159db58d14febd8b0b316dab73c6d437f642",
+          "valid_fraction": null,
+          "units": null
+        },
+        {
+          "term": "numberOfLooks",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_028_151_D_072_2005_DHDH_A_20260823T162510_20260823T162545_P05023_N_F_J_001_numberOfLooks.tif",
+          "sha256": "d10c366ab6754321b16e24628a9d6fad82ced6ab0c76d0bcd58e63cd44482b65",
+          "valid_fraction": null,
+          "units": null
+        }
+      ]
+    },
+    "NISAR_L2_PR_GCOV_029_151_D_072_2005_DHDH_A_20260904T162510_20260904T162545_P05023_N_F_J_002": {
+      "tier": "B",
+      "date": "2026-09-04",
+      "maturity": "PROVISIONAL",
+      "crid": "P05023",
+      "mode": "full",
+      "seconds": 124.9,
+      "cropped_at": "2026-11-14T05:07:37+00:00",
+      "epsg": 32636,
+      "pixel_spacing_m": [
+        20.0,
+        20.0
+      ],
+      "shape": [
+        3439,
+        4736
+      ],
+      "bounds": [
+        685580.0,
+        3653060.0,
+        780300.0,
+        3721840.0
+      ],
+      "outputs": [
+        {
+          "term": "HHHH",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_029_151_D_072_2005_DHDH_A_20260904T162510_20260904T162545_P05023_N_F_J_002_HHHH.tif",
+          "sha256": "97924d32d23e5bd14a3242cff40bcc12b478953d2cfec1e6e89d878a6bb9d9f5",
+          "valid_fraction": 0.999972616371824,
+          "units": "linear power"
+        },
+        {
+          "term": "HVHV",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_029_151_D_072_2005_DHDH_A_20260904T162510_20260904T162545_P05023_N_F_J_002_HVHV.tif",
+          "sha256": "7f6e90876a90730e802b833f28a9c9b88cf0642ad90889a077b1bf4cfcd0cbea",
+          "valid_fraction": 0.999972616371824,
+          "units": "linear power"
+        },
+        {
+          "term": "mask",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_029_151_D_072_2005_DHDH_A_20260904T162510_20260904T162545_P05023_N_F_J_002_mask.tif",
+          "sha256": "5702572e04ace140b60840c424a365c4333b9463235879e7d3d65a17869bc698",
+          "valid_fraction": null,
+          "units": null
+        },
+        {
+          "term": "numberOfLooks",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_029_151_D_072_2005_DHDH_A_20260904T162510_20260904T162545_P05023_N_F_J_002_numberOfLooks.tif",
+          "sha256": "b4e004384e75408ff5736119cb9beb63d1a08679a995c3114011a117b137224f",
+          "valid_fraction": null,
+          "units": null
+        }
+      ]
+    },
+    "NISAR_L2_PR_GCOV_030_151_D_072_2005_DHDH_A_20260916T162510_20260916T162544_P05023_N_F_J_001": {
+      "tier": "B",
+      "date": "2026-09-16",
+      "maturity": "PROVISIONAL",
+      "crid": "P05023",
+      "mode": "full",
+      "seconds": 93.8,
+      "cropped_at": "2026-11-14T05:09:11+00:00",
+      "epsg": 32636,
+      "pixel_spacing_m": [
+        20.0,
+        20.0
+      ],
+      "shape": [
+        3439,
+        4736
+      ],
+      "bounds": [
+        685580.0,
+        3653060.0,
+        780300.0,
+        3721840.0
+      ],
+      "outputs": [
+        {
+          "term": "HHHH",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_030_151_D_072_2005_DHDH_A_20260916T162510_20260916T162544_P05023_N_F_J_001_HHHH.tif",
+          "sha256": "2a1f6584b34b0cbcb4661be1679637685cfdc9eeca34ed3f372d6b6731a64724",
+          "valid_fraction": 0.9999731689562491,
+          "units": "linear power"
+        },
+        {
+          "term": "HVHV",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_030_151_D_072_2005_DHDH_A_20260916T162510_20260916T162544_P05023_N_F_J_001_HVHV.tif",
+          "sha256": "f6e7e021d1b3a93d32c33f209433de1e7c20009f29dba1b5024e71c9ded92e17",
+          "valid_fraction": 0.9999731689562491,
+          "units": "linear power"
+        },
+        {
+          "term": "mask",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_030_151_D_072_2005_DHDH_A_20260916T162510_20260916T162544_P05023_N_F_J_001_mask.tif",
+          "sha256": "56bff4251903a51d4b75beca3de14a73f04932aae3c06403bd6b0449e1b5274a",
+          "valid_fraction": null,
+          "units": null
+        },
+        {
+          "term": "numberOfLooks",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_030_151_D_072_2005_DHDH_A_20260916T162510_20260916T162544_P05023_N_F_J_001_numberOfLooks.tif",
+          "sha256": "aac99213b31b26fd76cc2c199980114b9d0ee38bfc8383fea9691915dca79fd1",
+          "valid_fraction": null,
+          "units": null
+        }
+      ]
+    },
+    "NISAR_L2_PR_GCOV_031_151_D_072_2005_DHDH_A_20260928T162510_20260928T162544_P05023_N_F_J_001": {
+      "tier": "B",
+      "date": "2026-09-28",
+      "maturity": "PROVISIONAL",
+      "crid": "P05023",
+      "mode": "full",
+      "seconds": 121.2,
+      "cropped_at": "2026-11-14T05:11:12+00:00",
+      "epsg": 32636,
+      "pixel_spacing_m": [
+        20.0,
+        20.0
+      ],
+      "shape": [
+        3439,
+        4736
+      ],
+      "bounds": [
+        685580.0,
+        3653060.0,
+        780300.0,
+        3721840.0
+      ],
+      "outputs": [
+        {
+          "term": "HHHH",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_031_151_D_072_2005_DHDH_A_20260928T162510_20260928T162544_P05023_N_F_J_001_HHHH.tif",
+          "sha256": "a739f1ce79590600a9d909b8cdb2dc2b9fa8855f46c5a8073d33c37da707cbf6",
+          "valid_fraction": 0.9999732303545186,
+          "units": "linear power"
+        },
+        {
+          "term": "HVHV",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_031_151_D_072_2005_DHDH_A_20260928T162510_20260928T162544_P05023_N_F_J_001_HVHV.tif",
+          "sha256": "503ac15f5291746c8b3032a76b0ae15e8d824c6b42ce4f230fb120e3c34743b2",
+          "valid_fraction": 0.9999732303545186,
+          "units": "linear power"
+        },
+        {
+          "term": "mask",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_031_151_D_072_2005_DHDH_A_20260928T162510_20260928T162544_P05023_N_F_J_001_mask.tif",
+          "sha256": "3a77c65afca300306fda5a71887dcc06fbe490d47402545a56616b87620348db",
+          "valid_fraction": null,
+          "units": null
+        },
+        {
+          "term": "numberOfLooks",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_031_151_D_072_2005_DHDH_A_20260928T162510_20260928T162544_P05023_N_F_J_001_numberOfLooks.tif",
+          "sha256": "25b8f0f19bb68eaac9f7e73753899512cbe00ad75ecf87f11773c4410085183f",
+          "valid_fraction": null,
+          "units": null
+        }
+      ]
+    },
+    "NISAR_L2_PR_GCOV_032_151_D_072_2005_DHDH_A_20261010T162510_20261010T162544_P05023_N_F_J_001": {
+      "tier": "B",
+      "date": "2026-10-10",
+      "maturity": "PROVISIONAL",
+      "crid": "P05023",
+      "mode": "full",
+      "seconds": 113.8,
+      "cropped_at": "2026-11-14T05:13:06+00:00",
+      "epsg": 32636,
+      "pixel_spacing_m": [
+        20.0,
+        20.0
+      ],
+      "shape": [
+        3439,
+        4736
+      ],
+      "bounds": [
+        685580.0,
+        3653060.0,
+        780300.0,
+        3721840.0
+      ],
+      "outputs": [
+        {
+          "term": "HHHH",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_032_151_D_072_2005_DHDH_A_20261010T162510_20261010T162544_P05023_N_F_J_001_HHHH.tif",
+          "sha256": "03247fa4d806bb6e4c5c4b22c979917255aaa25b8a1792b57a07846e0bc54aa5",
+          "valid_fraction": 0.9999728005666324,
+          "units": "linear power"
+        },
+        {
+          "term": "HVHV",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_032_151_D_072_2005_DHDH_A_20261010T162510_20261010T162544_P05023_N_F_J_001_HVHV.tif",
+          "sha256": "3879f86a3efe7485c51362a75e548f51acd135329a5d31ead77d36ee2c2f1bc5",
+          "valid_fraction": 0.9999728005666324,
+          "units": "linear power"
+        },
+        {
+          "term": "mask",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_032_151_D_072_2005_DHDH_A_20261010T162510_20261010T162544_P05023_N_F_J_001_mask.tif",
+          "sha256": "4b26e322522d849abc66c801acb5df49bafbec784a1ebaa8a188837a354854dc",
+          "valid_fraction": null,
+          "units": null
+        },
+        {
+          "term": "numberOfLooks",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_032_151_D_072_2005_DHDH_A_20261010T162510_20261010T162544_P05023_N_F_J_001_numberOfLooks.tif",
+          "sha256": "feb3a9beb401f4f7eef3e684a66c06a604d7ba55944d6b7cf2b103c695cc4010",
+          "valid_fraction": null,
+          "units": null
+        }
+      ]
+    },
+    "NISAR_L2_PR_GCOV_033_151_D_072_2005_DHDH_A_20261022T162510_20261022T162545_P05036_N_F_J_001": {
+      "tier": "B",
+      "date": "2026-10-22",
+      "maturity": "V1",
+      "crid": "P05036",
+      "mode": "full",
+      "seconds": 115.2,
+      "cropped_at": "2026-11-14T05:15:01+00:00",
+      "epsg": 32636,
+      "pixel_spacing_m": [
+        20.0,
+        20.0
+      ],
+      "shape": [
+        3439,
+        4736
+      ],
+      "bounds": [
+        685580.0,
+        3653060.0,
+        780300.0,
+        3721840.0
+      ],
+      "outputs": [
+        {
+          "term": "HHHH",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_033_151_D_072_2005_DHDH_A_20261022T162510_20261022T162545_P05036_N_F_J_001_HHHH.tif",
+          "sha256": "e469a6f73b31595eecaebc981a071073484b98726c64af43e26d3aa398e06b3e",
+          "valid_fraction": 0.9999733531510574,
+          "units": "linear power"
+        },
+        {
+          "term": "HVHV",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_033_151_D_072_2005_DHDH_A_20261022T162510_20261022T162545_P05036_N_F_J_001_HVHV.tif",
+          "sha256": "88122fe7134cf49c97b702c4d6a27d5a924d550c74ba65412d8b292eeb63b020",
+          "valid_fraction": 0.9999733531510574,
+          "units": "linear power"
+        },
+        {
+          "term": "mask",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_033_151_D_072_2005_DHDH_A_20261022T162510_20261022T162545_P05036_N_F_J_001_mask.tif",
+          "sha256": "57dce1084b99d56ff09bc0e462474539def59f83acde442908907b0de2816001",
+          "valid_fraction": null,
+          "units": null
+        },
+        {
+          "term": "numberOfLooks",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_033_151_D_072_2005_DHDH_A_20261022T162510_20261022T162545_P05036_N_F_J_001_numberOfLooks.tif",
+          "sha256": "3007ac43099810a8d80b5180033cf04081d37b8c9cac4abd4bc10955c4341433",
+          "valid_fraction": null,
+          "units": null
+        }
+      ]
+    },
+    "NISAR_L2_PR_GCOV_034_151_D_072_2005_DHDH_A_20261103T162510_20261103T162545_P05036_N_F_J_001": {
+      "tier": "B",
+      "date": "2026-11-03",
+      "maturity": "V1",
+      "crid": "P05036",
+      "mode": "full",
+      "seconds": 153.4,
+      "cropped_at": "2026-11-14T05:17:34+00:00",
+      "epsg": 32636,
+      "pixel_spacing_m": [
+        20.0,
+        20.0
+      ],
+      "shape": [
+        3439,
+        4736
+      ],
+      "bounds": [
+        685580.0,
+        3653060.0,
+        780300.0,
+        3721840.0
+      ],
+      "outputs": [
+        {
+          "term": "HHHH",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_034_151_D_072_2005_DHDH_A_20261103T162510_20261103T162545_P05036_N_F_J_001_HHHH.tif",
+          "sha256": "ee287314facf5832065ced693c0c44beaafedd6e7c06f73a5a4f756def68a4a3",
+          "valid_fraction": 0.9999727391683629,
+          "units": "linear power"
+        },
+        {
+          "term": "HVHV",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_034_151_D_072_2005_DHDH_A_20261103T162510_20261103T162545_P05036_N_F_J_001_HVHV.tif",
+          "sha256": "5ca73af709384e621cc21b9788768b5fa59f1102e97c62764b86f9e36ab7b3eb",
+          "valid_fraction": 0.9999727391683629,
+          "units": "linear power"
+        },
+        {
+          "term": "mask",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_034_151_D_072_2005_DHDH_A_20261103T162510_20261103T162545_P05036_N_F_J_001_mask.tif",
+          "sha256": "36d3f78a1fa219a153fae81b2fe0251b9bbe4e1ac240e6c66fd6b53794f9fa95",
+          "valid_fraction": null,
+          "units": null
+        },
+        {
+          "term": "numberOfLooks",
+          "path": "data/private/nisar/crops/NISAR_L2_PR_GCOV_034_151_D_072_2005_DHDH_A_20261103T162510_20261103T162545_P05036_N_F_J_001_numberOfLooks.tif",
+          "sha256": "e1e807fabc02ced5f9c38dc9baa9e421b1c8ae1f8430130b043e6003662fe68b",
+          "valid_fraction": null,
+          "units": null
+        }
+      ]
+    }
+  }
+}

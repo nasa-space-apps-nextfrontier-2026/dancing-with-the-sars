@@ -1,0 +1,2873 @@
+{
+  "schema_version": "0.1",
+  "kind": "nisar_scene_manifest",
+  "synthetic": false,
+  "aoi": "south-lebanon-demo",
+  "bbox_wgs84": {
+    "west": 35.0,
+    "south": 33.0,
+    "east": 36.0,
+    "north": 33.6
+  },
+  "track": 151,
+  "frame": 72,
+  "direction": "DESCENDING",
+  "source": "https://api.daac.asf.alaska.edu/services/search/param",
+  "licence": "NASA/ISRO NISAR data, open (cite NISAR and ASF DAAC)",
+  "tiers": {
+    "A-after": {
+      "scenes": 3,
+      "bytes": 5293211648
+    },
+    "A-before": {
+      "scenes": 6,
+      "bytes": 10628366336
+    },
+    "B": {
+      "scenes": 8,
+      "bytes": 14055112704
+    },
+    "C": {
+      "scenes": 3,
+      "bytes": 27476885504
+    }
+  },
+  "missing_gcov_passes": [
+    "2025-12-02",
+    "2025-12-14",
+    "2026-01-31",
+    "2026-02-12",
+    "2026-02-24",
+    "2026-03-08",
+    "2026-03-20",
+    "2026-04-01",
+    "2026-04-13",
+    "2026-04-25",
+    "2026-05-07",
+    "2026-05-19",
+    "2026-05-31",
+    "2026-06-12",
+    "2026-07-30"
+  ],
+  "rejected_other_tracks": 150,
+  "warnings": [
+    "version_confounded: tier A before=['BETA'] vs after=['PROVISIONAL']; stable-area normalization and QA required before any comparison"
+  ],
+  "scenes": [
+    {
+      "product": "GCOV",
+      "date": "2025-10-27",
+      "tier": "A-before",
+      "selected": {
+        "scene": "NISAR_L2_PR_GCOV_003_151_D_072_2005_DHDH_A_20251027T162510_20251027T162545_X05009_N_F_J_001",
+        "product": "GCOV",
+        "collection": "NISAR_L2_GCOV_BETA_V1",
+        "concept_id": "C3622214170-ASF",
+        "maturity": "BETA",
+        "crid": "X05009",
+        "pge_version": "R05.00.8",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2025-10-27T16:25:10Z",
+        "stop": "2025-10-27T16:25:45Z",
+        "date": "2025-10-27",
+        "processing_date": "2026-02-05T23:35:23Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GCOV_BETA_V1/NISAR_L2_PR_GCOV_003_151_D_072_2005_DHDH_A_20251027T162510_20251027T162545_X05009_N_F_J_001/NISAR_L2_PR_GCOV_003_151_D_072_2005_DHDH_A_20251027T162510_20251027T162545_X05009_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GCOV_003_151_D_072_2005_DHDH_A_20251027T162510_20251027T162545_X05009_N_F_J_001.h5",
+        "h5_bytes": 1778384896,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.66361,
+                34.14061
+              ],
+              [
+                33.95273,
+                32.02033
+              ],
+              [
+                36.51761,
+                31.37593
+              ],
+              [
+                37.28499,
+                33.47987
+              ],
+              [
+                34.66361,
+                34.14061
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GCOV",
+      "date": "2025-11-08",
+      "tier": "A-before",
+      "selected": {
+        "scene": "NISAR_L2_PR_GCOV_004_151_D_072_2005_DHDH_A_20251108T162511_20251108T162546_X05009_N_F_J_001",
+        "product": "GCOV",
+        "collection": "NISAR_L2_GCOV_BETA_V1",
+        "concept_id": "C3622214170-ASF",
+        "maturity": "BETA",
+        "crid": "X05009",
+        "pge_version": "R05.00.8",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2025-11-08T16:25:11Z",
+        "stop": "2025-11-08T16:25:46Z",
+        "date": "2025-11-08",
+        "processing_date": "2026-02-07T00:29:48Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GCOV_BETA_V1/NISAR_L2_PR_GCOV_004_151_D_072_2005_DHDH_A_20251108T162511_20251108T162546_X05009_N_F_J_001/NISAR_L2_PR_GCOV_004_151_D_072_2005_DHDH_A_20251108T162511_20251108T162546_X05009_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GCOV_004_151_D_072_2005_DHDH_A_20251108T162511_20251108T162546_X05009_N_F_J_001.h5",
+        "h5_bytes": 1778384896,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.64571,
+                34.08447
+              ],
+              [
+                33.93573,
+                31.96409
+              ],
+              [
+                36.49879,
+                31.32023
+              ],
+              [
+                37.26507,
+                33.42431
+              ],
+              [
+                34.64571,
+                34.08447
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GCOV",
+      "date": "2025-11-20",
+      "tier": "A-before",
+      "selected": {
+        "scene": "NISAR_L2_PR_GCOV_005_151_D_072_2005_DHDH_A_20251120T162511_20251120T162546_X05009_N_F_J_001",
+        "product": "GCOV",
+        "collection": "NISAR_L2_GCOV_BETA_V1",
+        "concept_id": "C3622214170-ASF",
+        "maturity": "BETA",
+        "crid": "X05009",
+        "pge_version": "R05.00.8",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2025-11-20T16:25:11Z",
+        "stop": "2025-11-20T16:25:46Z",
+        "date": "2025-11-20",
+        "processing_date": "2026-02-07T11:43:31Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GCOV_BETA_V1/NISAR_L2_PR_GCOV_005_151_D_072_2005_DHDH_A_20251120T162511_20251120T162546_X05009_N_F_J_001/NISAR_L2_PR_GCOV_005_151_D_072_2005_DHDH_A_20251120T162511_20251120T162546_X05009_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GCOV_005_151_D_072_2005_DHDH_A_20251120T162511_20251120T162546_X05009_N_F_J_001.h5",
+        "h5_bytes": 1778384896,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.659,
+                34.12767
+              ],
+              [
+                33.94835,
+                32.00734
+              ],
+              [
+                36.51264,
+                31.36314
+              ],
+              [
+                37.27982,
+                33.46711
+              ],
+              [
+                34.659,
+                34.12767
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GCOV",
+      "date": "2025-12-26",
+      "tier": "A-before",
+      "selected": {
+        "scene": "NISAR_L2_PR_GCOV_008_151_D_072_2005_DHDH_A_20251226T162513_20251226T162547_X05009_N_F_J_001",
+        "product": "GCOV",
+        "collection": "NISAR_L2_GCOV_BETA_V1",
+        "concept_id": "C3622214170-ASF",
+        "maturity": "BETA",
+        "crid": "X05009",
+        "pge_version": "R05.00.8",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2025-12-26T16:25:13Z",
+        "stop": "2025-12-26T16:25:47Z",
+        "date": "2025-12-26",
+        "processing_date": "2026-02-10T03:23:13Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GCOV_BETA_V1/NISAR_L2_PR_GCOV_008_151_D_072_2005_DHDH_A_20251226T162513_20251226T162547_X05009_N_F_J_001/NISAR_L2_PR_GCOV_008_151_D_072_2005_DHDH_A_20251226T162513_20251226T162547_X05009_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GCOV_008_151_D_072_2005_DHDH_A_20251226T162513_20251226T162547_X05009_N_F_J_001.h5",
+        "h5_bytes": 1736441856,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.6517,
+                34.10008
+              ],
+              [
+                33.9607,
+                32.03867
+              ],
+              [
+                36.52514,
+                31.39434
+              ],
+              [
+                37.27135,
+                33.43978
+              ],
+              [
+                34.6517,
+                34.10008
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GCOV",
+      "date": "2026-01-07",
+      "tier": "A-before",
+      "selected": {
+        "scene": "NISAR_L2_PR_GCOV_009_151_D_072_2005_DHDH_A_20260107T162513_20260107T162548_X05009_N_F_J_001",
+        "product": "GCOV",
+        "collection": "NISAR_L2_GCOV_BETA_V1",
+        "concept_id": "C3622214170-ASF",
+        "maturity": "BETA",
+        "crid": "X05009",
+        "pge_version": "R05.00.8",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-01-07T16:25:13Z",
+        "stop": "2026-01-07T16:25:48Z",
+        "date": "2026-01-07",
+        "processing_date": "2026-02-10T16:39:46Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GCOV_BETA_V1/NISAR_L2_PR_GCOV_009_151_D_072_2005_DHDH_A_20260107T162513_20260107T162548_X05009_N_F_J_001/NISAR_L2_PR_GCOV_009_151_D_072_2005_DHDH_A_20260107T162513_20260107T162548_X05009_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GCOV_009_151_D_072_2005_DHDH_A_20260107T162513_20260107T162548_X05009_N_F_J_001.h5",
+        "h5_bytes": 1778384896,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.66557,
+                34.14195
+              ],
+              [
+                33.95466,
+                32.02165
+              ],
+              [
+                36.5192,
+                31.37733
+              ],
+              [
+                37.28674,
+                33.48126
+              ],
+              [
+                34.66557,
+                34.14195
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GCOV",
+      "date": "2026-01-19",
+      "tier": "A-before",
+      "selected": {
+        "scene": "NISAR_L2_PR_GCOV_010_151_D_072_2005_DHDH_A_20260119T162514_20260119T162549_X05010_N_F_J_001",
+        "product": "GCOV",
+        "collection": "NISAR_L2_GCOV_BETA_V1",
+        "concept_id": "C3622214170-ASF",
+        "maturity": "BETA",
+        "crid": "X05010",
+        "pge_version": "R05.00.8",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-01-19T16:25:14Z",
+        "stop": "2026-01-19T16:25:49Z",
+        "date": "2026-01-19",
+        "processing_date": "2026-02-11T10:00:03Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GCOV_BETA_V1/NISAR_L2_PR_GCOV_010_151_D_072_2005_DHDH_A_20260119T162514_20260119T162549_X05010_N_F_J_001/NISAR_L2_PR_GCOV_010_151_D_072_2005_DHDH_A_20260119T162514_20260119T162549_X05010_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GCOV_010_151_D_072_2005_DHDH_A_20260119T162514_20260119T162549_X05010_N_F_J_001.h5",
+        "h5_bytes": 1778384896,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.65849,
+                34.12089
+              ],
+              [
+                33.94791,
+                32.00054
+              ],
+              [
+                36.51142,
+                31.35651
+              ],
+              [
+                37.2785,
+                33.46051
+              ],
+              [
+                34.65849,
+                34.12089
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GCOV",
+      "date": "2026-06-24",
+      "tier": "A-after",
+      "selected": {
+        "scene": "NISAR_L2_PR_GCOV_023_151_D_072_2005_DHDH_A_20260624T162513_20260624T162548_P05023_N_F_J_001",
+        "product": "GCOV",
+        "collection": "NISAR_L2_GCOV_PROVISIONAL_V1",
+        "concept_id": "C2854338529-ASF",
+        "maturity": "PROVISIONAL",
+        "crid": "P05023",
+        "pge_version": "R05.02.3",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-06-24T16:25:13Z",
+        "stop": "2026-06-24T16:25:48Z",
+        "date": "2026-06-24",
+        "processing_date": "2026-07-12T16:36:02Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GCOV_PROVISIONAL_V1/NISAR_L2_PR_GCOV_023_151_D_072_2005_DHDH_A_20260624T162513_20260624T162548_P05023_N_F_J_001/NISAR_L2_PR_GCOV_023_151_D_072_2005_DHDH_A_20260624T162513_20260624T162548_P05023_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GCOV_023_151_D_072_2005_DHDH_A_20260624T162513_20260624T162548_P05023_N_F_J_001.h5",
+        "h5_bytes": 1778384896,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.6415,
+                34.07085
+              ],
+              [
+                33.93167,
+                31.95042
+              ],
+              [
+                36.49289,
+                31.30701
+              ],
+              [
+                37.25888,
+                33.41118
+              ],
+              [
+                34.6415,
+                34.07085
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GCOV",
+      "date": "2026-07-06",
+      "tier": "A-after",
+      "selected": {
+        "scene": "NISAR_L2_PR_GCOV_024_151_D_072_2005_DHDH_A_20260706T162513_20260706T162547_P05023_N_F_J_001",
+        "product": "GCOV",
+        "collection": "NISAR_L2_GCOV_PROVISIONAL_V1",
+        "concept_id": "C2854338529-ASF",
+        "maturity": "PROVISIONAL",
+        "crid": "P05023",
+        "pge_version": "R05.02.3",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-07-06T16:25:13Z",
+        "stop": "2026-07-06T16:25:47Z",
+        "date": "2026-07-06",
+        "processing_date": "2026-07-14T09:36:47Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GCOV_PROVISIONAL_V1/NISAR_L2_PR_GCOV_024_151_D_072_2005_DHDH_A_20260706T162513_20260706T162547_P05023_N_F_J_001/NISAR_L2_PR_GCOV_024_151_D_072_2005_DHDH_A_20260706T162513_20260706T162547_P05023_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GCOV_024_151_D_072_2005_DHDH_A_20260706T162513_20260706T162547_P05023_N_F_J_001.h5",
+        "h5_bytes": 1736441856,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.62806,
+                34.03259
+              ],
+              [
+                33.93807,
+                31.97105
+              ],
+              [
+                36.49998,
+                31.32742
+              ],
+              [
+                37.24436,
+                33.3732
+              ],
+              [
+                34.62806,
+                34.03259
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GCOV",
+      "date": "2026-07-18",
+      "tier": "A-after",
+      "selected": {
+        "scene": "NISAR_L2_PR_GCOV_025_151_D_072_2005_DHDH_A_20260718T162512_20260718T162547_P05023_N_F_J_001",
+        "product": "GCOV",
+        "collection": "NISAR_L2_GCOV_PROVISIONAL_V1",
+        "concept_id": "C2854338529-ASF",
+        "maturity": "PROVISIONAL",
+        "crid": "P05023",
+        "pge_version": "R05.02.3",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-07-18T16:25:12Z",
+        "stop": "2026-07-18T16:25:47Z",
+        "date": "2026-07-18",
+        "processing_date": "2026-07-21T19:48:59Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GCOV_PROVISIONAL_V1/NISAR_L2_PR_GCOV_025_151_D_072_2005_DHDH_A_20260718T162512_20260718T162547_P05023_N_F_J_001/NISAR_L2_PR_GCOV_025_151_D_072_2005_DHDH_A_20260718T162512_20260718T162547_P05023_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GCOV_025_151_D_072_2005_DHDH_A_20260718T162512_20260718T162547_P05023_N_F_J_001.h5",
+        "h5_bytes": 1778384896,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.63237,
+                34.04574
+              ],
+              [
+                33.92296,
+                31.92526
+              ],
+              [
+                36.48354,
+                31.28205
+              ],
+              [
+                37.24913,
+                33.38626
+              ],
+              [
+                34.63237,
+                34.04574
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GCOV",
+      "date": "2026-08-11",
+      "tier": "B",
+      "selected": {
+        "scene": "NISAR_L2_PR_GCOV_027_151_D_072_2005_DHDH_A_20260811T162511_20260811T162545_P05023_N_F_J_001",
+        "product": "GCOV",
+        "collection": "NISAR_L2_GCOV_PROVISIONAL_V1",
+        "concept_id": "C2854338529-ASF",
+        "maturity": "PROVISIONAL",
+        "crid": "P05023",
+        "pge_version": "R05.02.3",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-08-11T16:25:11Z",
+        "stop": "2026-08-11T16:25:45Z",
+        "date": "2026-08-11",
+        "processing_date": "2026-08-16T00:59:44Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GCOV_PROVISIONAL_V1/NISAR_L2_PR_GCOV_027_151_D_072_2005_DHDH_A_20260811T162511_20260811T162545_P05023_N_F_J_001/NISAR_L2_PR_GCOV_027_151_D_072_2005_DHDH_A_20260811T162511_20260811T162545_P05023_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GCOV_027_151_D_072_2005_DHDH_A_20260811T162511_20260811T162545_P05023_N_F_J_001.h5",
+        "h5_bytes": 1736441856,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.63087,
+                34.04375
+              ],
+              [
+                33.9408,
+                31.98221
+              ],
+              [
+                36.50294,
+                31.33859
+              ],
+              [
+                37.24766,
+                33.38432
+              ],
+              [
+                34.63087,
+                34.04375
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GCOV",
+      "date": "2026-08-23",
+      "tier": "B",
+      "selected": {
+        "scene": "NISAR_L2_PR_GCOV_028_151_D_072_2005_DHDH_A_20260823T162510_20260823T162545_P05023_N_F_J_001",
+        "product": "GCOV",
+        "collection": "NISAR_L2_GCOV_PROVISIONAL_V1",
+        "concept_id": "C2854338529-ASF",
+        "maturity": "PROVISIONAL",
+        "crid": "P05023",
+        "pge_version": "R05.02.3",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-08-23T16:25:10Z",
+        "stop": "2026-08-23T16:25:45Z",
+        "date": "2026-08-23",
+        "processing_date": "2026-08-27T09:03:45Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GCOV_PROVISIONAL_V1/NISAR_L2_PR_GCOV_028_151_D_072_2005_DHDH_A_20260823T162510_20260823T162545_P05023_N_F_J_001/NISAR_L2_PR_GCOV_028_151_D_072_2005_DHDH_A_20260823T162510_20260823T162545_P05023_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GCOV_028_151_D_072_2005_DHDH_A_20260823T162510_20260823T162545_P05023_N_F_J_001.h5",
+        "h5_bytes": 1778384896,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.64603,
+                34.08572
+              ],
+              [
+                33.93599,
+                31.96532
+              ],
+              [
+                36.49812,
+                31.32167
+              ],
+              [
+                37.26446,
+                33.42578
+              ],
+              [
+                34.64603,
+                34.08572
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GCOV",
+      "date": "2026-09-04",
+      "tier": "B",
+      "selected": {
+        "scene": "NISAR_L2_PR_GCOV_029_151_D_072_2005_DHDH_A_20260904T162510_20260904T162545_P05023_N_F_J_002",
+        "product": "GCOV",
+        "collection": "NISAR_L2_GCOV_PROVISIONAL_V1",
+        "concept_id": "C2854338529-ASF",
+        "maturity": "PROVISIONAL",
+        "crid": "P05023",
+        "pge_version": "R05.02.3",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-09-04T16:25:10Z",
+        "stop": "2026-09-04T16:25:45Z",
+        "date": "2026-09-04",
+        "processing_date": "2026-09-13T05:46:18Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GCOV_PROVISIONAL_V1/NISAR_L2_PR_GCOV_029_151_D_072_2005_DHDH_A_20260904T162510_20260904T162545_P05023_N_F_J_002/NISAR_L2_PR_GCOV_029_151_D_072_2005_DHDH_A_20260904T162510_20260904T162545_P05023_N_F_J_002.h5",
+        "file_name": "NISAR_L2_PR_GCOV_029_151_D_072_2005_DHDH_A_20260904T162510_20260904T162545_P05023_N_F_J_002.h5",
+        "h5_bytes": 1778384896,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.64322,
+                34.07521
+              ],
+              [
+                33.9333,
+                31.95479
+              ],
+              [
+                36.49445,
+                31.31138
+              ],
+              [
+                37.26063,
+                33.41551
+              ],
+              [
+                34.64322,
+                34.07521
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": [
+        "NISAR_L2_PR_GCOV_029_151_D_072_2005_DHDH_A_20260904T162510_20260904T162545_P05023_N_F_J_001"
+      ]
+    },
+    {
+      "product": "GCOV",
+      "date": "2026-09-16",
+      "tier": "B",
+      "selected": {
+        "scene": "NISAR_L2_PR_GCOV_030_151_D_072_2005_DHDH_A_20260916T162510_20260916T162544_P05023_N_F_J_001",
+        "product": "GCOV",
+        "collection": "NISAR_L2_GCOV_PROVISIONAL_V1",
+        "concept_id": "C2854338529-ASF",
+        "maturity": "PROVISIONAL",
+        "crid": "P05023",
+        "pge_version": "R05.02.3",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-09-16T16:25:10Z",
+        "stop": "2026-09-16T16:25:44Z",
+        "date": "2026-09-16",
+        "processing_date": "2026-09-18T18:42:34Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GCOV_PROVISIONAL_V1/NISAR_L2_PR_GCOV_030_151_D_072_2005_DHDH_A_20260916T162510_20260916T162544_P05023_N_F_J_001/NISAR_L2_PR_GCOV_030_151_D_072_2005_DHDH_A_20260916T162510_20260916T162544_P05023_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GCOV_030_151_D_072_2005_DHDH_A_20260916T162510_20260916T162544_P05023_N_F_J_001.h5",
+        "h5_bytes": 1736441856,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.64145,
+                34.07093
+              ],
+              [
+                33.9509,
+                32.00945
+              ],
+              [
+                36.51359,
+                31.36561
+              ],
+              [
+                37.25863,
+                33.4113
+              ],
+              [
+                34.64145,
+                34.07093
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GCOV",
+      "date": "2026-09-28",
+      "tier": "B",
+      "selected": {
+        "scene": "NISAR_L2_PR_GCOV_031_151_D_072_2005_DHDH_A_20260928T162510_20260928T162544_P05023_N_F_J_001",
+        "product": "GCOV",
+        "collection": "NISAR_L2_GCOV_PROVISIONAL_V1",
+        "concept_id": "C2854338529-ASF",
+        "maturity": "PROVISIONAL",
+        "crid": "P05023",
+        "pge_version": "R05.02.3",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-09-28T16:25:10Z",
+        "stop": "2026-09-28T16:25:44Z",
+        "date": "2026-09-28",
+        "processing_date": "2026-09-30T17:27:52Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GCOV_PROVISIONAL_V1/NISAR_L2_PR_GCOV_031_151_D_072_2005_DHDH_A_20260928T162510_20260928T162544_P05023_N_F_J_001/NISAR_L2_PR_GCOV_031_151_D_072_2005_DHDH_A_20260928T162510_20260928T162544_P05023_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GCOV_031_151_D_072_2005_DHDH_A_20260928T162510_20260928T162544_P05023_N_F_J_001.h5",
+        "h5_bytes": 1736441856,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.64005,
+                34.07101
+              ],
+              [
+                33.94957,
+                32.00953
+              ],
+              [
+                36.51291,
+                31.36557
+              ],
+              [
+                37.25788,
+                33.41127
+              ],
+              [
+                34.64005,
+                34.07101
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GCOV",
+      "date": "2026-10-10",
+      "tier": "B",
+      "selected": {
+        "scene": "NISAR_L2_PR_GCOV_032_151_D_072_2005_DHDH_A_20261010T162510_20261010T162544_P05023_N_F_J_001",
+        "product": "GCOV",
+        "collection": "NISAR_L2_GCOV_PROVISIONAL_V1",
+        "concept_id": "C2854338529-ASF",
+        "maturity": "PROVISIONAL",
+        "crid": "P05023",
+        "pge_version": "R05.02.3",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-10-10T16:25:10Z",
+        "stop": "2026-10-10T16:25:44Z",
+        "date": "2026-10-10",
+        "processing_date": "2026-10-12T22:56:50Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GCOV_PROVISIONAL_V1/NISAR_L2_PR_GCOV_032_151_D_072_2005_DHDH_A_20261010T162510_20261010T162544_P05023_N_F_J_001/NISAR_L2_PR_GCOV_032_151_D_072_2005_DHDH_A_20261010T162510_20261010T162544_P05023_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GCOV_032_151_D_072_2005_DHDH_A_20261010T162510_20261010T162544_P05023_N_F_J_001.h5",
+        "h5_bytes": 1732247552,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.64348,
+                34.07824
+              ],
+              [
+                33.95286,
+                32.01678
+              ],
+              [
+                36.5158,
+                31.37289
+              ],
+              [
+                37.261,
+                33.41856
+              ],
+              [
+                34.64348,
+                34.07824
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GCOV",
+      "date": "2026-10-22",
+      "tier": "B",
+      "selected": {
+        "scene": "NISAR_L2_PR_GCOV_033_151_D_072_2005_DHDH_A_20261022T162510_20261022T162545_P05036_N_F_J_001",
+        "product": "GCOV",
+        "collection": "NISAR_L2_GCOV_V1",
+        "concept_id": "C3622241360-ASF",
+        "maturity": "V1",
+        "crid": "P05036",
+        "pge_version": "R05.03.2",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-10-22T16:25:10Z",
+        "stop": "2026-10-22T16:25:45Z",
+        "date": "2026-10-22",
+        "processing_date": "2026-11-11T05:48:50Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GCOV_V1/NISAR_L2_PR_GCOV_033_151_D_072_2005_DHDH_A_20261022T162510_20261022T162545_P05036_N_F_J_001/NISAR_L2_PR_GCOV_033_151_D_072_2005_DHDH_A_20261022T162510_20261022T162545_P05036_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GCOV_033_151_D_072_2005_DHDH_A_20261022T162510_20261022T162545_P05036_N_F_J_001.h5",
+        "h5_bytes": 1778384896,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.65014,
+                34.09537
+              ],
+              [
+                33.93992,
+                31.97498
+              ],
+              [
+                36.50151,
+                31.33144
+              ],
+              [
+                37.26832,
+                33.43546
+              ],
+              [
+                34.65014,
+                34.09537
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GCOV",
+      "date": "2026-11-03",
+      "tier": "B",
+      "selected": {
+        "scene": "NISAR_L2_PR_GCOV_034_151_D_072_2005_DHDH_A_20261103T162510_20261103T162545_P05036_N_F_J_001",
+        "product": "GCOV",
+        "collection": "NISAR_L2_GCOV_V1",
+        "concept_id": "C3622241360-ASF",
+        "maturity": "V1",
+        "crid": "P05036",
+        "pge_version": "R05.03.2",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-11-03T16:25:10Z",
+        "stop": "2026-11-03T16:25:45Z",
+        "date": "2026-11-03",
+        "processing_date": "2026-11-13T03:05:01Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GCOV_V1/NISAR_L2_PR_GCOV_034_151_D_072_2005_DHDH_A_20261103T162510_20261103T162545_P05036_N_F_J_001/NISAR_L2_PR_GCOV_034_151_D_072_2005_DHDH_A_20261103T162510_20261103T162545_P05036_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GCOV_034_151_D_072_2005_DHDH_A_20261103T162510_20261103T162545_P05036_N_F_J_001.h5",
+        "h5_bytes": 1778384896,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.66205,
+                34.133
+              ],
+              [
+                33.95128,
+                32.01269
+              ],
+              [
+                36.51419,
+                31.36881
+              ],
+              [
+                37.2815,
+                33.47276
+              ],
+              [
+                34.66205,
+                34.133
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GSLC",
+      "date": "2025-10-27",
+      "tier": null,
+      "selected": {
+        "scene": "NISAR_L2_PR_GSLC_003_151_D_072_2005_DHDH_A_20251027T162510_20251027T162545_X05009_N_F_J_001",
+        "product": "GSLC",
+        "collection": "NISAR_L2_GSLC_BETA_V1",
+        "concept_id": "C2850259510-ASF",
+        "maturity": "BETA",
+        "crid": "X05009",
+        "pge_version": "R05.00.8",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2025-10-27T16:25:10Z",
+        "stop": "2025-10-27T16:25:45Z",
+        "date": "2025-10-27",
+        "processing_date": "2026-02-05T21:52:58Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GSLC_BETA_V1/NISAR_L2_PR_GSLC_003_151_D_072_2005_DHDH_A_20251027T162510_20251027T162545_X05009_N_F_J_001/NISAR_L2_PR_GSLC_003_151_D_072_2005_DHDH_A_20251027T162510_20251027T162545_X05009_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GSLC_003_151_D_072_2005_DHDH_A_20251027T162510_20251027T162545_X05009_N_F_J_001.h5",
+        "h5_bytes": 12570329088,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.66361,
+                34.14061
+              ],
+              [
+                33.95273,
+                32.02033
+              ],
+              [
+                36.51761,
+                31.37593
+              ],
+              [
+                37.28499,
+                33.47987
+              ],
+              [
+                34.66361,
+                34.14061
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GSLC",
+      "date": "2025-11-08",
+      "tier": null,
+      "selected": {
+        "scene": "NISAR_L2_PR_GSLC_004_151_D_072_2005_DHDH_A_20251108T162511_20251108T162546_X05009_N_F_J_001",
+        "product": "GSLC",
+        "collection": "NISAR_L2_GSLC_BETA_V1",
+        "concept_id": "C2850259510-ASF",
+        "maturity": "BETA",
+        "crid": "X05009",
+        "pge_version": "R05.00.8",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2025-11-08T16:25:11Z",
+        "stop": "2025-11-08T16:25:46Z",
+        "date": "2025-11-08",
+        "processing_date": "2026-02-07T00:41:46Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GSLC_BETA_V1/NISAR_L2_PR_GSLC_004_151_D_072_2005_DHDH_A_20251108T162511_20251108T162546_X05009_N_F_J_001/NISAR_L2_PR_GSLC_004_151_D_072_2005_DHDH_A_20251108T162511_20251108T162546_X05009_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GSLC_004_151_D_072_2005_DHDH_A_20251108T162511_20251108T162546_X05009_N_F_J_001.h5",
+        "h5_bytes": 12566134784,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.64571,
+                34.08447
+              ],
+              [
+                33.93573,
+                31.96409
+              ],
+              [
+                36.49879,
+                31.32023
+              ],
+              [
+                37.26507,
+                33.42431
+              ],
+              [
+                34.64571,
+                34.08447
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GSLC",
+      "date": "2025-11-20",
+      "tier": null,
+      "selected": {
+        "scene": "NISAR_L2_PR_GSLC_005_151_D_072_2005_DHDH_A_20251120T162511_20251120T162546_X05009_N_F_J_001",
+        "product": "GSLC",
+        "collection": "NISAR_L2_GSLC_BETA_V1",
+        "concept_id": "C2850259510-ASF",
+        "maturity": "BETA",
+        "crid": "X05009",
+        "pge_version": "R05.00.8",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2025-11-20T16:25:11Z",
+        "stop": "2025-11-20T16:25:46Z",
+        "date": "2025-11-20",
+        "processing_date": "2026-02-07T12:00:43Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GSLC_BETA_V1/NISAR_L2_PR_GSLC_005_151_D_072_2005_DHDH_A_20251120T162511_20251120T162546_X05009_N_F_J_001/NISAR_L2_PR_GSLC_005_151_D_072_2005_DHDH_A_20251120T162511_20251120T162546_X05009_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GSLC_005_151_D_072_2005_DHDH_A_20251120T162511_20251120T162546_X05009_N_F_J_001.h5",
+        "h5_bytes": 12574523392,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.659,
+                34.12767
+              ],
+              [
+                33.94835,
+                32.00734
+              ],
+              [
+                36.51264,
+                31.36314
+              ],
+              [
+                37.27982,
+                33.46711
+              ],
+              [
+                34.659,
+                34.12767
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GSLC",
+      "date": "2025-12-26",
+      "tier": null,
+      "selected": {
+        "scene": "NISAR_L2_PR_GSLC_008_151_D_072_2005_DHDH_A_20251226T162513_20251226T162547_X05009_N_F_J_001",
+        "product": "GSLC",
+        "collection": "NISAR_L2_GSLC_BETA_V1",
+        "concept_id": "C2850259510-ASF",
+        "maturity": "BETA",
+        "crid": "X05009",
+        "pge_version": "R05.00.8",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2025-12-26T16:25:13Z",
+        "stop": "2025-12-26T16:25:47Z",
+        "date": "2025-12-26",
+        "processing_date": "2026-02-10T04:08:49Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GSLC_BETA_V1/NISAR_L2_PR_GSLC_008_151_D_072_2005_DHDH_A_20251226T162513_20251226T162547_X05009_N_F_J_001/NISAR_L2_PR_GSLC_008_151_D_072_2005_DHDH_A_20251226T162513_20251226T162547_X05009_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GSLC_008_151_D_072_2005_DHDH_A_20251226T162513_20251226T162547_X05009_N_F_J_001.h5",
+        "h5_bytes": 12226396160,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.6517,
+                34.10008
+              ],
+              [
+                33.9607,
+                32.03867
+              ],
+              [
+                36.52514,
+                31.39434
+              ],
+              [
+                37.27135,
+                33.43978
+              ],
+              [
+                34.6517,
+                34.10008
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GSLC",
+      "date": "2026-01-07",
+      "tier": null,
+      "selected": {
+        "scene": "NISAR_L2_PR_GSLC_009_151_D_072_2005_DHDH_A_20260107T162513_20260107T162548_X05009_N_F_J_001",
+        "product": "GSLC",
+        "collection": "NISAR_L2_GSLC_BETA_V1",
+        "concept_id": "C2850259510-ASF",
+        "maturity": "BETA",
+        "crid": "X05009",
+        "pge_version": "R05.00.8",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-01-07T16:25:13Z",
+        "stop": "2026-01-07T16:25:48Z",
+        "date": "2026-01-07",
+        "processing_date": "2026-02-10T17:12:08Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GSLC_BETA_V1/NISAR_L2_PR_GSLC_009_151_D_072_2005_DHDH_A_20260107T162513_20260107T162548_X05009_N_F_J_001/NISAR_L2_PR_GSLC_009_151_D_072_2005_DHDH_A_20260107T162513_20260107T162548_X05009_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GSLC_009_151_D_072_2005_DHDH_A_20260107T162513_20260107T162548_X05009_N_F_J_001.h5",
+        "h5_bytes": 12553551872,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.66557,
+                34.14195
+              ],
+              [
+                33.95466,
+                32.02165
+              ],
+              [
+                36.5192,
+                31.37733
+              ],
+              [
+                37.28674,
+                33.48126
+              ],
+              [
+                34.66557,
+                34.14195
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GSLC",
+      "date": "2026-01-19",
+      "tier": "C",
+      "selected": {
+        "scene": "NISAR_L2_PR_GSLC_010_151_D_072_2005_DHDH_A_20260119T162514_20260119T162549_X05010_N_F_J_001",
+        "product": "GSLC",
+        "collection": "NISAR_L2_GSLC_BETA_V1",
+        "concept_id": "C2850259510-ASF",
+        "maturity": "BETA",
+        "crid": "X05010",
+        "pge_version": "R05.00.8",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-01-19T16:25:14Z",
+        "stop": "2026-01-19T16:25:49Z",
+        "date": "2026-01-19",
+        "processing_date": "2026-02-11T10:14:52Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GSLC_BETA_V1/NISAR_L2_PR_GSLC_010_151_D_072_2005_DHDH_A_20260119T162514_20260119T162549_X05010_N_F_J_001/NISAR_L2_PR_GSLC_010_151_D_072_2005_DHDH_A_20260119T162514_20260119T162549_X05010_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GSLC_010_151_D_072_2005_DHDH_A_20260119T162514_20260119T162549_X05010_N_F_J_001.h5",
+        "h5_bytes": 12566134784,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.65849,
+                34.12089
+              ],
+              [
+                33.94791,
+                32.00054
+              ],
+              [
+                36.51142,
+                31.35651
+              ],
+              [
+                37.2785,
+                33.46051
+              ],
+              [
+                34.65849,
+                34.12089
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GSLC",
+      "date": "2026-06-24",
+      "tier": "C",
+      "selected": {
+        "scene": "NISAR_L2_PR_GSLC_023_151_D_072_2005_DHDH_A_20260624T162513_20260624T162548_P05023_N_F_J_001",
+        "product": "GSLC",
+        "collection": "NISAR_L2_GSLC_PROVISIONAL_V1",
+        "concept_id": "C2854332392-ASF",
+        "maturity": "PROVISIONAL",
+        "crid": "P05023",
+        "pge_version": "R05.02.3",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-06-24T16:25:13Z",
+        "stop": "2026-06-24T16:25:48Z",
+        "date": "2026-06-24",
+        "processing_date": "2026-07-13T11:13:31Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GSLC_PROVISIONAL_V1/NISAR_L2_PR_GSLC_023_151_D_072_2005_DHDH_A_20260624T162513_20260624T162548_P05023_N_F_J_001/NISAR_L2_PR_GSLC_023_151_D_072_2005_DHDH_A_20260624T162513_20260624T162548_P05023_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GSLC_023_151_D_072_2005_DHDH_A_20260624T162513_20260624T162548_P05023_N_F_J_001.h5",
+        "h5_bytes": 12561940480,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.6415,
+                34.07085
+              ],
+              [
+                33.93167,
+                31.95042
+              ],
+              [
+                36.49289,
+                31.30701
+              ],
+              [
+                37.25888,
+                33.41118
+              ],
+              [
+                34.6415,
+                34.07085
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GSLC",
+      "date": "2026-07-06",
+      "tier": null,
+      "selected": {
+        "scene": "NISAR_L2_PR_GSLC_024_151_D_072_2005_DHDH_A_20260706T162513_20260706T162547_P05023_N_F_J_001",
+        "product": "GSLC",
+        "collection": "NISAR_L2_GSLC_PROVISIONAL_V1",
+        "concept_id": "C2854332392-ASF",
+        "maturity": "PROVISIONAL",
+        "crid": "P05023",
+        "pge_version": "R05.02.3",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-07-06T16:25:13Z",
+        "stop": "2026-07-06T16:25:47Z",
+        "date": "2026-07-06",
+        "processing_date": "2026-07-14T22:53:25Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GSLC_PROVISIONAL_V1/NISAR_L2_PR_GSLC_024_151_D_072_2005_DHDH_A_20260706T162513_20260706T162547_P05023_N_F_J_001/NISAR_L2_PR_GSLC_024_151_D_072_2005_DHDH_A_20260706T162513_20260706T162547_P05023_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GSLC_024_151_D_072_2005_DHDH_A_20260706T162513_20260706T162547_P05023_N_F_J_001.h5",
+        "h5_bytes": 12230590464,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.62806,
+                34.03259
+              ],
+              [
+                33.93807,
+                31.97105
+              ],
+              [
+                36.49998,
+                31.32742
+              ],
+              [
+                37.24436,
+                33.3732
+              ],
+              [
+                34.62806,
+                34.03259
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GSLC",
+      "date": "2026-07-18",
+      "tier": null,
+      "selected": {
+        "scene": "NISAR_L2_PR_GSLC_025_151_D_072_2005_DHDH_A_20260718T162512_20260718T162547_P05023_N_F_J_001",
+        "product": "GSLC",
+        "collection": "NISAR_L2_GSLC_PROVISIONAL_V1",
+        "concept_id": "C2854332392-ASF",
+        "maturity": "PROVISIONAL",
+        "crid": "P05023",
+        "pge_version": "R05.02.3",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-07-18T16:25:12Z",
+        "stop": "2026-07-18T16:25:47Z",
+        "date": "2026-07-18",
+        "processing_date": "2026-07-21T21:02:44Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GSLC_PROVISIONAL_V1/NISAR_L2_PR_GSLC_025_151_D_072_2005_DHDH_A_20260718T162512_20260718T162547_P05023_N_F_J_001/NISAR_L2_PR_GSLC_025_151_D_072_2005_DHDH_A_20260718T162512_20260718T162547_P05023_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GSLC_025_151_D_072_2005_DHDH_A_20260718T162512_20260718T162547_P05023_N_F_J_001.h5",
+        "h5_bytes": 12574523392,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.63237,
+                34.04574
+              ],
+              [
+                33.92296,
+                31.92526
+              ],
+              [
+                36.48354,
+                31.28205
+              ],
+              [
+                37.24913,
+                33.38626
+              ],
+              [
+                34.63237,
+                34.04574
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GSLC",
+      "date": "2026-08-11",
+      "tier": null,
+      "selected": {
+        "scene": "NISAR_L2_PR_GSLC_027_151_D_072_2005_DHDH_A_20260811T162511_20260811T162545_P05023_N_F_J_001",
+        "product": "GSLC",
+        "collection": "NISAR_L2_GSLC_PROVISIONAL_V1",
+        "concept_id": "C2854332392-ASF",
+        "maturity": "PROVISIONAL",
+        "crid": "P05023",
+        "pge_version": "R05.02.3",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-08-11T16:25:11Z",
+        "stop": "2026-08-11T16:25:45Z",
+        "date": "2026-08-11",
+        "processing_date": "2026-08-16T01:46:25Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GSLC_PROVISIONAL_V1/NISAR_L2_PR_GSLC_027_151_D_072_2005_DHDH_A_20260811T162511_20260811T162545_P05023_N_F_J_001/NISAR_L2_PR_GSLC_027_151_D_072_2005_DHDH_A_20260811T162511_20260811T162545_P05023_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GSLC_027_151_D_072_2005_DHDH_A_20260811T162511_20260811T162545_P05023_N_F_J_001.h5",
+        "h5_bytes": 12226396160,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.63087,
+                34.04375
+              ],
+              [
+                33.9408,
+                31.98221
+              ],
+              [
+                36.50294,
+                31.33859
+              ],
+              [
+                37.24766,
+                33.38432
+              ],
+              [
+                34.63087,
+                34.04375
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GSLC",
+      "date": "2026-08-23",
+      "tier": null,
+      "selected": {
+        "scene": "NISAR_L2_PR_GSLC_028_151_D_072_2005_DHDH_A_20260823T162510_20260823T162545_P05023_N_F_J_001",
+        "product": "GSLC",
+        "collection": "NISAR_L2_GSLC_PROVISIONAL_V1",
+        "concept_id": "C2854332392-ASF",
+        "maturity": "PROVISIONAL",
+        "crid": "P05023",
+        "pge_version": "R05.02.3",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-08-23T16:25:10Z",
+        "stop": "2026-08-23T16:25:45Z",
+        "date": "2026-08-23",
+        "processing_date": "2026-08-27T20:26:31Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GSLC_PROVISIONAL_V1/NISAR_L2_PR_GSLC_028_151_D_072_2005_DHDH_A_20260823T162510_20260823T162545_P05023_N_F_J_001/NISAR_L2_PR_GSLC_028_151_D_072_2005_DHDH_A_20260823T162510_20260823T162545_P05023_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GSLC_028_151_D_072_2005_DHDH_A_20260823T162510_20260823T162545_P05023_N_F_J_001.h5",
+        "h5_bytes": 12574523392,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.64603,
+                34.08572
+              ],
+              [
+                33.93599,
+                31.96532
+              ],
+              [
+                36.49812,
+                31.32167
+              ],
+              [
+                37.26446,
+                33.42578
+              ],
+              [
+                34.64603,
+                34.08572
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GSLC",
+      "date": "2026-09-04",
+      "tier": null,
+      "selected": {
+        "scene": "NISAR_L2_PR_GSLC_029_151_D_072_2005_DHDH_A_20260904T162510_20260904T162545_P05023_N_F_J_002",
+        "product": "GSLC",
+        "collection": "NISAR_L2_GSLC_PROVISIONAL_V1",
+        "concept_id": "C2854332392-ASF",
+        "maturity": "PROVISIONAL",
+        "crid": "P05023",
+        "pge_version": "R05.02.3",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-09-04T16:25:10Z",
+        "stop": "2026-09-04T16:25:45Z",
+        "date": "2026-09-04",
+        "processing_date": "2026-09-13T05:52:47Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GSLC_PROVISIONAL_V1/NISAR_L2_PR_GSLC_029_151_D_072_2005_DHDH_A_20260904T162510_20260904T162545_P05023_N_F_J_002/NISAR_L2_PR_GSLC_029_151_D_072_2005_DHDH_A_20260904T162510_20260904T162545_P05023_N_F_J_002.h5",
+        "file_name": "NISAR_L2_PR_GSLC_029_151_D_072_2005_DHDH_A_20260904T162510_20260904T162545_P05023_N_F_J_002.h5",
+        "h5_bytes": 12570329088,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.64322,
+                34.07521
+              ],
+              [
+                33.9333,
+                31.95479
+              ],
+              [
+                36.49445,
+                31.31138
+              ],
+              [
+                37.26063,
+                33.41551
+              ],
+              [
+                34.64322,
+                34.07521
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": [
+        "NISAR_L2_PR_GSLC_029_151_D_072_2005_DHDH_A_20260904T162510_20260904T162545_P05023_N_F_J_001"
+      ]
+    },
+    {
+      "product": "GSLC",
+      "date": "2026-09-16",
+      "tier": null,
+      "selected": {
+        "scene": "NISAR_L2_PR_GSLC_030_151_D_072_2005_DHDH_A_20260916T162510_20260916T162544_P05023_N_F_J_001",
+        "product": "GSLC",
+        "collection": "NISAR_L2_GSLC_PROVISIONAL_V1",
+        "concept_id": "C2854332392-ASF",
+        "maturity": "PROVISIONAL",
+        "crid": "P05023",
+        "pge_version": "R05.02.3",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-09-16T16:25:10Z",
+        "stop": "2026-09-16T16:25:44Z",
+        "date": "2026-09-16",
+        "processing_date": "2026-09-18T18:44:15Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GSLC_PROVISIONAL_V1/NISAR_L2_PR_GSLC_030_151_D_072_2005_DHDH_A_20260916T162510_20260916T162544_P05023_N_F_J_001/NISAR_L2_PR_GSLC_030_151_D_072_2005_DHDH_A_20260916T162510_20260916T162544_P05023_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GSLC_030_151_D_072_2005_DHDH_A_20260916T162510_20260916T162544_P05023_N_F_J_001.h5",
+        "h5_bytes": 12230590464,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.64145,
+                34.07093
+              ],
+              [
+                33.9509,
+                32.00945
+              ],
+              [
+                36.51359,
+                31.36561
+              ],
+              [
+                37.25863,
+                33.4113
+              ],
+              [
+                34.64145,
+                34.07093
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GSLC",
+      "date": "2026-09-28",
+      "tier": null,
+      "selected": {
+        "scene": "NISAR_L2_PR_GSLC_031_151_D_072_2005_DHDH_A_20260928T162510_20260928T162544_P05023_N_F_J_001",
+        "product": "GSLC",
+        "collection": "NISAR_L2_GSLC_PROVISIONAL_V1",
+        "concept_id": "C2854332392-ASF",
+        "maturity": "PROVISIONAL",
+        "crid": "P05023",
+        "pge_version": "R05.02.3",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-09-28T16:25:10Z",
+        "stop": "2026-09-28T16:25:44Z",
+        "date": "2026-09-28",
+        "processing_date": "2026-09-30T17:14:53Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GSLC_PROVISIONAL_V1/NISAR_L2_PR_GSLC_031_151_D_072_2005_DHDH_A_20260928T162510_20260928T162544_P05023_N_F_J_001/NISAR_L2_PR_GSLC_031_151_D_072_2005_DHDH_A_20260928T162510_20260928T162544_P05023_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GSLC_031_151_D_072_2005_DHDH_A_20260928T162510_20260928T162544_P05023_N_F_J_001.h5",
+        "h5_bytes": 12230590464,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.64005,
+                34.07101
+              ],
+              [
+                33.94957,
+                32.00953
+              ],
+              [
+                36.51291,
+                31.36557
+              ],
+              [
+                37.25788,
+                33.41127
+              ],
+              [
+                34.64005,
+                34.07101
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GSLC",
+      "date": "2026-10-10",
+      "tier": null,
+      "selected": {
+        "scene": "NISAR_L2_PR_GSLC_032_151_D_072_2005_DHDH_A_20261010T162510_20261010T162544_P05023_N_F_J_001",
+        "product": "GSLC",
+        "collection": "NISAR_L2_GSLC_PROVISIONAL_V1",
+        "concept_id": "C2854332392-ASF",
+        "maturity": "PROVISIONAL",
+        "crid": "P05023",
+        "pge_version": "R05.02.3",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-10-10T16:25:10Z",
+        "stop": "2026-10-10T16:25:44Z",
+        "date": "2026-10-10",
+        "processing_date": "2026-10-12T23:09:07Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GSLC_PROVISIONAL_V1/NISAR_L2_PR_GSLC_032_151_D_072_2005_DHDH_A_20261010T162510_20261010T162544_P05023_N_F_J_001/NISAR_L2_PR_GSLC_032_151_D_072_2005_DHDH_A_20261010T162510_20261010T162544_P05023_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GSLC_032_151_D_072_2005_DHDH_A_20261010T162510_20261010T162544_P05023_N_F_J_001.h5",
+        "h5_bytes": 12226396160,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.64348,
+                34.07824
+              ],
+              [
+                33.95286,
+                32.01678
+              ],
+              [
+                36.5158,
+                31.37289
+              ],
+              [
+                37.261,
+                33.41856
+              ],
+              [
+                34.64348,
+                34.07824
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GSLC",
+      "date": "2026-10-22",
+      "tier": null,
+      "selected": {
+        "scene": "NISAR_L2_PR_GSLC_033_151_D_072_2005_DHDH_A_20261022T162510_20261022T162545_P05036_N_F_J_001",
+        "product": "GSLC",
+        "collection": "NISAR_L2_GSLC_V1",
+        "concept_id": "C3622244601-ASF",
+        "maturity": "V1",
+        "crid": "P05036",
+        "pge_version": "R05.03.2",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-10-22T16:25:10Z",
+        "stop": "2026-10-22T16:25:45Z",
+        "date": "2026-10-22",
+        "processing_date": "2026-11-10T23:34:15Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GSLC_V1/NISAR_L2_PR_GSLC_033_151_D_072_2005_DHDH_A_20261022T162510_20261022T162545_P05036_N_F_J_001/NISAR_L2_PR_GSLC_033_151_D_072_2005_DHDH_A_20261022T162510_20261022T162545_P05036_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GSLC_033_151_D_072_2005_DHDH_A_20261022T162510_20261022T162545_P05036_N_F_J_001.h5",
+        "h5_bytes": 12561940480,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.65014,
+                34.09537
+              ],
+              [
+                33.93992,
+                31.97498
+              ],
+              [
+                36.50151,
+                31.33144
+              ],
+              [
+                37.26832,
+                33.43546
+              ],
+              [
+                34.65014,
+                34.09537
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GSLC",
+      "date": "2026-11-03",
+      "tier": null,
+      "selected": {
+        "scene": "NISAR_L2_PR_GSLC_034_151_D_072_2005_DHDH_A_20261103T162510_20261103T162545_P05036_N_F_J_001",
+        "product": "GSLC",
+        "collection": "NISAR_L2_GSLC_V1",
+        "concept_id": "C3622244601-ASF",
+        "maturity": "V1",
+        "crid": "P05036",
+        "pge_version": "R05.03.2",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-11-03T16:25:10Z",
+        "stop": "2026-11-03T16:25:45Z",
+        "date": "2026-11-03",
+        "processing_date": "2026-11-12T17:02:26Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20+5"
+        ],
+        "polarizations": [
+          "HH",
+          "HV"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GSLC_V1/NISAR_L2_PR_GSLC_034_151_D_072_2005_DHDH_A_20261103T162510_20261103T162545_P05036_N_F_J_001/NISAR_L2_PR_GSLC_034_151_D_072_2005_DHDH_A_20261103T162510_20261103T162545_P05036_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GSLC_034_151_D_072_2005_DHDH_A_20261103T162510_20261103T162545_P05036_N_F_J_001.h5",
+        "h5_bytes": 12570329088,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.66205,
+                34.133
+              ],
+              [
+                33.95128,
+                32.01269
+              ],
+              [
+                36.51419,
+                31.36881
+              ],
+              [
+                37.2815,
+                33.47276
+              ],
+              [
+                34.66205,
+                34.133
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GUNW",
+      "date": "2025-10-27",
+      "tier": null,
+      "selected": {
+        "scene": "NISAR_L2_PR_GUNW_003_151_D_072_004_2000_SH_20251027T162510_20251027T162545_20251108T162511_20251108T162546_X05009_N_F_J_001",
+        "product": "GUNW",
+        "collection": "NISAR_L2_GUNW_BETA_V1",
+        "concept_id": "C2850261892-ASF",
+        "maturity": "BETA",
+        "crid": "X05009",
+        "pge_version": "R05.00.8",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2025-10-27T16:25:10Z",
+        "stop": "2025-11-08T16:25:46Z",
+        "date": "2025-10-27",
+        "processing_date": "2026-02-07T19:37:17Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20"
+        ],
+        "polarizations": [
+          "HH"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GUNW_BETA_V1/NISAR_L2_PR_GUNW_003_151_D_072_004_2000_SH_20251027T162510_20251027T162545_20251108T162511_20251108T162546_X05009_N_F_J_001/NISAR_L2_PR_GUNW_003_151_D_072_004_2000_SH_20251027T162510_20251027T162545_20251108T162511_20251108T162546_X05009_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GUNW_003_151_D_072_004_2000_SH_20251027T162510_20251027T162545_20251108T162511_20251108T162546_X05009_N_F_J_001.h5",
+        "h5_bytes": 2323644416,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.66361,
+                34.14061
+              ],
+              [
+                33.95273,
+                32.02033
+              ],
+              [
+                36.51761,
+                31.37593
+              ],
+              [
+                37.28499,
+                33.47987
+              ],
+              [
+                34.66361,
+                34.14061
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GUNW",
+      "date": "2025-11-08",
+      "tier": null,
+      "selected": {
+        "scene": "NISAR_L2_PR_GUNW_004_151_D_072_005_2000_SH_20251108T162511_20251108T162546_20251120T162511_20251120T162546_X05010_N_F_J_001",
+        "product": "GUNW",
+        "collection": "NISAR_L2_GUNW_BETA_V1",
+        "concept_id": "C2850261892-ASF",
+        "maturity": "BETA",
+        "crid": "X05010",
+        "pge_version": "R05.00.8",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2025-11-08T16:25:11Z",
+        "stop": "2025-11-20T16:25:46Z",
+        "date": "2025-11-08",
+        "processing_date": "2026-02-12T22:39:16Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20"
+        ],
+        "polarizations": [
+          "HH"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GUNW_BETA_V1/NISAR_L2_PR_GUNW_004_151_D_072_005_2000_SH_20251108T162511_20251108T162546_20251120T162511_20251120T162546_X05010_N_F_J_001/NISAR_L2_PR_GUNW_004_151_D_072_005_2000_SH_20251108T162511_20251108T162546_20251120T162511_20251120T162546_X05010_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GUNW_004_151_D_072_005_2000_SH_20251108T162511_20251108T162546_20251120T162511_20251120T162546_X05010_N_F_J_001.h5",
+        "h5_bytes": 2327838720,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.64571,
+                34.08447
+              ],
+              [
+                33.93573,
+                31.96409
+              ],
+              [
+                36.49879,
+                31.32023
+              ],
+              [
+                37.26507,
+                33.42431
+              ],
+              [
+                34.64571,
+                34.08447
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GUNW",
+      "date": "2025-11-20",
+      "tier": null,
+      "selected": {
+        "scene": "NISAR_L2_PR_GUNW_005_151_D_072_008_2000_SH_20251120T162511_20251120T162546_20251226T162513_20251226T162547_X05010_N_F_J_001",
+        "product": "GUNW",
+        "collection": "NISAR_L2_GUNW_BETA_V1",
+        "concept_id": "C2850261892-ASF",
+        "maturity": "BETA",
+        "crid": "X05010",
+        "pge_version": "R05.00.8",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2025-11-20T16:25:11Z",
+        "stop": "2025-12-26T16:25:47Z",
+        "date": "2025-11-20",
+        "processing_date": "2026-02-13T15:18:02Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20"
+        ],
+        "polarizations": [
+          "HH"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GUNW_BETA_V1/NISAR_L2_PR_GUNW_005_151_D_072_008_2000_SH_20251120T162511_20251120T162546_20251226T162513_20251226T162547_X05010_N_F_J_001/NISAR_L2_PR_GUNW_005_151_D_072_008_2000_SH_20251120T162511_20251120T162546_20251226T162513_20251226T162547_X05010_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GUNW_005_151_D_072_008_2000_SH_20251120T162511_20251120T162546_20251226T162513_20251226T162547_X05010_N_F_J_001.h5",
+        "h5_bytes": 2327838720,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.659,
+                34.12767
+              ],
+              [
+                33.94835,
+                32.00734
+              ],
+              [
+                36.51264,
+                31.36314
+              ],
+              [
+                37.27982,
+                33.46711
+              ],
+              [
+                34.659,
+                34.12767
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GUNW",
+      "date": "2025-12-26",
+      "tier": null,
+      "selected": {
+        "scene": "NISAR_L2_PR_GUNW_008_151_D_072_009_2000_SH_20251226T162513_20251226T162547_20260107T162513_20260107T162548_X05010_N_F_J_001",
+        "product": "GUNW",
+        "collection": "NISAR_L2_GUNW_BETA_V1",
+        "concept_id": "C2850261892-ASF",
+        "maturity": "BETA",
+        "crid": "X05010",
+        "pge_version": "R05.00.8",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2025-12-26T16:25:13Z",
+        "stop": "2026-01-07T16:25:48Z",
+        "date": "2025-12-26",
+        "processing_date": "2026-02-13T22:17:47Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20"
+        ],
+        "polarizations": [
+          "HH"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GUNW_BETA_V1/NISAR_L2_PR_GUNW_008_151_D_072_009_2000_SH_20251226T162513_20251226T162547_20260107T162513_20260107T162548_X05010_N_F_J_001/NISAR_L2_PR_GUNW_008_151_D_072_009_2000_SH_20251226T162513_20251226T162547_20260107T162513_20260107T162548_X05010_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GUNW_008_151_D_072_009_2000_SH_20251226T162513_20251226T162547_20260107T162513_20260107T162548_X05010_N_F_J_001.h5",
+        "h5_bytes": 2319450112,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.6517,
+                34.10008
+              ],
+              [
+                33.9607,
+                32.03867
+              ],
+              [
+                36.52514,
+                31.39434
+              ],
+              [
+                37.27135,
+                33.43978
+              ],
+              [
+                34.6517,
+                34.10008
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GUNW",
+      "date": "2026-01-07",
+      "tier": "C",
+      "selected": {
+        "scene": "NISAR_L2_PR_GUNW_009_151_D_072_010_2000_SH_20260107T162513_20260107T162548_20260119T162514_20260119T162549_X05010_N_F_J_001",
+        "product": "GUNW",
+        "collection": "NISAR_L2_GUNW_BETA_V1",
+        "concept_id": "C2850261892-ASF",
+        "maturity": "BETA",
+        "crid": "X05010",
+        "pge_version": "R05.00.8",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-01-07T16:25:13Z",
+        "stop": "2026-01-19T16:25:49Z",
+        "date": "2026-01-07",
+        "processing_date": "2026-02-12T15:45:01Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20"
+        ],
+        "polarizations": [
+          "HH"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GUNW_BETA_V1/NISAR_L2_PR_GUNW_009_151_D_072_010_2000_SH_20260107T162513_20260107T162548_20260119T162514_20260119T162549_X05010_N_F_J_001/NISAR_L2_PR_GUNW_009_151_D_072_010_2000_SH_20260107T162513_20260107T162548_20260119T162514_20260119T162549_X05010_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GUNW_009_151_D_072_010_2000_SH_20260107T162513_20260107T162548_20260119T162514_20260119T162549_X05010_N_F_J_001.h5",
+        "h5_bytes": 2348810240,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.66557,
+                34.14195
+              ],
+              [
+                33.95466,
+                32.02165
+              ],
+              [
+                36.5192,
+                31.37733
+              ],
+              [
+                37.28674,
+                33.48126
+              ],
+              [
+                34.66557,
+                34.14195
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GUNW",
+      "date": "2026-06-24",
+      "tier": null,
+      "selected": {
+        "scene": "NISAR_L2_PR_GUNW_023_151_D_072_024_2000_SH_20260624T162513_20260624T162548_20260706T162513_20260706T162547_P05023_N_F_J_001",
+        "product": "GUNW",
+        "collection": "NISAR_L2_GUNW_PROVISIONAL_V1",
+        "concept_id": "C2854335566-ASF",
+        "maturity": "PROVISIONAL",
+        "crid": "P05023",
+        "pge_version": "R05.02.3",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-06-24T16:25:13Z",
+        "stop": "2026-07-06T16:25:47Z",
+        "date": "2026-06-24",
+        "processing_date": "2026-08-12T02:38:25Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20"
+        ],
+        "polarizations": [
+          "HH"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GUNW_PROVISIONAL_V1/NISAR_L2_PR_GUNW_023_151_D_072_024_2000_SH_20260624T162513_20260624T162548_20260706T162513_20260706T162547_P05023_N_F_J_001/NISAR_L2_PR_GUNW_023_151_D_072_024_2000_SH_20260624T162513_20260624T162548_20260706T162513_20260706T162547_P05023_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GUNW_023_151_D_072_024_2000_SH_20260624T162513_20260624T162548_20260706T162513_20260706T162547_P05023_N_F_J_001.h5",
+        "h5_bytes": 2319450112,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.6415,
+                34.07085
+              ],
+              [
+                33.93167,
+                31.95042
+              ],
+              [
+                36.49289,
+                31.30701
+              ],
+              [
+                37.25888,
+                33.41118
+              ],
+              [
+                34.6415,
+                34.07085
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GUNW",
+      "date": "2026-07-06",
+      "tier": null,
+      "selected": {
+        "scene": "NISAR_L2_PR_GUNW_024_151_D_072_025_2000_SH_20260706T162513_20260706T162547_20260718T162512_20260718T162547_P05023_N_F_J_001",
+        "product": "GUNW",
+        "collection": "NISAR_L2_GUNW_PROVISIONAL_V1",
+        "concept_id": "C2854335566-ASF",
+        "maturity": "PROVISIONAL",
+        "crid": "P05023",
+        "pge_version": "R05.02.3",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-07-06T16:25:13Z",
+        "stop": "2026-07-18T16:25:47Z",
+        "date": "2026-07-06",
+        "processing_date": "2026-08-12T22:14:10Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20"
+        ],
+        "polarizations": [
+          "HH"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GUNW_PROVISIONAL_V1/NISAR_L2_PR_GUNW_024_151_D_072_025_2000_SH_20260706T162513_20260706T162547_20260718T162512_20260718T162547_P05023_N_F_J_001/NISAR_L2_PR_GUNW_024_151_D_072_025_2000_SH_20260706T162513_20260706T162547_20260718T162512_20260718T162547_P05023_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GUNW_024_151_D_072_025_2000_SH_20260706T162513_20260706T162547_20260718T162512_20260718T162547_P05023_N_F_J_001.h5",
+        "h5_bytes": 2319450112,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.62806,
+                34.03259
+              ],
+              [
+                33.93807,
+                31.97105
+              ],
+              [
+                36.49998,
+                31.32742
+              ],
+              [
+                37.24436,
+                33.3732
+              ],
+              [
+                34.62806,
+                34.03259
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GUNW",
+      "date": "2026-07-18",
+      "tier": null,
+      "selected": {
+        "scene": "NISAR_L2_PR_GUNW_025_151_D_072_027_2000_SH_20260718T162512_20260718T162547_20260811T162511_20260811T162545_P05023_N_F_J_001",
+        "product": "GUNW",
+        "collection": "NISAR_L2_GUNW_PROVISIONAL_V1",
+        "concept_id": "C2854335566-ASF",
+        "maturity": "PROVISIONAL",
+        "crid": "P05023",
+        "pge_version": "R05.02.3",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-07-18T16:25:12Z",
+        "stop": "2026-08-11T16:25:45Z",
+        "date": "2026-07-18",
+        "processing_date": "2026-08-16T01:31:26Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20"
+        ],
+        "polarizations": [
+          "HH"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GUNW_PROVISIONAL_V1/NISAR_L2_PR_GUNW_025_151_D_072_027_2000_SH_20260718T162512_20260718T162547_20260811T162511_20260811T162545_P05023_N_F_J_001/NISAR_L2_PR_GUNW_025_151_D_072_027_2000_SH_20260718T162512_20260718T162547_20260811T162511_20260811T162545_P05023_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GUNW_025_151_D_072_027_2000_SH_20260718T162512_20260718T162547_20260811T162511_20260811T162545_P05023_N_F_J_001.h5",
+        "h5_bytes": 2323644416,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.63237,
+                34.04574
+              ],
+              [
+                33.92296,
+                31.92526
+              ],
+              [
+                36.48354,
+                31.28205
+              ],
+              [
+                37.24913,
+                33.38626
+              ],
+              [
+                34.63237,
+                34.04574
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GUNW",
+      "date": "2026-08-11",
+      "tier": null,
+      "selected": {
+        "scene": "NISAR_L2_PR_GUNW_027_151_D_072_028_2000_SH_20260811T162511_20260811T162545_20260823T162510_20260823T162545_P05023_N_F_J_001",
+        "product": "GUNW",
+        "collection": "NISAR_L2_GUNW_PROVISIONAL_V1",
+        "concept_id": "C2854335566-ASF",
+        "maturity": "PROVISIONAL",
+        "crid": "P05023",
+        "pge_version": "R05.02.3",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-08-11T16:25:11Z",
+        "stop": "2026-08-23T16:25:45Z",
+        "date": "2026-08-11",
+        "processing_date": "2026-08-27T11:24:29Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20"
+        ],
+        "polarizations": [
+          "HH"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GUNW_PROVISIONAL_V1/NISAR_L2_PR_GUNW_027_151_D_072_028_2000_SH_20260811T162511_20260811T162545_20260823T162510_20260823T162545_P05023_N_F_J_001/NISAR_L2_PR_GUNW_027_151_D_072_028_2000_SH_20260811T162511_20260811T162545_20260823T162510_20260823T162545_P05023_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GUNW_027_151_D_072_028_2000_SH_20260811T162511_20260811T162545_20260823T162510_20260823T162545_P05023_N_F_J_001.h5",
+        "h5_bytes": 2315255808,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.63087,
+                34.04375
+              ],
+              [
+                33.9408,
+                31.98221
+              ],
+              [
+                36.50294,
+                31.33859
+              ],
+              [
+                37.24766,
+                33.38432
+              ],
+              [
+                34.63087,
+                34.04375
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GUNW",
+      "date": "2026-08-23",
+      "tier": null,
+      "selected": {
+        "scene": "NISAR_L2_PR_GUNW_028_151_D_072_029_2000_SH_20260823T162510_20260823T162545_20260904T162510_20260904T162545_P05023_N_F_J_002",
+        "product": "GUNW",
+        "collection": "NISAR_L2_GUNW_PROVISIONAL_V1",
+        "concept_id": "C2854335566-ASF",
+        "maturity": "PROVISIONAL",
+        "crid": "P05023",
+        "pge_version": "R05.02.3",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-08-23T16:25:10Z",
+        "stop": "2026-09-04T16:25:45Z",
+        "date": "2026-08-23",
+        "processing_date": "2026-09-13T06:12:48Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20"
+        ],
+        "polarizations": [
+          "HH"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GUNW_PROVISIONAL_V1/NISAR_L2_PR_GUNW_028_151_D_072_029_2000_SH_20260823T162510_20260823T162545_20260904T162510_20260904T162545_P05023_N_F_J_002/NISAR_L2_PR_GUNW_028_151_D_072_029_2000_SH_20260823T162510_20260823T162545_20260904T162510_20260904T162545_P05023_N_F_J_002.h5",
+        "file_name": "NISAR_L2_PR_GUNW_028_151_D_072_029_2000_SH_20260823T162510_20260823T162545_20260904T162510_20260904T162545_P05023_N_F_J_002.h5",
+        "h5_bytes": 2353004544,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.64603,
+                34.08572
+              ],
+              [
+                33.93599,
+                31.96532
+              ],
+              [
+                36.49812,
+                31.32167
+              ],
+              [
+                37.26446,
+                33.42578
+              ],
+              [
+                34.64603,
+                34.08572
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": [
+        "NISAR_L2_PR_GUNW_028_151_D_072_029_2000_SH_20260823T162510_20260823T162545_20260904T162510_20260904T162545_P05023_N_F_J_001"
+      ]
+    },
+    {
+      "product": "GUNW",
+      "date": "2026-09-04",
+      "tier": null,
+      "selected": {
+        "scene": "NISAR_L2_PR_GUNW_029_151_D_072_030_2000_SH_20260904T162510_20260904T162545_20260916T162510_20260916T162544_P05023_N_F_J_001",
+        "product": "GUNW",
+        "collection": "NISAR_L2_GUNW_PROVISIONAL_V1",
+        "concept_id": "C2854335566-ASF",
+        "maturity": "PROVISIONAL",
+        "crid": "P05023",
+        "pge_version": "R05.02.3",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-09-04T16:25:10Z",
+        "stop": "2026-09-16T16:25:44Z",
+        "date": "2026-09-04",
+        "processing_date": "2026-09-18T18:58:26Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20"
+        ],
+        "polarizations": [
+          "HH"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GUNW_PROVISIONAL_V1/NISAR_L2_PR_GUNW_029_151_D_072_030_2000_SH_20260904T162510_20260904T162545_20260916T162510_20260916T162544_P05023_N_F_J_001/NISAR_L2_PR_GUNW_029_151_D_072_030_2000_SH_20260904T162510_20260904T162545_20260916T162510_20260916T162544_P05023_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GUNW_029_151_D_072_030_2000_SH_20260904T162510_20260904T162545_20260916T162510_20260916T162544_P05023_N_F_J_001.h5",
+        "h5_bytes": 2319450112,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.64322,
+                34.07521
+              ],
+              [
+                33.9333,
+                31.95479
+              ],
+              [
+                36.49445,
+                31.31138
+              ],
+              [
+                37.26063,
+                33.41551
+              ],
+              [
+                34.64322,
+                34.07521
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GUNW",
+      "date": "2026-09-16",
+      "tier": null,
+      "selected": {
+        "scene": "NISAR_L2_PR_GUNW_030_151_D_072_031_2000_SH_20260916T162510_20260916T162544_20260928T162510_20260928T162544_P05023_N_F_J_001",
+        "product": "GUNW",
+        "collection": "NISAR_L2_GUNW_PROVISIONAL_V1",
+        "concept_id": "C2854335566-ASF",
+        "maturity": "PROVISIONAL",
+        "crid": "P05023",
+        "pge_version": "R05.02.3",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-09-16T16:25:10Z",
+        "stop": "2026-09-28T16:25:44Z",
+        "date": "2026-09-16",
+        "processing_date": "2026-09-30T17:38:44Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20"
+        ],
+        "polarizations": [
+          "HH"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GUNW_PROVISIONAL_V1/NISAR_L2_PR_GUNW_030_151_D_072_031_2000_SH_20260916T162510_20260916T162544_20260928T162510_20260928T162544_P05023_N_F_J_001/NISAR_L2_PR_GUNW_030_151_D_072_031_2000_SH_20260916T162510_20260916T162544_20260928T162510_20260928T162544_P05023_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GUNW_030_151_D_072_031_2000_SH_20260916T162510_20260916T162544_20260928T162510_20260928T162544_P05023_N_F_J_001.h5",
+        "h5_bytes": 2311061504,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.64145,
+                34.07093
+              ],
+              [
+                33.9509,
+                32.00945
+              ],
+              [
+                36.51359,
+                31.36561
+              ],
+              [
+                37.25863,
+                33.4113
+              ],
+              [
+                34.64145,
+                34.07093
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    },
+    {
+      "product": "GUNW",
+      "date": "2026-09-28",
+      "tier": null,
+      "selected": {
+        "scene": "NISAR_L2_PR_GUNW_031_151_D_072_032_2000_SH_20260928T162510_20260928T162544_20261010T162510_20261010T162544_P05023_N_F_J_001",
+        "product": "GUNW",
+        "collection": "NISAR_L2_GUNW_PROVISIONAL_V1",
+        "concept_id": "C2854335566-ASF",
+        "maturity": "PROVISIONAL",
+        "crid": "P05023",
+        "pge_version": "R05.02.3",
+        "track": 151,
+        "frame": 72,
+        "direction": "DESCENDING",
+        "start": "2026-09-28T16:25:10Z",
+        "stop": "2026-10-10T16:25:44Z",
+        "date": "2026-09-28",
+        "processing_date": "2026-10-12T23:02:17Z",
+        "frame_coverage": "Full",
+        "range_bandwidth": [
+          "20"
+        ],
+        "polarizations": [
+          "HH"
+        ],
+        "url": "https://nisar.asf.earthdatacloud.nasa.gov/NISAR/NISAR_L2_GUNW_PROVISIONAL_V1/NISAR_L2_PR_GUNW_031_151_D_072_032_2000_SH_20260928T162510_20260928T162544_20261010T162510_20261010T162544_P05023_N_F_J_001/NISAR_L2_PR_GUNW_031_151_D_072_032_2000_SH_20260928T162510_20260928T162544_20261010T162510_20261010T162544_P05023_N_F_J_001.h5",
+        "file_name": "NISAR_L2_PR_GUNW_031_151_D_072_032_2000_SH_20260928T162510_20260928T162544_20261010T162510_20261010T162544_P05023_N_F_J_001.h5",
+        "h5_bytes": 2311061504,
+        "footprint": {
+          "coordinates": [
+            [
+              [
+                34.64005,
+                34.07101
+              ],
+              [
+                33.94957,
+                32.00953
+              ],
+              [
+                36.51291,
+                31.36557
+              ],
+              [
+                37.25788,
+                33.41127
+              ],
+              [
+                34.64005,
+                34.07101
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        }
+      },
+      "other_versions": []
+    }
+  ],
+  "run_id": "e4316b6d1147317e",
+  "generated_at": "2026-11-14T03:33:16+00:00"
+}
