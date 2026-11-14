@@ -1,0 +1,518 @@
+{
+  "schema_version": "0.1",
+  "kind": "nisar_model_tests",
+  "synthetic": false,
+  "created_at": "2026-11-14T07:15:16+00:00",
+  "run_id": "e99a9b63914b68e6",
+  "method": "isolation_forest",
+  "quiet_controls": "UCDP candidate events (where_prec<=1, 2026-01-19..2026-06-24, n=428); no event within 2.0 km",
+  "n_train": 1301,
+  "n_holdout": 345,
+  "tail_reliable": false,
+  "holdout_false_alarms": {
+    "n": 345,
+    "possible": {
+      "expected": 0.05,
+      "observed": 0.08695652173913043,
+      "count": 30,
+      "ci95": [
+        0.061588186650324485,
+        0.12142209652691122
+      ]
+    },
+    "moderate": {
+      "expected": 0.01,
+      "observed": 0.011594202898550725,
+      "count": 4,
+      "ci95": [
+        0.004517669783684066,
+        0.029427822955713986
+      ]
+    },
+    "severe": {
+      "expected": 0.001,
+      "observed": 0.011594202898550725,
+      "count": 4,
+      "ci95": [
+        0.004517669783684066,
+        0.029427822955713986
+      ]
+    }
+  },
+  "eye_check": {
+    "rules": "as above + terrain mask (NASADEM: layover, shadow, slope > 25 deg)",
+    "plausible_damage": 15,
+    "unclear": 3,
+    "false": 2,
+    "false_causes": {
+      "terrain_edge": 1,
+      "texture_boundary": 1
+    },
+    "history": [
+      {
+        "rules": "built-up = OSM buildings + 30 m, water mask, destriping; all densities",
+        "plausible_damage": 4,
+        "false": 16,
+        "false_causes": {
+          "coastline_edge": 3,
+          "terrain_edge": 8,
+          "farm_fields": 5
+        },
+        "action": "minimum built density 0.25 (sparse cells not assessed)"
+      },
+      {
+        "rules": "as above + built density >= 0.25",
+        "plausible_damage": 15,
+        "false": 5,
+        "false_causes": {
+          "terrain_edge": 3,
+          "texture_or_noise": 2
+        }
+      }
+    ]
+  },
+  "strike_context": {
+    "n_events": 428,
+    "n_cells": 5779,
+    "near_lt_1km": {
+      "cells": 2154,
+      "candidates": 70,
+      "rate": 0.032497678737233054,
+      "ci95": [
+        0.025802151714866123,
+        0.040857792184630495
+      ]
+    },
+    "far_ge_5km": {
+      "cells": 536,
+      "candidates": 23,
+      "rate": 0.04291044776119403,
+      "ci95": [
+        0.028761020147102582,
+        0.06356532150570816
+      ]
+    },
+    "rate_ratio": 0.7573372088329094,
+    "top_cells_within_1km": {
+      "20": 0.5,
+      "50": 0.46,
+      "100": 0.41
+    },
+    "all_cells_within_1km": 0.3727288458210763,
+    "note": "Preliminary check by M1 for M1-04 (Thanoban) to formalise with controls. Events = UCDP candidate GED (CC BY 4.0); a recorded event is not a confirmed collapse."
+  },
+  "qa": {
+    "water": {
+      "threshold_mean_hv_db": -20.5,
+      "dilation_px": 2,
+      "share_of_crop": 0.23606136486879437,
+      "built_pixels_masked": 1103
+    },
+    "banding_before_correction": {
+      "column_median_range_db": 0.8241947293281555,
+      "row_median_range_db": 0.31390562653541565,
+      "overall_median_db": -0.0486140251159668
+    },
+    "banding_after_correction": {
+      "column_median_range_db": 0.21362099051475525,
+      "row_median_range_db": 0.15065935254096985,
+      "overall_median_db": 0.00035691261291503906
+    }
+  },
+  "time_slider": [
+    {
+      "after_date": "2026-08-11",
+      "run_id": "fc29358dd375b064",
+      "class_counts": {
+        "unknown": 5583,
+        "no_detected_change": 5502,
+        "possible_candidate": 135,
+        "other_change": 96,
+        "moderate_candidate": 40,
+        "destroyed_or_severe_candidate": 6
+      },
+      "holdout_false_alarms": {
+        "n": 929,
+        "possible": {
+          "expected": 0.05,
+          "observed": 0.03444564047362755,
+          "count": 32,
+          "ci95": [
+            0.024503591012421354,
+            0.048222153637045385
+          ]
+        },
+        "moderate": {
+          "expected": 0.01,
+          "observed": 0.0032292787944025836,
+          "count": 3,
+          "ci95": [
+            0.001098820956074679,
+            0.009451308883760938
+          ]
+        },
+        "severe": {
+          "expected": 0.001,
+          "observed": 0.001076426264800861,
+          "count": 1,
+          "ci95": [
+            0.0001900360567595968,
+            0.006072120347929045
+          ]
+        }
+      },
+      "limits": [
+        "product maturities in this pair: ['PROVISIONAL']",
+        "no water/shadow/slope mask yet (built-up only, GCOV validity mask applied)",
+        "OSM building coverage limits",
+        "candidates only, not confirmed damage"
+      ]
+    },
+    {
+      "after_date": "2026-08-23",
+      "run_id": "bb37a932d36cf015",
+      "class_counts": {
+        "unknown": 5583,
+        "no_detected_change": 5510,
+        "possible_candidate": 132,
+        "other_change": 102,
+        "moderate_candidate": 29,
+        "destroyed_or_severe_candidate": 6
+      },
+      "holdout_false_alarms": {
+        "n": 929,
+        "possible": {
+          "expected": 0.05,
+          "observed": 0.038751345532831,
+          "count": 36,
+          "ci95": [
+            0.02812053854079128,
+            0.05318115297896942
+          ]
+        },
+        "moderate": {
+          "expected": 0.01,
+          "observed": 0.001076426264800861,
+          "count": 1,
+          "ci95": [
+            0.0001900360567595968,
+            0.006072120347929045
+          ]
+        },
+        "severe": {
+          "expected": 0.001,
+          "observed": 0.0,
+          "count": 0,
+          "ci95": [
+            0.0,
+            0.004118169687115154
+          ]
+        }
+      },
+      "limits": [
+        "product maturities in this pair: ['PROVISIONAL']",
+        "no water/shadow/slope mask yet (built-up only, GCOV validity mask applied)",
+        "OSM building coverage limits",
+        "candidates only, not confirmed damage"
+      ]
+    },
+    {
+      "after_date": "2026-09-04",
+      "run_id": "cf2794bbf3550ccc",
+      "class_counts": {
+        "unknown": 5583,
+        "no_detected_change": 5494,
+        "other_change": 149,
+        "possible_candidate": 107,
+        "moderate_candidate": 20,
+        "destroyed_or_severe_candidate": 9
+      },
+      "holdout_false_alarms": {
+        "n": 929,
+        "possible": {
+          "expected": 0.05,
+          "observed": 0.04198062432723358,
+          "count": 39,
+          "ci95": [
+            0.030859776195259144,
+            0.056873875477222
+          ]
+        },
+        "moderate": {
+          "expected": 0.01,
+          "observed": 0.0032292787944025836,
+          "count": 3,
+          "ci95": [
+            0.001098820956074679,
+            0.009451308883760938
+          ]
+        },
+        "severe": {
+          "expected": 0.001,
+          "observed": 0.001076426264800861,
+          "count": 1,
+          "ci95": [
+            0.0001900360567595968,
+            0.006072120347929045
+          ]
+        }
+      },
+      "limits": [
+        "product maturities in this pair: ['PROVISIONAL']",
+        "no water/shadow/slope mask yet (built-up only, GCOV validity mask applied)",
+        "OSM building coverage limits",
+        "candidates only, not confirmed damage"
+      ]
+    },
+    {
+      "after_date": "2026-09-16",
+      "run_id": "91412c9ba50f3baa",
+      "class_counts": {
+        "unknown": 5583,
+        "no_detected_change": 5485,
+        "other_change": 142,
+        "possible_candidate": 119,
+        "moderate_candidate": 22,
+        "destroyed_or_severe_candidate": 11
+      },
+      "holdout_false_alarms": {
+        "n": 920,
+        "possible": {
+          "expected": 0.05,
+          "observed": 0.030434782608695653,
+          "count": 28,
+          "ci95": [
+            0.021139371121465057,
+            0.04363536948341786
+          ]
+        },
+        "moderate": {
+          "expected": 0.01,
+          "observed": 0.0010869565217391304,
+          "count": 1,
+          "ci95": [
+            0.00019189535490430265,
+            0.006131266537783795
+          ]
+        },
+        "severe": {
+          "expected": 0.001,
+          "observed": 0.0010869565217391304,
+          "count": 1,
+          "ci95": [
+            0.00019189535490430265,
+            0.006131266537783795
+          ]
+        }
+      },
+      "limits": [
+        "product maturities in this pair: ['PROVISIONAL']",
+        "no water/shadow/slope mask yet (built-up only, GCOV validity mask applied)",
+        "OSM building coverage limits",
+        "candidates only, not confirmed damage"
+      ]
+    },
+    {
+      "after_date": "2026-09-28",
+      "run_id": "2dfc8471c38b55b4",
+      "class_counts": {
+        "unknown": 5583,
+        "no_detected_change": 5486,
+        "possible_candidate": 131,
+        "other_change": 124,
+        "moderate_candidate": 33,
+        "destroyed_or_severe_candidate": 5
+      },
+      "holdout_false_alarms": {
+        "n": 920,
+        "possible": {
+          "expected": 0.05,
+          "observed": 0.05217391304347826,
+          "count": 48,
+          "ci95": [
+            0.03957572310604621,
+            0.06849648321157359
+          ]
+        },
+        "moderate": {
+          "expected": 0.01,
+          "observed": 0.004347826086956522,
+          "count": 4,
+          "ci95": [
+            0.0016920172118111247,
+            0.011125764537787507
+          ]
+        },
+        "severe": {
+          "expected": 0.001,
+          "observed": 0.0,
+          "count": 0,
+          "ci95": [
+            0.0,
+            0.004158288607051251
+          ]
+        }
+      },
+      "limits": [
+        "product maturities in this pair: ['PROVISIONAL']",
+        "no water/shadow/slope mask yet (built-up only, GCOV validity mask applied)",
+        "OSM building coverage limits",
+        "candidates only, not confirmed damage"
+      ]
+    },
+    {
+      "after_date": "2026-10-10",
+      "run_id": "de1bf4794b779ab3",
+      "class_counts": {
+        "unknown": 5583,
+        "no_detected_change": 5471,
+        "other_change": 152,
+        "possible_candidate": 111,
+        "moderate_candidate": 33,
+        "destroyed_or_severe_candidate": 12
+      },
+      "holdout_false_alarms": {
+        "n": 920,
+        "possible": {
+          "expected": 0.05,
+          "observed": 0.051086956521739134,
+          "count": 47,
+          "ci95": [
+            0.03863353058247665,
+            0.06727380244950631
+          ]
+        },
+        "moderate": {
+          "expected": 0.01,
+          "observed": 0.004347826086956522,
+          "count": 4,
+          "ci95": [
+            0.0016920172118111247,
+            0.011125764537787507
+          ]
+        },
+        "severe": {
+          "expected": 0.001,
+          "observed": 0.0,
+          "count": 0,
+          "ci95": [
+            0.0,
+            0.004158288607051251
+          ]
+        }
+      },
+      "limits": [
+        "product maturities in this pair: ['PROVISIONAL']",
+        "no water/shadow/slope mask yet (built-up only, GCOV validity mask applied)",
+        "OSM building coverage limits",
+        "candidates only, not confirmed damage"
+      ]
+    },
+    {
+      "after_date": "2026-10-22",
+      "run_id": "f1e34965970288dc",
+      "class_counts": {
+        "unknown": 5583,
+        "no_detected_change": 5500,
+        "other_change": 141,
+        "possible_candidate": 103,
+        "moderate_candidate": 25,
+        "destroyed_or_severe_candidate": 10
+      },
+      "holdout_false_alarms": {
+        "n": 920,
+        "possible": {
+          "expected": 0.05,
+          "observed": 0.03260869565217391,
+          "count": 30,
+          "ci95": [
+            0.02293535392185983,
+            0.046169133254296765
+          ]
+        },
+        "moderate": {
+          "expected": 0.01,
+          "observed": 0.0010869565217391304,
+          "count": 1,
+          "ci95": [
+            0.00019189535490430265,
+            0.006131266537783795
+          ]
+        },
+        "severe": {
+          "expected": 0.001,
+          "observed": 0.0,
+          "count": 0,
+          "ci95": [
+            0.0,
+            0.004158288607051251
+          ]
+        }
+      },
+      "limits": [
+        "product maturities in this pair: ['PROVISIONAL', 'V1']",
+        "no water/shadow/slope mask yet (built-up only, GCOV validity mask applied)",
+        "OSM building coverage limits",
+        "candidates only, not confirmed damage"
+      ]
+    },
+    {
+      "after_date": "2026-11-03",
+      "run_id": "64d5b91da17a6278",
+      "class_counts": {
+        "unknown": 5583,
+        "no_detected_change": 5506,
+        "other_change": 137,
+        "possible_candidate": 97,
+        "moderate_candidate": 30,
+        "destroyed_or_severe_candidate": 9
+      },
+      "holdout_false_alarms": {
+        "n": 920,
+        "possible": {
+          "expected": 0.05,
+          "observed": 0.03260869565217391,
+          "count": 30,
+          "ci95": [
+            0.02293535392185983,
+            0.046169133254296765
+          ]
+        },
+        "moderate": {
+          "expected": 0.01,
+          "observed": 0.005434782608695652,
+          "count": 5,
+          "ci95": [
+            0.0023235476491254283,
+            0.012659107386110046
+          ]
+        },
+        "severe": {
+          "expected": 0.001,
+          "observed": 0.0,
+          "count": 0,
+          "ci95": [
+            0.0,
+            0.004158288607051251
+          ]
+        }
+      },
+      "limits": [
+        "product maturities in this pair: ['PROVISIONAL', 'V1']",
+        "no water/shadow/slope mask yet (built-up only, GCOV validity mask applied)",
+        "OSM building coverage limits",
+        "candidates only, not confirmed damage"
+      ]
+    }
+  ],
+  "claims_allowed": [
+    "candidate change in dense built-up areas",
+    "known false-alarm rate on quiet hold-out"
+  ],
+  "claims_not_allowed": [
+    "confirmed damage or collapse",
+    "precision/recall or accuracy",
+    "destroyed vs severe distinction",
+    "damage counts as totals (minimums only)"
+  ]
+}
