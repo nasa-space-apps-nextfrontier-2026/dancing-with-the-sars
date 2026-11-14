@@ -2,6 +2,8 @@
 
 > **Current team plan:** [three-member execution](18_THREE_MEMBER_EXECUTION_PLAN.md), [Team Lead full-stack backlog](19_TEAM_LEAD_FULLSTACK_PLAN.md), [24h/48h scenarios](20_24H_AND_48H_HACKATHON_ROADMAP.md), [integration handoff](21_ML_BACKEND_FRONTEND_INTEGRATION.md), [demo acceptance](22_DEMO_AND_ACCEPTANCE_CHECKLIST.md), and [coordination board](23_TEAM_COORDINATION_AND_CHECKPOINTS.md). The four-member pages below are historical planning evidence. The challenge duration is unconfirmed.
 
+**Implementation status:** [Phase 4 full-stack report](24_PHASE4_FULLSTACK_IMPLEMENTATION_REPORT.md) and [radar artifact handoff](25_RADAR_ARTIFACT_HANDOFF.md). The original source references below remain unchanged.
+
 Prepared 14 November 2026 from seven unchanged source references. This is a planning-only deliverable: no app, radar acquisition, live-data validation or deployment has been performed. Scientific observations are the source authors' **13 November 2026 snapshot**. Recommendations remain PROPOSED; missing scientific evidence stays VERIFY/BLOCKED.
 
 Start with the source audit, scope, architecture and your member task file. Freeze shared contracts at hour 2. Safety, role enforcement and provenance are release blockers.

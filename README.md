@@ -26,7 +26,7 @@ In a second PowerShell at repository root:
 
 The frontend serves `http://localhost:5173` and proxies `/api/v1` to `http://127.0.0.1:8000`. The authoritative **draft** of all 40 planned operations is [openapi.yaml](docs/contracts/openapi.yaml); runtime FastAPI `/docs` only shows implemented scaffold routes. Most domain operations return explicit HTTP 501 after server authorization. There are no default demo accounts. Run `.\.venv\Scripts\python.exe -m scripts.create_demo_user` from the repository root to create a local account in ignored `.env`, then restart the API. `CIVISAR_DEMO_USERS_JSON` holds password hashes and fixed roles. No role is taken from a client header. `/api/v1/health` is liveness; `/internal/ready` checks PostGIS connectivity and returns 503 until the database is available.
 
-**First Phase 3 full-stack slice:** create an analyst demo account with the command above, sign in, then select **Select synthetic demo area** on the main map. The app requests the role-scoped area summary and source record from FastAPI and displays the synthetic range, Unknown evidence, stale/cached status and provenance. This control is not geographically located. The route works without PostGIS or NASA credentials; setting `DEMO_SYNTHETIC=false` disables the synthetic adapter.
+**Phase 4 synthetic full-stack slice:** create an analyst demo account with the command above and sign in. The app restores the server session after reload, keeps protected views hidden during session checks, and signs out with a CSRF-protected request. The main map has an explicitly non-georeferenced synthetic radar grid with before/after/change/swipe, HH/HV/HH-HV, opacity and endpoint controls. It does not contain NISAR imagery. Select **Select synthetic demo area** to request a role-scoped summary and source record showing Unknown evidence and provenance. The route works without PostGIS or NASA credentials; setting `DEMO_SYNTHETIC=false` disables the synthetic adapter. See the [Phase 4 report](docs/24_PHASE4_FULLSTACK_IMPLEMENTATION_REPORT.md) and [artifact handoff](docs/25_RADAR_ARTIFACT_HANDOFF.md).
 
 ## Docker and database
 
@@ -36,9 +36,9 @@ docker compose --profile worker-once run --rm worker
 docker compose exec api python -m scripts.initialize_database
 ```
 
-The API image includes `scripts/initialize_database.py`. `docker compose up -d db` starts only the development database on loopback. A `.env` with local-only credentials is separate from Compose's illustrative defaults. Production deployment, migration history and backups are not part of this scaffold.
+The API image includes `scripts/initialize_database.py`. `docker compose up -d db` starts only the development database on loopback. A `.env` with local-only credentials is separate from Compose's illustrative defaults. Production deployment and backups are not part of this scaffold.
 
-For a local Python setup after PostGIS starts, run `.\.venv\Scripts\python.exe -m scripts.initialize_database` from the repository root. Alembic commands use `.\.venv\Scripts\python.exe -m alembic -c backend/alembic.ini heads`; Member 3 must create and review the first revision before `upgrade head` is meaningful. See [migration notes](backend/migrations/README.md).
+For a new empty local PostGIS database, run `.\.venv\Scripts\python.exe -m scripts.initialize_database` from the repository root after reviewing the target and [migration notes](backend/migrations/README.md). This applies the initial Alembic revision. Do not use it against an older database created by `Base.metadata.create_all` without a separate baseline review. This revision has only been checked offline until a live PostGIS service is available.
 
 ## Worker and tests
 
