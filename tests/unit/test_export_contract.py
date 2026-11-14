@@ -4,6 +4,8 @@ import pytest
 
 pytest.importorskip("h3")
 pytest.importorskip("jsonschema")
+pytest.importorskip("pandas")
+pytest.importorskip("sklearn")  # export_contract imports the model, which needs scikit-learn
 
 import pandas as pd
 from h3.api import basic_str as h3s
