@@ -1,6 +1,10 @@
 """U-04 building table on synthetic rows (doc 25: residents sum to the cell total; no building gets a
 damage class its cell does not have). All values are made up for the test."""
 
+import pytest
+
+pytest.importorskip("pandas")
+
 import numpy as np
 import pandas as pd
 
