@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Map as LibreMap } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 
-export function MapPanel() {
+export function MapPanel({onSelectDemoArea}:{onSelectDemoArea?:()=>void}) {
   const node = useRef<HTMLDivElement>(null)
   const [failure,setFailure] = useState(false)
   useEffect(() => {
@@ -14,5 +14,5 @@ export function MapPanel() {
       return () => map.remove()
     } catch { setFailure(true) }
   }, [])
-  return <div className="map-wrap"><div ref={node} className="map" role="img" aria-label="Synthetic blank map canvas; no satellite imagery or operational locations loaded"/><div className="map-badge">Illustrative demo data · No imagery loaded</div>{failure && <p className="map-fallback">Map renderer unavailable. Area list remains accessible.</p>}</div>
+  return <div className="map-wrap"><div ref={node} className="map" role="img" aria-label="Synthetic blank map canvas; no satellite imagery or operational locations loaded"/><div className="map-badge">Illustrative demo data · No imagery loaded</div>{onSelectDemoArea && <button className="map-select" onClick={onSelectDemoArea}>Select synthetic demo area</button>}{failure && <p className="map-fallback">Map renderer unavailable. Area list remains accessible.</p>}</div>
 }

@@ -26,6 +26,8 @@ In a second PowerShell at repository root:
 
 The frontend serves `http://localhost:5173` and proxies `/api/v1` to `http://127.0.0.1:8000`. The authoritative **draft** of all 40 planned operations is [openapi.yaml](docs/contracts/openapi.yaml); runtime FastAPI `/docs` only shows implemented scaffold routes. Most domain operations return explicit HTTP 501 after server authorization. There are no default demo accounts. Run `.\.venv\Scripts\python.exe -m scripts.create_demo_user` from the repository root to create a local account in ignored `.env`, then restart the API. `CIVISAR_DEMO_USERS_JSON` holds password hashes and fixed roles. No role is taken from a client header. `/api/v1/health` is liveness; `/internal/ready` checks PostGIS connectivity and returns 503 until the database is available.
 
+**First Phase 3 full-stack slice:** create an analyst demo account with the command above, sign in, then select **Select synthetic demo area** on the main map. The app requests the role-scoped area summary and source record from FastAPI and displays the synthetic range, Unknown evidence, stale/cached status and provenance. This control is not geographically located. The route works without PostGIS or NASA credentials; setting `DEMO_SYNTHETIC=false` disables the synthetic adapter.
+
 ## Docker and database
 
 ```powershell
@@ -52,7 +54,7 @@ npm run test
 npm run build
 ```
 
-The worker returns Unknown with null numbers; it does not contact ASF, CMR or humanitarian APIs. API 501 responses mark unimplemented operations. Only the public empty preview, status, health, session foundation, source list and empty layer list currently have scaffold behavior. Database initialization requires PostGIS and has not been substituted with SQLite.
+The worker returns Unknown with null numbers; it does not contact ASF, CMR or humanitarian APIs. API 501 responses mark unimplemented operations. Public empty preview, status, health, session foundation, synthetic source records, the scoped synthetic area summary and empty layer list have scaffold behavior. Database initialization requires PostGIS and has not been substituted with SQLite.
 
 ## Environment and safety
 
@@ -60,4 +62,4 @@ The worker returns Unknown with null numbers; it does not contact ASF, CMR or hu
 
 ## Branches, ownership and next work
 
-`main → planning/civisar-full-architecture → dev → feature/m{1,2,3,4}-...` describes local branch ancestry. The four exact names and reviewer rules are in [team allocation](docs/08_FOUR_MEMBER_TASK_ALLOCATION.md) and [CONTRIBUTING](CONTRIBUTING.md). Member 1 starts M1-01 metadata/version manifest; Member 2 M2-01 source terms/grid; Member 3 M3-01 migration and contract refinement; Member 4 M4-01 typed client and UI foundations. The scaffold report records actual validation and unresolved work: [17](docs/17_DEVELOPMENT_SCAFFOLD_REPORT.md).
+The active three-member model is [documented here](docs/18_THREE_MEMBER_EXECUTION_PLAN.md): A (Rashiru) owns the combined `feature/lead-fullstack-app` frontend/backend branch and integration; B (Udula) owns `feature/m1-radar-damage`; C (Thanoban) owns `feature/m2-geodata-alerts`. `dev` remains the integration branch and `main` is protected. The older four-member [allocation](docs/08_FOUR_MEMBER_TASK_ALLOCATION.md) and [scaffold report](docs/17_DEVELOPMENT_SCAFFOLD_REPORT.md) are historical planning evidence. The [Team Lead backlog](docs/19_TEAM_LEAD_FULLSTACK_PLAN.md), [24h/48h scenarios](docs/20_24H_AND_48H_HACKATHON_ROADMAP.md), and [integration rules](docs/21_ML_BACKEND_FRONTEND_INTEGRATION.md) govern new work. No feature branch is merged or pushed by this local milestone.

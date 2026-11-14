@@ -4,6 +4,7 @@ from backend.app.core.config import get_settings
 from backend.app.core.security import hash_password
 from backend.app.main import app
 from fastapi.testclient import TestClient
+from jsonschema import Draft202012Validator
 
 client = TestClient(app)
 
@@ -25,7 +26,12 @@ def test_role_boundary(monkeypatch):
         assert logged_in.get('/api/v1/shelters').status_code == 403
         assert logged_in.get('/api/v1/shelters?area_id=other-area').status_code == 403
         assert logged_in.post('/api/v1/routes',json={},headers={'X-CSRF-Token':response.json()['csrf_token']}).status_code == 403
-        assert logged_in.get('/api/v1/areas/demo-area-01/summary').status_code == 501
+        summary = logged_in.get('/api/v1/areas/demo-area-01/summary')
+        assert summary.status_code == 200
+        assert summary.json()['synthetic'] is True
+        assert summary.json()['people']['residents']['label'] == 'Unknown'
+        assert logged_in.get('/api/v1/areas/other-area/summary').status_code == 403
+        assert logged_in.get('/api/v1/areas/unknown/summary').status_code == 403
         assert logged_in.get('/api/v1/layers/private/files/guessed').status_code == 501
     get_settings.cache_clear()
 
@@ -42,3 +48,49 @@ def test_readiness_reflects_database(monkeypatch):
     assert client.get('/internal/ready').status_code == 503
     monkeypatch.setattr('backend.app.main.check_database', lambda: True)
     assert client.get('/internal/ready').json()['status'] == 'ready'
+
+
+def test_synthetic_area_and_source_match_canonical_contract(monkeypatch):
+    from backend.app.api.v1 import SPEC
+
+    users = {'analyst': {'password_hash': hash_password('local-test-password'),
+                         'role': 'analyst', 'area_scopes': ['demo-area-01', 'missing']}}
+    monkeypatch.setenv('CIVISAR_DEMO_USERS_JSON', json.dumps(users))
+    get_settings.cache_clear()
+    with TestClient(app) as visitor:
+        assert visitor.get('/api/v1/areas/demo-area-01/summary').status_code == 401
+        login = visitor.post('/api/v1/session', json={
+            'username': 'analyst', 'password': 'local-test-password'})
+        assert login.status_code == 200
+        summary = visitor.get('/api/v1/areas/demo-area-01/summary')
+        source = visitor.get('/api/v1/sources/demo-source-01')
+        assert summary.status_code == source.status_code == 200
+        root = {'components': SPEC['components']}
+        for name, payload in [('AreaSummary', summary.json()), ('SourceRecord', source.json())]:
+            Draft202012Validator({**root, '$ref': f'#/components/schemas/{name}'}).validate(payload)
+        assert summary.json()['people']['residents']['source'] == [source.json()['source_id']]
+        assert source.json()['live_tested'] is False
+        assert visitor.get('/api/v1/areas/demo-area-01/summary').headers['Cache-Control'] == 'private, no-store'
+        assert visitor.get('/api/v1/areas/missing/summary').status_code == 404
+        assert visitor.get('/api/v1/areas/outside-scope/summary').status_code == 403
+        assert visitor.get('/api/v1/sources/missing').status_code == 404
+    get_settings.cache_clear()
+
+
+def test_synthetic_adapter_does_not_serve_as_real_data(monkeypatch):
+    monkeypatch.setenv('DEMO_SYNTHETIC', 'false')
+    monkeypatch.setenv('CIVISAR_DEMO_USERS_JSON', json.dumps({
+        'analyst': {'password_hash': hash_password('local-test-password'),
+                    'role': 'analyst', 'area_scopes': ['demo-area-01']}}))
+    get_settings.cache_clear()
+    try:
+        response = client.get('/api/v1/sources/demo-source-01')
+        assert response.status_code == 503
+        assert response.json()['error']['code'] == 'UNAVAILABLE'
+        with TestClient(app) as visitor:
+            login = visitor.post('/api/v1/session', json={
+                'username': 'analyst', 'password': 'local-test-password'})
+            assert login.status_code == 200
+            assert visitor.get('/api/v1/areas/demo-area-01/summary').status_code == 503
+    finally:
+        get_settings.cache_clear()

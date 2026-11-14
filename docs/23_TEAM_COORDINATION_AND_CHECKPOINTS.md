@@ -31,7 +31,7 @@ Update this table in the team's next documentation PR; do not mistake a local wo
 | Three-way contract sign-off | A/B/C | TODO | Canonical draft exists; B/C acknowledgement pending | H2 |
 | NISAR scene/version manifest | B | TODO | Earthdata access and product QA unverified | First B→C |
 | Synthetic scored-cell contract | C | TODO | Align with B features and canonical schema | First C→A |
-| Map→area→API→source slice | A | IN PROGRESS | Phase 3 feature branch and tests | First full stack |
+| Map→area→API→source slice | A | REVIEW | Backend schema/role tests, frontend interaction test and local API smoke passed; live browser walkthrough pending | First full stack |
 | Real radar publication gate | A/B/C | BLOCKED | No validated B/C artifact yet | Real-data decision |
 | Demo/video/submission packet | A | TODO | Duration/rules not confirmed | Freeze |
 

@@ -1,3 +1,5 @@
+import type { AreaSummary, SourceRecord } from '../types/contracts'
+
 export type ApiError = { error: { code: string; message: string; request_id: string; details: unknown[] }; synthetic: boolean }
 const base = import.meta.env.VITE_API_BASE_URL || '/api/v1'
 export async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -15,4 +17,6 @@ export const api = {
     method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})}),
   signOut: (csrf:string) => request<unknown>('/session',{method:'DELETE',headers:{'X-CSRF-Token':csrf}}),
   session: () => request<Session>('/session'),
+  areaSummary: (areaId:string) => request<AreaSummary>(`/areas/${encodeURIComponent(areaId)}/summary`),
+  sourceRecord: (sourceId:string) => request<SourceRecord>(`/sources/${encodeURIComponent(sourceId)}`),
 }

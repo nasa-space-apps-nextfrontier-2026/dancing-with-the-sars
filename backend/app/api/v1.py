@@ -4,6 +4,7 @@ from pathlib import Path
 from backend.app.core.config import get_settings
 from backend.app.core.permissions import allowed, is_private_layer
 from backend.app.core.security import authenticate, issue_session, read_session, revoke_session
+from backend.app.services.synthetic_area import area_summary, enabled, source_record
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -90,7 +91,22 @@ def attach_routes(app: FastAPI) -> None:
                     return {'synthetic': True, 'role': identity.role,
                             'area_scopes': list(identity.area_scopes)}
                 if _path == '/sources':
-                    return {'synthetic': True, 'items': [], 'next_cursor': None}
+                    if not enabled():
+                        return error('UNAVAILABLE', 'No approved source catalogue is loaded.', 503, request)
+                    return {'synthetic': True, 'items': [source_record('demo-source-01')],
+                            'next_cursor': None}
+                if _path == '/sources/{source_id}':
+                    if not enabled():
+                        return error('UNAVAILABLE', 'No approved source catalogue is loaded.', 503, request)
+                    source = source_record(request.path_params['source_id'])
+                    return source if source is not None else error(
+                        'NOT_FOUND', 'Source not found.', 404, request)
+                if _path == '/areas/{area_id}/summary':
+                    if not enabled():
+                        return error('UNAVAILABLE', 'No approved area result is loaded.', 503, request)
+                    summary = area_summary(request.path_params['area_id'])
+                    return summary if summary is not None else error(
+                        'NOT_FOUND', 'Area not found.', 404, request)
                 if _path == '/layers':
                     return {'synthetic': True, 'items': [], 'next_cursor': None}
                 if (_path.startswith('/layers/') and 'layer_id' in request.path_params
