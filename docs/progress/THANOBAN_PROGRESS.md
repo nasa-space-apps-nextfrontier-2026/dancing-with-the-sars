@@ -1,7 +1,5 @@
 # Thanoban: ongoing work log (M1-04)
 
-> **Scope change (14 Nov 2026):** the strike-enrichment tests (model C) are Udula's, as part of M1-03. Thanoban does the night-light and fire models only. The test tools Thanoban already wrote are handed over (see the status table and the hand-over note below).
-
 Read this to see where Thanoban's ML work stands. Udula: this is what you need to know about how it is done and what it hands to you. Plan: [18](../18_THANOBAN_ML_PLAN_AND_COLAB.md). Task: [Thanoban tasks](../tasks/MEMBER_2_THANOBAN_SMALL_DATA_ML.md). Last updated 14 November 2026.
 
 ## Status
@@ -13,11 +11,11 @@ Read this to see where Thanoban's ML work stands. Udula: this is what you need t
 | Model A: night-light power-loss rule and callable function (two-satellite agreement, alert events) | Merged; real data: 49 cells flagged on 13 Nov, 1 corroborated by both satellites | [#4](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/4), [#10](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/10) |
 | Model B: fire event model | Merged | [#5](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/5) |
 | Live FIRMS feed (public files, no map key) and current fire events | Done, 4 tests, runs on real data (2 events); open, needs review | [#11](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/11) |
-| Model C: strike-enrichment tests | **Moved to Udula (M1-03) on 14 Nov 2026.** Thanoban built the tools and handed them over: harness (merged, [#6](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/6)) and event loaders plus runner (open, mock data only, [#12](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/12)) | |
+| Model C: strike-enrichment tests, UCDP/CSV event loaders and a runner | Harness merged ([#6](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/6)); runner open, mock data only | [#12](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/12) |
 | Longer fire baseline (permanent hot spots) | Needs the FIRMS map key and its history API | |
-| Strike tests on real data | Udula's. Needs his damage table (first version by H16) and UCDP event points (the UCDP API needs a free token; or download the Lebanon events as a CSV) | |
+| Strike tests on real data | **Blocked on two things:** Udula's damage table (first version by H16) and a UCDP events file. The UCDP API returns "API token required"; a free token must be requested by a person, or the Lebanon events can be downloaded as a CSV from UCDP | |
 
-**Udula: please review PRs #11 and #12.** #12 is the runner you will use for the strike tests (see below). Rashiru merges after approval. Thresholds are still the plan's starting values.
+**Udula: please review PRs #11 and #12.** Rashiru merges after approval. Thresholds are still the plan's starting values.
 
 ## FIRMS finding (14 November 2026)
 
@@ -80,20 +78,6 @@ Built the per-cell history on Colab (230 nightly tiles, NOAA-20 and NOAA-21, las
 - The false-alarm rate (2.6–3.3%) is **above the 1% target**. The hold-out also contains real events and counts a lasting drop several times, so it is an upper bound.
 - **Requiring both satellites to agree works.** Measured over the 45-night hold-out on 59,868 cell-dates that both satellites could assess: a single satellite flags 2.7% of them, but both flag the same cell on the same date in only **0.73%** (438), under the 1% target. Proposed rule: both agree = "possible power loss"; a single-satellite flag stays low confidence. Code in PR #9.
 - About 70% of cells are `unknown`, mostly sea and dark land where a ratio is meaningless. That is correct behaviour, but the map should show them as "no signal", not as working.
-
-## Hand-over to Udula: strike tests
-
-How to run them once you have the damage table and an events file (UCDP, a free token, or a CSV download filtered to Lebanon):
-
-```text
-python -m worker.evaluation.run_strike_tests damage_table.csv events_lebanon.csv out.json
-```
-
-- Code: `worker/evaluation/strike_tests.py` (merged), `events.py` and `run_strike_tests.py` (PR #12).
-- Damage table columns: `cell_id`, `damage_class`, `district`, and either `lat`/`lon` or an H3 cell id (needs the `h3` package). Column names are parameters of `load_cells`; change them to match the contract frozen at H2.
-- A cell counts as flagged when its class is one of destroyed, severely damaged, moderately damaged or possibly damaged.
-- Result: counts, near vs far flagged shares, same-district comparison, a limits text, or `insufficient` when fewer than 30 cells are on either side.
-- Event source: UCDP, not ACLED (ACLED's terms bar using its data to test ML models). Use only events inside the radar before/after period.
 
 ## What Thanoban hands over, and when
 

@@ -2,7 +2,7 @@
 
 [Blueprint index](README.md) · [Team assignment](17_TEAM_ASSIGNMENT_AND_BRANCHES.md) · task file: [Thanoban tasks](tasks/MEMBER_2_THANOBAN_SMALL_DATA_ML.md)
 
-Written 14 November 2026. Scope: **M1-04** (night-light power-loss model, fire event model) and **M2-06** (movement design). Thanoban does not work on the backend or on large radar downloads (Udula does those).
+Written 14 November 2026. Scope: **M1-04** (night-light power-loss model, fire event model, strike-enrichment tests) and **M2-06** (movement design). Thanoban does not work on the backend or on large radar downloads (Udula does those).
 
 ## 1. What the three models are, and how heavy they are
 
@@ -12,7 +12,7 @@ All three are small models on small tables. **None needs a GPU or deep learning.
 |---|---|---|---|---|
 | **A. Night-light power-loss** | Black Marble VJ146A2 (NOAA-20) and VJ246A2 (NOAA-21), archive + NRT, cropped to the demo box | Per-cell baseline from the last 60 clear nights; flag a drop when radiance is below 50% of baseline on 2 clear nights; anomaly score with confidence. Optional: Isolation Forest on cell features (baseline, recent mean, moon and angle quality flags) as a check | Per cell and day: `possible_power_loss`, score, confidence, clear-night count, `Unknown` if too few clear nights | Light: a few cells × a few hundred nights |
 | **B. Fire events** | FIRMS VIIRS 375 m points (NOAA-20, NOAA-21), south Lebanon | Drop low-confidence points and permanent hot spots (same spot burning on many days over the baseline); cluster points within 1 km and 12 h (DBSCAN or simple distance grouping) | "Fire detected" events: time, place, satellite, confidence. Never a cause | Very light: thousands of points |
-| **C. Strike-enrichment and evidence tests (moved to Udula, M1-03, 14 Nov 2026; the harness Thanoban built is handed over)** | Udula's damage table (one row per H3 res-9 cell), ACLED and Insecurity Insight event points | Flagged share near events (within 2 km) vs far, same-district control, false-alarm rate on quiet cells by class, top-20 cell list | Test table for the Sources page, with limits written down | Very light |
+| **C. Strike-enrichment and evidence tests** | Udula's damage table (one row per H3 res-9 cell), ACLED and Insecurity Insight event points | Flagged share near events (within 2 km) vs far, same-district control, false-alarm rate on quiet cells by class, top-20 cell list | Test table for the Sources page, with limits written down | Very light |
 
 Rules: show ranges and "Unknown", never a single exact claim; "Possible power loss", not "blackout"; evidence labels follow [PROJECT_PLAN.md](PROJECT_PLAN.md) section 9.
 
@@ -59,17 +59,17 @@ colab stop -s m104                           # always release the VM
 
 Gotchas found in testing: `upload` does not create folders (make them first with a small `exec` script such as `os.makedirs`), and it copies one file at a time. Only stop sessions you started: a session you did not create can already exist in the Google account.
 
-## 4. Work plan and hours (about 16 h)
+## 4. Work plan and hours (about 22 h)
 
 | Hours | Work | Done when |
 |---|---|---|
 | H0–H2 | Colab setup, secrets, Drive folder, small test downloads; agree the alert-event and test-result schemas at H2 | A notebook downloads one Black Marble tile and one FIRMS day and saves a cropped table |
 | H2–H8 | **Model A:** download the baseline nights, crop, build the per-cell 60-clear-night baseline; clear-night logic from quality flags | Baseline table for all cells; known-drop test passes on synthetic data |
 | H8–H12 | **Model B:** FIRMS filtering, permanent hot-spot removal, clustering. **Hand over callable functions to Rashiru at H12** | Fire events on a test week; permanent hot spot removed |
-| H8–H16 | Model C harness on mock data (done early, then handed to Udula) | Harness runs end to end on mock data |
+| H8–H16 | **Model C harness** on mock damage table and mock event points | Harness runs end to end on mock data |
 | H12–H20 | Model A scoring and confidence; Isolation Forest cross-check (optional); daily run function for the live job | Daily run returns events or `Unknown` with reasons |
-| H16–H24 | Tune the night-light and fire thresholds on real data; hand the callable functions to Rashiru | Tuned thresholds and false-alarm numbers written down |
-| H24–H32 | Final runs, review Udula's tests and PRs, support Rashiru on the alert functions | Functions merged; checker passes |
+| H16–H24 | Run model C on Udula's real damage table (first version arrives at H16) | Test table with near-vs-far and false-alarm numbers |
+| H24–H32 | Final runs, test numbers for the Sources page, limits text; review Udula's tests | Sources page numbers delivered; checker passes |
 | H38–H48 | Demo story, video, submission page | Video recorded; submission filled in |
 
 M2-06 movement design (max 1 h) fits anywhere before H38.
@@ -82,7 +82,7 @@ M2-06 movement design (max 1 h) fits anywhere before H38.
 | Night lights, hold-out nights | About 1% false flags at the chosen threshold |
 | Fires, permanent hot spot | Removed; a new fire next to it is kept |
 | Fires, no cause | No event text states a cause |
-| Strike tests (Udula's, with the harness handed over) | Flagged share near events is compared with far events and with the same district; numbers and limits written down |
+| Strike tests | Flagged share near events is compared with far events and with the same district; numbers and limits written down |
 | Reproducibility | Same inputs and parameters give the same outputs; run manifest saved |
 | Safety | Outputs carry label, source, date; no live vehicle or phone data used |
 

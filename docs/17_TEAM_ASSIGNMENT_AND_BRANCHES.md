@@ -7,7 +7,7 @@ Decided 14 November 2026. This is the single source of truth for who does what a
 | Member slot | Person | Role |
 |---|---|---|
 | Member 1 | **Udula** | ML: NISAR damage model end to end. **All large radar downloads** and model training on the strong machine |
-| Member 2 | **Thanoban** | ML on small data: night-light power-loss model and fire event model. Trains on free Google Colab ([plan](18_THANOBAN_ML_PLAN_AND_COLAB.md)). No backend, no radar downloads. Demo, video and submission from H38 |
+| Member 2 | **Thanoban** | ML on small data: night-light power-loss model, fire event model, strike-enrichment tests. Trains on free Google Colab ([plan](18_THANOBAN_ML_PLAN_AND_COLAB.md)). No backend, no radar downloads. Demo, video and submission from H38 |
 | Member 3 | **Rashiru** | **All frontend, all backend and all data work** (with Claude Code and Claude Design), and **manager of all PRs** |
 | Member 4 | **Chames** | Not working on the project (14 Nov 2026 decision). No tasks, no reviews |
 
@@ -15,7 +15,7 @@ Decided 14 November 2026. This is the single source of truth for who does what a
 
 1. **Split by dataset, not by stage.** Each ML person owns their model end to end. No "one downloads, the other preprocesses".
 2. **All large downloads are Udula's.** Thanoban never downloads radar files. He works only with small data: Black Marble night lights, FIRMS fires, ACLED and Insecurity Insight points, and the small damage table and crops Udula shares.
-3. **Workload is divided evenly**: about 31 h (Udula) and 16 h (Thanoban). The strike-enrichment tests belong to Udula (decided 14 Nov 2026), with the code Thanoban already wrote handed over.
+3. **Workload is divided evenly**: about 25 h (Udula) and 22 h (Thanoban).
 4. Both write outputs in schemas fixed at H2, and use the `h3` library directly, so neither waits on the other or on Rashiru. Thanoban waits on Udula's damage table only for the final run of his tests (mock until H16).
 5. A second radar model on Sentinel-1 is **not** in the core. It is a stretch task for Udula's machine only.
 
@@ -25,8 +25,8 @@ Task IDs (M1 to M4) are work-package IDs. Each task has one owner and one differ
 
 | Person | Tasks | About hours |
 |---|---|---|
-| **Udula** | M1-01 NISAR scenes, download, crop · M1-02 alignment, features, anomaly model, damage classes, change images (stretch: GSLC coherence) · M1-03 hold-out tests, top-20 eye check and the strike-enrichment tests (using the harness Thanoban already wrote in `worker/evaluation/`) | 31 |
-| **Thanoban** | M1-04 night-light power-loss model and fire event model (alert functions for Rashiru) · M2-06 movement design · demo story, video and submission (H38–H48, part of M4-04) | 16 + demo |
+| **Udula** | M1-01 NISAR scenes, download, crop · M1-02 alignment, features, anomaly model, damage classes, change images (stretch: GSLC coherence) · M1-03 hold-out tests and top-20 eye check | 25 |
+| **Thanoban** | M1-04 night-light power-loss model, fire event model, strike-enrichment and false-alarm tests (for the damage models) · M2-06 movement design · demo story, video and submission (H38–H48, part of M4-04) | 22 + demo |
 | **Rashiru** | **Backend:** M3-01 formats, database, mock API · M3-02 sign-in, roles, safety (never cut) · M3-03 all endpoints · M3-04 worker, Docker, tunnel · **Data:** M2-01 base data and grid · M2-02 people, facilities, services · M2-03 alert plumbing · M2-04 routes · M2-05 shelters · **Frontend:** M4-01 app setup · M4-02 main map and slider · M4-03 decision screens and print · M4-04 phone layout, QA, release checklist | about 85 (too much for one person: see the cut order in 08) |
 
 Reviews (each task has a different reviewer): Udula and Thanoban review each other's ML. Rashiru's tasks are reviewed by Thanoban (data, alerts, routes, shelters, app setup, main map) and by Udula (backend, safety, decision screens, QA). Udula's tests (M1-03) are reviewed by Rashiru. Rashiru merges all PRs; his own PRs are merged after one of the two ML members approves.
@@ -85,8 +85,7 @@ Folders follow the real scaffold on `dev` (see [19](19_DEVELOPMENT_SCAFFOLD_REPO
 | Path | Owner |
 |---|---|
 | `worker/radar/` (NISAR model) | Udula |
-| `worker/services/` (night lights, fires) | Thanoban |
-| `worker/evaluation/` (strike tests) | Udula |
+| `worker/services/` (night lights, fires), `worker/evaluation/` (strike tests) | Thanoban |
 | `backend/`, `frontend/`, `worker/geodata/`, `worker/alerts/`, `worker/routing/`, `worker/shelter/`, `infrastructure/`, `docker-compose.yml`, `scripts/`, `docs/contracts/` | Rashiru |
 
 Because each ML person has their own folders and branch, they never edit the same files.
@@ -96,7 +95,7 @@ Because each ML person has their own folders and branch, they never edit the sam
 *                           @rashiru
 /worker/radar/              @udula
 /worker/services/           @thanoban
-/worker/evaluation/         @udula
+/worker/evaluation/         @thanoban
 ```
 
 The handles above are placeholders; replace them with the real GitHub usernames. Everything not listed falls to Rashiru through `*`.
@@ -122,7 +121,7 @@ Reviewer (not the author):
 | **2** | **All agree IDs, value row, damage-table and alert schemas, JSON shapes** | | |
 | 2–8 | Crop, align, mask | Night-light baseline per cell, fire filter | Sign-in, roles, mock API; sign-in screen; base data and grid |
 | 8–16 | Features, quiet cells, model | Power-loss model, fire events, test harness on mock | Main map, slider (mock); people, facilities, alert plumbing |
-| 16–24 | Change images, damage table v1; strike tests on v1 | Real runs and tuning of the night-light and fire models | Real data in API; summary and alert screens; test road graph, routes |
+| 16–24 | Change images, damage table v1 | Real run on damage table, strike tests | Real data in API; summary and alert screens; test road graph, routes |
 | **24** | **Everything on real data. `dev` → `main`** | | |
 | 24–32 | NISAR tests, final model | Test results to Sources page | Routes, shelters, sources screens |
 | **38** | **Feature freeze, tag `v0.1.0-demo-rc1`** | | |

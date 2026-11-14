@@ -44,7 +44,7 @@ Updated 14 Nov 2026 to the team's decision (see [17](17_TEAM_ASSIGNMENT_AND_BRAN
 | Person | Tasks enabled by scaffold | First work and handoff |
 |---|---|---|
 | Udula (Member 1) | M1-01, M1-02, M1-03: SCAFFOLDED | Start M1-01 scene/version manifest and downloads; model code goes in `worker/radar/`. Hand the damage table to Thanoban and Rashiru. |
-| Thanoban (Member 2) | M1-04, M2-06: SCAFFOLDED / DEFERRED | Night-light and fire models in `worker/services/` (the strike tests in `worker/evaluation/` are Udula's); trained on free Google Colab ([18](18_THANOBAN_ML_PLAN_AND_COLAB.md)). Hand callable functions to Rashiru. |
+| Thanoban (Member 2) | M1-04, M2-06: SCAFFOLDED / DEFERRED | Night-light and fire models in `worker/services/`, strike tests in `worker/evaluation/`; trained on free Google Colab ([18](18_THANOBAN_ML_PLAN_AND_COLAB.md)). Hand callable functions to Rashiru. |
 | Rashiru (Member 3) | M2-01 to M2-05, M3-01 to M3-04, M4-01 to M4-04: SCAFFOLDED | All frontend, backend, data, alerts, routes, shelters, hosting and PR merges. Start with M3-01 Alembic revision and M4-01 typed responses. |
 | Chames (Member 4) | none | Not working on the project. |
 

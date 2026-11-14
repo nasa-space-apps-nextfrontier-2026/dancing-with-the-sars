@@ -55,7 +55,7 @@ Handoff checklist: include schema version, exact artifact paths, units/CRS/date,
 | Field | Commitment |
 |---|---|
 | Source trace | ARCHITECTURE.md §§1.2/1.4; NASA_DATASET_ANALYSIS.md §9 |
-| Scope | Spatial hold-out, enrichment with controls, 20 manual top cells, uncertainty report. These tests are the main proof. "No matching assessment available" is the normal case: no UNOSAT exists for Lebanon and no 2026 UNDP/CNRS-L was found; use one only if it appears at H0. Udula owns the hold-out areas and the 20-cell eye check for the NISAR model. Udula also owns the strike-enrichment tests on the damage table (decided 14 Nov 2026). Thanoban already wrote the harness (`worker/evaluation/strike_tests.py`, event loaders and `run_strike_tests.py`, PRs #6 and #12); Udula runs it on the damage table with UCDP event points (UCDP, not ACLED, whose terms bar ML testing). The combined results go to the Sources page. |
+| Scope | Spatial hold-out, enrichment with controls, 20 manual top cells, uncertainty report. These tests are the main proof. "No matching assessment available" is the normal case: no UNOSAT exists for Lebanon and no 2026 UNDP/CNRS-L was found; use one only if it appears at H0. Udula owns the hold-out areas and the 20-cell eye check for the NISAR model. The strike-enrichment and evidence tests are built and run by Thanoban inside M1-04 on small tables; the combined results go to the Sources page. |
 | Priority / phase | MVP QA; overlay conditional |
 | Accountable owner | Member 1 |
 | One reviewer | Member 3 |
