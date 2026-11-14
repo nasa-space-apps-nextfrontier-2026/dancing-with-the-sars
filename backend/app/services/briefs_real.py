@@ -1,8 +1,7 @@
 """Area briefs (M3-03): a frozen area summary plus source footnotes, printable as plain HTML.
 
-Briefs expire after 8 hours and never contain records still on the 72-hour hold (even when an
-admin creates them), because other people may read or print them. Every read re-checks the reader: signed in, area in scope, brief not
-expired (admins excepted); sections above the reader's role are removed again at read time.
+Briefs expire after 8 hours and never contain records still on the 72-hour hold. Every read
+re-checks the reader (every role, admin included): signed in, area in scope, brief not expired; sections above the reader's role are removed again at read time.
 The print page escapes every value and loads nothing from outside.
 """
 
@@ -54,7 +53,7 @@ def create(engine: Any, identity: Identity, area_id: str) -> dict[str, Any] | No
 
     if not area_in_scope(area_id, identity.area_scopes):
         raise PermissionError(area_id)
-    summary = summary_real.area_summary(engine, area_id, identity, review=False)
+    summary = summary_real.area_summary(engine, area_id, identity)
     if summary is None:
         return None
     sources = {s for v in summary["evidence"] for s in v["source"]}
@@ -86,8 +85,7 @@ def read(engine: Any, identity: Identity | None, report_id: str) -> dict[str, An
                            {"i": report_id}).first()
     if row is None:
         return None
-    if identity.role != "admin" and (row.expires_at < now_utc()
-                                     or not area_in_scope(row.area_id, identity.area_scopes)):
+    if row.expires_at < now_utc() or not area_in_scope(row.area_id, identity.area_scopes):
         return None
     return _filter_for(row.payload, identity)
 

@@ -62,9 +62,8 @@ def _value(area: str, metric: str, low: int, high: int, label: str, sources: lis
             "freshness": "Stale", "cached": True, "limitations": limitations}
 
 
-def area_summary(engine: Any, area_id: str, identity: Identity,
-                 review: bool | None = None) -> dict[str, Any] | None:
-    """review=None: admins see held records; False: never (used for briefs that others may read)."""
+def area_summary(engine: Any, area_id: str, identity: Identity) -> dict[str, Any] | None:
+    """Held (unreleased) records are left out for every role; Admin is not a bypass for the hold or for area scope (doc 07)."""
     from sqlalchemy import text
 
     pop = population()
@@ -92,8 +91,7 @@ def area_summary(engine: Any, area_id: str, identity: Identity,
             "SELECT alert_id, type, label, release_at, source FROM alerts WHERE area_id = :a "
             "ORDER BY detected_at DESC"), {"a": area_id}).all()
 
-    admin = identity.role == "admin" if review is None else review
-    shown = [r for r in results if admin or is_released(r.release_at)]
+    shown = [r for r in results if is_released(r.release_at)]
     level = {r.area_id: next((c.split(":", 1)[1] for c in r.reason_codes if c.startswith("level:")), None)
              for r in shown if r.classification == "candidate_change"}
     corroborated = any(r.evidence_label == "Corroborated" for r in shown if r.area_id in level)
@@ -123,7 +121,7 @@ def area_summary(engine: Any, area_id: str, identity: Identity,
                        pop_src + radar_src, date, run, acquired, processed,
                        [*pre, "UNOSAT shares: destroyed/severe 100%, moderate 50%, possible 20%"])
 
-    visible_alerts = [a for a in alerts if admin or is_released(a.release_at)]
+    visible_alerts = [a for a in alerts if is_released(a.release_at)]
     power = [a for a in visible_alerts if a.type == "possible_power_loss"]
     services = [{"type": "power", "status": "Possible loss" if power else "Unknown",
                  "label": power[0].label if power else "Unknown",
@@ -134,7 +132,7 @@ def area_summary(engine: Any, area_id: str, identity: Identity,
              ] if power else []
     bring.append({"item": "Verify water and health services before supply planning",
                   "basis_value_ids": [], "quantity": None})
-    radar_vals = [v[0] for v in values if v[0]["low"] is not None and (admin or is_released(v[0]["release_at"]))]
+    radar_vals = [v[0] for v in values if v[0]["low"] is not None and is_released(v[0]["release_at"])]
     lvl = ROLE_LEVEL.get(identity.role, 0)
     return {
         "synthetic": False, "area_id": area_id, "name": f"Neighbourhood {area_id[:7]}", "as_of": processed,

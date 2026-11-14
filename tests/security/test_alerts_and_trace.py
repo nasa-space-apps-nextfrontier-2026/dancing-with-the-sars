@@ -51,9 +51,10 @@ def test_alert_visibility_follows_scope_release_and_role():
     held = SimpleNamespace(area_id=INSIDE, release_at=dt.datetime(2999, 1, 1, tzinfo=dt.UTC))
     far = SimpleNamespace(area_id=OUTSIDE, release_at=dt.datetime(2026, 1, 1, tzinfo=dt.UTC))
     analyst = Identity("a", "analyst", ("south-lebanon-demo",))
-    admin = Identity("b", "admin", ())
     assert live_real._visible(row, analyst)
-    assert not live_real._visible(held, analyst) and live_real._visible(held, admin)
+    admin = Identity("b", "admin", ("south-lebanon-demo",))
+    assert not live_real._visible(held, analyst) and not live_real._visible(held, admin)  # no admin bypass
+    assert not live_real._visible(far, Identity("c", "admin", ()))
     assert not live_real._visible(far, analyst)
     assert not live_real._visible(row, None)
 

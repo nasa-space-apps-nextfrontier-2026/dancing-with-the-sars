@@ -148,7 +148,7 @@ def test_summary_ranges_follow_population_and_hold(env):
     assert s["permissions"] == {"routes": False, "shelters": False, "brief": True}
     assert s["severity"]["rank"] is None and s["safety_tag"] == "restricted_aggregate"
     admin = signed_in("admin").get(f"/api/v1/areas/{AREA}/summary").json()
-    assert people(admin)["potentially_affected"][:2] == (350, 480)  # admin reviews the held cell
+    assert people(admin)["potentially_affected"][:2] == (300, 410)  # no admin bypass of the hold
 
 
 def test_summary_scope_and_unknown_area(env):
@@ -178,7 +178,6 @@ def test_brief_round_trip_and_read_checks(env):
     assert r.status_code == 200
     brief = r.json()
     validate("Brief", brief)
-    # even an admin's brief leaves out held records: other people may read or print it
     assert people(brief["area_summary"])["potentially_affected"][:2] == (300, 410)
     assert [f["source_id"] for f in brief["source_footnotes"]] == ["nisar-gcov-beta-151d72"]
 

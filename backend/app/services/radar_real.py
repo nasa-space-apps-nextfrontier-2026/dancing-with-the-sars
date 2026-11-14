@@ -4,7 +4,7 @@ Layers come from the contract export (data/local/radar_contract/layers.json) and
 private change COGs listed in data/manifests/nisar_change_index.json. Damage results and the
 time series come from PostGIS (loaded by scripts/load_radar_results.py).
 
-Safety: the 72-hour hold applies to every record (admins excepted, for review); layers need the
+Safety: the 72-hour hold applies to every record and every role (Admin is not a bypass for the hold or for area scope (doc 07)); layers need the
 role named in min_role; area scope is checked by the router before these functions run.
 """
 
@@ -31,7 +31,7 @@ def data_root() -> Path:
 
 
 def _visible(release_at: Any, identity: Identity | None) -> bool:
-    return (identity is not None and identity.role == "admin") or is_released(release_at)
+    return is_released(release_at)
 
 
 def _role_ok(identity: Identity | None, min_role: str) -> bool:
@@ -152,8 +152,7 @@ def trace(engine: Any, value_id: str, identity: Identity | None) -> dict | None:
     if row is None or identity is None:
         return None
     rec = row[0]
-    if identity.role != "admin" and (not is_released(rec["release_at"])
-                                     or not area_in_scope(rec["area_id"], identity.area_scopes)):
+    if not is_released(rec["release_at"]) or not area_in_scope(rec["area_id"], identity.area_scopes):
         return None
     root = data_root()
     sources_file = root / "local" / "radar_contract" / "sources.json"

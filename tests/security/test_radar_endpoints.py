@@ -83,8 +83,8 @@ def test_analyst_sees_released_layers_for_their_role_only(data):
     assert "nisar-change-officer-hh" not in ids  # role above analyst
 
 
-def test_admin_can_review_held_layer(data):
-    assert signed_in("admin").get("/api/v1/layers/nisar-change-held-hh").status_code == 200
+def test_admin_does_not_bypass_the_hold(data):  # doc 07: admin is not a bypass for publication delay
+    assert signed_in("admin").get("/api/v1/layers/nisar-change-held-hh").status_code == 404
 
 
 def test_tile_renders_png_inside_and_404_outside(data):

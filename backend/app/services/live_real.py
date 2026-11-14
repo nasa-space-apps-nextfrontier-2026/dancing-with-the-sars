@@ -1,7 +1,7 @@
 """Real-data alerts and source status (DEMO_SYNTHETIC=false).
 
-Alerts come from the worker (worker/jobs.py). Visibility: the 72-hour/release rule (admins see
-everything for review) and the user's area scopes. /status is public, so it never shows error
+Alerts come from the worker (worker/jobs.py). Visibility: the 72-hour/release rule and the user's area scopes,
+for every role (admin is not a bypass, doc 07). /status is public, so it never shows error
 text, file paths or hostnames: a failed fetch is reported only as "fetch failed".
 """
 
@@ -35,8 +35,6 @@ def freshness(last: dt.datetime | None, fresh: dt.timedelta, aging: dt.timedelta
 def _visible(row: Any, identity: Identity | None) -> bool:
     if identity is None:
         return False
-    if identity.role == "admin":
-        return True
     return is_released(row.release_at) and area_in_scope(row.area_id, identity.area_scopes)
 
 
