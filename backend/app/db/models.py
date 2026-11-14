@@ -65,6 +65,11 @@ class MetricValue(Base):
     source_id: Mapped[str] = mapped_column(ForeignKey('datasets.id'))
     observed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     safety_tag: Mapped[str] = mapped_column(String(40))
+    # 0002: stable contract id, 72-hour release time and the full contract record.
+    value_id: Mapped[str | None] = mapped_column(String(160), unique=True, nullable=True)
+    release_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True,
+                                                        index=True)
+    record: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
 
 class ShelterCandidate(Base):
     __tablename__ = 'shelter_candidates'
