@@ -2,6 +2,8 @@ import csv
 import json
 import random
 
+import pytest
+
 from worker.evaluation.events import from_csv, from_ucdp_json
 from worker.evaluation.run_strike_tests import load_cells, main
 
@@ -21,12 +23,27 @@ def test_csv_events_skip_bad_rows():
     assert len(from_csv(lines, start="2026-01-01")) == 1
 
 
+def test_loader_accepts_the_real_damage_table_columns(tmp_path):
+    table = tmp_path / "damage_cells.csv"
+    rows = [
+        "h3_r9,damage_class,evidence_label",
+        "892db110033ffff,possible_candidate,observed",
+        "892db110037ffff,no_detected_change,none",
+        "892db11003bffff,unknown,unknown",
+    ]
+    table.write_text("\n".join(rows) + "\n", encoding="utf-8")
+    h3 = pytest.importorskip("h3")
+    cells = load_cells(str(table))
+    assert [c.flagged for c in cells] == [True, False, False] and cells[0].district == "unknown"
+    assert abs(cells[0].lat - h3.cell_to_latlng("892db110033ffff")[0]) < 1e-9
+
+
 def test_runner_reports_enrichment_from_csv_files(tmp_path):
     rng = random.Random(3)
     table = tmp_path / "damage.csv"
     with open(table, "w", newline="") as f:
         w = csv.writer(f)
-        w.writerow(["cell_id", "damage_class", "district", "lat", "lon"])
+        w.writerow(["h3_r9", "damage_class", "district", "lat", "lon"])
         for i in range(200):
             near = i < 100
             flagged = rng.random() < (0.6 if near else 0.1)

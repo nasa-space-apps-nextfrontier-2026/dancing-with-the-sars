@@ -79,6 +79,8 @@ def main(argv: list[str] | None = None) -> int:
         "strike_context": strike_context(cells, events),
         "qa": {k: run["qa"][k] for k in ("water", "banding_before_correction", "banding_after_correction")},
         "time_slider": slider,
+        "sentinel1_check": (json.loads((OUT_DIR / "s1_check.json").read_text(encoding="utf-8"))
+                            if (OUT_DIR / "s1_check.json").exists() else None),
         "claims_allowed": ["candidate change in dense built-up areas", "known false-alarm rate on quiet hold-out"],
         "claims_not_allowed": ["confirmed damage or collapse", "precision/recall or accuracy",
                                "destroyed vs severe distinction", "damage counts as totals (minimums only)"],

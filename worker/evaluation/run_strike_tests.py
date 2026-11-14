@@ -2,8 +2,8 @@
 
     python -m worker.evaluation.run_strike_tests damage_table.csv events.csv [out.json]
 
-The damage table is one row per cell. Column names are settable because they are only fixed at the
-H2 contract freeze. Cells need coordinates: either `lat` and `lon` columns, or an H3 `cell_id`
+The damage table is one row per cell (Udula's `damage_cells.parquet` exported to CSV: `h3_r9`,
+`damage_class`; no district column, so cells share one district). Column names are settable. Cells need coordinates: either `lat` and `lon` columns, or an H3 `cell_id`
 (then the `h3` package must be installed). A cell is flagged when its class is one of the candidate
 damage classes. Results are evidence about the model, never confirmed damage.
 """
@@ -17,15 +17,19 @@ from pathlib import Path
 from worker.evaluation.events import from_csv
 from worker.evaluation.strike_tests import Cell, strike_enrichment
 
-CANDIDATE_CLASSES = {"destroyed", "severely_damaged", "moderately_damaged", "possibly_damaged"}
+# Class names written by pipelines/radar/nisar (damage_cells.parquet), plus the older names.
+CANDIDATE_CLASSES = {"possible_candidate", "moderate_candidate", "destroyed_or_severe_candidate",
+                     "destroyed", "severely_damaged", "moderately_damaged", "possibly_damaged"}
 
 
-def load_cells(path: str, id_col: str = "cell_id", class_col: str = "damage_class",
+def load_cells(path: str, id_col: str = "h3_r9", class_col: str = "damage_class",
                district_col: str = "district", lat_col: str = "lat", lon_col: str = "lon",
                flagged_classes: set[str] = frozenset(CANDIDATE_CLASSES)) -> list[Cell]:
     cells = []
     with open(path, newline="", encoding="utf-8") as f:
         for row in csv.DictReader(f):
+            if not row.get(id_col):
+                continue
             if lat_col in row and row[lat_col] != "":
                 lat, lon = float(row[lat_col]), float(row[lon_col])
             else:

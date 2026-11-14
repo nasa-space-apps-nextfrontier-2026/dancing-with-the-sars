@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     allowed_origin: str = 'http://localhost:5173'
     cookie_secure: bool = False
     civisar_demo_users_json: str = '{}'
+    published_dir: str = 'data/published'
+    public_release_approved: bool = False   # a person must approve any public map release
 
 @lru_cache
 def get_settings() -> Settings:
