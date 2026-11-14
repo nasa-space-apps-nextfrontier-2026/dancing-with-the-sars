@@ -1,0 +1,31 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "admin_id": "G1",
+        "name_en": "Test Governorate",
+        "level": 1,
+        "parent_id": null
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[35.1, 33.1], [35.2, 33.1], [35.2, 33.2], [35.1, 33.2], [35.1, 33.1]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "admin_id": "D1",
+        "name_en": "Test District",
+        "level": 2,
+        "parent_id": "G1"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[35.12, 33.12], [35.18, 33.12], [35.18, 33.18], [35.12, 33.18], [35.12, 33.12]]]
+      }
+    }
+  ]
+}
