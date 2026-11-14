@@ -34,7 +34,7 @@
   "asset": {
     "path": "synthetic_radar_features.csv",
     "format": "CSV",
-    "sha256": "a5a9f7c2587485a08369cd8c704384b6d548b57accbbb6113685f8c6deb2180a"
+    "sha256": "b2bac7e46e19be7d3b28c79385ab7a50be16d172338bf83567c508a899fe730b"
   },
   "classification": {
     "class": "Unknown",
