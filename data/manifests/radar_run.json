@@ -2,7 +2,7 @@
   "schema_version": "0.1",
   "kind": "nisar_radar_run",
   "synthetic": false,
-  "created_at": "2026-11-14T07:15:16+00:00",
+  "created_at": "2026-11-14T07:46:23+00:00",
   "run_id": "e99a9b63914b68e6",
   "owner": "M1 (Udula)",
   "receivers": [
@@ -11,7 +11,7 @@
   ],
   "damage_cells": {
     "path": "data/private/nisar/model/damage_cells.parquet",
-    "sha256": "22eb30068711db508c42d12f454661ec0d3e590ee2bd2e70bd9acb475edf5d3f",
+    "sha256": "d191eaca6774e8168dd33905670cd3bcea3a98a8822313943dbb9f61ecdae8b1",
     "key": "h3_r9 (lowercase hex string); h3_r8 parent for display",
     "columns": [
       "n_built_px",
@@ -36,7 +36,14 @@
       "pair_before",
       "pair_after",
       "version_confounded",
-      "synthetic"
+      "synthetic",
+      "s1_d_vv",
+      "s1_d_vh",
+      "s1_drop_share",
+      "s1_px",
+      "s1_z_vv",
+      "s1_agrees",
+      "evidence_label"
     ],
     "classes": [
       "destroyed_or_severe_candidate",
