@@ -8,7 +8,7 @@ from fastapi import Request
 MANIFESTS_DIR = Path(__file__).resolve().parents[3] / "data" / "manifests"
 SOURCES_MANIFEST = MANIFESTS_DIR / "sources.json"
 
-
+# may have to apply offset and limit to the sources list if it is large
 def _load_sources_list() -> list[dict]:
     if SOURCES_MANIFEST.exists():
         return json.loads(SOURCES_MANIFEST.read_text(encoding="utf-8"))
@@ -23,12 +23,15 @@ async def get_status(request: Request, path_params: dict) -> dict:
         src_id = src.get("source_id") or src.get("dataset_id") or "unknown"
         accessed_at = src.get("accessed_at")
         is_synthetic = src.get("synthetic", True)
+
         if is_synthetic:
             freshness = "Stale"
             failure = "Not configured"
+
         else:
             freshness = "Fresh" if accessed_at else "Stale"
             failure = None
+        
         sources_status.append({
             "id": src_id,
             "acquired_at": None,
