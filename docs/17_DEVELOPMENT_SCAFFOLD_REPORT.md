@@ -28,7 +28,7 @@ Statuses describe the scaffold itself. `TESTED` means a narrow local test passed
 | 05; M4-01 | Typed API client, Member 4 | `frontend/src/services`, `frontend/src/types` | TESTED | `frontend/src/services/api.test.ts` | Connect approved server response schema and pagination |
 | 06; M4-02/03 | Map and domain views, Member 4 | `frontend/src/app`, `frontend/src/components/MapPanel.tsx` | SCAFFOLDED | App smoke test | Approved layers, accessible detail flows and responsive verification |
 | 05, 07; M3-01/02 | API, errors, roles and sessions, Member 3 | `backend/app/api`, `backend/app/core` | TESTED | `backend/tests/test_api.py` | Persistence, scope policy, audit review, endpoint implementation |
-| 05; M3-01 | Initial PostGIS models and DB setup, Member 3 | `backend/app/db`, `scripts/initialize_database.py` | SCAFFOLDED | import and readiness tests | Local PostGIS; reviewed Alembic migration; DB initialization not run here |
+| 05; M3-01 | Initial PostGIS models and DB setup, Member 3 | `backend/app/db`, `backend/migrations`, `scripts/initialize_database.py` | SCAFFOLDED | import, readiness and Alembic `heads` checks | Local PostGIS; reviewed first Alembic revision; DB initialization not run here |
 | 05; M3-03 | 40 draft route inventory, Member 3 | `backend/app/api/v1.py` | TESTED | `scripts/validate_scaffold.py` | Most protected operations deliberately return 501; add validated responses |
 | 04; M1-01/02/03 | Radar interfaces, Member 1 | `worker/radar`, `worker/pipelines` | SCAFFOLDED | `worker/tests` | Source/version manifest, licensed scenes, scientific QA and processing |
 | 03, 04; M2-01/02/03 | Geodata and alerts, Member 2 | `worker/geodata`, `worker/alerts` | SCAFFOLDED | `worker/tests` | Source terms, H3 grid, joins, thresholds and provenance |
@@ -57,6 +57,7 @@ Each member works on `feature/m1-radar-damage`, `feature/m2-geodata-alerts`, `fe
 | Planning validator | PASS: 40 planning files, 957 trace rows, 40 operations, synthetic examples |
 | Scaffold inventory and obvious-secret scan | PASS: 40 registered operations, 12 interfaces, synthetic fixtures; no obvious credential pattern |
 | Python lint and tests | PASS: Ruff; 7 tests. One Starlette/httpx deprecation warning |
+| Alembic command setup | PASS: `alembic heads` and offline `upgrade --sql head` load the configuration/environment; no revision exists or was applied yet |
 | Backend process smoke check | PASS: Uvicorn started and `/api/v1/health` returned 200 |
 | Frontend lint, tests, TypeScript and build | PASS: 2 tests and production build. Vite warns that the initial MapLibre bundle exceeds 500 kB |
 | npm production dependency audit | PASS: zero reported vulnerabilities with `--omit=dev` |
@@ -64,6 +65,6 @@ Each member works on `feature/m1-radar-damage`, `feature/m2-geodata-alerts`, `fe
 | Database, Docker images and Compose runtime | BLOCKED locally: Docker CLI/daemon unavailable. Readiness returns 503 without PostGIS; initialization was not falsely reported as run |
 | Scientific QA and real-data integration | DEFERRED by scope: no licensed scenes, live sources, field verification or model outputs |
 
-The initial schema is bootstrapped with `create_all`, not a production migration history; Member 3 must author and test a reviewed Alembic revision. Sessions are in memory and local demo users come from ignored `.env`; this is a local foundation only. The runtime FastAPI OpenAPI page excludes the 501 draft handlers; `docs/contracts/openapi.yaml` remains the canonical draft and route coverage is checked separately. CI has not run on GitHub yet. The obvious-secret guard catches common key patterns and secret files but is not comprehensive.
+The initial schema is bootstrapped with `create_all`, while Alembic configuration is ready for reviewed revisions; Member 3 must author and test the first revision. Sessions are in memory and local demo users come from ignored `.env`; this is a local foundation only. The runtime FastAPI OpenAPI page excludes the 501 draft handlers; `docs/contracts/openapi.yaml` remains the canonical draft and route coverage is checked separately. CI has not run on GitHub yet. The obvious-secret guard catches common key patterns and secret files but is not comprehensive.
 
 Security defaults deny unauthenticated restricted routes, guard tiles/files/exports via the same server policy, avoid client-supplied roles, and return unknown/unavailable rather than fabricated data. Private location release, audited data access, operational routing and deployment require the approvals and tests in [07](07_SECURITY_PRIVACY_AND_RBAC.md) and [10](10_TESTING_AND_ACCEPTANCE_PLAN.md). The proposed dataset catalogue and unresolved integration choices remain unresolved; this scaffold does not activate them.

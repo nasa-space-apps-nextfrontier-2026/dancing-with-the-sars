@@ -1,3 +1,3 @@
 # Database foundation
 
-`python -m backend.app.db.migrations` is not a migration CLI. Run `python scripts/initialize_database.py` once against the local PostGIS service. The scaffold defines an initial SQLAlchemy schema; Alembic is installed for the first reviewed migration in M3-01. Schema expansion and production migration history remain unfinished.
+Run `python -m scripts.initialize_database` once against the local PostGIS service to create the scaffold schema. Alembic configuration is available with `python -m alembic -c backend/alembic.ini heads` and `python -m alembic -c backend/alembic.ini revision --autogenerate -m "initial reviewed schema"`. M3-01 must review the generated revision against the approved schema, PostGIS extension, indexes, safety rules and data retention before applying it. Do not stamp or upgrade an existing schema merely to silence an Alembic error. Schema expansion and production migration history remain unfinished.

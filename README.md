@@ -36,6 +36,8 @@ docker compose exec api python -m scripts.initialize_database
 
 The API image includes `scripts/initialize_database.py`. `docker compose up -d db` starts only the development database on loopback. A `.env` with local-only credentials is separate from Compose's illustrative defaults. Production deployment, migration history and backups are not part of this scaffold.
 
+For a local Python setup after PostGIS starts, run `.\.venv\Scripts\python.exe -m scripts.initialize_database` from the repository root. Alembic commands use `.\.venv\Scripts\python.exe -m alembic -c backend/alembic.ini heads`; Member 3 must create and review the first revision before `upgrade head` is meaningful. See [migration notes](backend/migrations/README.md).
+
 ## Worker and tests
 
 ```powershell
