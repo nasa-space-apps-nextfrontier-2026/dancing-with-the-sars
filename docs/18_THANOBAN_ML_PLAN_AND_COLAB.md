@@ -21,7 +21,7 @@ Rules: show ranges and "Unknown", never a single exact claim; "Possible power lo
 | Option | What it is | Good for | Limits and caveats |
 |---|---|---|---|
 | **Google Colab (browser notebook), main choice** | Free hosted Jupyter notebook with a CPU runtime; GPU (usually a T4) sometimes available | Everything here: runs on any laptop, no install on Windows | Google does not publish fixed free-tier limits. Secondary sources commonly cite sessions of up to about 12 hours and an idle timeout of about 90 minutes, and GPUs can be unavailable at busy times. The VM disk is **temporary** and wiped when the session ends. Check Colab's own FAQ before relying on any number |
-| **Colab CLI (optional)** | Google's official command-line tool for Colab, announced June 2026 (`googlecolab/google-colab-cli`). Commands include `colab new`, `colab exec`, `colab run`, `colab upload`, `colab download`, `colab usage`, `colab stop` | Running a script from the repo on a Colab VM from the terminal, without opening the browser | **Linux and macOS only; Windows is not supported** (use WSL2, which is not confirmed in its docs). Free-tier access is not stated clearly in its docs; run `colab usage` to see what your account gets. The README and the auth design doc disagree on the default login mode, so check `colab --help`. Treat the details as unverified until you try it |
+| **Colab CLI (verified 14 Nov 2026)** | Google's official command-line tool for Colab (`googlecolab/google-colab-cli`, version 0.8.0). Tested end to end on a free account: `colab new`, `colab exec`, `colab upload`, `colab download`, `colab stop`, `colab usage` | Running a script from the repo on a Colab VM from the terminal | **Works on Windows only through WSL2** (native Windows is not supported). Free account: balance 0.00 compute units, CPU session (Python 3.13, 2 CPUs, about 12 GB memory, about 116 GB free disk), internet works (reached NASA CMR). Sign-in is a one-time Google OAuth step; install `keyrings.alt` so the login is saved. See [progress log](progress/THANOBAN_PROGRESS.md) |
 | **Kaggle Notebooks (backup)** | Another free hosted notebook service | If Colab won't connect or runs out of quota | Reported at about 30 GPU hours a week, 12-hour sessions and about 20 GB of working disk by secondary sources (unverified); internet access in notebooks must be confirmed before relying on it |
 | **Local laptop** | Normal Python | Fine for models B and C and for small crops of A, once data is cropped | Not enough disk or memory for raw Black Marble tiles, which is why we use Colab |
 
@@ -45,17 +45,19 @@ Rules: show ranges and "Unknown", never a single exact claim; "Possible power lo
 3. Copy results back to the laptop (download from Drive) and commit only the small files: `data/manifests/services_models.json` and small result tables. Large intermediate files stay on Drive.
 4. Write a short `manifest` for each run: dataset names and versions, dates covered, parameters, run ID, and the git commit of the code.
 
-### Optional: using the Colab CLI
-Only on Linux, macOS or WSL2 (not native Windows). Commands as described by Google's repo, to be confirmed on first use:
+### Using the Colab CLI (verified)
+Run from WSL2 Ubuntu (or macOS/Linux). The CLI lives in a Python environment, `~/colabenv`, installed with `pip install google-colab-cli keyrings.alt`.
 
 ```text
-uv tool install google-colab-cli
-colab new -s services                 # start a CPU session
-colab upload requirements-ml.txt /content/requirements-ml.txt
-colab exec -s services -f worker/services/run_nightlights.py
-colab download /content/out/nightlights.parquet ./out/nightlights.parquet
-colab stop -s services                # release the VM
+colab usage                                  # compute units and sign-in check
+colab new -s m104                            # start a CPU session named m104
+colab exec -s m104 -f script.py              # run a local .py file on the VM
+colab upload -s m104 local.py /content/x.py  # single files only; the target folder must exist
+colab download -s m104 /content/out/f.json ./f.json
+colab stop -s m104                           # always release the VM
 ```
+
+Gotchas found in testing: `upload` does not create folders (make them first with a small `exec` script such as `os.makedirs`), and it copies one file at a time. Only stop sessions you started: a session you did not create can already exist in the Google account.
 
 ## 4. Work plan and hours (about 22 h)
 
@@ -92,7 +94,7 @@ M2-06 movement design (max 1 h) fits anywhere before H38.
 | Black Marble NRT has no January history | Join the archive product with NRT, as the data plan says; test for duplicates |
 | Too few clear nights in winter | Output `Unknown`, never a guess |
 | Udula's damage table is late | Finish the harness on mock data, report real numbers as soon as the table arrives |
-| Colab CLI doesn't work on Windows | Use the browser notebooks; the CLI is optional |
+| Colab CLI on Windows | Use WSL2 (works, verified); browser notebooks are the fallback |
 
 ## Sources
 
