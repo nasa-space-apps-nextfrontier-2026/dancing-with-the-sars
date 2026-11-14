@@ -27,7 +27,7 @@ import rasterio
 
 from .crop import sha256
 from .features import destripe, mean_power, read_grid, to_db
-from .process import CROP_INDEX, tier_paths, validity, water_mask
+from .process import CROP_INDEX, load_terrain_mask, tier_paths, validity, water_mask
 
 OUT_DIR = Path("data/private/nisar/change")
 INDEX = Path("data/manifests/nisar_change_index.json")
@@ -63,7 +63,7 @@ def main(argv: list[str] | None = None) -> int:
         epsg, bounds = r.crs.to_epsg(), list(r.bounds)
 
     scenes = [s for _, s, _ in before["HH"] + after["HH"] + later["HH"]]
-    land = validity(index, scenes, read_grid(ref)[0].shape) & ~water_mask(index)
+    land = validity(index, scenes, read_grid(ref)[0].shape) & ~water_mask(index) & ~load_terrain_mask(ref)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     layers: list[dict[str, Any]] = []
 
@@ -103,7 +103,7 @@ def main(argv: list[str] | None = None) -> int:
         "release_rule": "public only as neighbourhood (H3 r8) results, 72 h after the pass",
         "notes": ["change_A mixes BETA (before) and PROVISIONAL (after) products",
                   "change layers are destriped (smooth column/row trends removed)",
-                  "water and invalid pixels are nodata"],
+                  "water, invalid, layover, shadow and steep-slope (>25 deg) pixels are nodata"],
         "layers": layers,
     }
     INDEX.write_text(json.dumps(out, indent=2), encoding="utf-8")

@@ -62,6 +62,18 @@ WATER_HV_DB = -20.5  # valley between water (~-23 dB) and land (~-15 dB) in mean
 WATER_DILATE_PX = 2  # 40 m extra along shores (mixed land/water pixels)
 
 
+def load_terrain_mask(ref: str) -> np.ndarray:
+    """Layover, shadow and steep-slope mask from terrain.py (built on first use)."""
+    from .terrain import OUT as TERRAIN_TIF
+    from .terrain import terrain_mask
+
+    if TERRAIN_TIF.exists():
+        m, _, _ = read_grid(TERRAIN_TIF)
+        return m.astype(bool)
+    raw = min(glob.glob("data/raw/nisar/*GCOV*.h5"))
+    return terrain_mask(raw, ref)[0]
+
+
 def water_mask(index: dict[str, Any]) -> np.ndarray:
     """Water from mean HV over every cropped date (water is dark and stable in HV)."""
     hv = [next(o["path"] for o in v["outputs"] if o["term"] == "HVHV") for v in index["crops"].values()]
@@ -189,11 +201,14 @@ def main(argv: list[str] | None = None) -> int:
     built = built_mask(args.buildings, ref)
     valid = validity(index, scenes, bh.shape) & (bh_n >= min_before) & (ah_n >= min_after)
     water = water_mask(index)
-    valid &= ~water
+    terrain = load_terrain_mask(ref)
+    valid &= ~water & ~terrain
+    print(f"terrain mask (layover, shadow, slope > 25 deg): {terrain.mean():.1%} of the crop")
     print(f"built-up pixels: {int(built.sum()):,} ({built.mean():.1%} of the crop)")
     print(f"water mask: {water.mean():.1%} of the crop; built-up pixels on water: {int((built & water).sum()):,}")
 
     qa = {"version_check": None if args.after_date else version_check(index, built, valid),
+          "terrain_masked_share": float(terrain.mean()),
           "water": {"threshold_mean_hv_db": WATER_HV_DB, "dilation_px": WATER_DILATE_PX,
                     "share_of_crop": float(water.mean()),
                     "built_pixels_masked": int((built & water).sum())}}
