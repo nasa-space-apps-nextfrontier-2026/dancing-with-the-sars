@@ -10,3 +10,4 @@ scikit-learn>=1.5
 earthaccess>=0.12
 pyarrow>=17
 pytest>=8
+geopandas>=1.0,<2

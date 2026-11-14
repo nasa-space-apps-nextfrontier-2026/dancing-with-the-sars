@@ -36,6 +36,7 @@ def test_fixture_scope_is_exact_and_junk_is_denied():
     assert area_in_scope("demo-area-01", ("demo-area-01",))
     assert not area_in_scope("demo-area-02", ("demo-area-01",))
     assert not area_in_scope("../etc/passwd", (AOI_ID,))
+    assert not area_in_scope(INSIDE_R8, ("*",))  # PR #21's wildcard scope was intentionally not imported
 
 
 def test_release_hold_boundaries():

@@ -59,11 +59,12 @@ CIVISAR_DEMO_USERS_JSON=...   # from python -m scripts.create_demo_user (default
 | `GET /alerts?area_id&type&since&cursor&limit` | analyst+ | Alerts in the user's scopes whose release time has passed (AlertDetail). `rings`, `facilities` and `services` stay empty until population and facility data are loaded. |
 | `GET /alerts/{alert_id}` | analyst+ | One alert, or 404 (also when outside the user's scope) |
 | `GET /status` | public | Last success, freshness and Cached flag per source (FIRMS, NISAR). Never shows error text. |
+| `GET /public/map?bbox` | public | Always suppressed in this release and never queries PostGIS. Future publication requires immutable artifact-bound approval, licence/QA review, high-risk-cell and spatial-cohort controls, and snapshot-differencing analysis. H3 r8 and a minimum count are not sufficient protection. |
 | `GET /values/{value_id}/trace` | analyst+ | The value, its source records and the model tests of its run |
 | `GET /areas?bbox&cursor&limit` | analyst+ | H3 r8 neighbourhoods in the user's scope (bbox = minLon,minLat,maxLon,maxLat) |
-| `GET /areas/{area_id}/values?metric&as_of` | analyst+ | Released MetricValue records for the area |
-| `GET /areas/{area_id}/people` | analyst+ | The three people ranges; 503 until population is loaded |
-| `GET /areas/{area_id}/services` | analyst+ | Power from released power-loss alerts; water, health, comms Unknown |
+| `GET /areas/{area_id}/values?metric&as_of` | analyst+ | Released MetricValue records for the area. Optional `as_of` is an ISO date or datetime; records observed or released after that historical cutoff are excluded. |
+| `GET /areas/{area_id}/people?as_of` | analyst+ | The three people ranges at the optional ISO date/datetime cutoff; observations or releases after `as_of` are excluded. 503 until population and eligible released radar evidence are available. |
+| `GET /areas/{area_id}/services?as_of` | analyst+ | Power from released power-loss alerts at the optional ISO date/datetime cutoff; alerts detected or released later are excluded. Water, health and comms remain Unknown. |
 | `GET /areas/{area_id}/validation` | analyst+ | Empty list with `availability: unavailable...`: no independent damage assessment exists yet |
 | `GET /areas/{area_id}/facilities` | analyst+ | 503 until Kisara's facility data is loaded (never an empty "no facilities") |
 | `GET /sources`, `GET /sources/{id}` | public | Source records from the contract export; 503 when none are loaded |
@@ -71,8 +72,8 @@ CIVISAR_DEMO_USERS_JSON=...   # from python -m scripts.create_demo_user (default
 | `GET /admin/audit?from&to&cursor` | admin | Last 30 days: actor, action, coarse resource type, outcome, time |
 | `PATCH /admin/users/{user_id}/roles` | admin, CSRF | Body `{role, area_scopes, reason}`. Ends that user's sessions; applies at their next sign-in. An admin cannot remove their own admin role (409). |
 | `POST /admin/jobs/{job_id}/retry` | admin, CSRF | `fires` or `night_lights`, body `{idempotency_key}`. The same key never runs twice; reused for another job -> 409. |
-| `GET /areas/{area_id}/summary` | analyst+ | AreaSummary: people ranges, services, hazards, evidence. **503 until the population file is loaded** (see 4a). |
-| `POST /briefs` | analyst+, CSRF | Body `{area_id, as_of}`. Freezes the summary into a brief (expires after 8 hours). |
+| `GET /areas/{area_id}/summary?as_of` | analyst+ | AreaSummary at the optional ISO date/datetime cutoff: people ranges, services, hazards and evidence. Later observations and later-released records are excluded. **503 until population and eligible released radar evidence are available** (see 4a). |
+| `POST /briefs` | analyst+, CSRF | Required body `{area_id, as_of}`, where `as_of` is an ISO date or datetime and cannot be in the future. Freezes the historically filtered summary into a brief (expires after 8 hours). |
 | `GET /briefs/{report_id}` | signed in | The brief, re-checked on every read: area scope, expiry, role sections |
 | `GET /briefs/{report_id}/print` | signed in | Plain printable HTML with a RESTRICTED banner and source footnotes; loads nothing from outside |
 
@@ -81,6 +82,7 @@ CIVISAR_DEMO_USERS_JSON=...   # from python -m scripts.create_demo_user (default
 - **People** come only from `DATA_ROOT/local/population.csv.gz` (Kisara, K-04): columns `cell_id` (H3 r9), `pop_low`, `pop_high`, `pop_year`. The contract needs whole-number ranges, so without this file the summary and briefs answer 503 instead of inventing numbers. **Team note:** the contract has no way to say "people Unknown"; raise at H2 if the file will be late.
 - Residents = all cells in the neighbourhood; potentially affected = cells with a radar candidate; potentially displaced uses the UNOSAT housing shares (destroyed/severe 100%, moderate 50%, possible 20%). Derived values take the weakest label of their inputs. All are pre-displacement estimates, not people there now.
 - Services: power from released "Possible power loss" alerts; water, health and comms stay Unknown. No severity rank until facilities, services and roads are loaded. Route options and shelter candidates are empty and listed as omitted.
+- Historical cutoff: summary, values, people and services accept optional `as_of=<ISO date or datetime>`; without it they use current visibility. Brief creation requires the same `as_of` value in its JSON body and rejects future values. Observations, detections and records after the cutoff, including records whose `release_at` is later than the cutoff, are excluded.
 - Briefs never include records still on the 72-hour hold. Route and shelter sections are removed again at read time for roles below officer / coordinator. Out-of-scope or expired briefs answer 404.
 - The WorldPop source record is not in `sources.json` yet, so brief footnotes list only the radar sources.
 
@@ -88,9 +90,12 @@ CIVISAR_DEMO_USERS_JSON=...   # from python -m scripts.create_demo_user (default
 
 - **Sign-in**: 5 failed attempts per username and client in 15 minutes -> 429 with `Retry-After`. Roles set by an admin are read from the database at sign-in; if the database is down, sign-in fails (503) rather than falling back to an old role. `/roles` lists the role's capabilities (doc 07 matrix).
 - **Audit** (`audit_events`): sign-in (failed ones as `anonymous`, never the typed name), sign-out, 403 denials, brief creation, alert reviews, role changes, job runs. Only actor, action, coarse resource type, outcome, time and request id: no coordinates, tokens, passwords or request bodies.
+- **Durable privileged audit**: role changes and alert reviews write their audit event in the same database transaction as the mutation. A manual job must commit a `job_retry` start event before the worker is invoked; raised job exceptions are recorded as failed rather than left running.
+- **Production process limitation**: sessions, user-session revocation and login-failure counters are process-local. Run this hackathon backend as a single API process. A multi-worker or horizontally scaled deployment requires a shared server-side session/revocation/rate-limit store while retaining the custom cookie and CSRF design.
 
 - **Area scope** (`backend/app/policy/scope.py`): `south-lebanon-demo` covers every H3 cell whose centre is in the demo box; an H3 cell covers its finer children; fixture ids match exactly. Areas outside the scope get 403.
 - **72-hour hold** (`backend/app/policy/release.py`): records whose `release_at` has not passed are hidden from every role. Admin is not a bypass for the hold or for area scope (doc 07).
+- **Missing radar evidence**: no eligible artifact, or an artifact with no released area evidence at the requested `as_of`, returns unavailable rather than a false numerical zero. A zero is returned only after an eligible released observation exists.
 - **Files**: tiles are read only from `DATA_ROOT/private/nisar/change/`; any other path in a manifest is refused.
 - Logged-out users never get radar layers, tiles, damage or series.
 

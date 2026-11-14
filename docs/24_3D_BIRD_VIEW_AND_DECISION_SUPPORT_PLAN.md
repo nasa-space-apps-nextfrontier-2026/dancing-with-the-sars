@@ -15,6 +15,12 @@ Thanoban reviewed this plan and decided:
 
 Everything else in this document stays as written, including the safety rules and the fidelity badge.
 
+## M3 public-map update (15 November 2026)
+
+The public-release statements below preserve the original PR #21 roadmap, but its configurable publication path is **superseded and not active**. Current M3 keeps PostGIS as the authoritative real-data API store and permanently suppresses `GET /public/map`; `PUBLIC_RELEASE_APPROVED=true` cannot enable publication, and suppressed requests return without constructing a database engine or querying PostGIS.
+
+Any future public release system requires immutable artifact-bound approval, licence and QA checks, high-risk-cell review, spatial-cohort controls and snapshot-differencing analysis. H3 r8 aggregation and a three-candidate threshold are not sufficient humanitarian protection.
+
 ## 1. The idea in one page
 
 Instead of only a flat Google-Maps-style map, officers get a **3D "Google Earth" view** with these parts:
@@ -40,7 +46,7 @@ Instead of only a flat Google-Maps-style map, officers get a **3D "Google Earth"
 | "Google Earth" imagery | Google Earth and Google Maps tiles cannot be used here (licence). Free imagery is 10–30 m (Sentinel-2, HLS, Landsat via NASA GIBS), not sub-metre | Stylised 3D buildings from OSM over free satellite imagery. It will look like a clean city model, not a photo |
 | 360 view "like a real accident" | Realistic casualties or people would be harmful and fabricated | No people, no casualties, no gore. Buildings, terrain, lights and fire only |
 | Rebuild budget and duration agent | The project scope says "No rebuilding: reconstruction plans and rebuild tracking are out of scope" ([PROJECT_PLAN.md](PROJECT_PLAN.md) section 3). Costs also depend on facts we do not have | **Adopted by Thanoban (14 Nov) as an indicative planning range**, a stretch feature after the core demo (section 9). The scope rule in the plan file still needs to be updated by its owner |
-| Public, building-level 3D | The safety rules forbid a public list of what is still standing and require delayed, area-level public output | 3D building-level views are **logged-in only**. The public map stays r8, delayed and approved by a person |
+| Public, building-level 3D | The safety rules forbid a public list of what is still standing. The original roadmap proposed delayed, approved area-level output, but that release design is superseded | 3D building-level views are **logged-in only**. Current M3 public output is hard-suppressed; any future area-level release must first satisfy the artifact-bound and humanitarian controls above |
 | Real-time feel | Radar passes every 12 days, fires several times a day, lights daily. No live tracking is allowed | The scene shows the **latest data and its age**, plus a time-lapse of real passes. Never a live feed |
 
 What we can promise honestly: an immersive, understandable, data-grounded 3D view with a time-lapse of real satellite change, fires and lights. That is already a strong demo.

@@ -36,19 +36,41 @@ class Conflict(Exception):
     """The request clashes with stored state."""
 
 
+def _insert_audit(
+    conn: Any,
+    actor: str,
+    action: str,
+    resource_type: str,
+    outcome: str,
+    request_id: str | None,
+) -> None:
+    """Insert an audit event using the caller's transaction."""
+    from sqlalchemy import text
+
+    conn.execute(
+        text(
+            "INSERT INTO audit_events (actor_id, action, resource_type, outcome, at, request_id) "
+            "VALUES (:a, :ac, :r, :o, :t, :q)"
+        ),
+        {
+            "a": actor[:100],
+            "ac": action,
+            "r": resource_type[:40],
+            "o": outcome,
+            "t": now_utc(),
+            "q": request_id,
+        },
+    )
+
+
 def audit(engine: Any, actor: str, action: str, resource_type: str, outcome: str,
           request_id: str | None) -> None:
     """Append one audit row. Never blocks the request: a failed write is logged (without detail)."""
-    from sqlalchemy import text
     from sqlalchemy.exc import SQLAlchemyError
 
     try:
         with engine.begin() as conn:
-            conn.execute(text(
-                "INSERT INTO audit_events (actor_id, action, resource_type, outcome, at, request_id) "
-                "VALUES (:a, :ac, :r, :o, :t, :q)"),
-                {"a": actor[:100], "ac": action, "r": resource_type[:40], "o": outcome, "t": now_utc(),
-                 "q": request_id})
+            _insert_audit(conn, actor, action, resource_type, outcome, request_id)
     except SQLAlchemyError:
         log.warning("audit write failed for action %s", action)
 
@@ -92,40 +114,59 @@ def known_user(user_id: str) -> bool:
 
 
 def set_access(engine: Any, admin: Identity, user_id: str, role: str, scopes: list[str],
-               reason: str) -> dict[str, Any] | None:
+               reason: str, request_id: str | None = None) -> dict[str, Any] | None:
     from sqlalchemy import text
+    from sqlalchemy.exc import SQLAlchemyError
 
     if not known_user(user_id):
         return None
     if user_id == admin.user_id and role != "admin":
         raise Conflict("Admins cannot remove their own admin role.")
-    with engine.begin() as conn:
-        conn.execute(text(
-            "INSERT INTO user_access (user_id, role, area_scopes, reason, changed_by, changed_at) "
-            "VALUES (:u, :r, CAST(:s AS jsonb), :why, :by, :t) ON CONFLICT (user_id) DO UPDATE SET "
-            "role = EXCLUDED.role, area_scopes = EXCLUDED.area_scopes, reason = EXCLUDED.reason, "
-            "changed_by = EXCLUDED.changed_by, changed_at = EXCLUDED.changed_at"),
-            {"u": user_id, "r": role, "s": json.dumps(scopes), "why": reason, "by": admin.user_id,
-             "t": now_utc()})
+    try:
+        with engine.begin() as conn:
+            conn.execute(text(
+                "INSERT INTO user_access (user_id, role, area_scopes, reason, changed_by, changed_at) "
+                "VALUES (:u, :r, CAST(:s AS jsonb), :why, :by, :t) ON CONFLICT (user_id) DO UPDATE SET "
+                "role = EXCLUDED.role, area_scopes = EXCLUDED.area_scopes, reason = EXCLUDED.reason, "
+                "changed_by = EXCLUDED.changed_by, changed_at = EXCLUDED.changed_at"),
+                {"u": user_id, "r": role, "s": json.dumps(scopes), "why": reason,
+                 "by": admin.user_id, "t": now_utc()})
+            _insert_audit(conn, admin.user_id, "role_change", "user", "success", request_id)
+    except SQLAlchemyError as exc:
+        raise StoreError from exc
     revoke_user(user_id)  # old sessions must not keep the old role (doc 07)
     return {"synthetic": False, "role": role, "capabilities": capabilities(role), "area_scopes": scopes}
 
 
-def review_alert(engine: Any, identity: Identity, alert_id: str, status: str, note: str) -> dict | None:
+def review_alert(
+    engine: Any,
+    identity: Identity,
+    alert_id: str,
+    status: str,
+    note: str,
+    request_id: str | None = None,
+) -> dict | None:
     from sqlalchemy import text
+    from sqlalchemy.exc import SQLAlchemyError
 
     if live_real.get_alert(engine, identity, alert_id) is None:  # scope + release checked here
         return None
     review = {"synthetic": False, "review_id": uuid.uuid4().hex, "status": status,
               "actor_id": identity.user_id, "created_at": iso(now_utc())}
-    with engine.begin() as conn:
-        conn.execute(text(
-            "INSERT INTO alert_reviews (review_id, alert_id, status, note, actor_id, created_at) "
-            "VALUES (:id, :a, :s, :n, :u, :t)"),
-            {"id": review["review_id"], "a": alert_id, "s": status, "n": note, "u": identity.user_id,
-             "t": now_utc()})
-        conn.execute(text("UPDATE alerts SET review_status = :s WHERE alert_id = :a"),
-                     {"s": status, "a": alert_id})
+    try:
+        with engine.begin() as conn:
+            conn.execute(text(
+                "INSERT INTO alert_reviews (review_id, alert_id, status, note, actor_id, created_at) "
+                "VALUES (:id, :a, :s, :n, :u, :t)"),
+                {"id": review["review_id"], "a": alert_id, "s": status, "n": note,
+                 "u": identity.user_id, "t": now_utc()})
+            conn.execute(text("UPDATE alerts SET review_status = :s WHERE alert_id = :a"),
+                         {"s": status, "a": alert_id})
+            _insert_audit(
+                conn, identity.user_id, "alert_review", "alert", "success", request_id
+            )
+    except SQLAlchemyError as exc:
+        raise StoreError from exc
     return review
 
 
@@ -140,24 +181,42 @@ JOB_IDS = ("fires", "night_lights")
 
 
 def retry_job(engine: Any, identity: Identity, job_id: str, key: str,
-              jobs: dict[str, Callable[[Any], dict]] | None = None) -> dict[str, Any]:
+              jobs: dict[str, Callable[[Any], dict]] | None = None,
+              request_id: str | None = None) -> dict[str, Any]:
     """Run one worker job now. The same idempotency key never runs a job twice."""
     from sqlalchemy import text
+    from sqlalchemy.exc import SQLAlchemyError
 
-    with engine.begin() as conn:
-        inserted = conn.execute(text(
-            "INSERT INTO job_runs (idempotency_key, job_id, status, actor_id, started_at) "
-            "VALUES (:k, :j, 'running', :u, :t) ON CONFLICT (idempotency_key) DO NOTHING"),
-            {"k": key, "j": job_id, "u": identity.user_id, "t": now_utc()}).rowcount
-        if not inserted:
-            row = conn.execute(text("SELECT job_id, status FROM job_runs WHERE idempotency_key = :k"),
-                               {"k": key}).first()
-            if row.job_id != job_id:
-                raise Conflict("This idempotency key was used for another job.")
-            return {"synthetic": False, "job_id": job_id, "status": row.status, "idempotency_key": key}
-    result = (jobs or _jobs())[job_id](engine)
-    status = JOB_STATUS.get(result.get("status"), "failed")
-    with engine.begin() as conn:
-        conn.execute(text("UPDATE job_runs SET status = :s, finished_at = :t WHERE idempotency_key = :k"),
-                     {"s": status, "t": now_utc(), "k": key})
+    try:
+        with engine.begin() as conn:
+            inserted = conn.execute(text(
+                "INSERT INTO job_runs (idempotency_key, job_id, status, actor_id, started_at) "
+                "VALUES (:k, :j, 'running', :u, :t) ON CONFLICT (idempotency_key) DO NOTHING"),
+                {"k": key, "j": job_id, "u": identity.user_id, "t": now_utc()}).rowcount
+            if not inserted:
+                row = conn.execute(text(
+                    "SELECT job_id, status FROM job_runs WHERE idempotency_key = :k"
+                ), {"k": key}).first()
+                if row.job_id != job_id:
+                    raise Conflict("This idempotency key was used for another job.")
+                return {"synthetic": False, "job_id": job_id, "status": row.status,
+                        "idempotency_key": key}
+            # This durable event commits before the external job is allowed to run.
+            _insert_audit(conn, identity.user_id, "job_retry", "job", "started", request_id)
+    except SQLAlchemyError as exc:
+        raise StoreError from exc
+
+    try:
+        result = (jobs or _jobs())[job_id](engine)
+        status = JOB_STATUS.get(result.get("status"), "failed")
+    except Exception:
+        log.exception("manual job %s failed", job_id)
+        status = "failed"
+    try:
+        with engine.begin() as conn:
+            conn.execute(text(
+                "UPDATE job_runs SET status = :s, finished_at = :t WHERE idempotency_key = :k"
+            ), {"s": status, "t": now_utc(), "k": key})
+    except SQLAlchemyError as exc:
+        raise StoreError from exc
     return {"synthetic": False, "job_id": job_id, "status": status, "idempotency_key": key}
