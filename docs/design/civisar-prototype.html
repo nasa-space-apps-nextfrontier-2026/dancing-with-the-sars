@@ -1,0 +1,1394 @@
+<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>CIVISAR Prototype</title><style>:root, [data-theme="light"]{--bg:#f3f4f1;--surface:#ffffff;--surface-2:#eceee9;--surface-3:#e0e3dd;--line:#d4d8d2;--line-strong:#858e88;--ink:#121c1c;--ink-2:#44514f;--ink-3:#5f6b69;--ink-inverse:#ffffff;--accent:#1d5a86;--accent-hover:#164a6f;--accent-soft:#e0ecf4;--focus:#1d5a86;--radar:#6b3fa0;--radar-soft:#efe7f7;--ev-observed:#0067a5;--ev-reported:#9a3d74;--ev-corroborated:#006e52;--ev-unknown:#5f6b69;--dmg-destroyed:#7a1430;--dmg-severe:#c4500a;--dmg-moderate:#d9921a;--dmg-possible:#e6d43c;--st-working:#0067a5;--st-damaged:#b0470a;--st-unknown:#5f6b69;--attention:#9a5400;--attention-soft:#fbf0e1;--fire:#bf3f0a;--offline:#44514f;--route-a:#0067a5;--route-b:#006e52;--route-c:#6b3fa0;--map-water:#cbdbe4;--map-land:#e7e9e1;--map-relief:#d8dbd0;--map-road:#ffffff;--map-road-major:#f3dcb2;--map-area:#33413f;--map-mask:#c9cdc6;--shadow-float:0 1px 2px rgba(18,28,28,0.08), 0 6px 18px rgba(18,28,28,0.10);}
+[data-theme="dark"]{--bg:#0e1316;--surface:#151c20;--surface-2:#1b2429;--surface-3:#232e34;--line:#2b3840;--line-strong:#5f717a;--ink:#e6ebe9;--ink-2:#a9b5b2;--ink-3:#8d9b98;--ink-inverse:#0e1316;--accent:#73b5e3;--accent-hover:#95c8ec;--accent-soft:#16303f;--focus:#95c8ec;--radar:#c39be8;--radar-soft:#2b2140;--ev-observed:#5bb3ea;--ev-reported:#e391c3;--ev-corroborated:#45c79c;--ev-unknown:#94a29f;--dmg-destroyed:#ff7a93;--dmg-severe:#f5904f;--dmg-moderate:#f2b84b;--dmg-possible:#eadf73;--st-working:#5bb3ea;--st-damaged:#f5904f;--st-unknown:#94a29f;--attention:#f0a64f;--attention-soft:#33260f;--fire:#ff8a4d;--offline:#a9b5b2;--route-a:#5bb3ea;--route-b:#45c79c;--route-c:#c39be8;--map-water:#0b1a23;--map-land:#172024;--map-relief:#1f2a2f;--map-road:#3a474e;--map-road-major:#5c5340;--map-area:#c8d3d0;--map-mask:#0a0f11;--shadow-float:0 1px 2px rgba(0,0,0,0.5), 0 8px 22px rgba(0,0,0,0.45);}
+:root{--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;--space-6:32px;--radius-sm:3px;--radius-md:6px;--radius-lg:10px;--radius-pill:999px;--z-map-overlay:10;--z-panel:20;--z-dialog:40;--font-sans:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;--font-mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;}</style><style>@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap");
+
+/* CIVISAR component styles. Every value comes from tokens.css. Prefix: cv- */
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-sans);font-size:14px;line-height:20px;-webkit-font-smoothing:antialiased}
+.cv-pad{padding:var(--space-4)}
+.cv-row{display:flex;align-items:center;gap:var(--space-2);flex-wrap:wrap}
+.cv-col{display:flex;flex-direction:column;gap:var(--space-2)}
+.cv-grow{flex:1;min-width:0}
+.cv-mono{font-family:var(--font-mono)}
+.cv-muted{color:var(--ink-2)}
+.cv-faint{color:var(--ink-3)}
+.cv-eyebrow{font-size:11px;line-height:14px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+.cv-h1{font-size:28px;line-height:34px;font-weight:600;letter-spacing:-.01em;margin:0}
+.cv-h2{font-size:18px;line-height:24px;font-weight:600;margin:0}
+.cv-h3{font-size:15px;line-height:20px;font-weight:600;margin:0}
+.cv-sm{font-size:13px;line-height:18px}
+.cv-xs{font-size:11px;line-height:14px}
+.cv-data{font-family:var(--font-mono);font-size:12px;line-height:16px;font-weight:500}
+.cv-ico{display:inline-block;width:16px;height:16px;flex:none;vertical-align:-3px}
+.cv-ico svg{display:block;width:100%;height:100%}
+hr.cv-hr{border:0;border-top:1px solid var(--line);margin:var(--space-3) 0}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+
+/* Buttons */
+.cv-btn{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:var(--radius-md);border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);font:500 13px/18px var(--font-sans);cursor:pointer;white-space:nowrap;text-decoration:none}
+.cv-btn:hover{background:var(--surface-2)}
+.cv-btn--primary{background:var(--accent);border-color:var(--accent);color:var(--ink-inverse)}
+.cv-btn--primary:hover{background:var(--accent-hover)}
+.cv-btn--ghost{border-color:transparent;background:transparent}
+.cv-btn--sm{height:26px;padding:0 8px;font-size:12px}
+.cv-btn--lg{height:40px;padding:0 16px;font-size:14px}
+.cv-btn--icon{width:32px;padding:0;justify-content:center}
+.cv-btn[disabled],.cv-btn--disabled{opacity:.5;cursor:not-allowed}
+.cv-kbd{font:500 11px/14px var(--font-mono);border:1px solid var(--line);border-bottom-width:2px;border-radius:var(--radius-sm);padding:0 4px;color:var(--ink-2)}
+
+/* Segmented control */
+.cv-seg{display:inline-flex;background:var(--surface-3);border-radius:var(--radius-pill);padding:2px;gap:2px}
+.cv-seg button,.cv-seg span{border:0;background:transparent;border-radius:var(--radius-pill);padding:3px 10px;font:500 12px/16px var(--font-sans);color:var(--ink-2);cursor:pointer}
+.cv-seg .is-on{background:var(--surface);color:var(--ink);box-shadow:0 0 0 1px var(--line-strong)}
+
+/* Tabs */
+.cv-tabs{display:flex;gap:var(--space-4);border-bottom:1px solid var(--line)}
+.cv-tabs span{padding:8px 0;font-weight:500;font-size:13px;color:var(--ink-2);border-bottom:2px solid transparent;margin-bottom:-1px}
+.cv-tabs .is-on{color:var(--ink);border-bottom-color:var(--accent)}
+
+/* Evidence label: shape + glyph + word; never colour alone */
+.cv-ev{display:inline-flex;align-items:center;gap:4px;height:20px;padding:0 7px 0 5px;border-radius:var(--radius-sm);font:600 11px/14px var(--font-sans);letter-spacing:.02em;white-space:nowrap;border:1px solid}
+.cv-ev .cv-ico{width:12px;height:12px;vertical-align:0}
+.cv-ev--obs{background:var(--ev-observed);border-color:var(--ev-observed);color:var(--ink-inverse)}
+.cv-ev--rep{background:var(--surface);border-color:var(--ev-reported);color:var(--ev-reported)}
+.cv-ev--cor{background:var(--ev-corroborated);border-color:var(--ev-corroborated);color:var(--ink-inverse);box-shadow:0 0 0 2px var(--surface),0 0 0 3px var(--ev-corroborated)}
+.cv-ev--unk{background:transparent;border-style:dashed;border-color:var(--ev-unknown);color:var(--ev-unknown)}
+
+/* Damage classes */
+.cv-dmg{display:inline-flex;align-items:center;gap:6px;font-size:13px;line-height:18px;white-space:nowrap}
+.cv-dmg i{width:14px;height:14px;flex:none;display:inline-block}
+.cv-dmg--d i{background:var(--dmg-destroyed);background-image:repeating-linear-gradient(45deg,transparent 0 3px,rgba(255,255,255,.55) 3px 4px)}
+.cv-dmg--s i{background:var(--dmg-severe);transform:rotate(45deg) scale(.82)}
+.cv-dmg--m i{width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:13px solid var(--dmg-moderate)}
+.cv-dmg--p i{border:2px dashed var(--ink-2);border-radius:50%;background:var(--dmg-possible)}
+.cv-cand{font:500 10px/12px var(--font-mono);color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em;border:1px solid var(--line);border-radius:var(--radius-sm);padding:1px 4px}
+
+/* Facility status */
+.cv-fac{display:inline-flex;align-items:center;gap:6px;font-size:13px;line-height:18px;white-space:nowrap}
+.cv-fac b{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:var(--radius-sm);font:700 11px/1 var(--font-sans);color:var(--ink-inverse)}
+.cv-fac--ok b{background:var(--st-working)}
+.cv-fac--dmg b{background:var(--st-damaged)}
+.cv-fac--unk b{background:transparent;color:var(--st-unknown);border:1.5px dashed var(--st-unknown)}
+.cv-fac--nd b{background:transparent;color:var(--st-unknown);border:1.5px solid var(--st-unknown)}
+
+/* Range value */
+.cv-range{font-family:var(--font-mono);font-weight:600;font-size:24px;line-height:28px;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.cv-range small{font:500 12px/16px var(--font-sans);color:var(--ink-2);margin-left:4px;letter-spacing:0}
+.cv-range--sm{font-size:15px;line-height:20px}
+
+/* Data age */
+.cv-age{display:inline-flex;align-items:center;gap:4px;font:500 11px/14px var(--font-mono);color:var(--ink-3);white-space:nowrap}
+.cv-age::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--ev-corroborated)}
+.cv-age--aging::before{background:transparent;border:1.5px solid var(--attention);width:5px;height:5px}
+.cv-age--stale{color:var(--attention)}
+.cv-age--stale::before{background:var(--attention);border-radius:1px;transform:rotate(45deg)}
+.cv-age--off::before{background:transparent;border:1.5px dashed var(--ink-3)}
+
+/* Source line */
+.cv-src{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font:500 11px/14px var(--font-mono);color:var(--ink-3)}
+.cv-src a{color:var(--ink-2);text-decoration:underline;text-decoration-color:var(--line-strong);text-underline-offset:2px}
+.cv-src .cv-nasa{font:700 9px/12px var(--font-sans);letter-spacing:.06em;color:var(--accent);border:1px solid var(--accent);border-radius:2px;padding:0 3px}
+
+/* Cards, panels */
+.cv-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md);padding:var(--space-3)}
+.cv-panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg)}
+.cv-float{box-shadow:var(--shadow-float)}
+.cv-sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.cv-kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px;line-height:18px}
+.cv-kv dt{color:var(--ink-2)}
+.cv-kv dd{margin:0}
+.cv-line{display:flex;gap:var(--space-3);padding:10px 0;border-top:1px solid var(--line)}
+.cv-line:first-child{border-top:0}
+
+/* Banners and states */
+.cv-banner{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:var(--radius-md);font-size:13px;line-height:18px;border:1px solid var(--line);background:var(--surface-2)}
+.cv-banner--att{background:var(--attention-soft);border-color:var(--attention);color:var(--ink)}
+.cv-banner--att .cv-ico{color:var(--attention)}
+.cv-banner--info{background:var(--accent-soft);border-color:transparent}
+.cv-banner--info .cv-ico{color:var(--accent)}
+.cv-banner--off{background:var(--surface-3);border-style:dashed;border-color:var(--line-strong)}
+.cv-skel{background:var(--surface-3);border-radius:var(--radius-sm);height:12px;position:relative;overflow:hidden}
+.cv-skel::after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,var(--surface-2),transparent);animation:cvsh 1.4s infinite}
+@keyframes cvsh{to{transform:translateX(100%)}}
+@media (prefers-reduced-motion:reduce){.cv-skel::after{animation:none}}
+
+/* Tags / chips */
+.cv-tag{display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 8px;border-radius:var(--radius-pill);border:1px solid var(--line-strong);font:500 12px/16px var(--font-sans);color:var(--ink-2);background:var(--surface);white-space:nowrap}
+.cv-tag.is-on{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+.cv-count{font:600 11px/16px var(--font-mono);background:var(--surface-3);color:var(--ink);border-radius:var(--radius-pill);padding:0 6px}
+.cv-lock{display:inline-flex;align-items:center;gap:4px;font:600 11px/14px var(--font-sans);color:var(--ink-2)}
+
+/* Toggle (layer switch) */
+.cv-sw{width:28px;height:16px;border-radius:var(--radius-pill);background:var(--surface-3);border:1px solid var(--line-strong);position:relative;flex:none}
+.cv-sw::after{content:"";position:absolute;top:2px;left:2px;width:10px;height:10px;border-radius:50%;background:var(--ink-3)}
+.cv-sw.is-on{background:var(--accent);border-color:var(--accent)}
+.cv-sw.is-on::after{left:14px;background:var(--ink-inverse)}
+
+/* Layer rows */
+.cv-layer{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:var(--radius-sm);font-size:13px;line-height:18px}
+.cv-layer:hover{background:var(--surface-2)}
+.cv-layer.is-on{background:var(--accent-soft)}
+.cv-layer .cv-swatch{width:14px;height:14px;border-radius:2px;flex:none}
+.cv-layer .cv-age{margin-left:auto}
+.cv-layer--locked{color:var(--ink-3)}
+.cv-layer-group{padding:10px 8px 4px;display:flex;align-items:center;justify-content:space-between}
+
+/* App shell */
+.cv-app{display:grid;grid-template-rows:52px 1fr;height:100vh;min-height:0;background:var(--bg)}
+.cv-top{display:flex;align-items:center;gap:var(--space-4);padding:0 var(--space-4);background:var(--surface);border-bottom:1px solid var(--line)}
+.cv-brand{display:flex;align-items:center;gap:8px;font:700 15px/1 var(--font-sans);letter-spacing:.12em}
+.cv-brand small{font:500 10px/12px var(--font-mono);letter-spacing:.04em;color:var(--ink-3);display:block;margin-top:2px}
+.cv-fresh{display:flex;gap:14px;align-items:center;padding:0 12px;height:32px;border-left:1px solid var(--line);border-right:1px solid var(--line)}
+.cv-fresh span{display:flex;flex-direction:column;font:600 10px/12px var(--font-sans);letter-spacing:.04em;color:var(--ink-2)}
+.cv-fresh .cv-age{font-size:10px;line-height:12px}
+.cv-body{display:grid;min-height:0;overflow:hidden}
+.cv-rail{background:var(--surface);border-right:1px solid var(--line);overflow:hidden;display:flex;flex-direction:column;min-height:0}
+.cv-side{background:var(--surface);border-left:1px solid var(--line);overflow:hidden;display:flex;flex-direction:column;min-height:0}
+.cv-sec{padding:var(--space-4);border-bottom:1px solid var(--line)}
+.cv-scroll{overflow:auto;min-height:0;flex:1}
+.cv-input{display:flex;align-items:center;gap:6px;height:32px;padding:0 10px;border:1px solid var(--line-strong);border-radius:var(--radius-md);background:var(--surface);color:var(--ink-3);font-size:13px}
+.cv-avatar{width:28px;height:28px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;font:600 11px/1 var(--font-sans)}
+
+/* Map */
+.cv-map{position:relative;overflow:hidden;background:var(--map-water);min-height:0}
+.cv-map>svg.cv-mapsvg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.cv-mapctl{position:absolute;display:flex;flex-direction:column;gap:6px;z-index:var(--z-map-overlay)}
+.cv-mapbox{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md);box-shadow:var(--shadow-float)}
+.cv-zoom{display:flex;flex-direction:column}
+.cv-zoom span{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--line);color:var(--ink-2)}
+.cv-zoom span:last-child{border-bottom:0}
+.cv-legend{padding:10px 12px;font-size:12px;line-height:16px;display:flex;flex-direction:column;gap:5px}
+.cv-attrib{position:absolute;right:8px;bottom:6px;font:500 10px/12px var(--font-mono);color:var(--ink-2);background:var(--surface);opacity:.9;padding:2px 6px;border-radius:var(--radius-sm);z-index:var(--z-map-overlay)}
+.cv-scale{font:500 10px/12px var(--font-mono);color:var(--ink-2);display:flex;align-items:flex-end;gap:6px}
+.cv-scale i{display:block;width:60px;height:5px;border:1.5px solid var(--ink-2);border-top:0}
+.cv-demo{position:absolute;top:10px;left:50%;transform:translateX(-50%);font:600 10px/12px var(--font-mono);letter-spacing:.06em;color:var(--ink-2);background:var(--surface);border:1px dashed var(--line-strong);border-radius:var(--radius-sm);padding:3px 8px;z-index:var(--z-map-overlay);white-space:nowrap}
+
+/* Time slider */
+.cv-time{padding:10px 14px 12px;display:flex;flex-direction:column;gap:8px}
+.cv-track{position:relative;height:34px}
+.cv-track .bar{position:absolute;left:0;right:0;top:14px;height:4px;background:var(--surface-3);border-radius:2px}
+.cv-track .fill{position:absolute;left:0;top:14px;height:4px;background:var(--accent);border-radius:2px}
+.cv-track .pass{position:absolute;top:8px;width:2px;height:16px;background:var(--line-strong);transform:translateX(-1px)}
+.cv-track .pass.has{background:var(--radar);width:4px;transform:translateX(-2px)}
+.cv-track .pass.miss{background:transparent;border-left:2px dotted var(--ink-3);height:16px}
+.cv-track .knob{position:absolute;top:6px;width:20px;height:20px;border-radius:50%;background:var(--surface);border:2px solid var(--accent);transform:translateX(-10px);box-shadow:var(--shadow-float)}
+.cv-track .knob.b{border-color:var(--ink-2);border-style:dashed}
+.cv-track .lbl{position:absolute;top:24px;font:500 10px/12px var(--font-mono);color:var(--ink-3);transform:translateX(-50%);white-space:nowrap}
+
+/* Alert card */
+.cv-alert{display:grid;grid-template-columns:32px 1fr;gap:10px;padding:12px var(--space-4);border-bottom:1px solid var(--line);position:relative}
+.cv-alert:hover{background:var(--surface-2)}
+.cv-alert.is-new::before{content:"";position:absolute;left:0;top:12px;bottom:12px;width:0;border-left:3px solid var(--attention)}
+.cv-alert.is-sel{background:var(--accent-soft)}
+.cv-alert-ico{width:32px;height:32px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;background:var(--surface-2);color:var(--ink)}
+.cv-alert-ico .cv-ico{width:18px;height:18px}
+.cv-alert-ico--fire{color:var(--fire)}
+.cv-alert-ico--power{color:var(--attention)}
+.cv-alert-ico--net{color:var(--ink-2)}
+.cv-alert-ico--radar{color:var(--radar)}
+.cv-alert-ico--event{color:var(--ev-reported)}
+.cv-alert h4{margin:0;font-size:14px;line-height:18px;font-weight:600}
+.cv-alert .meta{display:flex;flex-wrap:wrap;gap:4px 10px;font:500 11px/14px var(--font-mono);color:var(--ink-3);margin-top:3px}
+
+/* Route option */
+.cv-route{border:1px solid var(--line);border-radius:var(--radius-md);background:var(--surface);overflow:hidden}
+.cv-route.is-sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.cv-route.is-flag{border-color:var(--attention)}
+.cv-route-h{display:flex;align-items:center;gap:10px;padding:10px 12px}
+.cv-route-key{width:28px;height:28px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font:700 13px/1 var(--font-mono);color:var(--ink-inverse);flex:none}
+.cv-route-key--a{background:var(--route-a)}
+.cv-route-key--b{background:var(--route-b)}
+.cv-route-key--c{background:var(--route-c)}
+.cv-route-big{font:600 18px/22px var(--font-mono)}
+.cv-route-rows{display:grid;grid-template-columns:1fr auto;gap:0;font-size:12px;line-height:16px;border-top:1px solid var(--line)}
+.cv-route-rows>div{padding:6px 12px;border-bottom:1px solid var(--line)}
+.cv-route-rows>div:nth-child(even){text-align:right;font-family:var(--font-mono);font-weight:500}
+.cv-dash{display:inline-block;width:26px;height:0;border-top:3px solid;vertical-align:middle}
+.cv-dash--a{border-color:var(--route-a)}
+.cv-dash--b{border-color:var(--route-b);border-top-style:dashed}
+.cv-dash--c{border-color:var(--route-c);border-top-style:dotted}
+
+/* Compare table */
+.cv-table{width:100%;border-collapse:collapse;font-size:13px;line-height:18px}
+.cv-table th{text-align:left;font:600 11px/14px var(--font-sans);letter-spacing:.05em;text-transform:uppercase;color:var(--ink-2);padding:8px 10px;border-bottom:1px solid var(--line-strong);white-space:nowrap}
+.cv-table td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.cv-table td.num{font-family:var(--font-mono);font-weight:500;white-space:nowrap}
+.cv-table tr.is-sel td{background:var(--accent-soft)}
+.cv-yes,.cv-no,.cv-unk{display:inline-flex;align-items:center;gap:4px;font-weight:500}
+.cv-yes .cv-ico{color:var(--st-working)}
+.cv-no .cv-ico{color:var(--st-damaged)}
+.cv-unk .cv-ico{color:var(--st-unknown)}
+
+/* Stat blocks */
+.cv-stat{padding:12px;border:1px solid var(--line);border-radius:var(--radius-md);background:var(--surface)}
+.cv-stat .cv-eyebrow{margin-bottom:4px}
+.cv-bring{display:grid;grid-template-columns:32px 1fr;gap:10px;align-items:start;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius-md);background:var(--surface)}
+.cv-bring .ic{width:32px;height:32px;border-radius:var(--radius-md);background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center}
+.cv-bring .lost{font-size:12px;line-height:16px;color:var(--ink-2)}
+.cv-bring .get{font-weight:600}
+
+/* Shelter */
+.cv-shelter{display:grid;grid-template-columns:28px 1fr auto;gap:10px;padding:12px;border-bottom:1px solid var(--line)}
+.cv-rank{width:24px;height:24px;border-radius:var(--radius-sm);background:var(--ink);color:var(--surface);font:700 12px/24px var(--font-mono);text-align:center}
+.cv-rank--land{background:transparent;color:var(--ink);border:1.5px dashed var(--ink)}
+
+/* Phone frame */
+.cv-phone{width:375px;height:780px;border-radius:28px;border:8px solid var(--ink);background:var(--bg);overflow:hidden;display:flex;flex-direction:column;position:relative}
+.cv-phone-bar{height:28px;display:flex;justify-content:space-between;align-items:center;padding:0 18px;font:600 11px/1 var(--font-sans);color:var(--ink)}
+
+/* Print sheet: always light */
+.cv-paper{background:#fff;color:#121c1c;width:794px;min-height:1123px;padding:40px 44px;box-shadow:var(--shadow-float);font-size:12px;line-height:17px}
+
+/* Ring of focus for selected map things */
+.cv-pulse{animation:cvp 2.4s ease-out infinite;transform-origin:center;transform-box:fill-box}
+@keyframes cvp{0%{opacity:.6;transform:scale(.6)}100%{opacity:0;transform:scale(1.6)}}
+@media (prefers-reduced-motion:reduce){.cv-pulse{animation:none;opacity:.3}}
+.cv-legend .cv-row{flex-wrap:nowrap}
+.cv-route-h{flex-wrap:nowrap}
+.cv-route-h .cv-row{flex-wrap:nowrap}
+.cv-route-big{font-size:16px;line-height:20px;white-space:nowrap}
+.cv-route-rows>div:nth-child(odd){color:var(--ink-2)}
+.cv-track{height:40px}
+.cv-top{white-space:nowrap;gap:14px}
+.cv-top .cv-input{flex:none}
+.cv-fresh{gap:12px}
+.cv-fresh span{white-space:nowrap}
+
+/* Pass picker (replaces the abstract track) */
+.cv-tl{padding:12px 16px 12px;display:flex;flex-direction:column;gap:10px}
+.cv-tl-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px}
+.cv-tl-row{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:4px;padding-top:8px}
+.cv-pass{position:relative;border:1px solid var(--line-strong);border-radius:var(--radius-md);padding:5px 2px 4px;text-align:center;background:var(--surface);cursor:pointer;min-width:0}
+.cv-pass b{display:block;font:600 12px/16px var(--font-mono);white-space:nowrap}
+.cv-pass small{display:block;font-size:10px;line-height:13px;color:var(--ink-3);white-space:nowrap}
+.cv-pass.has small{color:var(--radar);font-weight:600}
+.cv-pass.has small::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--radar);margin-right:3px;vertical-align:1px}
+.cv-pass.is-miss{border-style:dashed;background:transparent;cursor:default}
+.cv-pass.is-miss b{color:var(--ink-3);text-decoration:line-through}
+.cv-pass.is-from{border:2px dashed var(--ink);padding:4px 1px 3px}
+.cv-pass.is-to{background:var(--accent);border-color:var(--accent)}
+.cv-pass.is-to b,.cv-pass.is-to small{color:var(--ink-inverse)}
+.cv-pass.is-to.has small::before{background:var(--ink-inverse)}
+.cv-pass .tag{position:absolute;top:-9px;left:50%;transform:translateX(-50%);font:700 9px/14px var(--font-sans);letter-spacing:.06em;background:var(--ink);color:var(--surface);padding:0 5px;border-radius:2px}
+.cv-pass.is-to .tag{background:var(--accent);color:var(--ink-inverse)}
+.cv-tl-key{display:flex;gap:16px;align-items:center;font-size:11px;line-height:14px;color:var(--ink-2);flex-wrap:wrap}
+.cv-tl-key span{display:inline-flex;align-items:center;gap:5px}
+.cv-tl-key i{display:inline-block;width:14px;height:10px;border-radius:2px}
+.cv-tl-key .k-to{background:var(--accent)}
+.cv-tl-key .k-from{border:2px dashed var(--ink)}
+.cv-tl-key .k-has{width:8px;height:8px;border-radius:50%;background:var(--radar)}
+.cv-tl-key .k-miss{border:1px dashed var(--line-strong)}
+
+/* Click a place → available routes */
+.cv-pop{position:absolute;width:290px;z-index:12;padding:12px}
+.cv-pop-r{display:grid;grid-template-columns:24px 1fr auto;gap:8px;align-items:center;padding:7px 0;border-top:1px solid var(--line);font-size:12px;line-height:16px}
+.cv-seg span,.cv-seg button{white-space:nowrap}
+.cv-tl-head .cv-h3{white-space:nowrap}
+.cv-scroll>*{flex-shrink:0}
+@media (max-width:1380px){.cv-fresh span:nth-child(n+4){display:none}.cv-top .cv-input{width:150px!important}.cv-top nav{gap:12px!important}}
+@media (max-width:1180px){.cv-fresh{display:none}}
+</style><style>#v-main .dock{position:absolute;left:12px;top:12px;z-index:22;display:flex;flex-direction:column;gap:4px;padding:4px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow-float)}
+#v-main .dock span{position:relative;width:44px;height:44px;border-radius:var(--radius-md);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font:600 9px/10px var(--font-sans);color:var(--ink-2)}
+#v-main .dock span .cv-ico{width:18px;height:18px}
+#v-main .dock span.is-on{background:var(--accent-soft);color:var(--accent)}
+#v-main .dock span b{position:absolute;top:3px;right:3px;min-width:15px;height:15px;border-radius:8px;background:var(--attention);color:#fff;font:700 9px/15px var(--font-mono);text-align:center;padding:0 3px}
+#v-main .ov{position:absolute;z-index:21;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow-float);display:flex;flex-direction:column;overflow:hidden}
+#v-main .ov-h{display:flex;align-items:center;justify-content:space-between;padding:10px 10px 8px 14px;border-bottom:1px solid var(--line)}
+#v-main .ag{border-bottom:1px solid var(--line)}
+#v-main .ag-h{display:flex;gap:10px;align-items:center;padding:9px 14px;font-size:13px;line-height:17px}
+#v-main .ag-h>.cv-ico{color:var(--ink-2)}
+#v-main .ag-h .chev{color:var(--ink-3)}
+#v-main .ag.is-open{background:var(--accent-soft)}
+#v-main .ag-b{padding:0 14px 12px 40px}
+#v-main .pill{position:absolute;z-index:21;display:flex;align-items:center;gap:8px;padding:6px 8px 6px 12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-pill);box-shadow:var(--shadow-float);font-size:13px}
+#v-alert .sec{padding:14px 20px;border-bottom:1px solid var(--line)}
+#v-alert .sec h3{margin:0 0 10px;font-size:13px;line-height:18px;font-weight:600;display:flex;align-items:center;gap:6px}
+#v-alert .frow{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:7px 0;border-top:1px solid var(--line);font-size:13px;line-height:18px}
+#v-alert .frow:first-of-type{border-top:0}
+#v-alert .mini{display:grid;grid-template-columns:22px 1fr auto;gap:8px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:var(--radius-md);font-size:13px}
+#v-area .wrap{display:grid;grid-template-columns:1fr 380px;gap:20px;padding:20px 24px;overflow:hidden;min-height:0}
+#v-area .box{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);padding:16px}
+#v-area .box h3{margin:0 0 10px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);display:flex;gap:6px;align-items:center}
+#v-area .ln{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:8px 0;border-top:1px solid var(--line);font-size:13px;line-height:18px}
+#v-area .ln:first-of-type{border-top:0}
+#v-area .ln .cv-src{grid-column:1/-1}
+#v-brief{background:var(--surface-3)}
+#v-brief .stage{padding:36px 0;display:flex;justify-content:center}
+#v-brief .p h2{font:600 10px/14px var(--font-sans);letter-spacing:.08em;text-transform:uppercase;color:#44514f;margin:14px 0 6px;padding-bottom:4px;border-bottom:1.5px solid #121c1c}
+#v-brief .p .r{display:grid;grid-template-columns:1fr auto auto;gap:8px;padding:4px 0;border-bottom:1px solid #e0e3dd;align-items:baseline}
+#v-brief .p sup{font:600 8px/1 var(--font-mono);color:#5f6b69}
+#v-brief .p .ev{font:600 9px/12px var(--font-sans);border:1px solid #121c1c;padding:0 4px;border-radius:2px;white-space:nowrap}
+#v-brief .p .ev.o{background:#121c1c;color:#fff}
+#v-brief .p .ev.u{border-style:dashed}
+#v-brief .p .ev.c{background:#121c1c;color:#fff;outline:1px solid #121c1c;outline-offset:1px}
+#v-brief .box2{border:1.5px solid #121c1c;padding:8px 10px;display:grid;grid-template-columns:18px 1fr;gap:2px 8px;align-items:start}
+#v-brief .cb{width:12px;height:12px;border:1.5px solid #121c1c;margin-top:2px}
+#v-routes .fld{display:grid;grid-template-columns:20px 1fr;gap:4px 8px;align-items:center;padding:8px 10px;border:1px solid var(--line-strong);border-radius:var(--radius-md);font-size:13px}
+#v-routes .fld small{grid-column:2;font-size:11px;color:var(--ink-3)}
+#v-routes .turn{display:grid;grid-template-columns:24px 1fr auto;gap:8px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:18px}
+#v-routes .turn .cv-ico{color:var(--ink-2)}
+#v-shelters .ppl{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+#v-shelters .ppl span{border:1px solid var(--line-strong);border-radius:var(--radius-md);padding:6px 6px;font-size:11px;line-height:14px;color:var(--ink-2);text-align:center}
+#v-shelters .ppl span b{display:block;font:600 13px/16px var(--font-mono);color:var(--ink)}
+#v-shelters .ppl .is-on{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 1px var(--accent)}
+#v-shelters .ln{display:grid;grid-template-columns:22px 1fr auto;gap:2px 8px;padding:9px 0;border-top:1px solid var(--line);font-size:13px;line-height:18px;align-items:start}
+#v-shelters .ln .cv-src{grid-column:2/-1}
+#v-shelters .ln .cv-ico{color:var(--ink-2);margin-top:1px}
+#v-inspect .ag{display:grid;grid-template-columns:28px 1fr auto;gap:2px 10px;padding:11px 0;border-top:1px solid var(--line);align-items:start}
+#v-inspect .ag .who{font:600 10px/14px var(--font-sans);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+#v-inspect .ag .res{font-size:14px;line-height:20px}
+#v-inspect .ag .cv-src{grid-column:2/-1}
+#v-inspect .ag .num{width:24px;height:24px;border-radius:var(--radius-sm);background:var(--surface-2);display:flex;align-items:center;justify-content:center;color:var(--ink-2)}
+#v-inspect .combo{padding:12px;border-radius:var(--radius-md);background:var(--ev-corroborated);color:var(--ink-inverse);display:flex;gap:10px;align-items:center}
+#v-sources .wrap{display:grid;grid-template-columns:1fr 360px;gap:20px;padding:20px 24px;overflow:hidden;min-height:0}
+#v-sources .nasa{display:grid;grid-template-columns:1.6fr repeat(5,1fr);gap:10px}
+#v-sources .tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md);padding:12px;display:flex;flex-direction:column;gap:4px}
+#v-sources .tile b{font-size:14px}
+#v-sources .core{background:var(--accent);color:var(--ink-inverse);border-color:var(--accent)}
+#v-sources .core .cv-xs,#v-sources .core .cv-data{color:var(--ink-inverse);opacity:.9}
+#v-sources .strip{display:flex;gap:3px;margin-top:6px}
+#v-sources .strip i{flex:1;height:14px;background:var(--ink-inverse);opacity:.9;border-radius:1px}
+#v-sources .strip i.m{background:transparent;border:1px dashed var(--ink-inverse)}
+#v-sources .step{display:grid;grid-template-columns:14px 1fr;gap:8px;position:relative;padding-bottom:12px}
+#v-sources .step::before{content:"";position:absolute;left:6px;top:14px;bottom:0;border-left:1.5px solid var(--line-strong)}
+#v-sources .step:last-child::before{display:none}
+#v-sources .step .dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--accent);background:var(--surface);margin-top:2px}
+#v-signin .dlg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:420px;padding:24px;z-index:40}
+#v-signin .f{display:flex;flex-direction:column;gap:4px;margin-top:12px}
+#v-signin .f label{font-size:12px;font-weight:500;color:var(--ink-2)}
+#v-signin .f span{height:36px;border:1px solid var(--line-strong);border-radius:var(--radius-md);padding:0 10px;display:flex;align-items:center;font-size:13px;background:var(--surface)}
+#v-signin .err{display:flex;gap:10px;padding:10px 12px;margin-top:14px;border-radius:var(--radius-md);border:1.5px solid var(--st-damaged);font-size:13px;line-height:18px}
+#v-signin .err .cv-ico{color:var(--st-damaged)}
+#v-signin .hidden{display:flex;gap:10px;align-items:center;padding:12px;border:1px dashed var(--line-strong);border-radius:var(--radius-md);font-size:13px;color:var(--ink-2)}
+#v-phone{background:var(--surface-3)}
+#v-phone .stage{display:flex;gap:56px;justify-content:center;padding:50px 0}
+#v-phone .hd{padding:8px 16px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);background:var(--surface)}
+#v-phone .tb{margin-top:auto;display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);background:var(--surface);padding:8px 0 14px}
+#v-phone .tb span{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;color:var(--ink-3)}
+#v-phone .tb .is-on{color:var(--accent);font-weight:600}
+#v-phone .tb .cv-ico{width:20px;height:20px}
+#v-phone .ph .cv-alert{padding:12px 14px}
+#v-phone .cap{text-align:center;margin-top:12px;font-size:13px;color:var(--ink-2)}</style><style>[hidden]{display:none!important}
+.view{min-height:100vh}
+.view[hidden]{display:none!important}
+.cv-btn,.cv-tag,.cv-seg span,.cv-alert,.cv-route,.cv-shelter,.cv-layer,.ag-h,.cv-tabs span,.dock span,.cv-pass,.cv-avatar,.cv-pop-r,.cv-table tbody tr,[data-go]{cursor:pointer}
+.cv-btn:active{transform:translateY(1px)}
+.cv-alert[data-hide],.cv-layer[data-hide]{display:none}
+#toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);opacity:0;transition:.2s;background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:var(--radius-md);font-size:13px;z-index:100;pointer-events:none;box-shadow:var(--shadow-float)}
+#toast.on{opacity:1;transform:translateX(-50%)}
+#umenu{position:fixed;top:50px;right:12px;width:220px;z-index:90;padding:6px}
+#umenu div{padding:8px 10px;border-radius:var(--radius-sm);font-size:13px;cursor:pointer;display:flex;gap:8px;align-items:center}
+#umenu div:hover{background:var(--surface-2)}
+#jump{position:fixed;left:12px;bottom:12px;z-index:95;display:flex;gap:4px;align-items:center;padding:4px 6px;background:var(--surface);border:1px dashed var(--line-strong);border-radius:var(--radius-pill);font:500 11px/14px var(--font-sans);box-shadow:var(--shadow-float)}
+#jump span{padding:3px 8px;border-radius:var(--radius-pill);cursor:pointer;color:var(--ink-2)}
+#jump span.is-on{background:var(--ink);color:var(--surface)}
+#jump.min span:not(:first-child){display:none}
+.cv-layer.is-locked{opacity:.55}
+.cv-route{transition:box-shadow .15s}
+html,body{overflow-x:hidden}
+#jump{left:50%;transform:translateX(-50%)}
+#v-routes main{grid-template-rows:1fr auto!important}
+#v-routes main>div:last-child{max-height:38vh;overflow:auto}
+</style></head><body><section class="view" id="v-main" data-view="main">
+<div class="cv-app">
+<div data-top="Map"></div>
+<main class="cv-map" id="mainmap" style="min-height:0" data-map='{"radar":1,"dmg":1,"fac":1,"services":1,"fires":1,"alerts":1,"net":1,"people":1,"focus":"A7","vb":[-80,70,1080,600]}'>
+  <div class="cv-demo">ILLUSTRATIVE DEMO DATA · NOT AN ASSESSMENT</div>
+  <div class="dock">
+    <span data-p="layers"><i data-i="layers"></i>Layers</span>
+    <span class="is-on" data-p="agents"><i data-i="grid"></i>Agents</span>
+    <span data-p="alerts"><i data-i="bell"></i>Alerts<b>6</b></span>
+    <span class="is-on" data-p="time"><i data-i="clock"></i>Time</span>
+    <span data-p="legend"><i data-i="doc"></i>Legend</span>
+  </div>
+  <div class="ov" id="p-agents" style="left:76px;top:12px;width:330px;bottom:170px">
+    <div class="ov-h"><span class="cv-row" style="gap:8px"><i data-i="grid"></i><b>AI agent results</b><span class="cv-count">9</span></span>
+      <span class="cv-btn cv-btn--ghost cv-btn--sm" title="Close (Esc)"><i data-i="x"></i>Close</span></div>
+    <div class="cv-xs cv-faint" style="padding:8px 14px">What changed in the map view since the last data · found automatically</div>
+    <div style="flex:1;overflow:hidden;border-top:1px solid var(--line)">
+      <div class="ag is-open"><div class="ag-h"><i data-i="sat"></i><div class="cv-grow"><b>Damage</b><div class="cv-xs cv-muted">46 new building candidates</div></div><span data-ev="obs"></span><i data-i="chevd" class="chev"></i></div>
+        <div class="ag-b"><div class="cv-row" style="gap:12px"><span class="cv-dmg cv-dmg--d"><i></i>9</span><span class="cv-dmg cv-dmg--s"><i></i>14</span><span class="cv-dmg cv-dmg--m"><i></i>11</span><span class="cv-dmg cv-dmg--p"><i></i>12</span></div>
+        <div class="cv-src" style="margin-top:6px"><span class="cv-nasa">NASA</span>NISAR GCOV/GSLC · 22 Oct → 03 Nov</div>
+        <div class="cv-row" style="margin-top:8px;gap:6px"><span class="cv-btn cv-btn--sm">Show on map</span><span class="cv-btn cv-btn--sm">List</span></div></div></div>
+      <div class="ag"><div class="ag-h"><i data-i="building"></i><div class="cv-grow"><b>Facilities</b><div class="cv-xs cv-muted">1 clinic, 1 water site damaged</div></div><span data-ev="cor"></span><i data-i="chev" class="chev"></i></div></div>
+      <div class="ag"><div class="ag-h"><i data-i="bolt"></i><div class="cv-grow"><b>Services lost</b><div class="cv-xs cv-muted">Power, water, health, comms · Area 7</div></div><span data-ev="obs"></span><i data-i="chev" class="chev"></i></div></div>
+      <div class="ag"><div class="ag-h"><i data-i="people"></i><div class="cv-grow"><b>People affected</b><div class="cv-xs cv-muted">4,000–6,500 · 1,200–2,000 displaced</div></div><span data-ev="rep"></span><i data-i="chev" class="chev"></i></div></div>
+      <div class="ag"><div class="ag-h"><i data-i="fire"></i><div class="cv-grow"><b>Hazards</b><div class="cv-xs cv-muted">2 fires · 1 reported attack</div></div><span data-ev="obs"></span><i data-i="chev" class="chev"></i></div></div>
+      <div class="ag"><div class="ag-h"><i data-i="route"></i><div class="cv-grow"><b>Routes</b><div class="cv-xs cv-muted">3 options · 1 new closure</div></div><span data-ev="rep"></span><i data-i="chev" class="chev"></i></div></div>
+      <div class="ag"><div class="ag-h"><i data-i="tent"></i><div class="cv-grow"><b>Shelters</b><div class="cv-xs cv-muted">6 candidates for checking</div></div><span data-ev="obs"></span><i data-i="chev" class="chev"></i></div></div>
+      <div class="ag"><div class="ag-h"><i data-i="move"></i><div class="cv-grow"><b>Movement</b><div class="cv-xs cv-muted">Leaving Area 4 → around Tyre</div></div><span data-ev="rep"></span><i data-i="chev" class="chev"></i></div></div>
+    </div>
+  </div>
+  <div class="pill" id="p-pill" style="right:60px;top:12px"><i data-i="bell" style="color:var(--attention)"></i><b>6 new alerts</b><span class="cv-muted cv-sm">· Fire detected near Tibnine, 11:52</span><span class="cv-btn cv-btn--sm">Open</span></div>
+  <div class="ov" id="p-layers" hidden style="left:76px;top:12px;width:320px;bottom:170px"><div class="ov-h"><span class="cv-row" style="gap:8px"><i data-i="layers"></i><b>Layers</b></span><span class="cv-btn cv-btn--ghost cv-btn--sm" data-close><i data-i="x"></i>Close</span></div><div style="padding:4px 8px;overflow:hidden"><div class="cv-layer-group"><span class="cv-eyebrow">Agent results</span></div><div class="cv-layer is-on" data-flag="dmg"><span class="cv-sw is-on"></span><span class="cv-swatch" style="background:var(--dmg-severe)"></span>Damage per building<span class="cv-age">03 Nov</span></div><div class="cv-layer is-on" data-flag="fac"><span class="cv-sw is-on"></span><span class="cv-swatch" style="background:var(--st-working)"></span>Facility status<span class="cv-age">12 Nov</span></div><div class="cv-layer is-on" data-flag="services"><span class="cv-sw is-on"></span><span class="cv-swatch" style="background:repeating-linear-gradient(45deg,var(--attention) 0 2px,transparent 2px 5px)"></span>Services lost<span class="cv-age">12 Nov</span></div><div class="cv-layer is-on" data-flag="people"><span class="cv-sw is-on"></span><span class="cv-swatch" style="border:1.5px solid var(--map-area)"></span>Affected &amp; displaced<span class="cv-age">10 Nov</span></div><div class="cv-layer" data-flag="shelters" data-lock="1"><span class="cv-sw"></span><span class="cv-swatch" style="background:var(--ink)"></span>Shelter candidates<span class="cv-age">03 Nov</span></div><div class="cv-layer" data-flag="routes" data-lock="1"><span class="cv-sw"></span><span class="cv-swatch" style="background:var(--route-a)"></span>Route options<span class="cv-age">13 Nov</span></div><div class="cv-layer" data-flag="moves" data-lock="1"><span class="cv-sw"></span><span class="cv-swatch" style="border-top:2px dashed var(--ink);height:0"></span>Movement trend<span class="cv-age">10 Nov</span></div><div class="cv-layer is-on" data-flag="alerts"><span class="cv-sw is-on"></span><span class="cv-swatch" style="background:var(--ink);border-radius:50%"></span>New alerts<span class="cv-age">live</span></div><div class="cv-layer-group"><span class="cv-eyebrow">Data layers</span><span class="cv-xs cv-faint">NASA first</span></div><div class="cv-layer is-on" data-flag="radar"><span class="cv-sw is-on"></span><span class="cv-swatch" style="background:var(--radar)"></span>NISAR radar change <span class="cv-tag" style="height:16px;font-size:9px;padding:0 4px">CORE</span><span class="cv-age">03 Nov</span></div><div class="cv-layer" data-flag="lights"><span class="cv-sw"></span><span class="cv-swatch" style="background:var(--dmg-possible)"></span>Night lights<span class="cv-age">12 Nov</span></div><div class="cv-layer is-on" data-flag="fires"><span class="cv-sw is-on"></span><span class="cv-swatch" style="background:var(--fire);border-radius:50%"></span>Active fires<span class="cv-age">11:52</span></div><div class="cv-layer is-on" data-flag="net"><span class="cv-sw is-on"></span><span class="cv-swatch" style="background:var(--ink-3)"></span>Internet outages<span class="cv-age">live</span></div><div class="cv-layer" data-flag="pop"><span class="cv-sw"></span><span class="cv-swatch" style="background:var(--map-area);opacity:.4"></span>Population density<span class="cv-age">2025</span></div><div class="cv-layer" data-flag="buildings"><span class="cv-sw"></span><span class="cv-swatch" style="background:var(--ink-3)"></span>Buildings<span class="cv-age">12 Nov</span></div><div class="cv-layer" data-flag="events"><span class="cv-sw"></span><span class="cv-swatch" style="border:2px solid var(--ev-reported);border-radius:50%"></span>Conflict events<span class="cv-age">wk 45</span></div><div class="cv-layer" data-flag="attacks"><span class="cv-sw"></span><span class="cv-swatch" style="border:2px solid var(--ev-reported)"></span>Attacks on health, water, schools<span class="cv-age">02 Nov</span></div><div class="cv-layer" data-flag="valid"><span class="cv-sw"></span><span class="cv-swatch" style="border:1.5px solid var(--ink)"></span>Validation (UNOSAT/UNDP)<span class="cv-age">18 Oct</span></div></div></div><div class="ov" id="p-alerts" hidden style="right:56px;top:12px;width:360px;bottom:170px"><div class="ov-h"><span class="cv-row" style="gap:8px"><i data-i="bell"></i><b>Alerts</b><span class="cv-count">6 new</span></span><span class="cv-btn cv-btn--ghost cv-btn--sm" data-close><i data-i="x"></i>Close</span></div><div class="cv-row" style="gap:6px;padding:8px 14px"><span class="cv-tag is-on" data-af="all">All</span><span class="cv-tag" data-af="fire">Fire</span><span class="cv-tag" data-af="power">Power</span><span class="cv-tag" data-af="net">Internet</span><span class="cv-tag" data-af="radar">Radar</span><span class="cv-tag" data-af="event">Reports</span></div><div style="overflow:hidden;border-top:1px solid var(--line)"><div class="cv-alert is-new is-sel"><span class="cv-alert-ico cv-alert-ico--fire"><i data-i="fire"></i></span><div><div class="cv-row" style="justify-content:space-between;gap:6px;flex-wrap:nowrap"><h4>Fire detected</h4><span class="cv-ev cv-ev--obs"><i data-i="eye"></i>Observed</span></div><div class="cv-sm">Near Tibnine · Area 7</div><div class="meta"><span>13 Nov 11:52</span><span>VIIRS · NOAA-21</span><span>1 h ago</span></div><div class="cv-xs cv-muted" style="margin-top:4px">Clinic and school within 1 km · power already lost here</div></div></div><div class="cv-alert is-new"><span class="cv-alert-ico cv-alert-ico--net"><i data-i="wifioff"></i></span><div><div class="cv-row" style="justify-content:space-between;gap:6px;flex-wrap:nowrap"><h4>Internet outage</h4><span class="cv-ev cv-ev--rep"><i data-i="quote"></i>Reported</span></div><div class="cv-sm">Nabatieh · Area 2</div><div class="meta"><span>since 09:10</span><span>IODA</span><span>ongoing 5 h</span></div></div></div><div class="cv-alert"><span class="cv-alert-ico cv-alert-ico--radar"><i data-i="sat"></i></span><div><div class="cv-row" style="justify-content:space-between;gap:6px;flex-wrap:nowrap"><h4>Building change from radar</h4><span class="cv-ev cv-ev--cor"><i data-i="rings"></i>Corroborated</span></div><div class="cv-sm">Area 7 · neighbourhood level</div><div class="meta"><span>pass 03 Nov</span><span>NISAR GCOV T151</span><span>+ ACLED 04 Nov</span></div><div class="cv-xs cv-muted" style="margin-top:4px">46 building candidates · shown after 72 h delay</div></div></div><div class="cv-alert"><span class="cv-alert-ico cv-alert-ico--power"><i data-i="bolt"></i></span><div><div class="cv-row" style="justify-content:space-between;gap:6px;flex-wrap:nowrap"><h4>Night-light drop · possible power loss</h4><span class="cv-ev cv-ev--obs"><i data-i="eye"></i>Observed</span></div><div class="cv-sm">Bint Jbeil · Area 4</div><div class="meta"><span>12 Nov</span><span>Black Marble · NOAA-20</span></div><div class="cv-xs cv-muted" style="margin-top:4px">Radiance down 52–64% from Sep baseline</div></div></div></div></div><div class="ov" id="p-legend" hidden style="left:76px;bottom:170px;padding:8px"><div class="cv-row" style="gap:8px;align-items:flex-start"><div class="cv-mapbox cv-legend" style="width:250px">
+<span class="cv-eyebrow">Building damage · candidates</span><span class="cv-dmg cv-dmg--d"><i></i>Destroyed</span><span class="cv-dmg cv-dmg--s"><i></i>Severely damaged</span><span class="cv-dmg cv-dmg--m"><i></i>Moderately damaged</span><span class="cv-dmg cv-dmg--p"><i></i>Possibly damaged</span>
+<span class="cv-eyebrow" style="margin-top:6px">Facilities</span><div class="cv-row" style="gap:10px"><span class="cv-fac cv-fac--ok"><b>✓</b>Working</span><span class="cv-fac cv-fac--dmg"><b>✕</b>Damaged</span><span class="cv-fac cv-fac--unk"><b>?</b>Unknown</span></div>
+<span class="cv-eyebrow" style="margin-top:6px">Other</span>
+<div class="cv-row" style="gap:6px"><i style="width:10px;height:10px;background:var(--radar);display:inline-block"></i>Radar change (NISAR)</div>
+<div class="cv-row" style="gap:6px"><i style="width:14px;height:10px;background:repeating-linear-gradient(45deg,var(--attention) 0 2px,transparent 2px 5px);opacity:.7;display:inline-block"></i>Services lost (area)</div>
+</div>
+<div class="cv-mapbox cv-legend" style="width:250px"><span class="cv-eyebrow">Hazards and access</span>
+<div class="cv-row" style="gap:6px"><span style="width:14px;height:14px;border-radius:50%;background:var(--fire);display:inline-block"></span>Fire detected</div>
+<div class="cv-row" style="gap:6px"><svg width="16" height="16" viewBox="-9 -9 18 18"><path d="M0 -8 7 -4 7 4 0 8 -7 4 -7 -4Z" style="fill:var(--surface);stroke:var(--ev-reported)" stroke-width="2"/></svg>Reported attack (health, water, school)</div>
+<div class="cv-row" style="gap:6px"><svg width="16" height="16" viewBox="-8 -8 16 16"><rect x="-7" y="-7" width="14" height="14" rx="2" style="fill:var(--surface);stroke:var(--ink)" stroke-width="2"/><path d="M-3 -3 3 3M3 -3 -3 3" style="stroke:var(--ink)" stroke-width="2"/></svg>Reported closure</div>
+<div class="cv-row" style="gap:6px"><i style="width:22px;border-top:3px dotted var(--ink-2);display:inline-block"></i>Road, unknown status</div>
+<div class="cv-row" style="gap:6px"><span class="cv-dash cv-dash--a"></span><span class="cv-dash cv-dash--b"></span><span class="cv-dash cv-dash--c"></span>Route options A B C</div>
+<div class="cv-row" style="gap:6px"><svg width="16" height="16" viewBox="-9 -9 18 18"><path d="M0 -8 8 0 0 8 -8 0Z" style="fill:var(--ink)"/></svg><svg width="16" height="16" viewBox="-9 -9 18 18"><path d="M0 -8 8 0 0 8 -8 0Z" style="fill:var(--surface);stroke:var(--ink)" stroke-width="1.5" stroke-dasharray="3 2"/></svg>Shelter candidate · building / land</div>
+<div class="cv-row" style="gap:6px"><i style="width:22px;border-top:2px dashed var(--ink);display:inline-block"></i>Movement trend (area level)</div>
+</div><span class="cv-btn cv-btn--ghost cv-btn--icon" data-close><i data-i="x"></i></span></div></div><div class="cv-panel cv-float" id="callout" hidden style="position:absolute;z-index:23;width:270px;padding:12px"><div class="cv-row" style="justify-content:space-between"><span class="cv-eyebrow">Area 7 · Qana–Tibnine</span><span class="cv-btn cv-btn--ghost cv-btn--icon cv-btn--sm" data-close><i data-i="x"></i></span></div><div class="cv-sm" style="margin:6px 0 8px">About <b class="cv-mono">4,000–6,500</b> people live here. About <b class="cv-mono">1,200–2,000</b> probably displaced.</div><div class="cv-row" style="gap:6px;margin-bottom:10px"><span class="cv-tag"><i data-i="bolt"></i>Power</span><span class="cv-tag"><i data-i="drop"></i>Water</span><span class="cv-tag"><i data-i="med"></i>Health</span></div><div class="cv-row" style="gap:6px"><span class="cv-btn cv-btn--primary cv-btn--sm" data-go="area">Area summary</span><span class="cv-btn cv-btn--sm" data-go="routes">3 routes</span><span class="cv-btn cv-btn--sm" data-go="shelters">Shelters</span><span class="cv-btn cv-btn--sm" data-go="inspect">Inspect building</span></div></div><div class="cv-mapctl" style="top:12px;right:12px"><div class="cv-mapbox cv-zoom"><span><i data-i="plus"></i></span><span><i data-i="minus"></i></span><span><i data-i="locate"></i></span></div></div>
+  <div class="ov" id="p-time" style="left:76px;right:12px;bottom:12px">
+    <div id="slider"></div>
+    <span class="cv-btn cv-btn--ghost cv-btn--icon" style="position:absolute;top:6px;right:6px" title="Close"><i data-i="x"></i></span>
+  </div>
+  <div class="cv-attrib" style="bottom:136px">NASA GIBS · NASADEM · © OSM</div>
+</main>
+</div>
+
+</section><section class="view" id="v-alert" data-view="alert" hidden>
+<div class="cv-app">
+<div data-top="Alerts"></div>
+<div class="cv-body" style="grid-template-columns:1fr 540px">
+<main class="cv-map" data-map='{"vb":[200,320,340,220],"fires":1,"fireOnly":1,"rings":[446,436],"fac":1,"services":1,"dmg":1,"routes":["a","b"],"sel":"a","base":1,"focus":"A7","closures":1}'>
+  <div class="cv-demo">ILLUSTRATIVE DEMO DATA · NOT AN ASSESSMENT</div>
+  <div class="cv-mapctl" style="top:12px;left:12px"><span class="cv-btn"><i data-i="chevl"></i>All alerts</span></div>
+  <div class="cv-mapctl" style="top:12px;right:12px"><div class="cv-mapbox cv-zoom"><span><i data-i="plus"></i></span><span><i data-i="minus"></i></span></div></div>
+  <div class="cv-mapctl" style="left:12px;bottom:12px"><div class="cv-mapbox cv-legend" style="width:240px">
+    <div class="cv-row" style="gap:6px"><span style="width:12px;height:12px;border-radius:50%;background:var(--fire)"></span>Fire detected · 375 m pixel</div>
+    <div class="cv-row" style="gap:6px"><i style="width:18px;border-top:1.5px dashed var(--ink);display:inline-block"></i>1 km and 3 km rings</div>
+    <div class="cv-row" style="gap:6px"><span class="cv-dash cv-dash--a"></span>Inbound A</div>
+    <div class="cv-row" style="gap:6px"><span class="cv-dash cv-dash--b"></span>Inbound B</div>
+    <div class="cv-row" style="gap:6px"><i style="width:14px;height:10px;background:repeating-linear-gradient(45deg,var(--attention) 0 2px,transparent 2px 5px);display:inline-block"></i>Services lost (area)</div>
+  </div></div>
+  <div class="cv-attrib">Base: NASA GIBS · NASADEM · © OpenStreetMap contributors</div>
+</main>
+
+<aside class="cv-side">
+  <div class="cv-scroll">
+    <div class="sec" style="padding-top:16px">
+      <div class="cv-row" style="justify-content:space-between"><span class="cv-data cv-faint">Alerts / FIRE-2611-0147</span><span class="cv-row" style="gap:4px"><span class="cv-btn cv-btn--ghost cv-btn--icon"><i data-i="share"></i></span><span class="cv-btn cv-btn--ghost cv-btn--icon"><i data-i="x"></i></span></span></div>
+      <div class="cv-row" style="gap:12px;margin:8px 0 6px;flex-wrap:nowrap"><span class="cv-alert-ico cv-alert-ico--fire" style="width:44px;height:44px"><i data-i="fire" style="width:24px;height:24px"></i></span><div><h1 class="cv-h1" style="font-size:24px;line-height:28px">Fire detected</h1><div class="cv-sm cv-muted">Near Tibnine · Area 7 · neighbourhood level (±500 m)</div></div></div>
+      <div class="cv-row" style="gap:6px;margin-top:8px"><span data-ev="obs"></span><span class="cv-tag" style="border-color:var(--attention);color:var(--attention)">New · 1 h ago</span><span class="cv-tag" style="border-style:dashed">Not yet corroborated</span></div>
+      <p class="cv-sm cv-muted" style="margin:10px 0 0">A heat signal was detected by satellite. CIVISAR does not determine a cause.</p>
+    </div>
+
+    <div class="sec">
+      <dl class="cv-kv" style="grid-template-columns:110px 1fr">
+        <dt>Detected</dt><dd><b>13 Nov 2026, 11:52 EET</b> <span class="cv-faint cv-data">09:52 UTC</span></dd>
+        <dt>Satellite</dt><dd>VIIRS on NOAA-21 · 375 m pixel</dd>
+        <dt>Product</dt><dd>NASA FIRMS VIIRS NRT · confidence nominal</dd>
+        <dt>Second source</dt><dd class="cv-muted">None yet. Becomes Corroborated if a radar change or independent report agrees.</dd>
+      </dl>
+    </div>
+
+    <div class="sec">
+      <h3><i data-i="people"></i>People living around it</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="cv-stat"><div class="cv-eyebrow">Within 1 km</div><div class="cv-range cv-range--sm">900–1,600</div></div>
+        <div class="cv-stat"><div class="cv-eyebrow">Within 3 km</div><div class="cv-range cv-range--sm">4,000–6,500</div></div>
+      </div>
+      <div class="cv-src" style="margin-top:6px"><span data-ev="rep"></span>WorldPop 2025 · 100 m constrained</div>
+    </div>
+
+    <div class="sec">
+      <h3><i data-i="building"></i>Facilities nearby</h3>
+      <div class="frow"><span class="cv-fac cv-fac--dmg"><b>✕</b>C-3 Clinic · 0.8 km</span><span data-ev="cor"></span><span class="cv-src" style="grid-column:1/-1">NISAR GCOV 03 Nov + Insecurity Insight 02 Nov</span></div>
+      <div class="frow"><span class="cv-fac cv-fac--nd"><b>–</b>S-14 School · 1.2 km · no detected damage</span><span data-ev="obs"></span><span class="cv-src" style="grid-column:1/-1">NISAR GCOV 03 Nov · not confirmed open</span></div>
+      <div class="frow"><span class="cv-fac cv-fac--dmg"><b>✕</b>W-5 Water pumping · 1.4 km</span><span data-ev="obs"></span><span class="cv-src" style="grid-column:1/-1">NISAR GSLC coherence 22 Oct → 03 Nov</span></div>
+      <div class="frow"><span class="cv-fac cv-fac--unk"><b>?</b>P-1 Substation · 1.6 km</span><span data-ev="unk"></span></div>
+    </div>
+
+    <div class="sec">
+      <h3><i data-i="bolt"></i>Services already lost here</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="mini"><i data-i="bolt" style="color:var(--attention)"></i><span>Power lost</span><span data-ev="obs"></span></div>
+        <div class="mini"><i data-i="wifioff" style="color:var(--attention)"></i><span>Comms degraded</span><span data-ev="rep"></span></div>
+        <div class="mini"><i data-i="med" style="color:var(--attention)"></i><span>Health access reduced</span><span data-ev="cor"></span></div>
+        <div class="mini" style="border-style:dashed"><i data-i="drop" style="color:var(--ink-3)"></i><span>Water</span><span data-ev="unk"></span></div>
+      </div>
+      <div class="cv-src" style="margin-top:6px">Black Marble 12 Nov · IODA live · facility agent 13 Nov</div>
+    </div>
+
+    <div class="sec">
+      <h3><i data-i="route"></i>Route options</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="cv-col" style="gap:6px"><span class="cv-eyebrow">Inbound · from Civil Defence, Tyre</span>
+          <div class="mini" style="grid-template-columns:auto 1fr"><span class="cv-route-key cv-route-key--a" style="width:22px;height:22px;font-size:11px">A</span><span><b class="cv-mono">18.4 km · 31 min</b><br><span class="cv-xs cv-muted">No reported closure · 1 unknown segment</span></span></div>
+          <div class="mini" style="grid-template-columns:auto 1fr"><span class="cv-route-key cv-route-key--b" style="width:22px;height:22px;font-size:11px">B</span><span><b class="cv-mono">26.9 km · 44 min</b><br><span class="cv-xs cv-muted">No reported closure · 1 bridge</span></span></div></div>
+        <div class="cv-col" style="gap:6px"><span class="cv-eyebrow">Outbound · to H-02 Hospital, Tyre</span>
+          <div class="mini" style="grid-template-columns:auto 1fr"><span class="cv-route-key cv-route-key--a" style="width:22px;height:22px;font-size:11px">A</span><span><b class="cv-mono">17.9 km · 30 min</b><br><span class="cv-xs cv-muted">Hospital reported working 12 Nov</span></span></div>
+          <div class="mini" style="grid-template-columns:auto 1fr"><span class="cv-route-key cv-route-key--c" style="width:22px;height:22px;font-size:11px">C</span><span><b class="cv-mono">15.2 km · 34 min</b><br><span class="cv-xs cv-muted">No heavy vehicles · 3 unknown</span></span></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="cv-row" style="padding:12px 20px;border-top:1px solid var(--line);background:var(--surface);gap:8px">
+    <span class="cv-btn cv-btn--primary"><i data-i="route"></i>Compare routes</span><span class="cv-btn"><i data-i="doc"></i>Area summary</span><span style="flex:1"></span><span class="cv-btn cv-btn--ghost"><i data-i="check"></i>Mark reviewed</span>
+  </div>
+</aside>
+</div></div>
+
+</section><section class="view" id="v-area" data-view="area" hidden>
+<div class="cv-app">
+<div data-top="Areas"></div>
+<div class="wrap">
+<div class="cv-col" style="gap:16px;min-height:0">
+  <div>
+    <div class="cv-row" style="gap:8px"><span class="cv-data cv-faint">Areas /</span><span class="cv-eyebrow">Area 7 · Qana–Tibnine · South Lebanon</span><span class="cv-age cv-age--aging">built from data up to 13 Nov 11:52</span></div>
+    <h1 class="cv-h1" style="margin-top:8px;max-width:820px">About <span class="cv-mono">4,000–6,500</span> people live here. About <span class="cv-mono">1,200–2,000</span> probably displaced.</h1>
+    <div class="cv-src" style="margin-top:6px"><span data-ev="rep"></span>WorldPop 2025 · IOM DTM round 14, 05 Nov · Meta movement maps, 10 Nov</div>
+  </div>
+
+  <div class="box">
+    <h3><i data-i="truck"></i>Services lost · what to bring</h3>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+      <div class="cv-bring"><span class="ic"><i data-i="drop"></i></span><div><div class="lost">Water lost</div><div class="get">Bring water</div><div class="cv-row" style="margin-top:6px"><span data-ev="cor"></span></div><div class="cv-src" style="margin-top:4px">W-5 pumping site · 03 Nov</div></div></div>
+      <div class="cv-bring"><span class="ic"><i data-i="bulb"></i></span><div><div class="lost">Power lost</div><div class="get">Generators and lights</div><div class="cv-row" style="margin-top:6px"><span data-ev="obs"></span></div><div class="cv-src" style="margin-top:4px"><span class="cv-nasa">NASA</span>Black Marble · 12 Nov</div></div></div>
+      <div class="cv-bring"><span class="ic"><i data-i="med"></i></span><div><div class="lost">Health access lost</div><div class="get">Medical team</div><div class="cv-row" style="margin-top:6px"><span data-ev="cor"></span></div><div class="cv-src" style="margin-top:4px">C-3 clinic damaged · 03 Nov</div></div></div>
+      <div class="cv-bring"><span class="ic"><i data-i="radio"></i></span><div><div class="lost">Comms down</div><div class="get">Radios</div><div class="cv-row" style="margin-top:6px"><span data-ev="rep"></span></div><div class="cv-src" style="margin-top:4px">IODA · live since 09:10</div></div></div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+    <div class="box">
+      <h3><i data-i="people"></i>Vulnerable groups</h3>
+      <div class="ln"><span>Children 0–17</span><b class="cv-mono">1,500–2,500</b></div>
+      <div class="ln"><span>Older people 65+</span><b class="cv-mono">350–600</b></div>
+      <div class="ln"><span>Women 15–49</span><b class="cv-mono">1,000–1,700</b><div class="cv-src">WorldPop age/sex 2025 · Reported</div></div>
+    </div>
+    <div class="box">
+      <h3><i data-i="building"></i>Facilities hit</h3>
+      <div class="ln"><span class="cv-fac cv-fac--dmg"><b>✕</b>1 clinic damaged</span><span data-ev="cor"></span></div>
+      <div class="ln"><span class="cv-dmg cv-dmg--p"><i></i>2 schools possibly damaged</span><span data-ev="obs"></span></div>
+      <div class="ln"><span class="cv-fac cv-fac--dmg"><b>✕</b>1 water site damaged</span><span data-ev="obs"></span><div class="cv-src"><span class="cv-nasa">NASA</span>NISAR GCOV T151 · 03 Nov · candidates</div></div>
+    </div>
+    <div class="box">
+      <h3><i data-i="warn"></i>Hazards</h3>
+      <div class="ln"><span><i data-i="fire" style="color:var(--fire)"></i> 2 fires detected · 24 h</span><span data-ev="obs"></span></div>
+      <div class="ln"><span>1 reported attack on health care</span><span data-ev="rep"></span></div>
+      <div class="ln"><span>3 road segments unknown · 2.4 km</span><span data-ev="unk"></span><div class="cv-src">FIRMS 13 Nov · Insecurity Insight 02 Nov · OSM</div></div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div class="box">
+      <h3><i data-i="med"></i>Nearest working hospital · shelters</h3>
+      <div class="ln"><span class="cv-fac cv-fac--ok"><b>✓</b>H-02 Hospital, Tyre · 17.9 km</span><span data-ev="rep"></span><div class="cv-src">Health cluster report · 12 Nov</div></div>
+      <div class="ln"><span>Shelter candidates · <b>S-14 School</b> about 680 · <b>SH-3</b> about 430</span><span class="cv-tag" style="height:20px;font-size:11px">For checking</span></div>
+    </div>
+    <div class="box">
+      <h3><i data-i="route"></i>Route options in</h3>
+      <div class="ln"><span><span class="cv-dash cv-dash--a"></span> A · <b class="cv-mono">18.4 km · 31 min</b> · new closure flagged</span><span class="cv-age cv-age--stale">12:20</span></div>
+      <div class="ln"><span><span class="cv-dash cv-dash--b"></span> B · <b class="cv-mono">26.9 km · 44 min</b> · no reported closure</span><span class="cv-age">10 Nov</span></div>
+    </div>
+  </div>
+</div>
+
+<aside class="cv-col" style="gap:14px;min-height:0">
+  <div class="cv-map" style="height:270px;border-radius:var(--radius-lg);border:1px solid var(--line)" data-map='{"vb":[260,350,300,190],"dmg":1,"fac":1,"services":1,"fires":1,"pulse":false,"focus":"A7","areaLabels":false}'><div class="cv-attrib">NASA GIBS · © OSM</div></div>
+  <div class="box cv-col" style="gap:8px">
+    <span class="cv-btn cv-btn--primary cv-btn--lg" style="justify-content:center"><i data-i="print"></i>Print brief</span>
+    <div class="cv-row" style="gap:8px"><span class="cv-btn cv-grow" style="justify-content:center"><i data-i="download"></i>Export PDF</span><span class="cv-btn cv-grow" style="justify-content:center"><i data-i="cloudoff"></i>Save offline</span></div>
+    <span class="cv-xs cv-faint">One page, A4. Every line keeps its source and date.</span>
+  </div>
+  <div class="box">
+    <h3>Data behind this summary</h3>
+    <div class="cv-col" style="gap:6px">
+      <div class="cv-row" style="justify-content:space-between"><span class="cv-src"><span class="cv-nasa">NASA</span>NISAR GCOV/GSLC</span><span class="cv-age cv-age--aging">03 Nov · 10 d</span></div>
+      <div class="cv-row" style="justify-content:space-between"><span class="cv-src"><span class="cv-nasa">NASA</span>OPERA RTC-S1</span><span class="cv-age">10 Nov · 3 d</span></div>
+      <div class="cv-row" style="justify-content:space-between"><span class="cv-src"><span class="cv-nasa">NASA</span>Black Marble</span><span class="cv-age">12 Nov · 1 d</span></div>
+      <div class="cv-row" style="justify-content:space-between"><span class="cv-src"><span class="cv-nasa">NASA</span>FIRMS VIIRS</span><span class="cv-age">13 Nov 11:52</span></div>
+      <div class="cv-row" style="justify-content:space-between"><span class="cv-src">UNOSAT validation</span><span class="cv-age cv-age--stale">18 Oct · 26 d</span></div>
+    </div>
+  </div>
+  <div class="cv-banner cv-banner--info"><i data-i="info"></i><span>Damage from radar is a candidate, not confirmed. No detected damage does not mean open.</span></div>
+</aside>
+</div></div>
+
+</section><section class="view" id="v-brief" data-view="brief" hidden>
+<div class="stage">
+<div class="cv-paper p" data-theme="light">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #121c1c;padding-bottom:10px">
+    <div><div style="font:700 13px/16px var(--font-sans);letter-spacing:.14em">CIVISAR · AREA BRIEF</div>
+      <div style="font:600 22px/28px var(--font-sans);margin-top:4px">Area 7 · Qana–Tibnine, South Lebanon</div>
+      <div class="cv-data" style="color:#44514f;margin-top:2px">Generated 13 Nov 2026 14:05 EET · data up to 13 Nov 11:52 · brief ID A7-2611-02</div></div>
+    <div style="text-align:right;font:600 10px/14px var(--font-sans);border:1.5px solid #121c1c;padding:6px 8px;max-width:190px">RESTRICTED: for humanitarian and emergency responders. Do not post publicly.</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px">
+    <div style="border:1px solid #d4d8d2;padding:10px"><div style="font:600 10px/14px var(--font-sans);letter-spacing:.06em;color:#44514f">PEOPLE LIVING HERE</div><div style="font:600 24px/28px var(--font-mono)">4,000–6,500<sup>1</sup></div></div>
+    <div style="border:1px solid #d4d8d2;padding:10px"><div style="font:600 10px/14px var(--font-sans);letter-spacing:.06em;color:#44514f">PROBABLY DISPLACED</div><div style="font:600 24px/28px var(--font-mono)">1,200–2,000<sup>2</sup></div></div>
+  </div>
+  <div style="font-size:11px;color:#44514f;margin-top:6px">Children 0–17: 1,500–2,500 · Older people 65+: 350–600 · Women 15–49: 1,000–1,700<sup>1</sup></div>
+
+  <h2>What to bring</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <div class="box2"><span class="cb"></span><b>Water</b><span></span><span style="font-size:11px;color:#44514f">Water lost: W-5 pumping site damaged <span class="ev c">CORROBORATED</span><sup>3</sup></span></div>
+    <div class="box2"><span class="cb"></span><b>Generators and lights</b><span></span><span style="font-size:11px;color:#44514f">Power lost: night lights down 52–64% <span class="ev o">OBSERVED</span><sup>4</sup></span></div>
+    <div class="box2"><span class="cb"></span><b>Medical team</b><span></span><span style="font-size:11px;color:#44514f">Health access lost: C-3 clinic damaged <span class="ev c">CORROBORATED</span><sup>3,6</sup></span></div>
+    <div class="box2"><span class="cb"></span><b>Radios</b><span></span><span style="font-size:11px;color:#44514f">Comms down since 09:10 <span class="ev">REPORTED</span><sup>5</sup></span></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1.1fr .9fr;gap:20px">
+    <div>
+      <h2>Facilities hit · radar candidates</h2>
+      <div class="r"><span>1 clinic damaged (C-3)</span><span class="ev c">CORROBORATED</span><sup>3,6</sup></div>
+      <div class="r"><span>2 schools possibly damaged (S-21, S-30)</span><span class="ev o">OBSERVED</span><sup>3</sup></div>
+      <div class="r"><span>1 water site damaged (W-5)</span><span class="ev o">OBSERVED</span><sup>3</sup></div>
+      <div class="r"><span>1 power substation (P-1)</span><span class="ev u">UNKNOWN</span><sup></sup></div>
+      <h2>Hazards</h2>
+      <div class="r"><span>2 fires detected in last 24 h</span><span class="ev o">OBSERVED</span><sup>7</sup></div>
+      <div class="r"><span>1 reported attack on health care, 02 Nov</span><span class="ev">REPORTED</span><sup>6</sup></div>
+      <div class="r"><span>3 road segments of unknown status, 2.4 km</span><span class="ev u">UNKNOWN</span><sup>8</sup></div>
+      <h2>Nearest working hospital · shelter candidates</h2>
+      <div class="r"><span>H-02 Hospital, Tyre: 17.9 km, reported working 12 Nov</span><span class="ev">REPORTED</span><sup>9</sup></div>
+      <div class="r"><span>S-14 School: about 680 at 3.5 m², 900 m away</span><span class="ev">FOR CHECKING</span><sup>8</sup></div>
+      <div class="r"><span>SH-3 Sports hall: about 430 at 3.5 m², 1.6 km</span><span class="ev">FOR CHECKING</span><sup>8</sup></div>
+      <div style="font-size:10px;line-height:14px;margin-top:6px;color:#44514f">Shelters are candidates for checking. A protection and explosive-ordnance check is needed before use.</div>
+    </div>
+    <div>
+      <h2>Map</h2>
+      <div class="cv-map" style="height:230px;border:1px solid #121c1c" data-map='{"vb":[200,340,320,200],"dmg":1,"fac":1,"fires":1,"pulse":false,"routes":["a","b"],"base":1,"shelters":1,"focus":"A7","areaLabels":false}'></div>
+      <div style="font-size:9px;color:#5f6b69;margin-top:2px" class="cv-mono">NASA GIBS · NASADEM · © OpenStreetMap · 5 km</div>
+      <h2>Route options in · from Civil Defence, Tyre</h2>
+      <div class="r"><span><b>A</b> solid · 18.4 km · 31 min · <b>new closure 12:20</b></span><span></span><sup>10</sup></div>
+      <div class="r"><span><b>B</b> dashed · 26.9 km · 44 min · no reported closure · 1 bridge, no detected damage</span><span></span><sup>3,10</sup></div>
+      <div style="display:grid;grid-template-columns:64px 1fr;gap:10px;margin-top:12px;align-items:center">
+        <svg width="64" height="64" viewBox="0 0 8 8" shape-rendering="crispEdges"><path d="M0 0h3v3H0zM5 0h3v3H5zM0 5h3v3H0z" fill="#121c1c"/><path d="M1 1h1v1H1zM6 1h1v1H6zM1 6h1v1H1z" fill="#fff"/><path d="M4 0h1v1H4zM3 4h2v1H3zM5 4h1v2H5zM4 6h1v2H4zM6 6h2v1H6zM7 4h1v1H7z" fill="#121c1c"/></svg>
+        <span style="font-size:10px;line-height:14px;color:#44514f">Scan for the live view (sign-in required). Data in this brief may have changed since it was generated.</span>
+      </div>
+    </div>
+  </div>
+
+  <h2>Sources</h2>
+  <ol style="margin:0;padding-left:16px;columns:2;column-gap:22px;font:400 9.5px/13px var(--font-mono);color:#44514f">
+    <li>WorldPop 2025, 100 m constrained</li><li>IOM DTM round 14 (05 Nov) + Meta movement maps (10 Nov)</li><li>NASA-ISRO NISAR GCOV/GSLC, track 151 D, 22 Oct → 03 Nov</li><li>NASA Black Marble VNP46A2, NOAA-20, 12 Nov</li><li>IODA, live, 13 Nov 09:10</li><li>Insecurity Insight, 02 Nov</li><li>NASA FIRMS VIIRS NRT, NOAA-21, 13 Nov 11:52</li><li>OpenStreetMap extract, 12 Nov</li><li>Health cluster report, 12 Nov</li><li>CIVISAR route agent, 13 Nov 12:25</li>
+  </ol>
+  <div style="display:flex;justify-content:space-between;border-top:1.5px solid #121c1c;margin-top:12px;padding-top:6px;font:500 9px/12px var(--font-sans);color:#44514f">
+    <span>Evidence: OBSERVED satellite · REPORTED external source · CORROBORATED radar + independent report · UNKNOWN no evidence. Radar damage is a candidate. Estimates are ranges.</span><span>1 / 1</span>
+  </div>
+</div></div>
+
+</section><section class="view" id="v-routes" data-view="routes" hidden>
+<div class="cv-app">
+<div data-top="Routes"></div>
+<div class="cv-body" style="grid-template-columns:360px 1fr 320px">
+
+<aside class="cv-rail">
+  <div class="cv-sec cv-col" style="gap:10px">
+    <div class="cv-row" style="justify-content:space-between"><b>Route options</b><span class="cv-seg"><span class="is-on">Inbound</span><span>Outbound</span></span></div>
+    <div class="fld"><i data-i="home"></i><span>Civil Defence centre · Tyre</span><small>Unit base · ambulance, civil defence, aid depot</small></div>
+    <div class="fld"><i data-i="locate"></i><span>Area 7 · Qana–Tibnine</span><small>From alert FIRE-2611-0147</small></div>
+    <div class="cv-row" style="justify-content:space-between"><span class="cv-xs cv-muted">Vehicle</span><span class="cv-seg"><span class="is-on">Ambulance</span><span>Heavy truck</span><span>4×4</span></span></div>
+  </div>
+  <div class="cv-scroll" style="padding:12px;display:flex;flex-direction:column;gap:10px">
+    <div class="cv-banner cv-banner--att"><i data-i="warn"></i><div><b>New closure reported 12:20 on option A</b> near Qana, km 9.2. Option A is flagged. B and C have no reported closure at that point.<div class="cv-row" style="margin-top:6px"><span class="cv-btn cv-btn--sm">Show alternatives</span><span data-ev="rep"></span></div></div></div>
+    <div class="cv-route is-flag"><div class="cv-route-h"><span class="cv-route-key cv-route-key--a">A</span><div class="cv-grow"><div class="cv-row" style="gap:8px"><b class="cv-sm">Via Qana road</b><span class="cv-dash cv-dash--a"></span></div><div class="cv-row" style="gap:10px"><span class="cv-route-big">18.4 km</span><span class="cv-route-big cv-muted">31 min</span></div></div><span class="cv-tag" style="border-color:var(--attention);color:var(--attention)"><i data-i="warn"></i>Flagged</span></div></div>
+    <div class="cv-route is-sel"><div class="cv-route-h"><span class="cv-route-key cv-route-key--b">B</span><div class="cv-grow"><div class="cv-row" style="gap:8px"><b class="cv-sm">Via north link, wadi bridge</b><span class="cv-dash cv-dash--b"></span></div><div class="cv-row" style="gap:10px"><span class="cv-route-big">26.9 km</span><span class="cv-route-big cv-muted">44 min</span></div></div><span class="cv-tag" style="border-color:var(--accent);color:var(--accent)"><i data-i="check"></i>Picked</span></div>
+      <div class="cv-route-rows"><div>Closures</div><div>none reported</div><div>Unknown segments</div><div>none</div><div>Bridge Br-12</div><div>no detected damage</div><div>Heavy vehicles</div><div>yes · limit unknown</div></div></div>
+    <div class="cv-route"><div class="cv-route-h"><span class="cv-route-key cv-route-key--c">C</span><div class="cv-grow"><div class="cv-row" style="gap:8px"><b class="cv-sm">Via hill road</b><span class="cv-dash cv-dash--c"></span></div><div class="cv-row" style="gap:10px"><span class="cv-route-big">15.2 km</span><span class="cv-route-big cv-muted">34 min</span></div></div><span class="cv-tag">No heavy</span></div></div>
+    <div class="cv-xs cv-faint">Wording: “no reported closure” means no closure on file, not that the road is clear.</div>
+  </div>
+</aside>
+
+<main style="display:grid;grid-template-rows:1fr 292px;min-height:0">
+  <div class="cv-map" data-map='{"vb":[190,280,320,230],"routes":["a","b","c"],"sel":"b","closures":1,"flagA":1,"bridges":1,"unknownSeg":1,"fires":1,"pulse":false,"attacks":1,"dmg":1,"base":1,"dest":1,"areaLabels":false}'>
+    <div class="cv-demo">ILLUSTRATIVE DEMO DATA · NOT AN ASSESSMENT</div>
+    <div class="cv-panel cv-float cv-pop" id="routepop" style="left:58%;top:36%">
+      <div class="cv-row" style="justify-content:space-between;flex-wrap:nowrap"><span class="cv-eyebrow">Clicked: Area 7 · Qana–Tibnine</span><i data-i="x" style="color:var(--ink-3)"></i></div>
+      <div class="cv-sm" style="margin:4px 0 6px"><b>3 routes available</b> from Civil Defence, Tyre</div>
+      <div class="cv-pop-r"><span class="cv-route-key cv-route-key--b" style="width:22px;height:22px;font-size:11px">B</span><span><b class="cv-mono">26.9 km · 44 min</b><br><span class="cv-muted">No reported closure</span></span><i data-i="check" style="color:var(--accent)"></i></div>
+      <div class="cv-pop-r"><span class="cv-route-key cv-route-key--c" style="width:22px;height:22px;font-size:11px">C</span><span><b class="cv-mono">15.2 km · 34 min</b><br><span class="cv-muted">3 unknown segments · no heavy</span></span><span></span></div>
+      <div class="cv-pop-r"><span class="cv-route-key cv-route-key--a" style="width:22px;height:22px;font-size:11px">A</span><span><b class="cv-mono">18.4 km · 31 min</b><br><span style="color:var(--attention)">New closure reported 12:20</span></span><i data-i="warn" style="color:var(--attention)"></i></div>
+      <div class="cv-row" style="margin-top:8px;gap:6px"><span class="cv-btn cv-btn--primary cv-btn--sm"><i data-i="nav"></i>Start B</span><span class="cv-btn cv-btn--sm">In / out</span><span class="cv-btn cv-btn--sm">From another base</span></div>
+    </div>
+    <div class="cv-mapctl" style="top:12px;right:12px"><div class="cv-mapbox cv-zoom"><span><i data-i="plus"></i></span><span><i data-i="minus"></i></span></div></div>
+    <div class="cv-mapctl" style="left:12px;top:44px"><div class="cv-mapbox cv-legend"><div class="cv-row" style="gap:6px"><span class="cv-dash cv-dash--a"></span>A</div><div class="cv-row" style="gap:6px"><span class="cv-dash cv-dash--b"></span>B · picked</div><div class="cv-row" style="gap:6px"><span class="cv-dash cv-dash--c"></span>C</div><div class="cv-row" style="gap:6px"><i style="width:22px;border-top:3px dotted var(--ink-2);display:inline-block"></i>Unknown status</div></div></div>
+    <div class="cv-attrib">NASA GIBS · NASADEM · © OSM</div>
+  </div>
+  <div style="background:var(--surface);border-top:1px solid var(--line);overflow:hidden;padding:4px 12px">
+    <table class="cv-table">
+      <thead><tr><th style="width:190px">Compare</th><th><span class="cv-dash cv-dash--a"></span> A · Qana road</th><th><span class="cv-dash cv-dash--b"></span> B · North link</th><th><span class="cv-dash cv-dash--c"></span> C · Hill road</th></tr></thead>
+      <tbody>
+      <tr><td>Distance · time</td><td class="num">18.4 km · 31 min</td><td class="num">26.9 km · 44 min</td><td class="num">15.2 km · 34 min</td></tr>
+      <tr><td>Closures avoided</td><td>1 · <b style="color:var(--attention)">1 new on route</b></td><td>2</td><td>1</td></tr>
+      <tr><td>Unknown-status segments</td><td class="num">1 · 0.6 km</td><td class="num">none</td><td class="num">3 · 2.1 km</td></tr>
+      <tr><td>Bridges crossed</td><td>none</td><td>1 · Br-12 no detected damage <span data-ev="obs"></span></td><td>none</td></tr>
+      <tr><td>Passes near</td><td>fire 450 m · damage 300 m</td><td>damage candidates 800 m</td><td>reported attack 600 m</td></tr>
+      <tr><td>Newest evidence on route</td><td class="num">13 Nov 12:20</td><td class="num">10 Nov · Sentinel-1</td><td class="num">03 Nov · NISAR</td></tr>
+      <tr><td>Heavy vehicles</td><td><span class="cv-yes"><i data-i="check"></i>Yes</span></td><td><span class="cv-unk"><i data-i="q"></i>Yes, bridge limit unknown</span></td><td><span class="cv-no"><i data-i="x"></i>No · under 4 m</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<aside class="cv-side">
+  <div class="cv-sec"><div class="cv-row" style="justify-content:space-between"><b>Option B · turn list</b><span class="cv-route-key cv-route-key--b" style="width:24px;height:24px;font-size:12px">B</span></div>
+    <div class="cv-xs cv-muted" style="margin-top:4px">26.9 km · about 44 min · 9 steps</div></div>
+  <div class="cv-scroll" style="padding:0 16px">
+    <div class="turn"><i data-i="home"></i><span>Leave Civil Defence centre, Tyre, heading north</span><span class="cv-data cv-faint">0.0</span></div>
+    <div class="turn"><i data-i="arrow"></i><span>Coastal road north</span><span class="cv-data cv-faint">3.1</span></div>
+    <div class="turn"><i data-i="chev"></i><span>Right onto north link road</span><span class="cv-data cv-faint">6.4</span></div>
+    <div class="turn"><i data-i="arrow"></i><span>Continue east, passes 800 m from damage candidates</span><span class="cv-data cv-faint">12.8</span></div>
+    <div class="turn"><i data-i="bridge"></i><span>Cross Br-12 wadi bridge · no detected damage, not confirmed open</span><span class="cv-data cv-faint">18.2</span></div>
+    <div class="turn"><i data-i="chev"></i><span>Right, south toward Tibnine</span><span class="cv-data cv-faint">21.0</span></div>
+    <div class="turn"><i data-i="locate"></i><span>Arrive Area 7 edge</span><span class="cv-data cv-faint">26.9</span></div>
+  </div>
+  <div class="cv-col" style="padding:12px 16px;border-top:1px solid var(--line);gap:8px">
+    <span class="cv-btn cv-btn--primary cv-btn--lg" style="justify-content:center"><i data-i="nav"></i>Start navigation</span>
+    <div class="cv-row" style="gap:8px"><span class="cv-btn cv-grow" style="justify-content:center"><i data-i="print"></i>Print turn list</span><span class="cv-btn cv-grow" style="justify-content:center"><i data-i="share"></i>Share with team</span></div>
+    <span class="cv-xs cv-faint">CIVISAR does not track vehicles, convoys or phones. If a new closure is reported on this route you get an alert with alternatives.</span>
+  </div>
+</aside>
+</div></div>
+
+</section><section class="view" id="v-shelters" data-view="shelters" hidden>
+<div class="cv-app">
+<div data-top="Shelters"></div>
+<div class="cv-body" style="grid-template-columns:420px 1fr 380px">
+<aside class="cv-rail">
+  <div class="cv-sec cv-col" style="gap:10px">
+    <div class="cv-row" style="justify-content:space-between"><b>Shelter candidates · Area 7</b><span class="cv-count">6</span></div>
+    <div><div class="cv-xs cv-muted" style="margin-bottom:6px">Space per person</div>
+      <div class="ppl"><span class="is-on"><b>3.5 m²</b>Emergency, warm</span><span><b>4.5–5.5</b>Cold weather</span><span><b>30 m²</b>Short-term site</span><span><b>45 m²</b>Planned camp</span></div></div>
+    <div class="cv-banner cv-banner--att"><i data-i="shield"></i><span><b>Candidates for checking.</b> A protection and explosive-ordnance check is needed before any use.</span></div>
+  </div>
+  <div class="cv-scroll">
+    <div class="cv-eyebrow" style="padding:10px 12px 4px">Buildings first</div>
+    <div class="cv-shelter" style="background:var(--accent-soft)"><span class="cv-rank">1</span><div><div class="cv-row" style="gap:6px"><b>School S-14</b><span class="cv-xs cv-faint">School</span></div><div class="cv-range cv-range--sm">about 680 <small>at 3.5 m²</small></div><div class="cv-xs cv-muted">2,400 m² · 900 m to affected area · clinic 1.1 km · water 600 m · no detected damage</div></div><span class="cv-tag" style="height:20px;font-size:11px">For checking</span></div>
+    <div class="cv-shelter"><span class="cv-rank">2</span><div><div class="cv-row" style="gap:6px"><b>Sports hall SH-3</b><span class="cv-xs cv-faint">Sports hall</span></div><div class="cv-range cv-range--sm">about 430 <small>at 3.5 m²</small></div><div class="cv-xs cv-muted">1,500 m² · 1.6 km · clinic 2.8 km · water 900 m · paved access</div></div><span class="cv-tag" style="height:20px;font-size:11px">For checking</span></div>
+    <div class="cv-shelter"><span class="cv-rank">3</span><div><div class="cv-row" style="gap:6px"><b>Community centre CC-7</b></div><div class="cv-range cv-range--sm">about 230 <small>at 3.5 m²</small></div><div class="cv-xs cv-muted">820 m² · 1.4 km · clinic 1.9 km</div><div class="cv-xs" style="color:var(--attention);display:flex;gap:4px;margin-top:3px"><i data-i="warn"></i>1 unknown road segment on access</div></div><span class="cv-tag" style="height:20px;font-size:11px">For checking</span></div>
+    <div class="cv-shelter"><span class="cv-rank">4</span><div><div class="cv-row" style="gap:6px"><b>Warehouse W-2</b></div><div class="cv-range cv-range--sm">about 880 <small>at 3.5 m²</small></div><div class="cv-xs cv-muted">3,100 m² · 4.6 km · heavy-vehicle access</div><div class="cv-xs" style="color:var(--attention);display:flex;gap:4px;margin-top:3px"><i data-i="warn"></i>No working water point known within 1 km</div></div><span class="cv-tag" style="height:20px;font-size:11px">For checking</span></div>
+    <div class="cv-eyebrow" style="padding:12px 12px 4px">Then flat open land · NASADEM slope under 5%</div>
+    <div class="cv-shelter"><span class="cv-rank cv-rank--land">5</span><div><div class="cv-row" style="gap:6px"><b>Open land OL-3</b></div><div class="cv-range cv-range--sm">about 700 <small>at 30 m² short-term</small></div><div class="cv-xs cv-muted">2.1 ha · 1.2 km · about 470 as a planned camp at 45 m²</div></div><span class="cv-tag" style="height:20px;font-size:11px">For checking</span></div>
+    <div class="cv-shelter"><span class="cv-rank cv-rank--land">6</span><div><div class="cv-row" style="gap:6px"><b>Open land OL-5</b></div><div class="cv-range cv-range--sm">about 400 <small>at 30 m² short-term</small></div><div class="cv-xs cv-muted">1.2 ha · 1.9 km · water unknown</div></div><span class="cv-tag" style="height:20px;font-size:11px">For checking</span></div>
+  </div>
+</aside>
+
+<main class="cv-map" data-map='{"vb":[230,360,280,180],"shelters":1,"shelterSel":1,"fac":1,"dmg":1,"focus":"A7","services":1,"areaLabels":false}'>
+  <div class="cv-demo">ILLUSTRATIVE DEMO DATA · NOT AN ASSESSMENT</div>
+  <div class="cv-mapctl" style="top:12px;right:12px"><div class="cv-mapbox cv-zoom"><span><i data-i="plus"></i></span><span><i data-i="minus"></i></span></div></div>
+  <div class="cv-mapctl" style="left:12px;bottom:12px"><div class="cv-mapbox cv-legend">
+    <div class="cv-row" style="gap:6px"><svg width="16" height="16" viewBox="-9 -9 18 18"><path d="M0 -8 8 0 0 8 -8 0Z" style="fill:var(--ink)"/></svg>Building candidate</div>
+    <div class="cv-row" style="gap:6px"><svg width="16" height="16" viewBox="-9 -9 18 18"><path d="M0 -8 8 0 0 8 -8 0Z" style="fill:var(--surface);stroke:var(--ink)" stroke-width="1.5" stroke-dasharray="3 2"/></svg>Open land candidate</div>
+    <div class="cv-row" style="gap:6px"><span class="cv-fac cv-fac--ok"><b>✓</b>Working water / health</span></div>
+  </div></div>
+  <div class="cv-attrib">NASA GIBS · NASADEM · © OSM</div>
+</main>
+
+<aside class="cv-side">
+  <div class="cv-scroll" style="padding:16px 20px">
+    <div class="cv-row" style="gap:10px"><span class="cv-rank" style="width:28px;height:28px;line-height:28px">1</span><div><h2 class="cv-h2">School S-14</h2><div class="cv-xs cv-muted">School · OSM amenity=school · Area 7</div></div></div>
+    <p class="cv-sm" style="margin:12px 0;padding:12px;background:var(--surface-2);border-radius:var(--radius-md)">About <b class="cv-mono">2,400 m²</b> usable floor, holds about <b class="cv-mono">680</b> people at 3.5 m². 900 m from affected area, 1.1 km from nearest working clinic, no detected damage.</p>
+    <div class="cv-tag" style="border-color:var(--attention);color:var(--attention);margin-bottom:6px"><i data-i="shield"></i>Candidate for checking</div>
+    <div class="ln"><i data-i="building"></i><span>Usable floor 2,400 m²</span><span></span><div class="cv-src">OSM footprint × 2 floors × 0.6 usable</div></div>
+    <div class="ln"><i data-i="sat"></i><span>No detected damage. Not an inspection.</span><span data-ev="obs"></span><div class="cv-src"><span class="cv-nasa">NASA</span>NISAR GCOV T151 · 03 Nov</div></div>
+    <div class="ln"><i data-i="med"></i><span>C-5 clinic · 1.1 km · working</span><span data-ev="rep"></span><div class="cv-src">Health cluster · 11 Nov</div></div>
+    <div class="ln"><i data-i="drop"></i><span>Water point WP-3 · 600 m · working</span><span data-ev="rep"></span><div class="cv-src">WASH cluster · 09 Nov</div></div>
+    <div class="ln"><i data-i="route"></i><span>Paved access · 2 routes, no reported closure</span><span></span><div class="cv-src">OSM · route agent 13 Nov</div></div>
+    <div class="ln"><i data-i="warn" style="color:var(--attention)"></i><span>1 reported attack on a school in Area 7, not this building</span><span data-ev="rep"></span><div class="cv-src">Insecurity Insight · 02 Nov</div></div>
+    <div class="cv-eyebrow" style="margin-top:14px">Capacity at other settings</div>
+    <div class="cv-kv" style="margin-top:6px;grid-template-columns:1fr auto"><dt>Cold weather, 4.5–5.5 m²</dt><dd class="cv-mono">about 440–530</dd></div>
+  </div>
+  <div class="cv-row" style="padding:12px 20px;border-top:1px solid var(--line);gap:8px"><span class="cv-btn cv-btn--primary"><i data-i="flag"></i>Request field check</span><span class="cv-btn"><i data-i="route"></i>Routes here</span><span class="cv-btn cv-btn--icon"><i data-i="doc"></i></span></div>
+</aside>
+</div></div>
+
+</section><section class="view" id="v-inspect" data-view="inspect" hidden>
+<div class="cv-app">
+<div data-top="Map"></div>
+<div class="cv-body" style="grid-template-columns:1fr;position:relative">
+<main class="cv-map" data-map='{"vb":[350,405,170,110],"dmg":1,"buildings":1,"radar":1,"fac":1,"valid":1,"pick":[421,452],"areaLabels":false}'>
+  <div class="cv-demo">ILLUSTRATIVE DEMO DATA · NOT AN ASSESSMENT</div>
+  <div class="cv-mapctl" style="top:12px;left:12px"><div class="cv-mapbox" style="padding:6px 10px" ><span class="cv-sm">Click any building or area to see all results</span></div></div>
+  <div class="cv-mapctl" style="top:12px;right:484px"><div class="cv-mapbox cv-zoom"><span><i data-i="plus"></i></span><span><i data-i="minus"></i></span></div></div>
+  <div class="cv-attrib">NASA GIBS · © OSM · NISAR GCOV 20 m</div>
+</main>
+<aside class="cv-side cv-float" style="position:absolute;top:12px;right:12px;bottom:12px;width:460px;border:1px solid var(--line);border-radius:var(--radius-lg);z-index:20">
+  <div class="cv-sec">
+    <div class="cv-row" style="justify-content:space-between"><span class="cv-data cv-faint">Building B-20417 · Area 7</span><span class="cv-btn cv-btn--sm" title="Close (Esc)"><i data-i="x"></i>Close</span></div>
+    <h2 class="cv-h2" style="margin-top:6px">School building · Qana–Tibnine</h2>
+    <div class="cv-row" style="gap:8px;margin-top:8px"><span class="cv-dmg cv-dmg--s"><i></i>Severely damaged <span class="cv-cand">candidate</span></span></div>
+    <div class="combo" style="margin-top:12px"><i data-i="rings"></i><span class="cv-sm"><b>Corroborated:</b> NISAR radar change + independent report within 1 km. Still a candidate until checked.</span></div>
+    <div class="cv-tabs" style="margin-top:14px"><span class="is-on">All agents · 8</span><span>Time series</span><span>Validation</span></div>
+  </div>
+  <div class="cv-scroll" style="padding:0 20px">
+    <div class="ag" style="border-top:0"><span class="num"><i data-i="sat"></i></span><div><div class="who">Damage agent</div><div class="res">Severely damaged · candidate</div></div><span data-ev="obs"></span><div class="cv-src"><span class="cv-nasa">NASA</span>NISAR GCOV T151 D · HH/HV · 22 Oct → 03 Nov</div></div>
+    <div class="ag"><span class="num"><i data-i="sat"></i></span><div><div class="who">Coherence check</div><div class="res">Coherence 0.82 → 0.31</div></div><span data-ev="obs"></span><div class="cv-src"><span class="cv-nasa">NASA</span>NISAR GSLC T151 · 22 Oct / 03 Nov</div></div>
+    <div class="ag"><span class="num"><i data-i="sat"></i></span><div><div class="who">Cross-sensor agent</div><div class="res">Change also seen in C-band</div></div><span data-ev="obs"></span><div class="cv-src"><span class="cv-nasa">NASA</span>OPERA RTC-S1 · 10 Nov</div></div>
+    <div class="ag"><span class="num"><i data-i="quote"></i></span><div><div class="who">Report matcher</div><div class="res">Event reported within 1 km, 04 Nov</div></div><span data-ev="cor"></span><div class="cv-src">ACLED · week 45 · neighbourhood level</div></div>
+    <div class="ag"><span class="num"><i data-i="school"></i></span><div><div class="who">Facility agent</div><div class="res"><span class="cv-fac cv-fac--dmg"><b>✕</b>School · Damaged</span></div></div><span data-ev="cor"></span><div class="cv-src">OSM amenity=school · 12 Nov</div></div>
+    <div class="ag"><span class="num"><i data-i="bolt"></i></span><div><div class="who">Services agent</div><div class="res">Power lost in area · radiance −58%</div></div><span data-ev="obs"></span><div class="cv-src"><span class="cv-nasa">NASA</span>Black Marble VNP46A2 · NOAA-20 · 12 Nov</div></div>
+    <div class="ag"><span class="num"><i data-i="people"></i></span><div><div class="who">People agent</div><div class="res"><b class="cv-mono">120–260</b> people within 250 m</div></div><span data-ev="rep"></span><div class="cv-src">WorldPop 2025 · 100 m</div></div>
+    <div class="ag"><span class="num"><i data-i="check"></i></span><div><div class="who">Validation · analysts</div><div class="res">No UNOSAT assessment for this date</div></div><span data-ev="unk"></span><div class="cv-src">UNOSAT latest 18 Oct <span class="cv-age cv-age--stale">26 d</span></div></div>
+    <div style="margin:14px 0 18px;padding:12px;border:1px solid var(--line);border-radius:var(--radius-md)">
+      <div class="cv-row" style="justify-content:space-between"><span class="cv-eyebrow">NISAR backscatter · this building</span><span class="cv-seg"><span class="is-on">HH</span><span>HV</span></span></div>
+      <svg viewBox="0 0 400 110" width="100%" style="display:block;margin-top:8px">
+        <g style="stroke:var(--line)" stroke-width="1"><path d="M30 20H392M30 50H392M30 80H392"/></g>
+        <g style="fill:var(--ink-3);font:500 9px var(--font-mono)"><text x="0" y="23">−5</text><text x="0" y="53">−9</text><text x="0" y="83">−13</text><text x="30" y="104">24 Jun</text><text x="190" y="104">28 Sep</text><text x="352" y="104">03 Nov</text></g>
+        <path d="M30 32 L63 34 L96 31 L129 33 L162 35 L195 33 L228 34 L261 32" fill="none" style="stroke:var(--radar)" stroke-width="2"/>
+        <path d="M261 32 L294 33" fill="none" style="stroke:var(--radar)" stroke-width="2" stroke-dasharray="2 4"/>
+        <path d="M294 33 L327 35 L360 34 L392 76" fill="none" style="stroke:var(--radar)" stroke-width="2"/>
+        <g style="fill:var(--radar)"><circle cx="30" cy="32" r="3"/><circle cx="63" cy="34" r="3"/><circle cx="96" cy="31" r="3"/><circle cx="129" cy="33" r="3"/><circle cx="162" cy="35" r="3"/><circle cx="195" cy="33" r="3"/><circle cx="228" cy="34" r="3"/><circle cx="294" cy="33" r="3"/><circle cx="327" cy="35" r="3"/><circle cx="360" cy="34" r="3"/><circle cx="392" cy="76" r="4"/></g>
+        <circle cx="261" cy="32" r="3" fill="none" style="stroke:var(--ink-3)" stroke-dasharray="2 2"/>
+      </svg>
+      <div class="cv-xs cv-faint">Drop of about 6 dB on 03 Nov. Dashed: 28 Sep pass missed.</div>
+    </div>
+  </div>
+  <div class="cv-row" style="padding:12px 20px;border-top:1px solid var(--line);gap:8px"><span class="cv-btn cv-btn--primary"><i data-i="doc"></i>Area summary</span><span class="cv-btn"><i data-i="compare"></i>Before / after</span><span class="cv-btn cv-btn--ghost"><i data-i="flag"></i>Report a correction</span></div>
+</aside>
+</div></div>
+
+</section><section class="view" id="v-sources" data-view="sources" hidden>
+<div class="cv-app">
+<div data-top="Sources"></div>
+<div class="wrap">
+<div class="cv-col" style="gap:16px;min-height:0">
+  <div><h1 class="cv-h1">Sources and citations</h1><div class="cv-sm cv-muted">Every value traces to a dataset, a date and an evidence label. NASA data is the base of CIVISAR.</div></div>
+  <div class="cv-eyebrow">NASA data</div>
+  <div class="nasa">
+    <div class="tile core"><div class="cv-row" style="justify-content:space-between"><b style="font-size:16px">NISAR · core</b><span class="cv-data">L-band SAR · NASA-ISRO</span></div>
+      <div class="cv-xs">GCOV backscatter and GSLC coherence · track 151 descending, 11 passes 24 Jun – 03 Nov · tracks 172 and 100 ascending</div>
+      <div class="strip"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="m"></i><i></i><i></i><i></i></div>
+      <div class="cv-data">Newest 03 Nov 2026 · 10 d</div></div>
+    <div class="tile"><b>OPERA RTC-S1</b><span class="cv-xs cv-muted">Sentinel-1 radar change</span><span class="cv-age">10 Nov · 3 d</span></div>
+    <div class="tile"><b>Black Marble</b><span class="cv-xs cv-muted">Night lights, NOAA-20/21</span><span class="cv-age">12 Nov · 1 d</span></div>
+    <div class="tile"><b>FIRMS VIIRS</b><span class="cv-xs cv-muted">Active fires</span><span class="cv-age">13 Nov 11:52</span></div>
+    <div class="tile"><b>NASADEM</b><span class="cv-xs cv-muted">Terrain, slope for open land</span><span class="cv-age cv-age--off">static</span></div>
+    <div class="tile"><b>NASA GIBS</b><span class="cv-xs cv-muted">Base maps</span><span class="cv-age">daily</span></div>
+  </div>
+  <div class="cv-row" style="justify-content:space-between;margin-top:4px"><span class="cv-eyebrow">All datasets</span><div class="cv-row"><span class="cv-tag is-on">All 15</span><span class="cv-tag">NASA 6</span><span class="cv-tag">Other 9</span><span class="cv-input" style="width:200px;height:26px"><i data-i="search"></i>Filter</span></div></div>
+  <div style="background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md);overflow:hidden">
+  <table class="cv-table">
+    <thead><tr><th>Dataset</th><th>Provider</th><th>Used for</th><th>Newest</th><th>Cadence</th><th>Label</th></tr></thead>
+    <tbody>
+    <tr class="is-sel"><td><b>NISAR GCOV / GSLC</b></td><td>NASA-ISRO</td><td>Building change, damage classes</td><td><span class="cv-age cv-age--aging">03 Nov · 10 d</span></td><td>12 days</td><td><span data-ev="obs"></span></td></tr>
+    <tr><td><b>OPERA RTC-S1</b></td><td>NASA / ESA</td><td>Cross-check radar change</td><td><span class="cv-age">10 Nov · 3 d</span></td><td>6–12 days</td><td><span data-ev="obs"></span></td></tr>
+    <tr><td><b>FIRMS VIIRS</b></td><td>NASA</td><td>Fire alerts</td><td><span class="cv-age">13 Nov 11:52</span></td><td>several a day</td><td><span data-ev="obs"></span></td></tr>
+    <tr><td><b>OpenStreetMap</b></td><td>OSM contributors</td><td>Roads, buildings, facilities</td><td><span class="cv-age">12 Nov</span></td><td>daily extract</td><td><span data-ev="rep"></span></td></tr>
+    <tr><td><b>WorldPop</b></td><td>Univ. of Southampton</td><td>People, age groups</td><td><span class="cv-age cv-age--off">2025 model</span></td><td>yearly</td><td><span data-ev="rep"></span></td></tr>
+    <tr><td><b>ACLED</b></td><td>ACLED</td><td>Conflict events, corroboration</td><td><span class="cv-age">08 Nov · wk 45</span></td><td>weekly</td><td><span data-ev="rep"></span></td></tr>
+    <tr><td><b>IODA</b></td><td>Georgia Tech</td><td>Internet outages</td><td><span class="cv-age">live</span></td><td>real time</td><td><span data-ev="rep"></span></td></tr>
+    <tr><td><b>IOM DTM · Meta movement</b></td><td>IOM · Meta Data for Good</td><td>Displacement, movement trend</td><td><span class="cv-age cv-age--aging">05 Nov / 10 Nov</span></td><td>rounds / daily</td><td><span data-ev="rep"></span></td></tr>
+    <tr><td><b>Insecurity Insight</b></td><td>Insecurity Insight</td><td>Attacks on health, water, schools</td><td><span class="cv-age cv-age--stale">02 Nov · 11 d</span></td><td>irregular</td><td><span data-ev="rep"></span></td></tr>
+    <tr><td><b>UNOSAT · UNDP</b></td><td>UNITAR · UNDP</td><td>Validation (analysts)</td><td><span class="cv-age cv-age--stale">18 Oct · 26 d</span></td><td>irregular</td><td><span data-ev="rep"></span></td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+<aside class="cv-col" style="gap:14px;min-height:0">
+  <div class="cv-panel" style="padding:16px">
+    <div class="cv-eyebrow">Trace a value</div>
+    <div style="margin:8px 0 14px"><div class="cv-range">1,200–2,000</div><div class="cv-sm cv-muted">probably displaced · Area 7</div></div>
+    <div class="step"><span class="dot"></span><div><b class="cv-sm">Displacement agent v0.4</b><div class="cv-src">run 13 Nov 06:00 · combines ranges, never single figures</div></div></div>
+    <div class="step"><span class="dot"></span><div><b class="cv-sm">IOM DTM round 14</b> <span data-ev="rep"></span><div class="cv-src">05 Nov 2026 · district level</div></div></div>
+    <div class="step"><span class="dot"></span><div><b class="cv-sm">Meta movement maps</b> <span data-ev="rep"></span><div class="cv-src">10 Nov 2026 · area level only</div></div></div>
+    <div class="step"><span class="dot"></span><div><b class="cv-sm">WorldPop 2025 baseline</b> <span data-ev="rep"></span><div class="cv-src">100 m constrained</div></div></div>
+  </div>
+  <div class="cv-panel" style="padding:16px">
+    <div class="cv-row" style="justify-content:space-between"><span class="cv-eyebrow">Cite</span><span class="cv-btn cv-btn--sm">Copy</span></div>
+    <p class="cv-data cv-muted" style="margin:8px 0 0;font-weight:400">NASA/JPL-Caltech and ISRO. NISAR L2 GCOV, track 151 descending, acquired 2026-11-03. Distributed by ASF DAAC. Accessed 2026-11-13.</p>
+  </div>
+  <div class="cv-panel" style="padding:16px">
+    <div class="cv-eyebrow" style="margin-bottom:8px">Evidence labels</div>
+    <dl class="cv-kv" style="grid-template-columns:auto 1fr;gap:8px 10px"><dt><span data-ev="obs"></span></dt><dd>Seen in satellite data</dd><dt><span data-ev="rep"></span></dt><dd>Stated by an external source</dd><dt><span data-ev="cor"></span></dt><dd>Radar change + independent report</dd><dt><span data-ev="unk"></span></dt><dd>No evidence</dd></dl>
+  </div>
+</aside>
+</div></div>
+
+</section><section class="view" id="v-signin" data-view="signin" hidden>
+<div class="cv-app">
+<div data-top="Map" data-guest></div>
+<div class="cv-body" style="grid-template-columns:300px 1fr 340px">
+<aside class="cv-rail"><div class="cv-scroll" style="padding:8px">
+  <div class="cv-layer-group"><span class="cv-eyebrow">Agent results</span></div>
+  <div class="cv-layer is-on"><span class="cv-sw is-on"></span><span class="cv-swatch" style="background:var(--dmg-severe)"></span>Damage (area level)<span class="cv-age cv-age--aging">03 Nov</span></div>
+  <div class="cv-layer is-on"><span class="cv-sw is-on"></span><span class="cv-swatch" style="background:repeating-linear-gradient(45deg,var(--attention) 0 2px,transparent 2px 5px)"></span>Services lost<span class="cv-age">12 Nov</span></div>
+  <div class="cv-layer cv-layer--locked"><span class="cv-sw"></span><span class="cv-swatch" style="border:1px dashed var(--line-strong)"></span>Route options<span class="cv-lock" style="margin-left:auto"><i data-i="lock"></i></span></div>
+  <div class="cv-layer cv-layer--locked"><span class="cv-sw"></span><span class="cv-swatch" style="border:1px dashed var(--line-strong)"></span>Shelter candidates<span class="cv-lock" style="margin-left:auto"><i data-i="lock"></i></span></div>
+  <div class="cv-layer cv-layer--locked"><span class="cv-sw"></span><span class="cv-swatch" style="border:1px dashed var(--line-strong)"></span>Displacement sites<span class="cv-lock" style="margin-left:auto"><i data-i="lock"></i></span></div>
+  <div class="cv-layer cv-layer--locked"><span class="cv-sw"></span><span class="cv-swatch" style="border:1px dashed var(--line-strong)"></span>Movement trend<span class="cv-lock" style="margin-left:auto"><i data-i="lock"></i></span></div>
+  <div class="cv-layer cv-layer--locked"><span class="cv-sw"></span><span class="cv-swatch" style="border:1px dashed var(--line-strong)"></span>Dispatch reports<span class="cv-lock" style="margin-left:auto"><i data-i="lock"></i></span></div>
+  <div class="cv-layer-group" style="margin-top:6px"><span class="cv-eyebrow">Data layers</span></div>
+  <div class="cv-layer is-on"><span class="cv-sw is-on"></span><span class="cv-swatch" style="background:var(--radar)"></span>NISAR radar change<span class="cv-age cv-age--aging">03 Nov</span></div>
+  <div class="cv-layer is-on"><span class="cv-sw is-on"></span><span class="cv-swatch" style="background:var(--fire);border-radius:50%"></span>Active fires<span class="cv-age">11:52</span></div>
+  <div class="cv-layer"><span class="cv-sw"></span><span class="cv-swatch" style="background:var(--dmg-possible)"></span>Night lights<span class="cv-age">12 Nov</span></div>
+  <div class="cv-xs cv-faint" style="padding:10px 8px">5 layers need sign-in. They are not loaded at all while you are signed out.</div>
+</div></aside>
+
+<main class="cv-map" data-map='{"radar":1,"services":1,"fires":1,"pulse":false,"vb":[200,90,700,560]}'>
+  <div style="position:absolute;inset:0;background:var(--bg);opacity:.55;z-index:30"></div>
+  <div class="cv-panel cv-float dlg">
+    <div class="cv-row" style="gap:10px"><span class="cv-alert-ico" style="background:var(--accent-soft);color:var(--accent)"><i data-i="shield"></i></span><div><h2 class="cv-h2">Sign in for responder layers</h2><div class="cv-xs cv-muted">Routes, shelters, displacement sites, dispatch reports</div></div></div>
+    <div class="f"><label>Organisation email</label><span>demo.visitor@example.org</span></div>
+    <div class="f"><label>Password</label><span>••••••••••••</span></div>
+    <div class="err"><i data-i="lock"></i><div><b>Access blocked.</b> This account is not authorised for responder layers. Ask your organisation’s CIVISAR admin to approve it.<div class="cv-data cv-faint" style="margin-top:4px">Attempt logged 13 Nov 14:07 EET</div></div></div>
+    <div class="cv-row" style="margin-top:16px;gap:8px"><span class="cv-btn cv-btn--primary cv-btn--lg cv-grow" style="justify-content:center">Sign in</span><span class="cv-btn cv-btn--lg">Organisation SSO</span></div>
+    <div class="cv-xs cv-faint" style="margin-top:12px">CIVISAR is not a public app. Access is limited to approved emergency and humanitarian organisations.</div>
+  </div>
+  <div class="cv-attrib" style="z-index:31">NASA GIBS · © OSM</div>
+</main>
+
+<aside class="cv-side"><div class="cv-scroll" style="padding:16px;display:flex;flex-direction:column;gap:12px">
+  <b>Area 7 · Qana–Tibnine</b>
+  <div class="cv-sm">About <b class="cv-mono">4,000–6,500</b> people live here.</div>
+  <div class="hidden"><i data-i="lock"></i><span><b>Route options</b><br>Hidden. Sign in to see.</span></div>
+  <div class="hidden"><i data-i="lock"></i><span><b>Shelter candidates</b><br>Hidden. Sign in to see.</span></div>
+  <div class="hidden"><i data-i="lock"></i><span><b>Displacement and movement</b><br>Hidden. Sign in to see.</span></div>
+  <div class="hidden"><i data-i="lock"></i><span><b>Dispatch reports</b><br>Hidden. Sign in to see.</span></div>
+  <div class="cv-xs cv-faint">Hidden means not sent to this device. Nothing is blurred or cached.</div>
+</div></aside>
+</div></div>
+
+</section><section class="view" id="v-phone" data-view="phone" hidden>
+<div class="stage">
+<div><div class="cv-phone ph">
+  <div class="cv-phone-bar"><span>14:08</span><span>●●● 4G</span></div>
+  <div class="hd"><b>Alerts</b><span class="cv-count" style="background:var(--attention-soft);color:var(--attention)">6 new</span></div>
+  <div class="cv-row" style="gap:6px;padding:10px 14px;background:var(--surface)"><span class="cv-tag is-on">All</span><span class="cv-tag"><i data-i="fire"></i>Fire</span><span class="cv-tag"><i data-i="bolt"></i>Power</span><span class="cv-tag"><i data-i="sat"></i>Radar</span></div>
+  <div style="background:var(--surface);overflow:hidden">
+    <div class="cv-alert is-new"><span class="cv-alert-ico cv-alert-ico--fire"><i data-i="fire"></i></span><div><div class="cv-row" style="justify-content:space-between;flex-wrap:nowrap"><h4>Fire detected</h4><span data-ev="obs"></span></div><div class="cv-sm">Near Tibnine · Area 7</div><div class="meta"><span>11:52</span><span>VIIRS NOAA-21</span></div></div></div>
+    <div class="cv-alert is-new"><span class="cv-alert-ico cv-alert-ico--net"><i data-i="wifioff"></i></span><div><div class="cv-row" style="justify-content:space-between;flex-wrap:nowrap"><h4>Internet outage</h4><span data-ev="rep"></span></div><div class="cv-sm">Nabatieh · Area 2</div><div class="meta"><span>since 09:10</span><span>IODA</span></div></div></div>
+    <div class="cv-alert is-new"><span class="cv-alert-ico cv-alert-ico--radar"><i data-i="sat"></i></span><div><div class="cv-row" style="justify-content:space-between;flex-wrap:nowrap"><h4>Building change</h4><span data-ev="cor"></span></div><div class="cv-sm">Area 7 · neighbourhood</div><div class="meta"><span>pass 03 Nov</span><span>NISAR</span></div></div></div>
+    <div class="cv-alert"><span class="cv-alert-ico cv-alert-ico--power"><i data-i="bolt"></i></span><div><div class="cv-row" style="justify-content:space-between;flex-wrap:nowrap"><h4>Night-light drop</h4><span data-ev="obs"></span></div><div class="cv-sm">Bint Jbeil · Area 4</div><div class="meta"><span>12 Nov</span><span>Black Marble</span></div></div></div>
+    <div class="cv-alert"><span class="cv-alert-ico cv-alert-ico--fire"><i data-i="fire"></i></span><div><div class="cv-row" style="justify-content:space-between;flex-wrap:nowrap"><h4>Fire detected</h4><span data-ev="obs"></span></div><div class="cv-sm">Khiam · Area 9</div><div class="meta"><span>02:14</span><span>VIIRS NOAA-20</span></div></div></div>
+  </div>
+  <div class="tb"><span class="is-on"><i data-i="bell"></i>Alerts</span><span><i data-i="map"></i>Map</span><span><i data-i="doc"></i>Areas</span><span><i data-i="route"></i>Routes</span></div>
+</div><div class="cap">Alerts</div></div>
+
+<div><div class="cv-phone ph">
+  <div class="cv-phone-bar"><span>14:09</span><span>●●● 4G</span></div>
+  <div class="hd"><span class="cv-row" style="gap:6px"><i data-i="chevl"></i><b>Area 7 · Qana–Tibnine</b></span><i data-i="print"></i></div>
+  <div style="padding:14px;display:flex;flex-direction:column;gap:12px;overflow:hidden">
+    <div class="cv-sm" style="font-size:16px;line-height:22px;font-weight:600">About <span class="cv-mono">4,000–6,500</span> people live here. About <span class="cv-mono">1,200–2,000</span> probably displaced.</div>
+    <div class="cv-src"><span data-ev="rep"></span>WorldPop · IOM DTM 05 Nov</div>
+    <div class="cv-eyebrow">What to bring</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="cv-bring" style="grid-template-columns:28px 1fr;padding:8px"><span class="ic" style="width:28px;height:28px"><i data-i="drop"></i></span><div><div class="lost">Water lost</div><div class="get cv-sm">Water</div></div></div>
+      <div class="cv-bring" style="grid-template-columns:28px 1fr;padding:8px"><span class="ic" style="width:28px;height:28px"><i data-i="bulb"></i></span><div><div class="lost">Power lost</div><div class="get cv-sm">Generators</div></div></div>
+      <div class="cv-bring" style="grid-template-columns:28px 1fr;padding:8px"><span class="ic" style="width:28px;height:28px"><i data-i="med"></i></span><div><div class="lost">Health lost</div><div class="get cv-sm">Medical team</div></div></div>
+      <div class="cv-bring" style="grid-template-columns:28px 1fr;padding:8px"><span class="ic" style="width:28px;height:28px"><i data-i="radio"></i></span><div><div class="lost">Comms down</div><div class="get cv-sm">Radios</div></div></div>
+    </div>
+    <div class="cv-eyebrow">Facilities hit</div>
+    <div class="cv-col" style="gap:6px"><span class="cv-fac cv-fac--dmg"><b>✕</b>1 clinic damaged</span><span class="cv-dmg cv-dmg--p"><i></i>2 schools possibly damaged</span></div>
+    <div class="cv-eyebrow">Nearest working hospital</div>
+    <span class="cv-fac cv-fac--ok"><b>✓</b>H-02 Tyre · 17.9 km · reported 12 Nov</span>
+    <div class="cv-banner cv-banner--off" style="font-size:12px"><i data-i="cloudoff"></i><span>Saved for offline 14:02</span></div>
+  </div>
+  <div class="tb"><span><i data-i="bell"></i>Alerts</span><span><i data-i="map"></i>Map</span><span class="is-on"><i data-i="doc"></i>Areas</span><span><i data-i="route"></i>Routes</span></div>
+</div><div class="cap">Area summary</div></div>
+
+<div><div class="cv-phone ph">
+  <div class="cv-phone-bar"><span>14:10</span><span>●●● 4G</span></div>
+  <div class="cv-map" style="height:250px;flex:none" data-map='{"vb":[200,300,280,190],"routes":["a","b","c"],"sel":"b","closures":1,"flagA":1,"base":1,"dest":1,"areaLabels":false}'></div>
+  <div style="padding:12px 14px;display:flex;flex-direction:column;gap:8px;overflow:hidden;background:var(--surface);border-radius:var(--radius-lg) var(--radius-lg) 0 0;margin-top:-12px;position:relative">
+    <div class="cv-row" style="justify-content:space-between"><b>Inbound · 3 options</b><span class="cv-seg"><span class="is-on">In</span><span>Out</span></span></div>
+    <div class="cv-banner cv-banner--att" style="font-size:12px;padding:8px"><i data-i="warn"></i><span>New closure on A at 12:20. Use B or C.</span></div>
+    <div class="cv-route is-sel"><div class="cv-route-h"><span class="cv-route-key cv-route-key--b">B</span><div class="cv-grow"><div class="cv-route-big">26.9 km · 44 min</div><div class="cv-xs cv-muted">No reported closure · 1 bridge</div></div></div></div>
+    <div class="cv-route"><div class="cv-route-h"><span class="cv-route-key cv-route-key--c">C</span><div class="cv-grow"><div class="cv-route-big">15.2 km · 34 min</div><div class="cv-xs cv-muted">3 unknown segments · no heavy</div></div></div></div>
+    <div class="cv-route is-flag"><div class="cv-route-h"><span class="cv-route-key cv-route-key--a">A</span><div class="cv-grow"><div class="cv-route-big">18.4 km · 31 min</div><div class="cv-xs" style="color:var(--attention)">New closure reported</div></div></div></div>
+    <span class="cv-btn cv-btn--primary cv-btn--lg" style="justify-content:center"><i data-i="nav"></i>Start navigation on B</span>
+  </div>
+</div><div class="cap">Routes</div></div>
+</div>
+
+</section><div id="toast" role="status"></div>
+<div id="umenu" class="cv-panel cv-float" hidden>
+  <div data-act="theme"><i data-i="moon"></i>Switch light / dark</div>
+  <div data-go="phone"><i data-i="phone"></i>Phone preview</div>
+  <div data-go="sources"><i data-i="doc"></i>Sources</div>
+  <div data-act="signout"><i data-i="lock"></i>Sign out</div>
+</div>
+<div id="jump" title="Prototype navigator (not part of the app)"><span data-act="jmin">PROTOTYPE ▾</span>
+<span data-go="main">Map</span><span data-go="alert">Alert</span><span data-go="area">Area</span><span data-go="brief">Brief</span><span data-go="routes">Routes</span><span data-go="shelters">Shelters</span><span data-go="inspect">Building</span><span data-go="sources">Sources</span><span data-go="signin">Signed out</span><span data-go="phone">Phone</span></div>
+<script>/* CIVISAR helpers: icons, an illustrative south-Lebanon base map, and hydrate(). Plain script, no dependencies. */
+(function () {
+  var P = {
+    layers: '<path d="M12 3 2 8l10 5 10-5-10-5Z"/><path d="m2 13 10 5 10-5"/><path d="m2 17.5 10 5 10-5"/>',
+    bell: '<path d="M6 9a6 6 0 0 1 12 0c0 6 3 8 3 8H3s3-2 3-8"/><path d="M10 20a2 2 0 0 0 4 0"/>',
+    fire: '<path d="M12 22c4 0 7-3 7-7 0-4-3-6-4-9-1 2-2 3-3 3 0-2-1-4-3-6 0 4-4 6-4 12 0 4 3 7 7 7Z"/>',
+    bolt: '<path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/>',
+    wifioff: '<path d="m2 2 20 20"/><path d="M8.5 16.5a5 5 0 0 1 7 0"/><path d="M5 12.5a10 10 0 0 1 5-2.6"/><path d="M19 12.5a10 10 0 0 0-2.3-1.6"/><path d="M1.5 8.5A15 15 0 0 1 6 5.7"/><path d="M22.5 8.5A15 15 0 0 0 10.7 4.1"/><path d="M12 20h.01"/>',
+    sat: '<path d="M7 4 4 7l4 4 3-3Z"/><path d="m16 13-3 3 4 4 3-3Z"/><path d="m9.5 9.5 5 5"/><path d="M14 6a4 4 0 0 1 4 4"/><path d="M14 2a8 8 0 0 1 8 8"/>',
+    building: '<path d="M4 21V5l8-3v19"/><path d="M12 8h8v13"/><path d="M2 21h20"/><path d="M7 8h2M7 12h2M7 16h2M15 12h2M15 16h2"/>',
+    route: '<circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M6 17V10a4 4 0 0 1 4-4h2"/><path d="M18 7v7a4 4 0 0 1-4 4h-2"/>',
+    tent: '<path d="M3 20 12 4l9 16Z"/><path d="m9 20 3-6 3 6"/>',
+    people: '<circle cx="9" cy="7" r="3"/><path d="M3 21v-1a6 6 0 0 1 12 0v1"/><path d="M16 3.5a3 3 0 0 1 0 6"/><path d="M21 21v-1a5 5 0 0 0-3-4.6"/>',
+    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    print: '<path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6Z"/>',
+    download: '<path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 21h16"/>',
+    lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+    user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+    search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
+    chev: '<path d="m9 6 6 6-6 6"/>',
+    chevd: '<path d="m6 9 6 6 6-6"/>',
+    chevl: '<path d="m15 6-6 6 6 6"/>',
+    check: '<path d="m5 12 5 5 9-10"/>',
+    x: '<path d="M6 6l12 12M18 6 6 18"/>',
+    q: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 1-1 1.7"/><path d="M12 17h.01"/>',
+    eye: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
+    quote: '<path d="M7 7h4v4c0 3-2 5-4 6"/><path d="M15 7h4v4c0 3-2 5-4 6"/>',
+    rings: '<circle cx="9" cy="12" r="5"/><circle cx="15" cy="12" r="5"/>',
+    doc: '<path d="M6 2h9l5 5v15H6Z"/><path d="M14 2v6h6"/><path d="M9 13h8M9 17h6"/>',
+    map: '<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14M15 6v14"/>',
+    drop: '<path d="M12 3s7 7 7 12a7 7 0 0 1-14 0c0-5 7-12 7-12Z"/>',
+    med: '<path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6Z"/>',
+    school: '<path d="m2 9 10-5 10 5-10 5Z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/><path d="M22 9v6"/>',
+    info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><path d="M12 7.5h.01"/>',
+    arrow: '<path d="M5 12h14"/><path d="m13 6 6 6-6 6"/>',
+    ext: '<path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M18 14v6H4V6h6"/>',
+    phone: '<rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/>',
+    radio: '<rect x="4" y="9" width="16" height="12" rx="2"/><path d="M8 9 16 3"/><circle cx="9" cy="15" r="2"/><path d="M14 13h3M14 17h3"/>',
+    bulb: '<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3Z"/>',
+    flag: '<path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/>',
+    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+    moon: '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z"/>',
+    cloudoff: '<path d="m2 2 20 20"/><path d="M17.5 17.5H7a5 5 0 0 1-1-9.9"/><path d="M10 5.3A6 6 0 0 1 18 9h.5a4 4 0 0 1 2.8 6.8"/>',
+    refresh: '<path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/>',
+    bridge: '<path d="M2 16h20"/><path d="M4 16v4M20 16v4"/><path d="M4 16c2-6 14-6 16 0"/><path d="M8 12.5V16M12 11v5M16 12.5V16"/>',
+    closure: '<rect x="3" y="8" width="18" height="7" rx="1"/><path d="m8 8-3 7M13 8l-3 7M18 8l-3 7"/><path d="M6 15v5M18 15v5"/>',
+    truck: '<path d="M2 6h12v10H2Z"/><path d="M14 10h4l4 4v2h-8Z"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/>',
+    move: '<path d="M3 7h13"/><path d="m12 3 4 4-4 4"/><path d="M21 17H8"/><path d="m12 13-4 4 4 4"/>',
+    filter: '<path d="M3 5h18M6 12h12M10 19h4"/>',
+    compare: '<path d="M12 3v18"/><path d="M4 6h5v12H4Z"/><path d="M15 6h5v12h-5Z"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    minus: '<path d="M5 12h14"/>',
+    locate: '<circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 1v3M12 20v3M1 12h3M20 12h3"/>',
+    home: '<path d="m3 11 9-8 9 8"/><path d="M5 9v12h14V9"/>',
+    warn: '<path d="M12 3 2 21h20L12 3Z"/><path d="M12 10v5"/><path d="M12 18h.01"/>',
+    nav: '<path d="m3 11 19-9-9 19-2-8-8-2Z"/>',
+    share: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/>',
+    grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',
+    dots: '<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',
+    shield: '<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6l-8-3Z"/>',
+    moon2: '<path d="M12 3v3M12 18v3"/>'
+  };
+  function icon(n, extra) {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"' + (extra || '') + '>' + (P[n] || P.q) + '</svg>';
+  }
+
+  /* deterministic pseudo random */
+  function rnd(seed) { var s = seed % 2147483647; if (s <= 0) s += 2147483646; return function () { s = s * 16807 % 2147483647; return (s - 1) / 2147483646; }; }
+  function pts(a) { return a.map(function (p) { return p[0] + ',' + p[1]; }).join(' '); }
+  function line(a) { return 'M' + a.map(function (p) { return p[0] + ' ' + p[1]; }).join(' L'); }
+  function curve(a) { var d = 'M' + a[0][0] + ' ' + a[0][1]; for (var i = 1; i < a.length; i++) { var p = a[i - 1], q = a[i]; var mx = (p[0] + q[0]) / 2, my = (p[1] + q[1]) / 2; d += ' Q' + p[0] + ' ' + p[1] + ' ' + mx + ' ' + my; } var l = a[a.length - 1]; return d + ' T' + l[0] + ' ' + l[1]; }
+
+  var LAND = [[292, 0], [1000, 0], [1000, 640], [140, 640], [152, 590], [160, 555], [172, 528], [188, 478], [204, 432], [198, 404], [178, 396], [172, 382], [186, 368], [214, 362], [232, 318], [246, 262], [262, 190], [276, 110]];
+  var BORDER = [[160, 556], [240, 572], [330, 566], [440, 552], [540, 574], [640, 576], [720, 540], [790, 478], [860, 430], [920, 412], [1000, 398]];
+  var LITANI = [[760, 30], [784, 120], [776, 214], [716, 256], [610, 252], [500, 276], [400, 290], [310, 300], [242, 306]];
+  var WADI = [[580, 362], [500, 386], [430, 394], [360, 384], [300, 360], [252, 346]];
+  var ROADS_MAJOR = [
+    [[286, 0], [262, 140], [246, 250], [226, 340], [214, 372], [204, 430], [190, 480], [170, 548]],
+    [[218, 372], [300, 346], [380, 330], [472, 282], [520, 230], [562, 176]],
+    [[218, 388], [282, 396], [334, 420], [384, 442], [432, 454], [482, 470], [530, 500], [562, 522]],
+    [[562, 176], [640, 206], [716, 250], [800, 300], [848, 360]],
+    [[562, 522], [640, 492], [700, 440], [760, 360], [800, 300]],
+    [[562, 176], [600, 80], [640, 0]]
+  ];
+  var ROADS_MINOR = [
+    [[334, 420], [330, 470], [360, 500], [420, 520]], [[432, 454], [440, 404], [450, 370], [472, 282]],
+    [[384, 442], [372, 400], [390, 360], [380, 330]], [[482, 470], [520, 430], [600, 420], [680, 440]],
+    [[226, 340], [300, 316], [380, 330]], [[300, 346], [320, 290], [360, 220], [440, 160], [562, 176]],
+    [[218, 388], [254, 430], [322, 470], [380, 482], [432, 462]], [[640, 206], [660, 300], [700, 380], [700, 440]],
+    [[190, 480], [260, 500], [330, 530], [420, 520], [530, 540], [562, 522]]
+  ];
+  var AREAS = {
+    A1: { n: 'Area 1 · Tyre', p: [[190, 340], [262, 326], [300, 392], [292, 446], [214, 446], [196, 420]], c: [236, 352] },
+    A7: { n: 'Area 7 · Qana–Tibnine', p: [[300, 392], [396, 378], [470, 406], [522, 452], [506, 506], [420, 522], [338, 492], [292, 446]], c: [404, 404] },
+    A4: { n: 'Area 4 · Bint Jbeil', p: [[506, 506], [522, 452], [602, 446], [646, 498], [612, 560], [530, 566]], c: [584, 474] },
+    A2: { n: 'Area 2 · Nabatieh', p: [[478, 118], [622, 108], [664, 200], [594, 252], [502, 232]], c: [572, 140] },
+    A9: { n: 'Area 9 · Marjayoun', p: [[720, 252], [832, 238], [884, 330], [852, 400], [762, 382], [718, 314]], c: [800, 268] }
+  };
+  var TOWNS = [['Tyre', 214, 392, 1], ['Qana', 334, 420, 0], ['Nabatieh', 562, 176, 1], ['Tibnine', 482, 470, 0], ['Bint Jbeil', 562, 522, 1], ['Marjayoun', 800, 300, 1], ['Naqoura', 172, 538, 0], ['Khiam', 848, 360, 0]];
+  var FAC = [
+    ['H', 'H-02', 222, 404, 'ok'], ['C', 'C-3', 436, 446, 'dmg'], ['S', 'S-14', 366, 430, 'nd'], ['S', 'S-21', 462, 478, 'unk'],
+    ['W', 'W-5', 408, 492, 'dmg'], ['P', 'P-1', 486, 432, 'unk'], ['H', 'H-07', 572, 188, 'ok'], ['H', 'H-09', 572, 534, 'unk'], ['W', 'W-9', 610, 470, 'dmg'], ['S', 'S-30', 540, 200, 'nd']
+  ];
+  var ROUTES = {
+    a: [[226, 380], [282, 396], [334, 420], [384, 442], [432, 454]],
+    b: [[226, 376], [238, 334], [300, 316], [380, 330], [450, 370], [446, 420], [432, 454]],
+    c: [[224, 390], [254, 430], [322, 470], [380, 482], [432, 462], [432, 454]]
+  };
+  var DASH = { a: '', b: '10 6', c: '2 5 8 5' };
+
+  function map(o) {
+    o = o || {};
+    var vb = o.vb || [0, 0, 1000, 640], k = vb[2] / 1000, r = rnd(o.seed || 7), s = [];
+    var sw = function (w) { return (w * k).toFixed(2); };
+    s.push('<svg class="cv-mapsvg" viewBox="' + vb.join(' ') + '" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Illustrative map of south Lebanon">');
+    s.push('<defs><pattern id="hatch" width="' + sw(8) + '" height="' + sw(8) + '" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="' + sw(2.5) + '" height="' + sw(8) + '" style="fill:var(--attention)" opacity=".38"/></pattern>' +
+      '<pattern id="hatchnet" width="' + sw(6) + '" height="' + sw(6) + '" patternUnits="userSpaceOnUse"><circle cx="' + sw(3) + '" cy="' + sw(3) + '" r="' + sw(1) + '" style="fill:var(--ink-2)" opacity=".5"/></pattern>' +
+      '<marker id="arr" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 10 5 0 10z" style="fill:var(--ink)"/></marker></defs>');
+    s.push('<rect x="-50" y="-50" width="1100" height="740" style="fill:var(--map-water)"/>');
+    s.push('<polygon points="' + pts(LAND) + '" style="fill:var(--map-land)"/>');
+    /* NASADEM relief contours */
+    for (var c = 0; c < 9; c++) { var y0 = 60 + c * 62; s.push('<path d="M' + (300 + c * 8) + ' ' + y0 + ' C ' + (480) + ' ' + (y0 - 30) + ', ' + (640) + ' ' + (y0 + 40) + ', ' + (1000) + ' ' + (y0 - 10) + '" fill="none" style="stroke:var(--map-relief)" stroke-width="' + sw(1.2) + '"/>'); }
+    if (o.pop) { for (var gx = 180; gx < 1000; gx += 22) for (var gy = 0; gy < 600; gy += 22) { var d = 999; TOWNS.forEach(function (t) { var dd = Math.hypot(t[1] - gx, t[2] - gy) / (t[3] ? 1 : 1.6); if (dd < d) d = dd; }); var a = Math.max(0, .42 - d / 260); if (a > .03 && gx > 200) s.push('<rect x="' + gx + '" y="' + gy + '" width="21" height="21" style="fill:var(--map-area)" opacity="' + a.toFixed(2) + '"/>'); } }
+    s.push('<path d="' + curve(LITANI) + '" fill="none" style="stroke:var(--map-water)" stroke-width="' + sw(5) + '" stroke-linecap="round"/>');
+    s.push('<path d="' + curve(WADI) + '" fill="none" style="stroke:var(--map-water)" stroke-width="' + sw(2.5) + '" stroke-linecap="round"/>');
+    /* outside area of interest */
+    s.push('<path d="M' + BORDER[0].join(' ') + ' L' + BORDER.slice(1).map(function (p) { return p.join(' '); }).join(' L') + ' L1000 700 L100 700Z" style="fill:var(--map-mask)" opacity=".7"/>');
+    s.push('<path d="' + line(BORDER) + '" fill="none" style="stroke:var(--ink-3)" stroke-width="' + sw(1.2) + '" stroke-dasharray="' + sw(6) + ' ' + sw(4) + '"/>');
+    /* areas */
+    Object.keys(AREAS).forEach(function (id) {
+      var A = AREAS[id], focus = o.focus === id;
+      if (o.services && (id === 'A7' || id === 'A4')) s.push('<polygon points="' + pts(A.p) + '" fill="url(#hatch)"/>');
+      if (o.net && id === 'A2') s.push('<polygon points="' + pts(A.p) + '" fill="url(#hatchnet)"/>');
+      s.push('<polygon points="' + pts(A.p) + '" fill="none" style="stroke:var(--map-area)" stroke-width="' + sw(focus ? 2.4 : 1) + '" stroke-dasharray="' + (focus ? '' : sw(3) + ' ' + sw(3)) + '" opacity="' + (focus ? 1 : .55) + '"/>');
+    });
+    /* roads */
+    ROADS_MINOR.forEach(function (rd) { s.push('<path d="' + line(rd) + '" fill="none" style="stroke:var(--map-road)" stroke-width="' + sw(2) + '" stroke-linejoin="round"/>'); });
+    ROADS_MAJOR.forEach(function (rd) { s.push('<path d="' + line(rd) + '" fill="none" style="stroke:var(--line-strong)" stroke-width="' + sw(5) + '" stroke-linejoin="round" opacity=".35"/><path d="' + line(rd) + '" fill="none" style="stroke:var(--map-road-major)" stroke-width="' + sw(3.4) + '" stroke-linejoin="round"/>'); });
+    if (o.lights) { var rl = rnd(31); TOWNS.forEach(function (t) { var n = t[3] ? 26 : 12; for (var i = 0; i < n; i++) { var ang = rl() * 6.28, rr = rl() * (t[3] ? 26 : 14); var lost = (t[0] === 'Bint Jbeil' || t[0] === 'Tibnine' || t[0] === 'Qana') && rl() < .7; if (o.lights === 'before' || !lost) s.push('<circle cx="' + (t[1] + Math.cos(ang) * rr).toFixed(1) + '" cy="' + (t[2] + Math.sin(ang) * rr).toFixed(1) + '" r="' + sw(1.8) + '" style="fill:var(--dmg-possible)" opacity=".9"/>'); } }); }
+    /* radar change (NISAR / S1) */
+    if (o.radar) { var rr2 = rnd(o.radarSeed || 11), centers = [[420, 452, 40], [586, 500, 30], [820, 344, 22], [470, 420, 18]]; if (o.radar === 'early') centers = centers.slice(1, 3); centers.forEach(function (cn) { for (var i = 0; i < cn[2]; i++) { var x = cn[0] + (rr2() - .5) * cn[2] * 2.2, y = cn[1] + (rr2() - .5) * cn[2] * 1.6; s.push('<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + sw(7) + '" height="' + sw(7) + '" style="fill:var(--radar)" opacity="' + (.25 + rr2() * .45).toFixed(2) + '"/>'); } }); }
+    /* building damage classes */
+    if (o.dmg || o.buildings) {
+      var rb = rnd(5), B = [];
+      [[420, 452, 90, 46], [586, 500, 60, 36], [214, 392, 70, 30], [562, 176, 70, 34], [334, 420, 40, 24], [482, 470, 40, 24], [820, 344, 40, 26]].forEach(function (cl, ci) {
+        for (var i = 0; i < cl[2]; i++) { var ang = rb() * 6.28, rad = Math.sqrt(rb()) * cl[3]; var x = cl[0] + Math.cos(ang) * rad, y = cl[1] + Math.sin(ang) * rad * .8; var cls = null; if (ci === 0 || ci === 1 || ci === 6) { var dd = rad / cl[3] + rb() * .35; cls = dd < .35 ? 'd' : dd < .6 ? 's' : dd < .85 ? 'm' : dd < 1.05 ? 'p' : null; } B.push([x, y, cls]); }
+      });
+      var col = { d: '--dmg-destroyed', s: '--dmg-severe', m: '--dmg-moderate', p: '--dmg-possible' };
+      B.forEach(function (b) { var w = sw(o.vb ? 5 : 4.2), h = sw(o.vb ? 4 : 3.4); if (o.dmg && b[2]) { s.push('<rect x="' + b[0].toFixed(1) + '" y="' + b[1].toFixed(1) + '" width="' + w + '" height="' + h + '" style="fill:var(' + col[b[2]] + ');stroke:var(--surface)" stroke-width="' + sw(.6) + '"/>'); } else if (o.buildings) { s.push('<rect x="' + b[0].toFixed(1) + '" y="' + b[1].toFixed(1) + '" width="' + w + '" height="' + h + '" style="fill:var(--ink-3)" opacity=".45"/>'); } });
+      if (o.valid) { var rv = rnd(9); for (var j = 0; j < 14; j++) { var bb = B[Math.floor(rv() * 90)]; s.push('<rect x="' + (bb[0] - 1.5 * k).toFixed(1) + '" y="' + (bb[1] - 1.5 * k).toFixed(1) + '" width="' + sw(7.5) + '" height="' + sw(6.5) + '" fill="none" style="stroke:var(--ink)" stroke-width="' + sw(.9) + '"/>'); } }
+    }
+    /* unknown road segments, closures, bridges */
+    if (o.unknownSeg) { [[[322, 470], [380, 482]], [[254, 430], [290, 452]], [[446, 420], [450, 370]]].forEach(function (sg) { s.push('<path d="' + line(sg) + '" fill="none" style="stroke:var(--ink-2)" stroke-width="' + sw(4) + '" stroke-dasharray="' + sw(2) + ' ' + sw(3) + '"/>'); }); }
+    /* routes */
+    (o.routes || []).forEach(function (id) {
+      var sel = o.sel === id, R = ROUTES[id];
+      if (o.out) R = R.slice().reverse();
+      s.push('<path d="' + line(R) + '" fill="none" style="stroke:var(--surface)" stroke-width="' + sw(sel ? 9 : 6.5) + '" stroke-linejoin="round" stroke-linecap="round"/>');
+      s.push('<path d="' + line(R) + '" fill="none" style="stroke:var(--route-' + id + ')" stroke-width="' + sw(sel ? 5 : 3) + '" stroke-dasharray="' + (DASH[id] ? DASH[id].split(' ').map(function (v) { return sw(+v); }).join(' ') : '') + '" stroke-linejoin="round" stroke-linecap="round" opacity="' + (o.sel && !sel ? .7 : 1) + '"/>');
+      var m = R[Math.floor(R.length / 2)];
+      s.push('<g transform="translate(' + m[0] + ' ' + m[1] + ') scale(' + k + ')"><rect x="-9" y="-9" width="18" height="18" rx="3" style="fill:var(--route-' + id + ');stroke:var(--surface)" stroke-width="2"/><text y="4.5" text-anchor="middle" style="fill:var(--ink-inverse);font:700 12px var(--font-mono)">' + id.toUpperCase() + '</text></g>');
+    });
+    if (o.closures) { var cl = [[270, 456], [396, 346], [300, 420]]; if (o.flagA) cl.push([358, 431]); cl.forEach(function (p, i) { var nw = o.flagA && i === cl.length - 1; s.push('<g transform="translate(' + p[0] + ' ' + p[1] + ') scale(' + k + ')"><rect x="-8" y="-8" width="16" height="16" rx="2" style="fill:var(--surface);stroke:' + (nw ? 'var(--attention)' : 'var(--ink)') + '" stroke-width="2"/><path d="M-4 -4 4 4M4 -4 -4 4" style="stroke:' + (nw ? 'var(--attention)' : 'var(--ink)') + '" stroke-width="2.2"/></g>'); if (nw) s.push('<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + sw(16) + '" fill="none" style="stroke:var(--attention)" stroke-width="' + sw(2) + '" class="cv-pulse"/>'); }); }
+    if (o.bridges) { [[445, 392, 'nd'], [243, 306, 'nd'], [472, 282, 'unk']].forEach(function (b) { s.push('<g transform="translate(' + b[0] + ' ' + b[1] + ') scale(' + k + ')"><rect x="-9" y="-6" width="18" height="12" rx="6" style="fill:var(--surface);stroke:var(--ink)" stroke-width="1.6" stroke-dasharray="' + (b[2] === 'unk' ? '3 2' : '') + '"/><path d="M-5 2C-3-3 3-3 5 2" fill="none" style="stroke:var(--ink)" stroke-width="1.6"/></g>'); }); }
+    /* movement trend, area level */
+    if (o.moves) {
+      s.push('<path d="M570 548 Q 420 600 262 452" fill="none" style="stroke:var(--ink)" stroke-width="' + sw(2.2) + '" stroke-dasharray="' + sw(7) + ' ' + sw(5) + '" marker-end="url(#arr)" opacity=".8"/>');
+      s.push('<path d="M786 290 Q 720 170 612 160" fill="none" style="stroke:var(--ink)" stroke-width="' + sw(2.2) + '" stroke-dasharray="' + sw(7) + ' ' + sw(5) + '" marker-end="url(#arr)" opacity=".8"/>');
+    }
+    /* events and reported attacks */
+    if (o.events) { [[470, 440], [600, 520], [830, 330], [590, 230], [500, 500], [760, 380]].forEach(function (p) { s.push('<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + sw(5) + '" fill="none" style="stroke:var(--ev-reported)" stroke-width="' + sw(2) + '"/><circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + sw(1.6) + '" style="fill:var(--ev-reported)"/>'); }); }
+    if (o.attacks) { [[450, 466], [604, 196], [578, 540]].forEach(function (p) { s.push('<g transform="translate(' + p[0] + ' ' + p[1] + ') scale(' + k + ')"><path d="M0 -9 8 -4.5 8 4.5 0 9 -8 4.5 -8 -4.5Z" style="fill:var(--surface);stroke:var(--ev-reported)" stroke-width="2"/><text y="3.8" text-anchor="middle" style="fill:var(--ev-reported);font:700 10px var(--font-sans)">R</text></g>'); }); }
+    /* facilities */
+    if (o.fac) FAC.forEach(function (f) { if (o.facOnly && o.facOnly.indexOf(f[1]) < 0) return; var st = f[4]; var fill = st === 'ok' ? 'var(--st-working)' : st === 'dmg' ? 'var(--st-damaged)' : 'var(--surface)'; var tc = st === 'ok' || st === 'dmg' ? 'var(--ink-inverse)' : 'var(--st-unknown)'; s.push('<g transform="translate(' + f[2] + ' ' + f[3] + ') scale(' + k + ')"><rect x="-8" y="-8" width="16" height="16" rx="3" style="fill:' + fill + ';stroke:' + (st === 'ok' || st === 'dmg' ? 'var(--surface)' : 'var(--st-unknown)') + '" stroke-width="' + (st === 'unk' ? 1.6 : 1.6) + '" stroke-dasharray="' + (st === 'unk' ? '3 2' : '') + '"/><text y="4" text-anchor="middle" style="fill:' + tc + ';font:700 11px var(--font-sans)">' + f[0] + '</text></g>'); });
+    /* shelter candidates */
+    if (o.shelters) [[1, 356, 416, 0], [2, 318, 452, 0], [3, 392, 402, 0], [4, 270, 418, 0], [5, 344, 474, 1], [6, 296, 470, 1]].forEach(function (sh) { var sel = o.shelterSel === sh[0]; s.push('<g transform="translate(' + sh[1] + ' ' + sh[2] + ') scale(' + k * (sel ? 1.25 : 1) + ')"><path d="M0 -11 11 0 0 11 -11 0Z" style="fill:' + (sh[3] ? 'var(--surface)' : 'var(--ink)') + ';stroke:' + (sel ? 'var(--accent)' : 'var(--ink)') + '" stroke-width="' + (sel ? 3 : 1.6) + '" stroke-dasharray="' + (sh[3] ? '3 2' : '') + '"/><text y="4" text-anchor="middle" style="fill:' + (sh[3] ? 'var(--ink)' : 'var(--surface)') + ';font:700 10px var(--font-mono)">' + sh[0] + '</text></g>'); });
+    /* fires */
+    if (o.fires) [[446, 436, 1], [588, 506, 0], [822, 348, 0], [604, 214, 0]].forEach(function (f) { if (o.fireOnly && !f[2]) return; if (f[2] && o.pulse !== false) s.push('<circle cx="' + f[0] + '" cy="' + f[1] + '" r="' + sw(14) + '" style="fill:var(--fire)" class="cv-pulse"/>'); s.push('<g transform="translate(' + f[0] + ' ' + f[1] + ') scale(' + k + ')"><circle r="9" style="fill:var(--fire);stroke:var(--surface)" stroke-width="2"/><path d="M0 6c2.4 0 4-1.6 4-3.8 0-2.2-1.7-3.3-2.3-5-.6 1.1-1.1 1.7-1.7 1.7 0-1.1-.6-2.2-1.7-3.4 0 2.2-2.3 3.4-2.3 6.7 0 2.2 1.7 3.8 4 3.8Z" style="fill:var(--ink-inverse)"/></g>'); });
+    if (o.rings) { [1, 3].forEach(function (km, i) { s.push('<circle cx="' + o.rings[0] + '" cy="' + o.rings[1] + '" r="' + (km * 12) + '" fill="none" style="stroke:var(--ink)" stroke-width="' + sw(1.2) + '" stroke-dasharray="' + sw(4) + ' ' + sw(3) + '" opacity=".7"/><text x="' + (o.rings[0] + km * 12 * .72) + '" y="' + (o.rings[1] - km * 12 * .72) + '" style="fill:var(--ink);font:600 ' + (10 * k) + 'px var(--font-mono);paint-order:stroke;stroke:var(--surface);stroke-width:' + (3 * k) + 'px">' + km + ' km</text>'); }); }
+    /* alert pins */
+    if (o.alerts) [[446, 436, 'F'], [586, 500, 'L'], [572, 140, 'I'], [420, 470, 'B'], [800, 330, 'E']].forEach(function (a, i) { if (o.fires && a[2] === 'F') return; s.push('<g transform="translate(' + a[0] + ' ' + (a[1] - 14 * k) + ') scale(' + k + ')"><path d="M0 12 -7 3A9 9 0 1 1 7 3Z" style="fill:var(--ink);stroke:var(--surface)" stroke-width="1.5"/><text y="1" text-anchor="middle" style="fill:var(--surface);font:700 9px var(--font-mono)">' + a[2] + '</text></g>'); });
+    /* base / origin markers */
+    if (o.base) { s.push('<g transform="translate(226 376) scale(' + k + ')"><rect x="-10" y="-10" width="20" height="20" rx="10" style="fill:var(--surface);stroke:var(--ink)" stroke-width="2"/><path d="M-4 0h8M0 -4v8" style="stroke:var(--ink)" stroke-width="2.4"/></g>'); }
+    if (o.dest) { s.push('<g transform="translate(432 454) scale(' + k + ')"><circle r="11" fill="none" style="stroke:var(--ink)" stroke-width="2"/><circle r="4" style="fill:var(--ink)"/></g>'); }
+    if (o.pick) { s.push('<g transform="translate(' + o.pick[0] + ' ' + o.pick[1] + ') scale(' + k + ')"><rect x="-8" y="-7" width="16" height="13" fill="none" style="stroke:var(--accent)" stroke-width="2.6"/><rect x="-14" y="-13" width="28" height="25" fill="none" style="stroke:var(--accent)" stroke-width="1" stroke-dasharray="3 2"/></g>'); }
+    /* labels */
+    if (o.labels !== false) {
+      var lab = function (x, y, t, size, w, col) { return '<text x="' + x + '" y="' + y + '" style="fill:var(' + (col || '--ink') + ');font:' + w + ' ' + (size * k).toFixed(1) + 'px var(--font-sans);paint-order:stroke;stroke:var(--map-land);stroke-width:' + (3.2 * k).toFixed(1) + 'px;stroke-linejoin:round">' + t + '</text>'; };
+      TOWNS.forEach(function (t) { s.push(lab(t[1] + 9 * k, t[2] - 7 * k, t[0], t[3] ? 12.5 : 11, t[3] ? 600 : 500)); });
+      if (o.areaLabels !== false) Object.keys(AREAS).forEach(function (id) { var A = AREAS[id]; s.push(lab(A.c[0] - 30, A.c[1] - 8, A.n.toUpperCase(), 9, 600, '--ink-2')); });
+      if (o.people) [['A7', '4,000–6,500 · 1,200–2,000 displaced'], ['A4', '7,500–11,000 · 2,800–4,200 displaced'], ['A2', '38,000–52,000'], ['A9', '9,000–13,500 · 900–1,600 displaced'], ['A1', '61,000–80,000']].forEach(function (p) { var A = AREAS[p[0]]; s.push('<text x="' + (A.c[0] - 30) + '" y="' + (A.c[1] + 5 * k) + '" style="fill:var(--ink);font:600 ' + (9.5 * k).toFixed(1) + 'px var(--font-mono);paint-order:stroke;stroke:var(--map-land);stroke-width:' + (3 * k).toFixed(1) + 'px">' + p[1] + '</text>'); });
+      if (o.vb === undefined || vb[0] < 160) s.push('<text x="' + (vb[0] + 30 * k + (vb[0] < 60 ? 40 : 0)) + '" y="' + (vb[1] + vb[3] * .45) + '" style="fill:var(--ink-3);font:italic 500 ' + (12 * k).toFixed(1) + 'px var(--font-sans);letter-spacing:.2em">MEDITERRANEAN</text>');
+    }
+    s.push('</svg>');
+    return s.join('');
+  }
+
+  var EVN = { obs: ['eye', 'Observed'], rep: ['quote', 'Reported'], cor: ['rings', 'Corroborated'], unk: ['q', 'Unknown'] };
+  function age(t, k) { return '<span class="cv-age' + (k ? ' cv-age--' + k : '') + '">' + t + '</span>'; }
+  var LOGO = '<svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><rect width="26" height="26" rx="6" style="fill:var(--accent)"/><path d="M6 19a13 13 0 0 1 13-13" fill="none" style="stroke:var(--ink-inverse)" stroke-width="2" stroke-linecap="round" opacity=".55"/><path d="M10 19a9 9 0 0 1 9-9" fill="none" style="stroke:var(--ink-inverse)" stroke-width="2" stroke-linecap="round" opacity=".8"/><path d="M14 19a5 5 0 0 1 5-5" fill="none" style="stroke:var(--ink-inverse)" stroke-width="2" stroke-linecap="round"/><circle cx="19" cy="19" r="2.2" style="fill:var(--ink-inverse)"/></svg>';
+  function topbar(active, guest) {
+    var nav = ['Map', 'Alerts', 'Areas', 'Routes', 'Shelters', 'Sources'].map(function (n) { return '<span style="display:flex;align-items:center" class="' + (n === active ? 'is-on' : '') + '">' + n + '</span>'; }).join('');
+    var fresh = '<div class="cv-fresh"><span>NISAR' + age('03 Nov · 10 d', 'aging') + '</span><span>SENTINEL-1' + age('10 Nov · 3 d') + '</span><span>NIGHT LIGHTS' + age('12 Nov · 1 d') + '</span><span>FIRES' + age('13 Nov 11:52') + '</span><span>INTERNET' + age('live') + '</span></div>';
+    var right = '<span class="cv-row cv-xs cv-muted" style="gap:4px" title="Synced 14:02 EET"><i data-i="refresh"></i>14:02</span><span class="cv-btn cv-btn--ghost cv-btn--icon"><i data-i="moon"></i></span>';
+    right += guest ? '<span class="cv-btn cv-btn--primary"><i data-i="lock"></i>Sign in</span>'
+      : '<span class="cv-row" style="gap:8px;flex-wrap:nowrap"><span class="cv-avatar">RH</span><span class="cv-col" style="gap:0"><span class="cv-sm" style="font-weight:600">R. Haddad</span><span class="cv-xs cv-faint">Dispatch</span></span></span>';
+    return '<header class="cv-top"><div class="cv-brand">' + LOGO + '<div>CIVISAR<small>powered by NASA NISAR</small></div></div><nav class="cv-tabs" style="border:0;gap:18px;height:52px;align-items:stretch">' + nav + '</nav><div class="cv-input" style="width:190px"><i data-i="search"></i>Search place or alert</div><div style="flex:1"></div>' + fresh + right + '</header>';
+  }
+
+  /* Plain-language pass picker: one chip per NISAR date */
+  var PASSES = [['24 Jun', 'Jun'], ['06 Jul', 'Jul'], ['18 Jul'], ['30 Jul'], ['11 Aug', 'Aug', 1], ['23 Aug'], ['04 Sep', 'Sep', 1], ['16 Sep'], ['28 Sep', 0, 0, 1], ['10 Oct', 'Oct', 1], ['22 Oct', 0, 1], ['03 Nov', 'Nov', 1]];
+  function timeline(from, to, compact) {
+    from = from || '22 Oct'; to = to || '03 Nov';
+    var chips = PASSES.map(function (p) {
+      var cls = 'cv-pass' + (p[3] ? ' is-miss' : '') + (p[2] ? ' has' : '') + (p[0] === from ? ' is-from' : '') + (p[0] === to ? ' is-to' : '');
+      var tag = p[0] === from ? '<span class="tag">FROM</span>' : p[0] === to ? '<span class="tag">TO</span>' : '';
+      return '<span class="' + cls + '">' + tag + '<b>' + p[0] + '</b><small>' + (p[3] ? 'no image' : p[2] ? 'changes' : 'image') + '</small></span>';
+    }).join('');
+    return '<div class="cv-tl">' +
+      '<div class="cv-tl-head"><div><div class="cv-eyebrow">NISAR satellite images · south Lebanon</div>' +
+      '<div class="cv-h3" style="margin-top:2px">Showing what changed between <span class="cv-mono">' + from + '</span> and <span class="cv-mono">' + to + ' 2026</span></div>' +
+      (compact ? '' : '<div class="cv-xs cv-muted">A new image about every 12 days. Tap a date to see it, or pick two dates to compare.</div>') + '</div>' +
+      '<div class="cv-row" style="gap:8px;flex-wrap:nowrap"><span class="cv-seg"><span>Before</span><span>After</span><span class="is-on">What changed</span><span>Side by side</span></span>' +
+      '<span class="cv-btn cv-btn--sm"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M1 0 9 5 1 10Z" fill="currentColor"/></svg>Play all</span></div></div>' +
+      '<div class="cv-tl-row">' + chips + '</div>' +
+      '<div class="cv-tl-key"><span><i class="k-to"></i>Image shown</span><span><i class="k-from"></i>Compared with</span><span><i class="k-has"></i>Changes found</span><span><i class="k-miss"></i>No image that day</span><span style="margin-left:auto">New building changes show 3 days after the image, at neighbourhood level</span></div></div>';
+  }
+
+  function hydrate(root) {
+    root = root || document;
+    root.querySelectorAll('[data-timeline]').forEach(function (el) { el.innerHTML = timeline(el.getAttribute('data-from'), el.getAttribute('data-to'), el.hasAttribute('data-compact')); });
+    root.querySelectorAll('[data-top]').forEach(function (el) { el.outerHTML = topbar(el.getAttribute('data-top'), el.hasAttribute('data-guest')); });
+    root.querySelectorAll('[data-ev]').forEach(function (el) { var e = EVN[el.getAttribute('data-ev')]; el.className = 'cv-ev cv-ev--' + el.getAttribute('data-ev'); el.innerHTML = '<i data-i="' + e[0] + '"></i>' + e[1]; });
+    root.querySelectorAll('[data-i]').forEach(function (el) { el.classList.add('cv-ico'); el.innerHTML = icon(el.getAttribute('data-i')); });
+    root.querySelectorAll('[data-map]').forEach(function (el) { var o = {}; try { o = JSON.parse(el.getAttribute('data-map') || '{}'); } catch (e) { } el.insertAdjacentHTML('afterbegin', map(o)); });
+  }
+
+  window.Civisar = { icon: icon, map: map, hydrate: hydrate, AREAS: AREAS };
+})();
+</script><script>
+(function(){var P=[[0,'24 Jun'],[12],[24],[36,'30 Jul'],[48,0,1],[60],[72,'04 Sep',1],[84],[96,'28 Sep · missed',0,1],[108,0,1],[120,'22 Oct',1],[132,'03 Nov',1]],t='';P.forEach(function(p){var x=p[0]/1.32;t+='<span class="pass'+(p[3]?' miss':p[2]?' has':'')+'" style="left:'+x+'%"></span>'+(p[1]?'<span class="lbl" style="left:'+x+'%">'+p[1]+'</span>':'')});
+document.getElementById('slider').innerHTML='<div class="cv-time" style="padding-right:48px"><div class="cv-row" style="justify-content:space-between"><div class="cv-row" style="gap:10px"><span class="cv-btn cv-btn--sm">▶ Play passes</span><span class="cv-sm"><b>NISAR track 151 descending</b> <span class="cv-faint">· 11 passes · 24 Jun – 03 Nov 2026</span></span></div><div class="cv-row" style="gap:8px"><span class="cv-tag" style="border-style:dashed">22 Oct</span><i data-i="arrow"></i><span class="cv-tag is-on">03 Nov</span><span class="cv-seg"><span>Before</span><span class="is-on">Change</span><span>After</span><span>Swipe</span></span></div></div><div class="cv-track"><span class="bar"></span><span class="fill" style="width:100%"></span>'+t+'<span class="knob b" style="left:90.9%"></span><span class="knob" style="left:100%"></span></div><div class="cv-xs cv-faint" style="text-align:right">New building changes appear 72 h after a pass, at neighbourhood level</div></div>';})();
+
+
+
+
+
+
+
+
+
+</script><script>(function(){
+var $=function(s,r){return (r||document).querySelector(s)}, $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+var state={view:'main',signedIn:true,signinTries:0};
+var RESTRICTED=['routes','shelters'];
+function toast(t){var el=$('#toast');el.textContent=t;el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(function(){el.classList.remove('on')},2200)}
+function go(v){
+  if(!state.signedIn && RESTRICTED.indexOf(v)>=0){toast('Sign in to see routes and shelters');v='signin'}
+  if(state.signedIn && v==='signin'){}
+  state.view=v;
+  $$('.view').forEach(function(s){s.hidden=s.dataset.view!==v});
+  var tab={main:'Map',alert:'Alerts',area:'Areas',brief:'Areas',routes:'Routes',shelters:'Shelters',sources:'Sources',inspect:'Map',signin:'Map'}[v];
+  $$('.cv-top nav span').forEach(function(s){s.classList.toggle('is-on',s.textContent===tab)});
+  $$('#jump span[data-go]').forEach(function(s){s.classList.toggle('is-on',s.dataset.go===v)});
+  $('#umenu').hidden=true; window.scrollTo(0,0);
+  try{history.replaceState(null,'','#'+v)}catch(e){}
+}
+/* ---- main map: layer flags redraw the map ---- */
+var mm=$('#mainmap'), mopts=JSON.parse(mm.getAttribute('data-map'));
+function redraw(){var o=JSON.parse(JSON.stringify(mopts));if(o.routes)o.routes=['a','b','c'],o.sel='b',o.base=1,o.dest=1;
+  var svg=$('svg.cv-mapsvg',mm);svg.outerHTML=Civisar.map(o);}
+function applyLock(){$$('#p-layers .cv-layer[data-lock]').forEach(function(r){r.classList.toggle('is-locked',!state.signedIn);
+  if(!state.signedIn){r.classList.remove('is-on');$('.cv-sw',r).classList.remove('is-on');delete mopts[r.dataset.flag]}});redraw()}
+/* ---- time slider ---- */
+var PASS=['24 Jun','06 Jul','18 Jul','30 Jul','11 Aug','23 Aug','04 Sep','16 Sep','28 Sep','10 Oct','22 Oct','03 Nov'], tIdx=11, playT=null;
+function setPass(i){ if(PASS[i]==='28 Sep'){toast('No NISAR image on 28 Sep. Skipped.'); i+= (i>tIdx?1:-1);} i=Math.max(1,Math.min(11,i)); tIdx=i;
+  var tr=$('#v-main .cv-track'); if(!tr)return; var p=i/11*100, b=(i-1)/11*100; if(PASS[i-1]==='28 Sep') b=(i-2)/11*100;
+  $('.knob:not(.b)',tr).style.left=p+'%'; $('.knob.b',tr).style.left=b+'%'; $('.fill',tr).style.width=p+'%';
+  var tags=$$('#v-main .cv-time .cv-tag'); if(tags.length>1){tags[0].textContent=PASS[PASS[i-1]==='28 Sep'?i-2:i-1];tags[1].textContent=PASS[i]}
+  mopts.radar=i>=10?1:(i>=4?'early':0); mopts.dmg=i>=10?1:0; redraw(); }
+/* ---- click delegation ---- */
+document.addEventListener('click',function(e){
+  var t=e.target, el;
+  if((el=t.closest('[data-go]'))){go(el.dataset.go);return}
+  if((el=t.closest('[data-act]'))){var a=el.dataset.act;
+    if(a==='theme'){var h=document.documentElement;h.dataset.theme=h.dataset.theme==='dark'?'light':'dark';$('#umenu').hidden=true}
+    if(a==='signout'){state.signedIn=false;applyLock();go('signin');toast('Signed out. Restricted layers removed.')}
+    if(a==='jmin'){$('#jump').classList.toggle('min')}
+    return}
+  if((el=t.closest('[data-close]'))){var p=el.closest('.ov,#callout');if(p){p.hidden=true;syncDock()}return}
+  /* top bar */
+  if((el=t.closest('.cv-top nav span'))){go({Map:'main',Alerts:'alert',Areas:'area',Routes:'routes',Shelters:'shelters',Sources:'sources'}[el.textContent]);return}
+  if(t.closest('.cv-top .cv-avatar')||t.closest('.cv-top .cv-col')){var m=$('#umenu');m.hidden=!m.hidden;return}
+  if((el=t.closest('.cv-top .cv-btn'))){ if(/Sign in/.test(el.textContent)){go('signin');return}
+    if(el.querySelector('[data-i="moon"]')){var h=document.documentElement;h.dataset.theme=h.dataset.theme==='dark'?'light':'dark';return}}
+  if(!t.closest('#umenu'))$('#umenu').hidden=true;
+  /* dock */
+  if((el=t.closest('.dock span'))){var id='p-'+el.dataset.p,pn=$('#'+id);if(pn){pn.hidden=!pn.hidden;
+     if(id==='p-agents'&&!pn.hidden)$('#p-layers').hidden=true; if(id==='p-layers'&&!pn.hidden)$('#p-agents').hidden=true;
+     if(id==='p-alerts')$('#p-pill').hidden=!pn.hidden; if(id==='p-legend'&&!pn.hidden){$('#p-agents').hidden=true;$('#p-layers').hidden=true}} syncDock();return}
+  if(t.closest('#p-pill .cv-btn')){$('#p-alerts').hidden=false;$('#p-pill').hidden=true;syncDock();return}
+  if((el=t.closest('#p-time .cv-btn--icon'))&&el.querySelector('[data-i="x"]')){$('#p-time').hidden=true;syncDock();return}
+  /* layers */
+  if((el=t.closest('#p-layers .cv-layer'))){ if(el.dataset.lock&&!state.signedIn){toast('Sign in to use '+el.textContent.replace(/\d.*$/,'').trim());return}
+    var on=!el.classList.contains('is-on');el.classList.toggle('is-on',on);$('.cv-sw',el).classList.toggle('is-on',on);
+    if(on)mopts[el.dataset.flag]=1;else delete mopts[el.dataset.flag]; redraw();return}
+  /* alert filters + cards */
+  if((el=t.closest('[data-af]'))){$$('[data-af]').forEach(function(x){x.classList.toggle('is-on',x===el)});var f=el.dataset.af;
+    $$('#p-alerts .cv-alert').forEach(function(c){var k=($('.cv-alert-ico',c).className.match(/--(\w+)/)||[])[1];if(f==='all'||k===f)c.removeAttribute('data-hide');else c.setAttribute('data-hide','')});return}
+  if((el=t.closest('.cv-alert'))){ if(state.view==='phone'){toast('Opens the alert on phone');return} go('alert');return}
+  /* agent rows */
+  if((el=t.closest('.ag-h'))){var ag=el.parentNode, open=!ag.classList.contains('is-open');ag.classList.toggle('is-open',open);
+    var ch=$('.chev',el);if(ch){ch.setAttribute('data-i',open?'chevd':'chev');ch.innerHTML=Civisar.icon(open?'chevd':'chev')}
+    if(!open){var b=$('.ag-b',ag);if(b)b.hidden=true}else{var b2=$('.ag-b',ag);if(b2)b2.hidden=false;else{var m=$('.cv-muted',el).textContent;ag.insertAdjacentHTML('beforeend','<div class="ag-b"><div class="cv-sm">'+m+'</div><div class="cv-row" style="margin-top:8px;gap:6px"><span class="cv-btn cv-btn--sm" data-act-show>Show on map</span><span class="cv-btn cv-btn--sm" data-go="area">Area summary</span></div></div>')}}return}
+  if(t.closest('[data-act-show]')||(el=t.closest('.ag-b .cv-btn'))&&/Show on map/.test(el.textContent)){$('#p-agents').hidden=true;syncDock();toast('Showing on map');return}
+  if((el=t.closest('#p-agents .cv-btn'))&&/Expand all/.test(el.textContent)){return}
+  /* segmented controls */
+  if((el=t.closest('.cv-seg span, .cv-seg button'))){$$('span,button',el.parentNode).forEach(function(x){x.classList.toggle('is-on',x===el)});
+    var txt=el.textContent.trim();
+    if(state.view==='routes'&&/Inbound|Outbound|^In$|^Out$/.test(txt))routeDir(/Out/.test(txt));
+    if(state.view==='main'&&/Before|After|Change|Swipe/.test(txt))toast('View: '+txt);
+    return}
+  /* space per person */
+  if((el=t.closest('#v-shelters .ppl span'))){$$('#v-shelters .ppl span').forEach(function(x){x.classList.toggle('is-on',x===el)});shelterCap($$('#v-shelters .ppl span').indexOf(el));return}
+  /* shelter list */
+  if((el=t.closest('#v-shelters .cv-shelter'))){$$('#v-shelters .cv-shelter').forEach(function(x){x.style.background=x===el?'var(--accent-soft)':''});
+    var nm=$('b',el).textContent; $('#v-shelters .cv-side h2').textContent=nm; var n=+$('.cv-rank',el).textContent;
+    var o=JSON.parse($('#v-shelters main').getAttribute('data-map'));o.shelterSel=n;$('#v-shelters svg.cv-mapsvg').outerHTML=Civisar.map(o);return}
+  /* route cards + popup */
+  if((el=t.closest('#v-routes .cv-route'))){selRoute($('.cv-route-key',el).textContent.toLowerCase());return}
+  if((el=t.closest('.cv-pop-r'))){selRoute($('.cv-route-key',el).textContent.toLowerCase());return}
+  if(state.view==='routes'&&t.closest('#v-routes main .cv-map')&&!t.closest('.cv-mapctl')){var sc=$('#v-routes aside .cv-scroll');sc.scrollTop=0;toast('Available routes listed in the sidebar');return}
+  if((el=t.closest('#routepop .cv-row:first-child [data-i="x"]'))){$('#routepop').hidden=true;return}
+  /* main map click -> area callout */
+  if(state.view==='main'&&t.closest('#mainmap')&&!t.closest('.ov,.dock,.pill,.cv-mapctl,#callout,.cv-demo')){var c=$('#callout'),r2=mm.getBoundingClientRect();c.hidden=false;c.style.left=Math.min(e.clientX-r2.left+12,r2.width-290)+'px';c.style.top=Math.max(10,Math.min(e.clientY-r2.top-20,r2.height-220))+'px';return}
+  /* inspector: click map to move selection */
+  if(state.view==='inspect'&&t.closest('#v-inspect main')&&!t.closest('.cv-mapctl')){toast('Building B-20'+(400+Math.floor(Math.random()*90))+' selected');return}
+  /* time slider */
+  if((el=t.closest('#v-main .cv-track'))){var rr=el.getBoundingClientRect();setPass(Math.round((e.clientX-rr.left)/rr.width*11));return}
+  /* sources table rows */
+  if((el=t.closest('#v-sources .cv-table tbody tr'))){$$('#v-sources .cv-table tbody tr').forEach(function(x){x.classList.toggle('is-sel',x===el)});return}
+  /* tabs inside panels */
+  if((el=t.closest('.cv-side .cv-tabs span'))){$$('span',el.parentNode).forEach(function(x){x.classList.toggle('is-on',x===el)});return}
+  /* sign-in dialog */
+  if((el=t.closest('#v-signin .cv-btn'))){ if(/Sign in|SSO/.test(el.textContent)){state.signinTries++;
+      var err=$('#v-signin .err'); if(state.signinTries===1&&err.hidden){} 
+      if(state.signinTries%2===1){err.hidden=false;toast('Access blocked for this account (demo)')} else {state.signedIn=true;applyLock();go('main');toast('Signed in as R. Haddad · Dispatch')}
+      return}}
+  /* generic buttons by label */
+  if((el=t.closest('.cv-btn'))){var L=el.textContent.trim();
+    var map=[[/^Compare routes|routes$|^Routes here|^Routes$|^In \/ out|another base/,'routes'],[/^Area summary/,'area'],[/^Print brief|^Print$/,'brief'],[/^Shelters$/,'shelters'],[/^All alerts/,'main'],[/^Before \/ after/,'main']];
+    for(var i=0;i<map.length;i++)if(map[i][0].test(L)){go(map[i][1]);return}
+    if(/^Start|Start navigation/.test(L)){toast('Navigation started in CIVISAR. Nothing is tracked.');return}
+    if(/Play passes/.test(L)){if(playT){clearInterval(playT);playT=null;return}var k=1;setPass(1);playT=setInterval(function(){k++;if(k>11){clearInterval(playT);playT=null;return}if(PASS[k]==='28 Sep')k++;setPass(k)},700);return}
+    if(/Show alternatives/.test(L)){selRoute('b');toast('Option B picked: no reported closure');return}
+    if(/Mark reviewed/.test(L)){toast('Alert marked reviewed');return}
+    if(/Export PDF/.test(L)){toast('PDF brief exported');return}
+    if(/Save offline/.test(L)){toast('Brief saved for offline use');return}
+    if(/field check/.test(L)){toast('Field check requested for this candidate');return}
+    if(/Copy/.test(L)){toast('Citation copied');return}
+    if(/Report a correction/.test(L)){toast('Correction form opened');return}
+    if(/Print turn list/.test(L)){go('brief');return}
+    if(/Share with team/.test(L)){toast('Shared with your team');return}
+    if(/^List$|Show on map|Expand all/.test(L)){toast(L);return}
+    if(el.querySelector('[data-i="x"]')){var side=el.closest('aside.cv-side');if(side&&state.view==='inspect'){go('main');return}if(state.view==='alert'){go('main');return}}
+    if(el.querySelector('[data-i="plus"],[data-i="minus"]')){toast('Zoom');return}
+    if(el.querySelector('[data-i="chevl"]')){setPass(tIdx-1);return} if(el.querySelector('[data-i="chev"]')){setPass(tIdx+1);return}
+  }
+  if((el=t.closest('.cv-zoom span'))&&state.view==='main'){return}
+},false);
+function syncDock(){$$('.dock span').forEach(function(d){var p=$('#p-'+d.dataset.p);d.classList.toggle('is-on',!!p&&!p.hidden)})}
+function selRoute(k){$$('#v-routes .cv-route').forEach(function(c){var on=$('.cv-route-key',c).textContent.toLowerCase()===k;c.classList.toggle('is-sel',on);var tg=$('.cv-route-h > .cv-tag',c);if(on&&(!tg||!/Picked/.test(tg.textContent))){c.dataset.old=tg?tg.outerHTML:"";var nt='<span class="cv-tag" style="border-color:var(--accent);color:var(--accent)">✓ Picked</span>';if(tg)tg.outerHTML=nt;else $('.cv-route-h',c).insertAdjacentHTML('beforeend',nt)}else if(!on&&tg&&/Picked/.test(tg.textContent)){tg.outerHTML=c.dataset.old||""}});
+  var m=$('#v-routes main .cv-map'),o=JSON.parse(m.getAttribute('data-map'));o.sel=k;m.setAttribute('data-map',JSON.stringify(o));$('svg.cv-mapsvg',m).outerHTML=Civisar.map(o);
+  var h=$('#v-routes .cv-side .cv-sec b');if(h)h.textContent='Option '+k.toUpperCase()+' · turn list';
+  $$('#v-routes .cv-table tbody tr').forEach(function(tr){});toast('Option '+k.toUpperCase()+' picked')}
+function routeDir(out){var m=$('#v-routes main .cv-map'),o=JSON.parse(m.getAttribute('data-map'));o.out=out?1:0;m.setAttribute('data-map',JSON.stringify(o));$('svg.cv-mapsvg',m).outerHTML=Civisar.map(o);
+  var f=$$('#v-routes .fld span'); if(f.length>1){f[0].textContent=out?'Area 7 · Qana–Tibnine':'Civil Defence centre · Tyre';f[1].textContent=out?'H-02 Hospital · Tyre (reported working)':'Area 7 · Qana–Tibnine'} toast(out?'Outbound: to nearest working hospital':'Inbound: from unit base')}
+function shelterCap(i){var area={'School S-14':2400,'Sports hall SH-3':1500,'Community centre CC-7':820,'Warehouse W-2':3100};
+  var per=[[3.5],[4.5,5.5],[30],[45]][i];
+  $$('#v-shelters .cv-shelter').forEach(function(c){var nm=$('b',c).textContent,r=$('.cv-range',c),a=area[nm];
+    if(a){ if(i>=2){r.innerHTML='— <small>indoor only; use 3.5–5.5 m²</small>'}else{var lo=Math.round(a/per[per.length-1]/10)*10,hi=Math.round(a/per[0]/10)*10;r.innerHTML='about '+(lo===hi?lo:lo+'–'+hi)+' <small>at '+(per.length>1?'4.5–5.5':per[0])+' m²</small>'}}
+    else{var ha=/OL-3/.test(nm)?21000:12000, pp=i===3?45:30;r.innerHTML='about '+Math.round(ha/pp/10)*10+' <small>at '+pp+' m² '+(pp===45?'planned camp':'short-term')+'</small>'}});
+  toast('Capacity recalculated')}
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){var open=$$('#callout:not([hidden]), #v-main .ov:not([hidden])');if(open.length){open[open.length-1].hidden=true;syncDock()}else if(state.view==='inspect'||state.view==='alert')go('main')}
+  if(state.view==='main'&&e.key==='ArrowLeft')setPass(tIdx-1); if(state.view==='main'&&e.key==='ArrowRight')setPass(tIdx+1)});
+Civisar.hydrate();
+var err=$('#v-signin .err');if(err)err.hidden=true;
+var rp=$('#routepop');if(rp)rp.remove();$('#jump').classList.add('min');
+syncDock();
+var h=(location.hash||'').slice(1);go(h&&$('#v-'+h)?h:'main');
+})();
+</script></body></html>
