@@ -1,5 +1,4 @@
 import json
-from pathlib import Path
 
 from worker.loaders.sources import CONTRACT_PATH, SOURCES_PATH, load_sources
 

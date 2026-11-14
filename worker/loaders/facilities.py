@@ -15,7 +15,7 @@ import csv
 import json
 import urllib.error
 import urllib.request
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import h3
@@ -25,7 +25,6 @@ from worker.loaders.config import (
     DEMO_BBOX_WGS84,
     FACILITIES_CSV,
     FACILITIES_MANIFEST,
-    LOCAL_DIR,
     MANIFESTS_DIR,
 )
 
@@ -124,7 +123,6 @@ def _parse_elements(elements):
         if lat is None or lon is None:
             continue
         osm_id = element.get("id")
-        elem_type = element.get("type", "node")
         facility_id = f"osm:{ftype}{osm_id}"
         name = tags.get("name")
         timestamp = tags.get("timestamp") or element.get("timestamp")
@@ -218,7 +216,7 @@ def _write_manifest(counts, total, path, query_note):
         "source": "OpenStreetMap (Overpass API)",
         "credit": SOURCE_CREDIT,
         "licence": LICENCE,
-        "generated_date": datetime.now(timezone.utc).date().isoformat(),
+        "generated_date": datetime.now(UTC).date().isoformat(),
         "count_per_type": counts,
         "total": total,
         "columns": COLUMNS,

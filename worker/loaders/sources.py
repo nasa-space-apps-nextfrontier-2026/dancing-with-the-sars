@@ -7,7 +7,6 @@ fields in docs/contracts/SourceRecord.json.
 from __future__ import annotations
 
 import json
-from pathlib import Path
 
 from worker.loaders.config import MANIFESTS_DIR, ROOT
 
@@ -29,13 +28,13 @@ def load_sources() -> list[dict]:
     """
     sources = json.loads(SOURCES_PATH.read_text(encoding="utf-8"))
     if not isinstance(sources, list):
-        raise ValueError("sources.json must contain a list of records")
+        raise TypeError("sources.json must contain a list of records")
 
     required = _contract_fields()
     seen: set[str] = set()
     for record in sources:
         if not isinstance(record, dict):
-            raise ValueError("each source record must be an object")
+            raise TypeError("each source record must be an object")
         missing = required - set(record.keys())
         if missing:
             raise ValueError(f"record missing fields: {sorted(missing)}")

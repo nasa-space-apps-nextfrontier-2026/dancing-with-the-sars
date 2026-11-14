@@ -9,25 +9,22 @@ Never a single exact number: cells outside a raster get null, never 0.
 from __future__ import annotations
 
 import csv
-import gzip
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
+import h3
 import numpy as np
 import pandas as pd
 import rasterio
 from rasterio.mask import mask
 from shapely.geometry import Polygon, mapping
 
-import h3
-
 from worker.loaders.config import (
+    DATA_DIR,
     DEMO_AOI,
     DEMO_BBOX_WGS84,
-    DATA_DIR,
     GRID_CSV_GZ,
-    LOCAL_DIR,
     MANIFESTS_DIR,
     POPULATION_CSV_GZ,
     POPULATION_MANIFEST,
@@ -176,8 +173,8 @@ def _write_manifest(df, path):
             {"name": UNCONSTRAINED_PRODUCT, "path": str(UNCONSTRAINED_RASTER.relative_to(ROOT))},
         ],
         "licence": POPULATION_LICENCE,
-        "generated_date": datetime.now(timezone.utc).date().isoformat(),
-        "cell_count": int(len(df)),
+        "generated_date": datetime.now(UTC).date().isoformat(),
+        "cell_count": len(df),
         "cells_with_data": int(df[POP_LOW].notna().sum()),
         "total_low": round(float(total_low)) if pd.notna(total_low) else None,
         "total_high": round(float(total_high)) if pd.notna(total_high) else None,

@@ -10,7 +10,7 @@ from __future__ import annotations
 import csv
 import gzip
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import h3
@@ -22,7 +22,6 @@ from worker.loaders.config import (
     DEMO_BBOX_WGS84,
     GRID_CSV_GZ,
     GRID_MANIFEST,
-    LOCAL_DIR,
     MANIFESTS_DIR,
 )
 
@@ -50,11 +49,8 @@ def _load_boundary_polygons(path):
         geom = feature.get("geometry")
         if geom is None:
             continue
-        try:
-            shapely_geom = shape(geom)
-        except Exception:
-            continue
-        if shapely_geom.is_empty:
+        shapely_geom = _shape_or_none(geom)
+        if shapely_geom is None or shapely_geom.is_empty:
             continue
         out.append(
             {
@@ -65,6 +61,17 @@ def _load_boundary_polygons(path):
             }
         )
     return out
+
+
+def _shape_or_none(geom):
+    """Return a shapely geometry for a GeoJSON geometry, or None if invalid."""
+    try:
+        result = shape(geom)
+    except (ValueError, TypeError, AttributeError):
+        return None
+    if result is None or result.is_empty:
+        return None
+    return result
 
 
 def _cells_in_box(west, south, east, north, resolution):
@@ -142,7 +149,7 @@ def _write_manifest(cell_count, path):
         "cell_count": cell_count,
         "h3_version": h3.__version__,
         "columns": COLUMNS,
-        "generated_date": datetime.now(timezone.utc).date().isoformat(),
+        "generated_date": datetime.now(UTC).date().isoformat(),
         "output": str(path),
     }
     MANIFESTS_DIR.mkdir(parents=True, exist_ok=True)
