@@ -2,7 +2,14 @@ from pathlib import Path
 
 import h3
 
-from worker.loaders.grid import build_grid, COLUMNS, CELL_ID, PARENT_R8, DISTRICT_ID, GOVERNORATE_ID
+from worker.loaders.grid import (
+    CELL_ID,
+    COLUMNS,
+    DISTRICT_ID,
+    GOVERNORATE_ID,
+    PARENT_R8,
+    build_grid,
+)
 
 FIXTURE = Path(__file__).with_name("fixture_grid.geojson")
 TEST_BOX = (35.05, 33.05, 35.25, 33.25)
