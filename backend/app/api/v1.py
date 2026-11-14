@@ -4,8 +4,10 @@ from pathlib import Path
 from backend.app.core.config import get_settings
 from backend.app.core.permissions import allowed, is_private_layer
 from backend.app.core.security import authenticate, issue_session, read_session, revoke_session
+from backend.app.services.synthetic_area import area_summary, enabled, source_record
+from backend.app.services.radar_catalog import layer_catalog, observation_series
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -39,7 +41,7 @@ def authorize(request: Request, role: str, path: str):
         role = 'analyst+'
     if not allowed(identity, role, scope_from_request(request, path)):
         return error('FORBIDDEN', 'Your role cannot access this resource.', 403, request)
-    if (request.method in ('POST', 'PATCH', 'DELETE') and path != '/session'
+    if (request.method in ('POST', 'PATCH', 'DELETE') and not (path == '/session' and request.method == 'POST')
             and (not session or request.headers.get('X-CSRF-Token') != session[1])):
         return error('FORBIDDEN', 'CSRF check failed.', 403, request)
     return None
@@ -71,7 +73,7 @@ def attach_routes(app: FastAPI) -> None:
                     return denial
                 if _path == '/session' and _method == 'DELETE':
                     revoke_session(request.cookies.get('civisar_session'))
-                    response = JSONResponse({}, status_code=204)
+                    response = Response(status_code=204)
                     response.delete_cookie('civisar_session')
                     return response
                 if _path == '/health':
@@ -90,9 +92,33 @@ def attach_routes(app: FastAPI) -> None:
                     return {'synthetic': True, 'role': identity.role,
                             'area_scopes': list(identity.area_scopes)}
                 if _path == '/sources':
-                    return {'synthetic': True, 'items': [], 'next_cursor': None}
+                    if not enabled():
+                        return error('UNAVAILABLE', 'No approved source catalogue is loaded.', 503, request)
+                    return {'synthetic': True, 'items': [source_record('demo-source-01')],
+                            'next_cursor': None}
+                if _path == '/sources/{source_id}':
+                    if not enabled():
+                        return error('UNAVAILABLE', 'No approved source catalogue is loaded.', 503, request)
+                    source = source_record(request.path_params['source_id'])
+                    return source if source is not None else error(
+                        'NOT_FOUND', 'Source not found.', 404, request)
+                if _path == '/areas/{area_id}/summary':
+                    if not enabled():
+                        return error('UNAVAILABLE', 'No approved area result is loaded.', 503, request)
+                    summary = area_summary(request.path_params['area_id'])
+                    return summary if summary is not None else error(
+                        'NOT_FOUND', 'Area not found.', 404, request)
                 if _path == '/layers':
-                    return {'synthetic': True, 'items': [], 'next_cursor': None}
+                    if not enabled():
+                        return error('UNAVAILABLE', 'No approved layer catalogue is loaded.', 503, request)
+                    return {'synthetic': True, 'items': layer_catalog(), 'next_cursor': None}
+                if _path == '/layers/{layer_id}/timeseries':
+                    if not enabled():
+                        return error('UNAVAILABLE', 'No approved observation catalogue is loaded.', 503, request)
+                    series = observation_series(request.path_params['layer_id'],
+                                                request.query_params.get('area_id'))
+                    return series if series is not None else error(
+                        'NOT_FOUND', 'Observation series not found.', 404, request)
                 if (_path.startswith('/layers/') and 'layer_id' in request.path_params
                         and request.path_params['layer_id'] == 'public-safe-demo'):
                     return error('NOT_FOUND', 'No published layer is available.', 404, request)

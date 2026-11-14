@@ -1,0 +1,184 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_version": "synthetic-1",
+  "synthetic": true,
+  "area_id": "demo-area-01",
+  "geometry": null,
+  "track": 151,
+  "frame": 72,
+  "orbit": "descending",
+  "acquisitions": [
+    {
+      "source_id": "demo-source-01",
+      "acquired_at": "2026-01-19T00:00:00Z",
+      "processing_version": "BETA 1.0.2 (source-reported)",
+      "polarizations": [
+        "HH",
+        "HV"
+      ],
+      "raster_crs": "EPSG:4326",
+      "valid_pixel_count": 0
+    },
+    {
+      "source_id": "demo-source-02",
+      "acquired_at": "2026-06-24T00:00:00Z",
+      "processing_version": "PROVISIONAL (source-reported)",
+      "polarizations": [
+        "HH",
+        "HV"
+      ],
+      "raster_crs": "EPSG:4326",
+      "valid_pixel_count": 0
+    }
+  ],
+  "asset": {
+    "path": "synthetic_radar_features.csv",
+    "format": "CSV",
+    "sha256": "a5a9f7c2587485a08369cd8c704384b6d548b57accbbb6113685f8c6deb2180a"
+  },
+  "classification": {
+    "class": "Unknown",
+    "score": null,
+    "reason_codes": [
+      "NO_VALID_PIXELS"
+    ],
+    "qa_status": "synthetic_test_only"
+  },
+  "source_records": [
+    {
+      "synthetic": true,
+      "source_id": "demo-source-01",
+      "dataset_id": "DS01",
+      "name": "Synthetic NISAR contract fixture",
+      "provider": "NASA/ISRO via ASF (product attribution only)",
+      "product_level": "L2",
+      "cmr_concept_id": "C3622214170-ASF",
+      "challenge_provenance": "Tab",
+      "source_url": "https://search.asf.alaska.edu/",
+      "acquisition_start": "2026-01-19T00:00:00Z",
+      "acquisition_end": "2026-01-19T00:00:00Z",
+      "processing_version": "BETA 1.0.2 (source-reported)",
+      "spatial_coverage": {
+        "area_id": "demo-area-01",
+        "geometry": null,
+        "track": 151,
+        "frame": 72
+      },
+      "resolution_m": null,
+      "licence": "VERIFY before real data use",
+      "accessed_at": null,
+      "api": "ASF Search + earthaccess",
+      "checksum": null,
+      "independence_family": "synthetic-nisar",
+      "live_tested": false,
+      "limits": [
+        "No granule downloaded; metadata is illustrative, not a fresh check."
+      ]
+    },
+    {
+      "synthetic": true,
+      "source_id": "demo-source-02",
+      "dataset_id": "DS01",
+      "name": "Synthetic after-window NISAR contract fixture",
+      "provider": "NASA/ISRO via ASF (product attribution only)",
+      "product_level": "L2",
+      "cmr_concept_id": "C3622214170-ASF",
+      "challenge_provenance": "Tab",
+      "source_url": "https://search.asf.alaska.edu/",
+      "acquisition_start": "2026-06-24T00:00:00Z",
+      "acquisition_end": "2026-06-24T00:00:00Z",
+      "processing_version": "PROVISIONAL (source-reported)",
+      "spatial_coverage": {
+        "area_id": "demo-area-01",
+        "geometry": null,
+        "track": 151,
+        "frame": 72
+      },
+      "resolution_m": null,
+      "licence": "VERIFY before real data use",
+      "accessed_at": null,
+      "api": "ASF Search + earthaccess",
+      "checksum": null,
+      "independence_family": "synthetic-nisar",
+      "live_tested": false,
+      "limits": [
+        "No granule downloaded; metadata is illustrative, not a fresh check."
+      ]
+    }
+  ],
+  "layer": {
+    "synthetic": true,
+    "layer_id": "demo-damage-r8",
+    "title": "Synthetic candidate change",
+    "kind": "raster",
+    "product": "NISAR GCOV",
+    "analytical": true,
+    "polarizations": [
+      "HH",
+      "HV",
+      "HH-HV"
+    ],
+    "available_acquisitions": [
+      "2026-01-19T00:00:00Z",
+      "2026-06-24T00:00:00Z"
+    ],
+    "missing_intervals": [
+      {
+        "start": "2026-01-20",
+        "end": "2026-06-17",
+        "reason": "Source-reported acquisition gap; not interpolated"
+      }
+    ],
+    "default_comparison": {
+      "before": "2026-01-19",
+      "after": "2026-06-24"
+    },
+    "tile_url": "/api/v1/layers/demo-damage-r8/tiles/{z}/{x}/{y}",
+    "min_role": "analyst",
+    "source_ids": [
+      "demo-source-01",
+      "demo-source-02"
+    ],
+    "label": "Unknown",
+    "date": "2026-06-24",
+    "acquired_at": "2026-06-24T00:00:00Z",
+    "processed_at": "2026-06-25T00:00:00Z",
+    "release_at": "2026-06-27T00:00:00Z",
+    "freshness": "Stale",
+    "cached": true,
+    "public_resolution": 8,
+    "safety_tag": "restricted_until_review",
+    "extent": null,
+    "attribution": "Synthetic fixture; no imagery supplied"
+  },
+  "metric_value": {
+    "synthetic": true,
+    "value_id": "demo-radar-value-01",
+    "area_id": "demo-area-01",
+    "metric": "radar_candidate_change",
+    "low": null,
+    "high": null,
+    "unit": "unknown",
+    "label": "Unknown",
+    "source": [
+      "demo-source-01",
+      "demo-source-02"
+    ],
+    "date": "2026-06-24",
+    "safety_tag": "restricted_aggregate",
+    "lineage_ids": [
+      "demo-lineage-01"
+    ],
+    "processing_run_id": "demo-run-01",
+    "processing_version": "demo-v1",
+    "confidence": null,
+    "acquired_at": "2026-06-24T00:00:00Z",
+    "processed_at": "2026-06-25T00:00:00Z",
+    "release_at": "2026-06-27T00:00:00Z",
+    "freshness": "Stale",
+    "cached": true,
+    "limitations": [
+      "No validated radar pixels; no candidate classification."
+    ]
+  }
+}

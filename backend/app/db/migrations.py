@@ -1,7 +1,10 @@
+from pathlib import Path
+
+from alembic import command
+from alembic.config import Config
 from sqlalchemy import text
 
 from .base import make_engine
-from .models import Base
 
 
 def check_database() -> bool:
@@ -11,7 +14,5 @@ def check_database() -> bool:
         return value == 1
 
 def initialize_database() -> None:
-    engine = make_engine()
-    with engine.begin() as connection:
-        connection.execute(text('CREATE EXTENSION IF NOT EXISTS postgis'))
-    Base.metadata.create_all(engine)
+    root = Path(__file__).resolve().parents[3]
+    command.upgrade(Config(str(root / 'backend/alembic.ini')), 'head')
