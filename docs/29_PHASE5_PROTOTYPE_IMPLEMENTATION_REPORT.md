@@ -1,6 +1,6 @@
 # Phase 5 prototype implementation report
 
-Date: 14 November 2026. Starting branch/HEAD: `feature/lead-fullstack-app` / `d23ba02`. Teammate local pointers remained `4bb9a55` for both `feature/m1-radar-damage` and `feature/m2-geodata-alerts`; they were untouched. No merge or push.
+Date: 14 November 2026. Starting branch/HEAD: `feature/lead-fullstack-app` / `d23ba02`. Implementation commit: `4c579cf`; this report correction is a follow-up commit. Working tree clean after implementation commit; local branch was seven commits ahead of `origin/feature/lead-fullstack-app`. Teammate local pointers remained `4bb9a55` for both `feature/m1-radar-damage` and `feature/m2-geodata-alerts`; they were untouched. No merge or push.
 
 The original prototype is the unmodified `docs/design/civisar-prototype.html`; its checksum, ten-view inventory, tokens, dependencies and traceability are in [the audit](26_PROTOTYPE_UI_AUDIT.md). [Interaction status](27_PROTOTYPE_INTERACTION_MATRIX.md) lists each major control. [Visual verification](28_PROTOTYPE_VISUAL_VERIFICATION.md) is **NOT VERIFIED** because paired captures could not be obtained.
 
@@ -19,7 +19,7 @@ FastAPI and API contracts were not changed. The map still uses MapLibre; `AreaEx
 
 ## Validation and blockers
 
-Frontend TypeScript production build passed (existing large-bundle warning); ESLint passed; Vitest 9 passed. Backend pytest 18 passed (one upstream deprecation warning), Python Ruff passed, planning/OpenAPI validation passed, route inventory passed, secret check passed, and `git diff --check` passed. The Phase 4 live HTTP smoke was not repeated in this phase; no backend files changed. Visual screenshots, responsive measurements and pixel diffs are **NOT VERIFIED**; see [visual verification](28_PROTOTYPE_VISUAL_VERIFICATION.md). No prototype file was altered. The Google font is remote, so offline typography fidelity is not guaranteed.
+Frontend TypeScript production build passed (existing large-bundle warning); ESLint passed; Vitest 9 passed. Backend pytest 18 passed (one upstream deprecation warning), Python Ruff passed, planning/OpenAPI validation passed, route inventory passed, secret check passed, and unstaged `git diff --check` passed. Live FastAPI startup/health returned 200 and anonymous session returned 401. Visual screenshots, responsive measurements and pixel diffs are **NOT VERIFIED**; see [visual verification](28_PROTOTYPE_VISUAL_VERIFICATION.md). No prototype file was altered. The Google font is remote, so offline typography fidelity is not guaranteed.
 
 ## Next five tasks
 
