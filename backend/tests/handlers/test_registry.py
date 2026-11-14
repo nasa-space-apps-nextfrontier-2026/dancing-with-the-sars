@@ -35,7 +35,7 @@ def test_unregistered_path_returns_501(monkeypatch):
     with TestClient(app) as client:
         response = client.post('/api/v1/session', json={'username': 'test-analyst', 'password': 'test-only-password'})
         assert response.status_code == 200
-        response = client.get('/api/v1/areas/demo-area-01/summary')
+        response = client.get('/api/v1/areas/demo-area-01/damage')
         assert response.status_code == 501
         assert response.json()["error"]["code"] == "NOT_IMPLEMENTED"
 

@@ -25,7 +25,7 @@ def test_role_boundary(monkeypatch):
         assert logged_in.get('/api/v1/shelters').status_code == 403
         assert logged_in.get('/api/v1/shelters?area_id=other-area').status_code == 403
         assert logged_in.post('/api/v1/routes',json={},headers={'X-CSRF-Token':response.json()['csrf_token']}).status_code == 403
-        assert logged_in.get('/api/v1/areas/demo-area-01/summary').status_code == 501
+        assert logged_in.get('/api/v1/areas/demo-area-01/summary').status_code == 200
         assert logged_in.get('/api/v1/layers/private/files/guessed').status_code == 501
     get_settings.cache_clear()
 
