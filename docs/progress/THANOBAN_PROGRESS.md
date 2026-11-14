@@ -73,7 +73,7 @@ Built the per-cell history on Colab (230 nightly tiles, NOAA-20 and NOAA-21, las
 | Latest night: cells `unknown` (dark sea or land, or too few clear nights) | 5,504 | 4,130 |
 
 - The false-alarm rate (2.6–3.3%) is **above the 1% target**. The hold-out also contains real events and counts a lasting drop several times, so it is an upper bound.
-- **Requiring both satellites to agree looks like the strongest filter**: only **1** cell was flagged by both on the latest night, out of 1,177 assessable by both. Next step is to measure this agreement over the whole hold-out and use it as the rule for "Possible power loss" (single-satellite flags stay low confidence).
+- **Requiring both satellites to agree works.** Measured over the 45-night hold-out on 59,868 cell-dates that both satellites could assess: a single satellite flags 2.7% of them, but both flag the same cell on the same date in only **0.73%** (438), under the 1% target. Proposed rule: both agree = "possible power loss"; a single-satellite flag stays low confidence. Code in PR #9.
 - About 70% of cells are `unknown`, mostly sea and dark land where a ratio is meaningless. That is correct behaviour, but the map should show them as "no signal", not as working.
 
 ## What Thanoban hands over, and when
@@ -103,7 +103,7 @@ Built the per-cell history on Colab (230 nightly tiles, NOAA-20 and NOAA-21, las
 
 1. Get the FIRMS map key (it is emailed to the account owner).
 2. Download the last 60 clear nights as cropped tiles on Colab and build the per-cell history.
-3. Tune the night-light thresholds on the real history: add the two-satellite agreement rule and re-measure the false-alarm rate (target about 1%).
+3. Wire the two-satellite agreement rule into the callable night-light function for Rashiru (H12), then check which flagged cells line up with ACLED/UCDP events and the radar damage later.
 4. Download recent FIRMS points for the demo box, run the fire model from PR #5, and tune the permanent-spot rule.
 5. Run the strike tests from PR #6 on Udula's damage table when the first version arrives (by H16); confirm column names at H2.
 6. Hand callable functions to Rashiru (H12) and the test numbers for the Sources page (H32).
