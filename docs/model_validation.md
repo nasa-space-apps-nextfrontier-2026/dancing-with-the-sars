@@ -77,8 +77,20 @@ Overall there is **no clear link** between candidates and recorded events. Only 
 - ACLED is **not** used: its terms forbid using ACLED data to train or test models.
 - Insecurity Insight is **not** used for locations: its coordinates are censored.
 
-## 6. Open items
+## 6. Coherence: tested and excluded
 
-- Coherence (tier C: GSLC 19 Jan and 24 Jun, GUNW 7–19 Jan) is downloading; cross-gap coherence needs its own QA before use.
+Computed with `pipelines/radar/nisar/coherence.py` on the 20 m grid (both source grids nest exactly; nothing resampled).
+
+| Layer | Source | Looks | Built-up median | Water median |
+|---|---|---|---|---|
+| Across the escalation | GSLC 19 Jan (BETA) × 24 Jun 2026 (PROVISIONAL) | 72 | 0.167 | 0.118 |
+| Before (12 days) | GUNW 7 → 19 Jan 2026 | product, 3 × 3 mean | 0.706 | 0.239 |
+
+The zero-coherence floor for 72 looks is about 0.10. Across the 156-day gap, coherence is close to that floor everywhere, including quiet built-up areas: only 12% of built-up pixels exceed 0.3. It is the same near recorded events (0.169), 1–5 km away (0.167) and 5 km or more away (0.167). The cells with the largest coherence drop are *less* often near events (26% within 1 km, vs 37% for all cells).
+
+**Decision:** cross-gap coherence carries no usable damage signal here (long gap, season and product-version change), so it is **excluded from the model**, as the plan's T-COHERENCE rule requires. The 12-day January coherence is good (median 0.71 on built-up areas), so short-gap coherence remains useful for later work when passes on both sides of an event are 12 days apart.
+
+## 7. Open items
+
 - Slope and radar-shadow masks (NASADEM) are not applied yet.
 - UCDP events stop at 15 Sep 2026, so later slider passes have incomplete quiet-area selection.
