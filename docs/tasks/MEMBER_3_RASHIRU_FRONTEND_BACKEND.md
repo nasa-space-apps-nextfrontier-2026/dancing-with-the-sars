@@ -104,7 +104,7 @@ Handoff checklist: include schema version, exact artifact paths, units/CRS/date,
 | Accountable owner | Member 3 |
 | One reviewer | Member 2 |
 | Dependency | M3-01 shared schema; source terms |
-| Expected files / outputs | pipelines/geodata/ingest.py; pipelines/geodata/grid.py; data/manifests/sources.json; data/private/base_layers.gpkg |
+| Expected files / outputs | worker/geodata/ingest.py; worker/geodata/grid.py; data/manifests/sources.json; data/private/base_layers.gpkg |
 | Required stub / mock | synthetic tiny buildings/roads/grid; licence-unverified fixture |
 | Effort and hackathon window | H0–H12; 6 active h |
 | Input / output contract | licensed extracts → grid/crosswalk/source records/base layers |
@@ -126,7 +126,7 @@ Handoff checklist: include schema version, exact artifact paths, units/CRS/date,
 | Accountable owner | Member 3 |
 | One reviewer | Member 2 |
 | Dependency | M2-01; M1-02 H16 cells; M2-03 services |
-| Expected files / outputs | pipelines/geodata/people.py; facilities.py; services.py; report.py; data/private/area_values.parquet |
+| Expected files / outputs | worker/geodata/people.py; facilities.py; services.py; report.py; data/private/area_values.parquet |
 | Required stub / mock | AreaSummary and MetricValue fixtures owned for UI packaging by M4 |
 | Effort and hackathon window | H8–H24; 7 active h |
 | Input / output contract | cells + baseline + reports → MetricValue[] and AreaSummary |
@@ -148,7 +148,7 @@ Handoff checklist: include schema version, exact artifact paths, units/CRS/date,
 | Accountable owner | Member 3 |
 | One reviewer | Member 2 |
 | Dependency | M2-01 source terms; M3-04 scheduler |
-| Expected files / outputs | pipelines/alerts/{firms,lights,ioda,corroboration}.py; data/private/alerts.geojson |
+| Expected files / outputs | worker/alerts/{firms,lights,ioda,corroboration}.py; data/private/alerts.geojson |
 | Required stub / mock | sanitized HTTP fixtures for success/timeout/rate limit; no keys |
 | Effort and hackathon window | H8–H24; 6 active h |
 | Input / output contract | bounded observations → AlertDetail + freshness; callable adapters |
@@ -170,7 +170,7 @@ Handoff checklist: include schema version, exact artifact paths, units/CRS/date,
 | Accountable owner | Member 3 |
 | One reviewer | Member 2 |
 | Dependency | M2-01 roads only to build and test. M3-02 policy and M3-03 endpoint only for the hand-off. |
-| Expected files / outputs | pipelines/routing/graph.py; routes.py; closures.py; data/private/demo_graph.graphml |
+| Expected files / outputs | worker/routing/graph.py; routes.py; closures.py; data/private/demo_graph.graphml |
 | Required stub / mock | tiny synthetic graph with three options, bridge, unknown edge and disconnected case |
 | Effort and hackathon window | H12–H32 (start on the synthetic graph at H12, real roads when M2-01 is ready); 5 active h |
 | Input / output contract | authorized route intent + graph revision → RouteOption[] |
@@ -192,7 +192,7 @@ Handoff checklist: include schema version, exact artifact paths, units/CRS/date,
 | Accountable owner | Member 3 |
 | One reviewer | Member 2 |
 | Dependency | M2-01; M1-02; M2-02; M3-02 |
-| Expected files / outputs | pipelines/shelter/candidates.py; capacity.py; data/private/shelter_candidates.parquet |
+| Expected files / outputs | worker/shelter/candidates.py; capacity.py; data/private/shelter_candidates.parquet |
 | Required stub / mock | redacted ShelterCandidate example and synthetic candidate geometries |
 | Effort and hackathon window | H24–H32; 4 active h |
 | Input / output contract | authorized area + assumptions → ranked candidates + capacity range |

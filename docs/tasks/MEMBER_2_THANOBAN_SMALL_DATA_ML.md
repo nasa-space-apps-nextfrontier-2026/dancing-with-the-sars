@@ -16,7 +16,7 @@ Status: planned implementation, not completed work. Task IDs (M1 to M4) are work
 | Accountable owner | Member 2 |
 | One reviewer | Member 1 |
 | Dependency | M2-01 H3 grid is not needed (uses `h3` directly); Udula's damage table for the final run of (c) at H16–H24 |
-| Expected files / outputs | pipelines/services/nightlights.py; fires.py; pipelines/evaluation/strike_tests.py; data/manifests/services_models.json |
+| Expected files / outputs | worker/services/nightlights.py; fires.py; worker/evaluation/strike_tests.py; data/manifests/services_models.json |
 | Required stub / mock | synthetic clear-night series with a known drop; fake FIRMS points with a permanent hot spot; mock damage table and event points for the test harness |
 | Effort and hackathon window | H2–H30; about 22 active h; all laptop-light (under about 1 GB of data) |
 | Input / output contract | Black Marble cells / FIRMS points / damage table + event points → alert events (area, time, source, label, confidence) and test results (rates, counts, limits) |
@@ -38,7 +38,7 @@ Handoff checklist: include schema version, exact artifact paths, units/CRS/date,
 | Accountable owner | Member 2 |
 | One reviewer | Member 1 |
 | Dependency | M2-02; licences; M3-02 privacy |
-| Expected files / outputs | docs/backlog/movement_global.md; future pipelines/geodata/movement.py |
+| Expected files / outputs | docs/backlog/movement_global.md; future worker/geodata/movement.py |
 | Required stub / mock | unavailable/disabled trend fixture |
 | Effort and hackathon window | No core allocation; max 1 h design; implementation after core |
 | Input / output contract | permitted coarse reports → delayed trend, not live people |

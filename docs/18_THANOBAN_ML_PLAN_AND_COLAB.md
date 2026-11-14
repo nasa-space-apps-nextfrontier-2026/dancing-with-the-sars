@@ -36,7 +36,7 @@ Rules: show ranges and "Unknown", never a single exact claim; "Possible power lo
 4. In the notebook, mount Drive, then `pip install earthaccess h3 scikit-learn pandas pyarrow geopandas rasterio`. Pin the versions in `requirements-ml.txt` in the repo.
 
 ### Keep the code in the repo, the notebook thin
-- Write the real code as Python modules in `pipelines/services/` and `pipelines/evaluation/` (the folders Thanoban owns in doc 17). The notebook only installs packages, loads secrets, calls the module and saves outputs. That way the same code runs in Colab, on a laptop or through the CLI.
+- Write the real code as Python modules in `worker/services/` and `worker/evaluation/` (the folders Thanoban owns in doc 17). The notebook only installs packages, loads secrets, calls the module and saves outputs. That way the same code runs in Colab, on a laptop or through the CLI.
 - Colab gets the code by cloning the repo (use a read-only token as a Colab Secret if the repo is private) or by uploading a zip. Edit and commit on your own branch, then pull again in Colab.
 
 ### The data flow (no storage problem)
@@ -52,7 +52,7 @@ Only on Linux, macOS or WSL2 (not native Windows). Commands as described by Goog
 uv tool install google-colab-cli
 colab new -s services                 # start a CPU session
 colab upload requirements-ml.txt /content/requirements-ml.txt
-colab exec -s services -f pipelines/services/run_nightlights.py
+colab exec -s services -f worker/services/run_nightlights.py
 colab download /content/out/nightlights.parquet ./out/nightlights.parquet
 colab stop -s services                # release the VM
 ```
