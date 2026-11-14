@@ -1,15 +1,12 @@
-import gzip
-import json
 
+import h3
 import numpy as np
 import pytest
 import rasterio
 from rasterio.transform import from_bounds
-import h3
 
 from worker.loaders.population import (
     COLUMNS,
-    CELL_ID,
     POP_HIGH,
     POP_LOW,
     POP_YEAR,
