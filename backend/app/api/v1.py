@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+from backend.app.api import radar
 from backend.app.core.config import get_settings
 from backend.app.core.permissions import allowed, is_private_layer
 from backend.app.core.security import authenticate, issue_session, read_session, revoke_session
@@ -108,6 +109,11 @@ def attach_routes(app: FastAPI) -> None:
                     summary = area_summary(request.path_params['area_id'])
                     return summary if summary is not None else error(
                         'NOT_FOUND', 'Area not found.', 404, request)
+                if not enabled():
+                    session = current(request)
+                    real = radar.handle(request, _path, session[0] if session else None, error)
+                    if real is not None:
+                        return real
                 if _path == '/layers':
                     if not enabled():
                         return error('UNAVAILABLE', 'No approved layer catalogue is loaded.', 503, request)

@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     allowed_origin: str = 'http://localhost:5173'
     cookie_secure: bool = False
     civisar_demo_users_json: str = '{}'
+    # Root of the private/local data folders (relative to the repository root unless absolute).
+    data_root: str = 'data'
 
 @lru_cache
 def get_settings() -> Settings:
