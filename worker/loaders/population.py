@@ -31,6 +31,7 @@ from worker.loaders.config import (
     MANIFESTS_DIR,
     POPULATION_CSV_GZ,
     POPULATION_MANIFEST,
+    ROOT,
 )
 
 CELL_ID = "cell_id"
@@ -171,8 +172,8 @@ def _write_manifest(df, path):
         "bbox_wgs84": {"west": west, "south": south, "east": east, "north": north},
         "pop_year": POP_YEAR_VALUE,
         "products": [
-            {"name": CONSTRAINED_PRODUCT, "path": str(CONSTRAINED_RASTER)},
-            {"name": UNCONSTRAINED_PRODUCT, "path": str(UNCONSTRAINED_RASTER)},
+            {"name": CONSTRAINED_PRODUCT, "path": str(CONSTRAINED_RASTER.relative_to(ROOT))},
+            {"name": UNCONSTRAINED_PRODUCT, "path": str(UNCONSTRAINED_RASTER.relative_to(ROOT))},
         ],
         "licence": POPULATION_LICENCE,
         "generated_date": datetime.now(timezone.utc).date().isoformat(),
@@ -181,7 +182,7 @@ def _write_manifest(df, path):
         "total_low": round(float(total_low)) if pd.notna(total_low) else None,
         "total_high": round(float(total_high)) if pd.notna(total_high) else None,
         "columns": COLUMNS,
-        "output": str(path),
+        "output": str(path.relative_to(ROOT)),
     }
     MANIFESTS_DIR.mkdir(parents=True, exist_ok=True)
     Path(path).write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
