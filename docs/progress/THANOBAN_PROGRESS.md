@@ -9,7 +9,7 @@ Read this to see where Thanoban's ML work stands. Udula: this is what you need t
 | Colab set-up (CLI in WSL2, signed in, free account) | Done and tested | |
 | Black Marble granule search (CMR) for the demo box | Merged into `dev` | [#3](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/3) |
 | 120-day default window and date-range search | Open, needs review | [#7](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/7) |
-| Model A: night-light power-loss rule (baseline of 60 clear nights, drop below 50% on 2 clear nights, `unknown` when evidence is thin) | Code and 7 tests done on synthetic data; open, needs review | [#4](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/4) |
+| Model A: night-light power-loss rule (baseline of 60 clear nights, drop below 50% on 2 clear nights, `unknown` when evidence is thin) | Code and 7 tests done; first real-data run done (see below); open, needs review | [#4](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/4) |
 | Model B: fire events (filter, permanent hot spots, 1 km / 12 h clustering) | Code and 6 tests done on synthetic points; open, needs review | [#5](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/5) |
 | Model C: strike-enrichment tests (near vs far, same-district control) | Harness and 4 tests done on mock data; open, needs review | [#6](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/6) |
 | Black Marble download and cropping on Colab | Works for the archive (one tile tested) and near-real-time (LANCE app authorised) | |
@@ -62,6 +62,20 @@ What this means for the model:
 2. "Clear night" will be defined as quality flag 0 and cloud bits 6–7 equal to 0, as in the Black Marble guide. To be checked against the product guide before tuning.
 3. **Near-real-time files (last 7 days) now work.** They were blocked until the Earthdata account authorised the application **"LANCE"** (Earthdata profile > Applications > Approve More Applications, then the auto-authorise list). After that the NRT URL on `nrt3.modaps.eosdis.nasa.gov` returns HTTP 200 with the token. The archive needs the "LAADS DAAC Cumulus" app, which was already authorised. **Udula:** NISAR downloads from ASF need the application "Alaska Satellite Facility Data Access" authorised on your own Earthdata account the same way.
 
+## Real-data run of the night-light rule (14 November 2026)
+
+Built the per-cell history on Colab (230 nightly tiles, NOAA-20 and NOAA-21, last 120 days, archive plus near real time; 228 downloaded, 2 failed because the 6 Nov near-real-time files return 404). 1.72 million rows over 7,546 H3 res-8 cells. Then ran the rule from PR #4 on it. Code: PR [#9](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/9) (stacked on #4).
+
+| Result | NOAA-20 | NOAA-21 |
+|---|---|---|
+| Hold-out (45 nights): share of assessable cell-nights flagged | 2.6% | 3.3% |
+| Latest night (12 Nov): flagged / assessable | 21 / 2,042 (1.0%) | 29 / 3,416 (0.85%) |
+| Latest night: cells `unknown` (dark sea or land, or too few clear nights) | 5,504 | 4,130 |
+
+- The false-alarm rate (2.6–3.3%) is **above the 1% target**. The hold-out also contains real events and counts a lasting drop several times, so it is an upper bound.
+- **Requiring both satellites to agree looks like the strongest filter**: only **1** cell was flagged by both on the latest night, out of 1,177 assessable by both. Next step is to measure this agreement over the whole hold-out and use it as the rule for "Possible power loss" (single-satellite flags stay low confidence).
+- About 70% of cells are `unknown`, mostly sea and dark land where a ratio is meaningless. That is correct behaviour, but the map should show them as "no signal", not as working.
+
 ## What Thanoban hands over, and when
 
 | To | What | When |
@@ -89,7 +103,7 @@ What this means for the model:
 
 1. Get the FIRMS map key (it is emailed to the account owner).
 2. Download the last 60 clear nights as cropped tiles on Colab and build the per-cell history.
-3. Build the per-cell history table for the last 120 nights and run the rule from PR #4 on real data; tune the thresholds from the quiet cells' own scores.
+3. Tune the night-light thresholds on the real history: add the two-satellite agreement rule and re-measure the false-alarm rate (target about 1%).
 4. Download recent FIRMS points for the demo box, run the fire model from PR #5, and tune the permanent-spot rule.
 5. Run the strike tests from PR #6 on Udula's damage table when the first version arrives (by H16); confirm column names at H2.
 6. Hand callable functions to Rashiru (H12) and the test numbers for the Sources page (H32).
