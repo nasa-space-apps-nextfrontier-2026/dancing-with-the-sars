@@ -1,8 +1,11 @@
 """U-03 calibration on synthetic numbers: band table, held-out scoring by area, honest scores."""
 
+import pytest
+
+pytest.importorskip("pandas")
+
 import numpy as np
 import pandas as pd
-import pytest
 
 from pipelines.buildings import height_check as hc
 
