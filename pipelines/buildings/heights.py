@@ -126,14 +126,26 @@ def match_obat(buildings_wkb: np.ndarray, obat: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def build(base: pd.DataFrame, obat: pd.DataFrame) -> pd.DataFrame:
+def build(base: pd.DataFrame, obat: pd.DataFrame, calibration: list[dict] | None = None) -> pd.DataFrame:
+    """calibration: the U-03 table (pipelines/buildings/height_check.py). With it, GHSL heights use
+    the calibrated middle value and range for their band instead of the fixed minus 3 / plus 4.5 m."""
     m = match_obat(base["geom"].to_numpy(), obat)
+    cal = None
+    if calibration:
+        from pipelines.buildings.height_check import predict
+        cal = predict(calibration, m["ghsl_height_m"].to_numpy(dtype=float), base["footprint_m2"].to_numpy(dtype=float))
     rows = []
-    for lv, gh, use in zip(base["osm_levels"], m["ghsl_height_m"], base["use"], strict=True):
+    for i, (lv, gh, use) in enumerate(zip(base["osm_levels"], m["ghsl_height_m"], base["use"], strict=True)):
         lo, hi, src = height_range(lv, gh, use)
+        mid = (lo + hi) / 2
+        if src == "osm":
+            mid = lv * STOREY_M
+        elif src == "ghsl" and cal is not None and not np.isnan(cal[i, 0]):
+            mid, lo, hi = cal[i]
         fl, fh = floors(lo, hi, lv if src == "osm" else None)
-        rows.append((round(lo, 1), round(hi, 1), src, fl, fh))
-    h = pd.DataFrame(rows, columns=["height_low_m", "height_high_m", "height_source", "floors_low", "floors_high"])
+        rows.append((round(lo, 1), round(float(mid), 1), round(hi, 1), src, fl, fh))
+    h = pd.DataFrame(rows, columns=["height_low_m", "height_mid_m", "height_high_m", "height_source",
+                                    "floors_low", "floors_high"])
     return pd.concat([base[["building_id", "h3_r9", "h3_r8", "use", "footprint_m2"]].reset_index(drop=True), h,
                       m[["ghsl_height_m", "ghsl_match", "ghsl_matches", "use_ghsl", "built_epoch"]]], axis=1)
 
@@ -148,10 +160,14 @@ def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def run(base_path: Path, obat_csv: Path, out_path: Path, manifest_path: Path) -> dict:
+def run(base_path: Path, obat_csv: Path, out_path: Path, manifest_path: Path,
+        calibration_path: Path | None = None) -> dict:
     base = pq.read_table(base_path).to_pandas()
     obat = load_obat(obat_csv)
-    rows = build(base, obat)
+    calibration = None
+    if calibration_path is not None and calibration_path.exists():
+        calibration = json.loads(calibration_path.read_text(encoding="utf-8"))["table"]
+    rows = build(base, obat, calibration)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     pq.write_table(pa.Table.from_pandas(rows, preserve_index=False), out_path)
     share = rows["height_source"].value_counts(normalize=True).round(4).to_dict()
@@ -161,7 +177,10 @@ def run(base_path: Path, obat_csv: Path, out_path: Path, manifest_path: Path) ->
         "inputs": {
             "buildings_base": {"file": str(base_path).replace("\\", "/"), "sha256": sha256(base_path)},
             "ghs_obat": {"file": obat_csv.name, "sha256": sha256(obat_csv), "rows_in_box": len(obat)},
+            "calibration": ({"file": str(calibration_path).replace("\\", "/"), "sha256": sha256(calibration_path)}
+                            if calibration else None),
         },
+        "ghsl_ranges": "calibrated by U-03" if calibration else "fixed: GHSL minus 3 m to plus 4.5 m (uncalibrated)",
         "sources": {
             "osm": "OpenStreetMap building:levels (ODbL 1.0, (c) OpenStreetMap contributors)",
             "ghsl": ("GHS-OBAT R2024A, European Commission JRC, CC BY 4.0, doi:10.2905/"
@@ -188,9 +207,8 @@ def run(base_path: Path, obat_csv: Path, out_path: Path, manifest_path: Path) ->
             "GHSL heights are 100 m grid means: a tall building among low ones is underestimated.",
             (f"{(rows['ghsl_height_m'] <= GHSL_FLOOR_M).mean():.0%} of buildings have a GHSL value at the "
              "2.5 m floor (not resolved); those get 3-7 m."),
-            ("First check (14 Nov 2026) on 414 OSM-tagged buildings: GHSL within 3 m for 39%, range holds the "
-             "tagged height for 51%; good for 1-2 storeys (78%), poor above (22-32%), towers about 11 m too low. "
-             "These ranges are not final: U-03 calibrates them (docs/progress/BUILDING_HEIGHT_CHECK.md)."),
+            ("Accuracy against 414 OSM-tagged buildings is in docs/progress/BUILDING_HEIGHT_CHECK.md (U-03). "
+             "height_mid_m is a drawing value for the 3D view (tag: Inferred), not a measurement."),
         ],
         "rebuild": "python -m pipelines.buildings.heights",
     }
@@ -206,9 +224,12 @@ def main(argv: list[str] | None = None) -> int:
                     default=Path("data/raw/ghsl/obat_lbn/GHS_OBAT_CSV_LBN_E2020_R2024A_V1_0.csv"))
     ap.add_argument("--out", type=Path, default=Path("data/local/buildings_height.parquet"))
     ap.add_argument("--manifest", type=Path, default=Path("data/manifests/buildings_height.json"))
+    ap.add_argument("--calibration", type=Path, default=Path("data/manifests/buildings_height_calibration.json"),
+                    help="U-03 calibration table; ignored if the file does not exist")
     args = ap.parse_args(argv)
-    m = run(args.base, args.obat, args.out, args.manifest)
-    print(json.dumps({k: m[k] for k in ("buildings", "height_source_share", "ghsl_matched", "ghsl_at_floor",
+    m = run(args.base, args.obat, args.out, args.manifest, args.calibration)
+    print(json.dumps({k: m[k] for k in ("buildings", "ghsl_ranges", "height_source_share", "ghsl_matched",
+                                        "ghsl_at_floor",
                                         "use_ghsl_counts", "height_range_m")}, indent=2))
     return 0
 

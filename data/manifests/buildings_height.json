@@ -2,7 +2,7 @@
   "kind": "buildings_height",
   "task": "U-02",
   "synthetic": false,
-  "built_at": "2026-11-14T13:58:10Z",
+  "built_at": "2026-11-14T14:08:50Z",
   "inputs": {
     "buildings_base": {
       "file": "data/local/buildings_base.parquet",
@@ -12,8 +12,13 @@
       "file": "GHS_OBAT_CSV_LBN_E2020_R2024A_V1_0.csv",
       "sha256": "9d1b4cda08c1c1a006f9580855b4e2852b92c370cf2cac691c9298122a0a0fcb",
       "rows_in_box": 290362
+    },
+    "calibration": {
+      "file": "data/manifests/buildings_height_calibration.json",
+      "sha256": "fe4fdb4dd5a2bdd175298c88637703edd1c67ad328f08abf66ce5fdc753fdebe"
     }
   },
+  "ghsl_ranges": "calibrated by U-03",
   "sources": {
     "osm": "OpenStreetMap building:levels (ODbL 1.0, (c) OpenStreetMap contributors)",
     "ghsl": "GHS-OBAT R2024A, European Commission JRC, CC BY 4.0, doi:10.2905/f41a22f1-5741-4c41-86eb-6384654f6927. Height = GHS-BUILT-H ANBH (100 m, ~2018) under Overture footprints",
@@ -73,7 +78,7 @@
     }
   },
   "output": "data/local/buildings_height.parquet",
-  "output_sha256": "8adf0b0bc15fafcdedd991d576828a8ec2b85f788a55fbebbb0596600d227b29",
+  "output_sha256": "5666e73e7e07cbd3b8945573af02d1e0a40254dc5ace4d01e6cb7b0be9d6267a",
   "buildings": 268536,
   "height_source_share": {
     "ghsl": 0.9003,
@@ -94,13 +99,13 @@
   },
   "height_range_m": {
     "low_median": 3.0,
-    "high_median": 8.1
+    "high_median": 12.0
   },
   "limits": [
     "Heights describe the building stock around 2018, before the war; they are not damage results.",
     "GHSL heights are 100 m grid means: a tall building among low ones is underestimated.",
     "31% of buildings have a GHSL value at the 2.5 m floor (not resolved); those get 3-7 m.",
-    "First check (14 Nov 2026) on 414 OSM-tagged buildings: GHSL within 3 m for 39%, range holds the tagged height for 51%; good for 1-2 storeys (78%), poor above (22-32%), towers about 11 m too low. These ranges are not final: U-03 calibrates them (docs/progress/BUILDING_HEIGHT_CHECK.md)."
+    "Accuracy against 414 OSM-tagged buildings is in docs/progress/BUILDING_HEIGHT_CHECK.md (U-03). height_mid_m is a drawing value for the 3D view (tag: Inferred), not a measurement."
   ],
   "rebuild": "python -m pipelines.buildings.heights"
 }
