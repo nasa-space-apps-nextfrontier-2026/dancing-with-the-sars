@@ -1,0 +1,30 @@
+{
+  "kind": "boundaries_manifest",
+  "aoi": "south-lebanon-demo",
+  "bbox_wgs84": {
+    "west": 35.0,
+    "south": 33.0,
+    "east": 36.0,
+    "north": 33.6
+  },
+  "source_url": "https://data.humdata.org/dataset/569beba7-bad7-4951-a19d-468a035461cd/resource/81ca0135-b5c9-46e0-a546-f0bdd6d7fd42/download/lbn_admin_boundaries.geojson.zip",
+  "dataset": "Lebanon - Subnational Administrative Boundaries",
+  "dataset_id": "569beba7-bad7-4951-a19d-468a035461cd",
+  "download_date": "2026-11-14",
+  "licence": "Creative Commons Attribution for Intergovernmental Organisations (CC BY-IGO)",
+  "licence_url": "https://data.humdata.org/dataset/569beba7-bad7-4951-a19d-468a035461cd",
+  "row_count": 14,
+  "admin_levels": [
+    1,
+    2
+  ],
+  "fields": [
+    "admin_id",
+    "name_en",
+    "name_ar",
+    "level",
+    "parent_id",
+    "geometry"
+  ],
+  "output": "C:\\Users\\USER\\Desktop\\dancing-with-the-sars\\data\\local\\boundaries.geojson"
+}

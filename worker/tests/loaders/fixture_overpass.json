@@ -1,0 +1,73 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API",
+  "elements": [
+    {
+      "type": "node",
+      "id": 1001,
+      "lat": 33.15,
+      "lon": 35.15,
+      "tags": {"amenity": "hospital", "name": "Test Hospital", "timestamp": "2024-01-01T00:00:00Z"}
+    },
+    {
+      "type": "node",
+      "id": 1002,
+      "lat": 33.16,
+      "lon": 35.16,
+      "tags": {"amenity": "clinic", "name": "Test Clinic", "timestamp": "2024-01-02T00:00:00Z"}
+    },
+    {
+      "type": "node",
+      "id": 1003,
+      "lat": 33.17,
+      "lon": 35.17,
+      "tags": {"amenity": "school", "name": "Test School", "timestamp": "2024-01-03T00:00:00Z"}
+    },
+    {
+      "type": "node",
+      "id": 1004,
+      "lat": 33.18,
+      "lon": 35.18,
+      "tags": {"man_made": "water_tower", "name": "Test Water Tower", "timestamp": "2024-01-04T00:00:00Z"}
+    },
+    {
+      "type": "node",
+      "id": 1005,
+      "lat": 33.19,
+      "lon": 35.19,
+      "tags": {"power": "substation", "name": "Test Substation", "timestamp": "2024-01-05T00:00:00Z"}
+    },
+    {
+      "type": "node",
+      "id": 1006,
+      "lat": 33.20,
+      "lon": 35.20,
+      "tags": {"amenity": "police", "name": "Excluded Police", "timestamp": "2024-01-06T00:00:00Z"}
+    },
+    {
+      "type": "node",
+      "id": 1007,
+      "lat": 33.21,
+      "lon": 35.21,
+      "tags": {"amenity": "prison", "name": "Excluded Prison", "timestamp": "2024-01-07T00:00:00Z"}
+    },
+    {
+      "type": "node",
+      "id": 1008,
+      "lat": 33.22,
+      "lon": 35.22,
+      "tags": {"military": "base", "name": "Excluded Military", "timestamp": "2024-01-08T00:00:00Z"}
+    },
+    {
+      "type": "node",
+      "id": 1009,
+      "tags": {"amenity": "hospital", "name": "No Coordinates"}
+    },
+    {
+      "type": "way",
+      "id": 2001,
+      "center": {"lat": 33.23, "lon": 35.23},
+      "tags": {"healthcare": "clinic", "name": "Way Clinic", "timestamp": "2024-01-09T00:00:00Z"}
+    }
+  ]
+}
