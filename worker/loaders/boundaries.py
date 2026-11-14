@@ -9,7 +9,7 @@ committed.
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import geopandas as gpd
@@ -157,7 +157,7 @@ def _write_manifest(row_count: int) -> None:
         "source_url": SOURCE_URL,
         "dataset": HDX_DATASET_NAME,
         "dataset_id": HDX_DATASET_ID,
-        "download_date": datetime.now(timezone.utc).date().isoformat(),
+        "download_date": datetime.now(UTC).date().isoformat(),
         "licence": LICENCE,
         "licence_url": LICENCE_URL,
         "row_count": row_count,

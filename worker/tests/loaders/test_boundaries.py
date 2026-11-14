@@ -1,7 +1,5 @@
 from pathlib import Path
 
-import geopandas as gpd
-
 from worker.loaders.boundaries import KEEP_COLUMNS, load_boundaries
 
 FIXTURE = Path(__file__).with_name("fixture_boundaries.geojson")
