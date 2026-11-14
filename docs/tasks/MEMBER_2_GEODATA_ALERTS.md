@@ -79,38 +79,16 @@ Handoff checklist: include schema version, exact artifact paths, units/CRS/date,
 | Priority / phase | MVP |
 | Accountable owner | Member 2 |
 | One reviewer | Member 1 |
-| Dependency | M2-01 roads; M3-02 policy; M3-03 endpoint |
+| Dependency | M2-01 roads only to build and test. M3-02 policy and M3-03 endpoint only for the hand-off. |
 | Expected files / outputs | pipelines/routing/graph.py; routes.py; closures.py; data/private/demo_graph.graphml |
 | Required stub / mock | tiny synthetic graph with three options, bridge, unknown edge and disconnected case |
-| Effort and hackathon window | H24–H32; 5 active h |
+| Effort and hackathon window | H12–H32 (start on the synthetic graph at H12, real roads when M2-01 is ready); 5 active h |
 | Input / output contract | authorized route intent + graph revision → RouteOption[] |
 | Local verification (planned) | `python -m pytest tests/unit/test_routes.py` |
 | Test cases | T-ROUTE: avoid confirmed closures, fewer paths explain, unknown heavy suitability, no network call |
 | Definition of Done | Expected artifacts committed in a small PR to dev; Member 1 reviews tests and source/safety implications; contracts and lineage validated; fixture/real status declared; receiving task acknowledges handoff. Scientific failures stay visible and block unsupported claims. |
 | Integration checkpoint | H32 callable and revision tests to M3; seven facts to M4 |
 | Blockers / fallback | Disconnected/incomplete graph → fewer/no route with warning, never fabricated third option |
-
-Handoff checklist: include schema version, exact artifact paths, units/CRS/date, checksum/run ID, sensitivity and licence tags, known gaps, reproduction command, test result and receiving member acknowledgement. No credentials or raw sensitive files in PR.
-
-## M2-05: Shelter scoring and capacity ranges
-
-| Field | Commitment |
-|---|---|
-| Source trace | PROJECT_PLAN.md §6.7; DATA_AND_API_PLAN.md §3 |
-| Scope | Buildings first, configurable modes, uncertain floor-area estimate, access/hazard caveats, field-check requests; scoped open-land screen. |
-| Priority / phase | MVP buildings; open land lower priority |
-| Accountable owner | Member 2 |
-| One reviewer | Member 1 |
-| Dependency | M2-01; M1-02; M2-02; M3-02 |
-| Expected files / outputs | pipelines/shelter/candidates.py; capacity.py; data/private/shelter_candidates.parquet |
-| Required stub / mock | redacted ShelterCandidate example and synthetic candidate geometries |
-| Effort and hackathon window | H16–H32; 4 active h |
-| Input / output contract | authorized area + assumptions → ranked candidates + capacity range |
-| Local verification (planned) | `python -m pytest tests/unit/test_shelter.py` |
-| Test cases | T-SHELTER: modes, bounds, missing levels/GHSL, known hazard exclusion; never certify safety |
-| Definition of Done | Expected artifacts committed in a small PR to dev; Member 1 reviews tests and source/safety implications; contracts and lineage validated; fixture/real status declared; receiving task acknowledges handoff. Scientific failures stay visible and block unsupported claims. |
-| Integration checkpoint | H24 first list; H32 final callable M3/M4 |
-| Blockers / fallback | Height and structural uncertainty; type default explicitly labelled or no capacity; cut open land before buildings |
 
 Handoff checklist: include schema version, exact artifact paths, units/CRS/date, checksum/run ID, sensitivity and licence tags, known gaps, reproduction command, test result and receiving member acknowledgement. No credentials or raw sensitive files in PR.
 

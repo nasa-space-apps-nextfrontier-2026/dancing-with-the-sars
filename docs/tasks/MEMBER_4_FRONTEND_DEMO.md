@@ -31,7 +31,7 @@ Handoff checklist: include schema version, exact artifact paths, units/CRS/date,
 | Field | Commitment |
 |---|---|
 | Source trace | UI_DESIGN.md §§3.1/4; ARCHITECTURE.md §4.2 |
-| Scope | Main map, missing passes, HH/HV, swipe/swap, folding rails, alert feed, per-agent inspector/time series/validation states. |
+| Scope | Main map, missing passes, HH/HV, swipe/swap, folding rails, alert feed, per-agent inspector/time series; Validation tab shows "No matching assessment available" as the normal state plus the model test results. |
 | Priority / phase | MVP |
 | Accountable owner | Member 4 |
 | One reviewer | Member 1 |

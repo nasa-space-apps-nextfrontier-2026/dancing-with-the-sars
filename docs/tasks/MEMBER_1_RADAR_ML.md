@@ -53,7 +53,7 @@ Handoff checklist: include schema version, exact artifact paths, units/CRS/date,
 | Field | Commitment |
 |---|---|
 | Source trace | ARCHITECTURE.md §§1.2/1.4; NASA_DATASET_ANALYSIS.md §9 |
-| Scope | Spatial hold-out, enrichment with controls, 20 manual top cells, uncertainty report; verify UNDP/CNRS-L without promising UNOSAT. |
+| Scope | Spatial hold-out, enrichment with controls, 20 manual top cells, uncertainty report. These tests are the main proof. "No matching assessment available" is the normal case: no UNOSAT exists for Lebanon and no 2026 UNDP/CNRS-L was found; use one only if it appears at H0. |
 | Priority / phase | MVP QA; overlay conditional |
 | Accountable owner | Member 1 |
 | One reviewer | Member 4 |
@@ -89,5 +89,27 @@ Handoff checklist: include schema version, exact artifact paths, units/CRS/date,
 | Definition of Done | Expected artifacts committed in a small PR to dev; Member 2 reviews tests and source/safety implications; contracts and lineage validated; fixture/real status declared; receiving task acknowledges handoff. Scientific failures stay visible and block unsupported claims. |
 | Integration checkpoint | H36 go/no-go with M4; nothing new after H38 |
 | Blockers / fallback | Huge downloads/cross-gap decorrelation; omit feature and disclose |
+
+Handoff checklist: include schema version, exact artifact paths, units/CRS/date, checksum/run ID, sensitivity and licence tags, known gaps, reproduction command, test result and receiving member acknowledgement. No credentials or raw sensitive files in PR.
+
+## M2-05: Shelter scoring and capacity ranges
+
+| Field | Commitment |
+|---|---|
+| Source trace | PROJECT_PLAN.md §6.7; DATA_AND_API_PLAN.md §3 |
+| Scope | Moved from Member 2 to Member 1 on 14 Nov 2026 to balance load; starts after H24 when radar work eases. Buildings first, configurable modes, uncertain floor-area estimate, access/hazard caveats, field-check requests; scoped open-land screen. |
+| Priority / phase | MVP buildings; open land lower priority |
+| Accountable owner | Member 1 |
+| One reviewer | Member 2 |
+| Dependency | M2-01; M1-02; M2-02; M3-02 |
+| Expected files / outputs | pipelines/shelter/candidates.py; capacity.py; data/private/shelter_candidates.parquet |
+| Required stub / mock | redacted ShelterCandidate example and synthetic candidate geometries |
+| Effort and hackathon window | H24–H32; 4 active h |
+| Input / output contract | authorized area + assumptions → ranked candidates + capacity range |
+| Local verification (planned) | `python -m pytest tests/unit/test_shelter.py` |
+| Test cases | T-SHELTER: modes, bounds, missing levels/GHSL, known hazard exclusion; never certify safety |
+| Definition of Done | Expected artifacts committed in a small PR to dev; Member 2 reviews tests and source/safety implications; contracts and lineage validated; fixture/real status declared; receiving task acknowledges handoff. Scientific failures stay visible and block unsupported claims. |
+| Integration checkpoint | H24 first list; H32 final callable M3/M4 |
+| Blockers / fallback | Height and structural uncertainty; type default explicitly labelled or no capacity; cut open land before buildings |
 
 Handoff checklist: include schema version, exact artifact paths, units/CRS/date, checksum/run ID, sensitivity and licence tags, known gaps, reproduction command, test result and receiving member acknowledgement. No credentials or raw sensitive files in PR.

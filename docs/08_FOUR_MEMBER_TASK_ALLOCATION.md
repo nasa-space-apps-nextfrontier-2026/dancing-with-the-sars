@@ -27,8 +27,8 @@ Source: ARCHITECTURE.md Parts 1–4; user requires exactly four members. No name
 | M2-01 | Member 2 | Member 1 | M3-01 shared schema; source terms | H2 IDs to all; H12 base grid/residents/facilities inputs M3 |
 | M2-02 | Member 2 | Member 1 | M2-01; M1-02 H16 cells; M2-03 services | H12 baseline to M3; H24 joined real-data summary to M3/M4 |
 | M2-03 | Member 2 | Member 1 | M2-01 source terms; M3-04 scheduler | H16 callable jobs to M3; H24 alerts to M4 |
-| M2-04 | Member 2 | Member 1 | M2-01 roads; M3-02 policy; M3-03 endpoint | H32 callable and revision tests to M3; seven facts to M4 |
-| M2-05 | Member 2 | Member 1 | M2-01; M1-02; M2-02; M3-02 | H24 first list; H32 final callable M3/M4 |
+| M2-04 | Member 2 | Member 1 | M2-01 roads (M3-02/M3-03 for hand-off only) | H32 callable and revision tests to M3; seven facts to M4 |
+| M2-05 | Member 1 | Member 2 | M2-01; M1-02; M2-02; M3-02 | H24 first list; H32 final callable M3/M4 |
 | M2-06 | Member 2 | Member 3 | M2-02; licences; M3-02 privacy | H38 record deferred scope; later approved iteration |
 | M3-01 | Member 3 | Member 4 | M1/M2 identifiers and fixtures | H2 v0.1 freeze; H12 mock API to M4 |
 | M3-02 | Member 3 | Member 4 | M3-01; source safety rules | H12 role API; H24 protected data; H38 release blocker review |
@@ -58,7 +58,7 @@ R/A = one accountable implementer; C = named cross-review or domain consultation
 
 ## Workload balance
 
-M2 core tasks total about 28 active hours plus at most one hour backlog design. This is still the bottleneck. Start tiny bounded data and route/shelter fixtures early; no global watch list, movement pipeline or broad environmental datasets in core. M3 owns scheduler/leases/retries/loaders; M4 owns UI contract fixtures and screen state handling. M1 reviews M2 CRS, capacity and population joins. Support is explicit review/integration work; M2 retains algorithm accountability. M1 ~25 core active hours plus ≤4 optional; M3 ~29; M4 ~30. Remaining elapsed time is downloads, review, breaks, integration and contingency, not an assumption of 48 uninterrupted working hours.
+14 Nov 2026 change: shelters (M2-05) moved to Member 1 after H24, routes (M2-04) start early on a synthetic graph, and Member 3 extras (CSRF, audit log, job leases, CI, metrics, rollback) moved to stretch. Before that change: M2 core tasks total about 28 active hours plus at most one hour backlog design. This is still the bottleneck. Start tiny bounded data and route/shelter fixtures early; no global watch list, movement pipeline or broad environmental datasets in core. M3 owns scheduler/leases/retries/loaders; M4 owns UI contract fixtures and screen state handling. M1 reviews M2 CRS, capacity and population joins. Support is explicit review/integration work; M2 retains algorithm accountability. M1 ~25 core active hours plus ≤4 optional; M3 ~29; M4 ~30. Remaining elapsed time is downloads, review, breaks, integration and contingency, not an assumption of 48 uninterrupted working hours.
 
 ## Team conventions
 

@@ -2,7 +2,7 @@
 
 The datasets we use for the **south Lebanon demo** and what each one does. See [PROJECT_PLAN.md](PROJECT_PLAN.md) for how they fit together.
 
-The list was cut down on 13 November 2026 to **14 sources**: only data that feeds a map layer or an agent result. Sources were collected from:
+The list was cut down on 13 November 2026 to **14 sources**, and on 14 November 2026 GHSL building height was added (**15 sources**): only data that feeds a map layer or an agent result. Sources were collected from:
 - the **Dancing with the SARs** Resources tab (our challenge),
 - the Resources tabs of other 2026 Space Apps challenges,
 - the team PDF *NASA Open Data Links – Earth Impact Intelligence*,
@@ -20,7 +20,7 @@ Demo area search box: south Lebanon, 35.0–36.0 E, 33.0–33.6 N.
 | 🔵 **Tab tool** | Found and downloaded through a tool linked on the Resources tab (NASA Earthdata Search or ASF Vertex) and their APIs |
 | ⚪ **Other** | From another source (other challenge pages, team PDF, humanitarian data) |
 
-Summary: **6 of our 14 datasets come from the Resources tab or its tools** (1 🟢, 5 🔵). All 4 APIs we use for NASA data (section 5) sit behind tools on that tab.
+Summary: **5 of our 15 datasets come from the Resources tab or its tools** (1 🟢, 4 🔵). GIBS is NASA-operated but marked ⚪ because we found it outside the tab. All 4 APIs we use for NASA data (section 5) sit behind tools on that tab.
 
 ---
 
@@ -36,7 +36,9 @@ NISAR is the challenge's own mission. The tab links ASF Vertex, NASA Earthdata S
 | NISAR_L2_GCOV_PROVISIONAL_V1 | C2854338529-ASF | 19 Oct 2026 | Earlier dates for the time series |
 | **NISAR_L2_GSLC_V1** / NISAR_L2_GSLC_PROVISIONAL_V1 | C3622244601-ASF / C2854332392-ASF | 3 Nov 2026 | Coherence loss between dates, the strongest damage signal for built-up areas |
 
-**Coverage (ASF Search API, 13 Nov 2026):** 336 NISAR granules over south Lebanon on three tracks. GCOV passes: track 151 descending 11 (24 Jun to 3 Nov 2026, main time series), track 172 ascending 10, track 100 ascending 8.
+**Coverage (ASF Search API, 13 Nov 2026):** 336 NISAR granules over south Lebanon on three tracks. GCOV passes: track 151 descending (frame 72) has 11 passes from 24 Jun to 3 Nov 2026 (time slider), track 172 ascending 10, track 100 ascending 8.
+
+**Before images:** track 151 also has earlier **BETA** passes, 6 dates from 27 Oct 2025 to 19 Jan 2026. They are our only baseline from before the 2026 fighting, so we use them as "before". BETA and PROVISIONAL processing may differ slightly; the damage model must test for that (stable-area check) and mark results Unknown if it can't.
 
 ## 2. Other NASA data
 
@@ -58,14 +60,19 @@ All ⚪ Other: these come from humanitarian and open-data sources, not the Resou
 
 | # | Dataset | Access | How often | Used for |
 |---|---|---|---|---|
-| 7 | **OpenStreetMap / HOTOSM** | Overpass; HDX `hotosm_lbn_buildings`, `hotosm_lbn_roads` | Live edits; exports monthly | Buildings, roads, hospitals, schools, water and power sites. `building:levels` gives floor area for shelter capacity. |
+| 7 | **OpenStreetMap / HOTOSM** | HDX `hotosm_lbn_buildings`, `hotosm_lbn_roads` (main); Overpass (backup) | Live edits; exports monthly | Buildings, roads, hospitals, schools, water and power sites. `building:levels` gives floors, but only about 0.28% of buildings have it. |
 | 8 | **WorldPop** | https://www.worldpop.org/ | Yearly | People counts (about 100 m, with age and sex) |
-| 9 | **UNOSAT damage assessments** | HDX | Per event | Validation of our damage classes only |
-| 10 | **UNDP / CNRS-L Lebanon assessments** | UNDP, CNRS-L | Per event | Validation for south Lebanon only |
+| 9 | **UNOSAT damage assessments** | HDX | Per event | **Checked 13 Nov 2026: none exist for Lebanon.** We use UNOSAT's damage class names and displaced-share method, not its data. Check again at hour 0. |
+| 10 | **UNDP / CNRS-L Lebanon assessments** | UNDP, CNRS-L | Per event | **No 2026 assessment found.** Use for validation only if a matching one appears (check at hour 0). |
 | 11 | **ACLED** | HDX `lebanon-acled-conflict-data`; API (free account) | Weekly | Strike context next to radar changes; watch list |
 | 12 | **IODA** (Georgia Tech) | Public API, tested (Lebanon code `LB`) | Real time | Internet outage layer |
 | 13 | **IOM DTM + Meta Movement Distribution Maps** | DTM API, HDX `lbn-iom-dtm-from-api`; HDX `movement-distribution` (CC BY) | Weekly; every 2 weeks | Displacement numbers and movement trend, by area only |
 | 14 | **Insecurity Insight** | HDX `aid-security-risk-in-lebanon` | Weekly to monthly | Reported attacks on health, water and schools ("reported" label) |
+| 15 | **GHSL building height** (JRC) | JRC GHSL website, one 100 m tile | Static | Building height when OSM has no floor count: height ÷ 3 m = floors. Gives a range, not a precise per-building figure. |
+
+**Supporting file (not counted as a dataset):** OCHA administrative boundaries from HDX (governorates, districts, cadasters), used to name areas and join tables.
+
+**Shelter floor area order:** OSM `building:levels` → GHSL height ÷ 3 m → a default for the building type. Capacity is always shown as a range.
 
 ## 4. Which layer and agent uses each dataset
 
@@ -79,7 +86,8 @@ All ⚪ Other: these come from humanitarian and open-data sources, not the Resou
 | ⚪ | GIBS | GIBS WMTS | Base maps | none (display) |
 | ⚪ | OSM / HOTOSM | Overpass, HDX | Buildings, facilities, roads | Facility, Route, Shelter |
 | ⚪ | WorldPop | WorldPop REST | People density | People |
-| ⚪ | UNOSAT, UNDP | HDX, download | Validation overlay (analyst view) | Damage (check only) |
+| ⚪ | UNOSAT, UNDP | HDX, download | Validation overlay only if matching data appears; otherwise "not available" | Damage (check only) |
+| ⚪ | GHSL building height | JRC download | (used inside shelter capacity) | Shelter |
 | ⚪ | ACLED | ACLED API, HDX | Conflict events | Corroboration, Alert |
 | ⚪ | IODA | IODA API | Internet outages | Services, Alert |
 | ⚪ | IOM DTM, Meta | DTM API, HDX | Movement (aggregated) | People, Movement |
@@ -123,7 +131,7 @@ How we get each dataset. Marks as above.
 
 Checked and dropped on 13 Nov 2026 so the build stays small:
 
-- **Radar we don't need:** SAOCOM (🟢 on the tab, but needs registration and coverage is not confirmed), RCM and RADARSAT-1 (🟢 on the tab, but no open data over Lebanon), NISAR GUNW and UR products (none over Lebanon), OPERA DIST-ALERT-S1 (not current over Lebanon).
+- **Radar we don't need:** SAOCOM (🟢 on the tab, but needs registration and coverage is not confirmed), RCM and RADARSAT-1 (🟢 on the tab, but no open data over Lebanon), NISAR UR products (none over Lebanon), NISAR GUNW (22 BETA and 37 PROVISIONAL products exist over Lebanon, none in V1; their short date pairs don't span January to June, so GUNW is an optional stretch only), OPERA DIST-ALERT-S1 (not current over Lebanon).
 - **Learning material from the tab (🟢, not data):** Intro to Remote Sensing, Intro to SAR, NASA ARSET, NISAR StoryMaps, NISAR Applications White Papers, UAVSAR Postcards, CSA SAR Python tutorial. We use them to learn and for presentation ideas.
 - **Duplicates or not needed:** GPWv4 (WorldPop instead), gROADS (OSM instead), MCD12Q1, HLS downloads, OPERA DIST-ALERT-HLS, DSWx, GPM IMERG, SMAP, NASA POWER, AppEEARS, Giovanni, NASA SVS night-lights story.
 - **From other challenge pages:** Sentinel-2, ERA5, GEDI, ECOSTRESS, FAO GAEZ, KNMI, NOAA CDO, and the US-only datasets.

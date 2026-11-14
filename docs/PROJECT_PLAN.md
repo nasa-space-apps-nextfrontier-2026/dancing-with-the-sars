@@ -35,11 +35,11 @@ The challenge asks for an **interactive application that uses NISAR radar data t
 | Decision | Detail |
 |---|---|
 | War only | No floods, earthquakes or other natural disasters. |
-| Small data set | 14 sources only, each feeding a map layer or an agent result (see [DATASETS.md](DATASETS.md)). |
+| Small data set | 15 sources only, each feeding a map layer or an agent result (see [DATASETS.md](DATASETS.md)). |
 | No rebuilding | Reconstruction plans and rebuild tracking are out of scope. |
 | No live vehicle tracking | Not possible with this data (NISAR and Sentinel-1 give snapshots every 6 to 12 days), and dangerous in a war. |
 | No Chinese sources | Space Apps rules bar China or Chinese-owned entities. |
-| Resources tab data first | At least one dataset from the challenge Resources tab is needed. Ours is **NISAR** (🟢 linked on the tab). Four more NASA datasets come through the tab's tools, NASA Earthdata Search and ASF Vertex (🔵): OPERA RTC-S1, Black Marble, FIRMS and NASADEM. So 6 of our 14 datasets come from the tab or its tools. Everything used is cited. |
+| Resources tab data first | At least one dataset from the challenge Resources tab is needed. Ours is **NISAR** (🟢 linked on the tab). Four more NASA datasets come through the tab's tools, NASA Earthdata Search and ASF Vertex (🔵): OPERA RTC-S1, Black Marble, FIRMS and NASADEM. So 5 of our 15 datasets come from the tab or its tools. Everything used is cited. |
 | APIs from the tab tools | NISAR and NASA data are found with the **ASF Search API** (behind ASF Vertex) and the **CMR API** (behind Earthdata Search). They are downloaded with **earthaccess** and an **Earthdata Login** token, as the NISAR Data User Guide describes. Full API plan in [DATASETS.md](DATASETS.md) section 5. |
 | One combined map | One map with switchable layer groups and one click panel. |
 
@@ -51,7 +51,7 @@ CIVISAR **uses damage as an input** and goes on to the emergency response: how s
 
 ## 5. Demo area: south Lebanon (design is global)
 
-**The hackathon demo is south Lebanon only**, because judges need one deep, checked example. NISAR coverage was checked on 13 November 2026: 336 granules on three tracks. GCOV passes: track 151 descending has 11 passes (24 Jun to 3 Nov 2026), track 172 ascending 10, track 100 ascending 8. Track 151 is the main time series. Reference damage data comes from UNDP/CNRS-L and UNOSAT. Public NISAR data starts 17 June 2026, so it mostly shows the period after fighting paused.
+**The hackathon demo is south Lebanon only**, because judges need one deep, checked example. NISAR coverage was checked on 13 November 2026: 336 granules on three tracks. GCOV passes: track 151 descending (frame 72) has 11 passes (24 Jun to 3 Nov 2026), track 172 ascending 10, track 100 ascending 8. Track 151 is the main time series. **Before images** come from earlier BETA passes on track 151 (6 dates, 27 Oct 2025 to 19 Jan 2026), our only baseline from before the 2026 fighting. No UNOSAT damage assessment exists for Lebanon and no 2026 UNDP/CNRS-L one was found (checked 13 Nov 2026), so there is no ready validation data; the model's own tests are the main proof (see [ARCHITECTURE.md](ARCHITECTURE.md) Part 1.4).
 
 **How it grows worldwide later.** Every dataset we use is global or near-global, so the same system can watch any area where war is happening:
 
@@ -90,7 +90,7 @@ A satellite fire detection is a heat signal, not proof of a strike. The alert sa
 ### 6.1 Damage and severity
 - Candidate damage from NISAR: backscatter change (GCOV), coherence loss (GSLC), cluster size, and persistence across passes. Sentinel-1 (OPERA RTC) adds dates between NISAR passes.
 - Map to UNOSAT classes: destroyed, severely damaged, moderately damaged, possibly damaged.
-- Validate against UNOSAT and UNDP data for the same area.
+- Validate with the model's own tests: hold-out quiet areas, more flags near reported strikes, and a manual look at the top cells. UNOSAT has no Lebanon assessment and no 2026 UNDP one was found; use them only if matching data appears.
 - Radar shows candidates, not confirmed damage, and the wording says so.
 
 ### 6.2 Affected buildings and facilities
@@ -157,7 +157,7 @@ No detailed logistics counts (such as toilets or tap stands). The summary can be
 
 **Supply: buildings first, then open land.** In an emergency the quickest shelter is usually an existing building near the affected people, not a new camp.
 
-1. **Nearest suitable buildings** (first choice): any large building with no detected NISAR change near the affected area: schools, halls, community centres, places of worship, sports halls, warehouses, public buildings. Usable floor area is estimated from the OSM footprint × number of levels (`building:levels`), minus a share for walls and corridors.
+1. **Nearest suitable buildings** (first choice): any large building with no detected NISAR change near the affected area: schools, halls, community centres, places of worship, sports halls, warehouses, public buildings. Usable floor area is estimated from the OSM footprint × number of floors, minus a share for walls and corridors. Floors come from OSM `building:levels` (only about 0.28% of buildings have it), else GHSL building height ÷ 3 m, else a default for the building type, so capacity is a range.
 2. **Open land** (second choice): flat (NASADEM slope), open land with no buildings (OSM land use), near a road, away from damage clusters.
 
 **Capacity uses emergency figures, not long-term camp figures.** The 45 m² per person figure is for long-term planned camps and is too high for an emergency. CIVISAR uses an adjustable setting:
@@ -224,7 +224,7 @@ Marks: 🟢 linked on the Resources tab, 🔵 found and downloaded through a Res
 | Roads | OSM / HOTOSM | ⚪ |
 | Conflict events | ACLED | ⚪ |
 | Reported attacks | Insecurity Insight | ⚪ |
-| Validation overlay (analyst view) | UNOSAT, UNDP | ⚪ |
+| Validation overlay (analyst view, only if matching data appears) | UNOSAT, UNDP | ⚪ |
 
 NASADEM (🔵) is not its own layer; the Shelter agent uses it for its slope check.
 
@@ -321,8 +321,8 @@ Smaller demo parts: movement trend, full agent system, polarization story.
 
 1. Each team member makes a free Earthdata Login account (needed to download NISAR). Get the free FIRMS map key and ACLED account.
 2. Pick NISAR before/after pairs on track 151 over south Lebanon (ASF Search API).
-3. Download UNOSAT / UNDP reference data for the chosen area.
-4. Check OSM completeness for roads, buildings and `building:levels` in the area.
+3. Check again at hour 0 for UNOSAT / UNDP assessments matching our area and dates (none found on 13 Nov 2026).
+4. Check OSM completeness for roads and buildings in the area, and download the GHSL height tile.
 5. Verify items marked **(unverified)**.
 6. Add the sign-in screen and logged-out view to the UI design (login required, decided). Settle the three other differences ([UI_DESIGN.md](UI_DESIGN.md) section 7), then write the architecture. Demo form decided: web app.
 7. Prepare the safety-agent demonstration.

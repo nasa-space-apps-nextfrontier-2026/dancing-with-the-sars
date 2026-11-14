@@ -31,7 +31,7 @@ Handoff checklist: include schema version, exact artifact paths, units/CRS/date,
 | Field | Commitment |
 |---|---|
 | Source trace | ARCHITECTURE.md §3.3; PROJECT_PLAN.md §10; UI_DESIGN.md §6; PDF p2 §4 |
-| Scope | Sessions/CSRF, RBAC+area/object tags, release gate, public sanitization, protected tiles/files/export, redacted audit. |
+| Scope | MVP: sign-in sessions, roles (RBAC) with area/object tags, access checks on every endpoint and layer file, 72-hour release hold, public filtering. Stretch (after H38): CSRF hardening, redacted audit log. |
 | Priority / phase | MVP invariant |
 | Accountable owner | Member 3 |
 | One reviewer | Member 4 |
@@ -75,7 +75,7 @@ Handoff checklist: include schema version, exact artifact paths, units/CRS/date,
 | Field | Commitment |
 |---|---|
 | Source trace | ARCHITECTURE.md §§3.1/3.4; PROJECT_PLAN.md §8 Orchestrator/Safety |
-| Scope | One worker scheduler, retry/cached state, job leases, Docker, env template, CI, metrics and rollback; free tunnel only after checks. |
+| Scope | MVP: one worker scheduler, retry with cached last-good state, Docker Compose, env template, free tunnel only after checks. Stretch (after H38): job leases, CI, metrics, rollback. |
 | Priority / phase | MVP; sensitive offline/LLM later |
 | Accountable owner | Member 3 |
 | One reviewer | Member 1 |

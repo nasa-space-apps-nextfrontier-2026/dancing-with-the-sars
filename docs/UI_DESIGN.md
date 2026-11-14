@@ -12,7 +12,7 @@ This file explains what CIVISAR produces (its outputs) and where each output app
 
 - **Web app only.** No separate mobile app. Users are officers and coordinators, mostly on laptops.
 - **Works on phones in the browser** for the three field views: alerts, area summary and routes (screen *ScreenMobile*).
-- **Installable with offline briefs** (PWA): saved area summaries and routes still open with poor signal, with the time they were saved.
+- **Installable (PWA), stretch goal.** Only public, non-sensitive summaries may be saved offline. Restricted briefs and routes are **not** saved offline in the hackathon build, because offline copies stay on the device after logout. Restricted briefs are printed instead.
 - Light and dark themes. Dark is for night shifts. The print brief is always black on white.
 
 ## 2. What CIVISAR outputs
@@ -58,12 +58,12 @@ Fewest clicks: any place, alert or facility → its routes (1 click). Alert → 
 ### 3.1 Screen notes
 
 - **Main map.** Top bar with a data-freshness strip (NISAR, Sentinel-1, night lights, fires, internet). Layer rail on the left with Agent results first, then Data layers, NASA first. NISAR radar change has a CORE tag and HH / HV / HH−HV, track and opacity controls. Map in the middle with the time slider under it. Alert feed on the right, newest first, with type filters. Both side panels fold into narrow icon rails (`[` and `]`). Clicking an area opens a callout with people range, lost services, and buttons for Area summary, Routes and Shelters.
-- **Time slider.** 11 passes on track 151 descending (24 Jun – 03 Nov 2026). Missed pass shown dotted, never filled in. Before (dashed) and after (solid) knobs. Views: Before, Change, After, Swipe.
+- **Time slider.** Before: BETA passes on track 151 (27 Oct 2025 – 19 Jan 2026). After: 11 passes on track 151 descending (24 Jun – 03 Nov 2026). Missed pass shown dotted, never filled in. Before (dashed) and after (solid) knobs. Views: Before, Change, After, Swipe.
 - **Alert detail.** Map with 1 km and 3 km rings, nearby facilities and inbound routes. Panel with "Fire detected", evidence label, a line saying CIVISAR does not determine a cause, detection time (local and UTC), satellite and product, people within 1 and 3 km (ranges), facilities nearby, services already lost and route options. Actions: Compare routes, Area summary, Mark reviewed.
-- **Area summary.** The people sentence first, then a "What to bring" row (water lost → water, power lost → generators and lights, health access lost → medical team, comms down → radios). Then vulnerable groups, facilities hit, hazards, nearest hospital and shelters, route options. Print brief, Export PDF and Save offline. No logistics counts.
+- **Area summary.** The people sentence first, then a "What to bring" row (water lost → water, power lost → generators and lights, health access lost → medical team, comms down → radios). Then vulnerable groups, facilities hit, hazards, nearest hospital and shelters, route options. Print brief and Export PDF (Save offline only for public summaries, stretch). No logistics counts.
 - **Routes.** Inbound or outbound, from and to, vehicle type. Options A, B, C drawn solid, long dash and dot-dash with letter keys. Comparison table of the seven facts. Turn list and Start navigation inside CIVISAR. A banner and flag when a new closure lands on a route.
 - **Shelters.** Space-per-person selector (3.5 m² default; 4.5–5.5 m² cold; 30 m² open site; 45 m² planned camp). Protection and explosive-ordnance banner. Ranked list, buildings first. Selected candidate written as one sentence with facts and sources. Action: Request field check.
-- **Inspector.** Floats over the map; Esc closes it. Tabs: All agents, Time series (NISAR HH/HV backscatter for the spot), Validation. One row per agent with result, evidence label and source line.
+- **Inspector.** Floats over the map; Esc closes it. Tabs: All agents, Time series (NISAR HH/HV backscatter for the spot), Validation (shows "No matching assessment available" as the normal case, plus the model's own test results). One row per agent with result, evidence label and source line.
 - **Sources.** NISAR shown as the large core tile with its pass strip, other NASA data next, then the rest.
 
 ## 4. Components
