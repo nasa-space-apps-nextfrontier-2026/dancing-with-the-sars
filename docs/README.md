@@ -24,6 +24,7 @@ Start with the source audit, scope, architecture and your member task file. Free
 - [15_TEAM_ONBOARDING.md](15_TEAM_ONBOARDING.md)
 - [17_TEAM_ASSIGNMENT_AND_BRANCHES.md](17_TEAM_ASSIGNMENT_AND_BRANCHES.md)
 - [18_THANOBAN_ML_PLAN_AND_COLAB.md](18_THANOBAN_ML_PLAN_AND_COLAB.md)
+- [Thanoban progress log](progress/THANOBAN_PROGRESS.md)
 
 ## Supporting artifacts
 

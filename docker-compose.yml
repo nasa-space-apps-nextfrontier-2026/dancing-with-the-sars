@@ -1,0 +1,43 @@
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_DB: civisar
+      POSTGRES_USER: civisar
+      POSTGRES_PASSWORD: civisar_local_only
+    ports: ["127.0.0.1:5432:5432"]
+    volumes: ["civisar_db:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U civisar -d civisar"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  api:
+    build: {context: ., dockerfile: infrastructure/docker/backend.Dockerfile}
+    environment:
+      DEMO_SYNTHETIC: "true"
+      DATABASE_URL: postgresql+psycopg://civisar:civisar_local_only@db:5432/civisar
+      ALLOWED_ORIGIN: http://localhost:5173
+      COOKIE_SECURE: "false"
+      CIVISAR_DEMO_USERS_JSON: '${CIVISAR_DEMO_USERS_JSON:-{}}'
+    ports: ["127.0.0.1:8000:8000"]
+    depends_on: {db: {condition: service_healthy}}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health',timeout=2)"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+  worker:
+    build: {context: ., dockerfile: infrastructure/docker/worker.Dockerfile}
+    environment:
+      DEMO_SYNTHETIC: "true"
+      DATABASE_URL: postgresql+psycopg://civisar:civisar_local_only@db:5432/civisar
+    depends_on: {db: {condition: service_healthy}}
+    profiles: ["worker-once"]
+  frontend:
+    build: {context: ., dockerfile: infrastructure/docker/frontend.Dockerfile}
+    environment: {VITE_API_PROXY_TARGET: "http://api:8000"}
+    ports: ["127.0.0.1:5173:5173"]
+    depends_on: {api: {condition: service_healthy}}
+volumes:
+  civisar_db: {}

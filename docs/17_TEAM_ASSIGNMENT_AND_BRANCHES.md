@@ -80,33 +80,25 @@ gitGraph
 
 ### Code ownership (`.github/CODEOWNERS`, Rashiru is the default reviewer)
 
+Folders follow the real scaffold on `dev` (see [19](19_DEVELOPMENT_SCAFFOLD_REPORT.md)).
+
 | Path | Owner |
 |---|---|
-| `pipelines/radar/nisar/` | Udula |
-| `pipelines/services/` (night lights, fires), `pipelines/evaluation/` | Thanoban |
-| `pipelines/geodata/`, `pipelines/alerts/`, `pipelines/routing/`, `pipelines/shelter/`, `worker/`, `infra/`, `backend/`, `web/`, `docs/contracts/` | Rashiru |
+| `worker/radar/` (NISAR model) | Udula |
+| `worker/services/` (night lights, fires), `worker/evaluation/` (strike tests) | Thanoban |
+| `backend/`, `frontend/`, `worker/geodata/`, `worker/alerts/`, `worker/routing/`, `worker/shelter/`, `infrastructure/`, `docker-compose.yml`, `scripts/`, `docs/contracts/` | Rashiru |
 
-Because each ML person has their own folder and branch, they never edit the same files.
+Because each ML person has their own folders and branch, they never edit the same files.
 
 ```text
 # .github/CODEOWNERS (create at implementation start; needs GitHub handles)
-*                                   @rashiru
-/pipelines/radar/nisar/             @udula
-/pipelines/services/                @thanoban
-/pipelines/evaluation/              @thanoban
-/pipelines// @rashiru
-/pipelines// @rashiru
-/pipelines// @rashiru
-/pipelines// @rashiru
-// @rashiru
-// @rashiru
-/backend/app/auth/                  @rashiru
-/backend/app/policy/                @rashiru
-/web/                               @rashiru
-/docs/contracts/                    @rashiru
+*                           @rashiru
+/worker/radar/              @udula
+/worker/services/           @thanoban
+/worker/evaluation/         @thanoban
 ```
 
-The handles above are placeholders; replace them with the real GitHub usernames.
+The handles above are placeholders; replace them with the real GitHub usernames. Everything not listed falls to Rashiru through `*`.
 
 ### PR template
 

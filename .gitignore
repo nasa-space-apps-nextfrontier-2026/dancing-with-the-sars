@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Python
 __pycache__/
 *.py[cod]
@@ -31,3 +32,24 @@ planning-work/
 Thumbs.db
 .vscode/
 .idea/
+=======
+.env
+.env.*
+!.env.example
+.venv/
+node_modules/
+dist/
+*.tsbuildinfo
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+*.pyc
+*.db
+data/
+recordings/
+private/
+*.tif
+*.h5
+*.hdf5
+*.parquet
+>>>>>>> 308a717 (chore(scaffold): initialize CIVISAR development monorepo)

@@ -16,7 +16,7 @@ Status: planned implementation, not completed work. Task IDs (M1 to M4) are work
 | Accountable owner | Member 1 |
 | One reviewer | Member 2 |
 | Dependency | none; H2 contract freeze |
-| Expected files / outputs | pipelines/radar/discover.py; data/manifests/nisar.json; pipelines/radar/config/demo_aoi.json |
+| Expected files / outputs | worker/radar/discover.py; data/manifests/nisar.json; worker/radar/config/demo_aoi.json |
 | Required stub / mock | metadata-only synthetic granules, missing-pass list |
 | Effort and hackathon window | H0–H8; 5 active h plus download wait |
 | Input / output contract | AOI + collection IDs → versioned granule manifest |
@@ -38,7 +38,7 @@ Handoff checklist: include schema version, exact artifact paths, units/CRS/date,
 | Accountable owner | Member 1 |
 | One reviewer | Member 2 |
 | Dependency | M1-01; M2-01 grid; M3-01 schema |
-| Expected files / outputs | pipelines/radar/process.py; pipelines/radar/model.py; data/private/damage_cells.parquet; data/private/change/*.tif; data/manifests/radar_run.json |
+| Expected files / outputs | worker/radar/process.py; worker/radar/model.py; data/private/damage_cells.parquet; data/private/change/*.tif; data/manifests/radar_run.json |
 | Required stub / mock | small synthetic arrays and H3 cells; no war-zone geometry |
 | Effort and hackathon window | H2–H24; 14 active h |
 | Input / output contract | granules + grid → damage_cells v0.1 + COG index |
@@ -60,7 +60,7 @@ Handoff checklist: include schema version, exact artifact paths, units/CRS/date,
 | Accountable owner | Member 1 |
 | One reviewer | Member 3 |
 | Dependency | M1-02; permitted M2-03 context |
-| Expected files / outputs | pipelines/radar/evaluate.py; data/manifests/model_tests.json; docs/model_validation.md (implementation output) |
+| Expected files / outputs | worker/radar/evaluate.py; data/manifests/model_tests.json; docs/model_validation.md (implementation output) |
 | Required stub / mock | fixed synthetic score distribution and manual-review checklist |
 | Effort and hackathon window | H24–H32; 6 active h |
 | Input / output contract | cells + hold-out + reports → measured test results and limitations |

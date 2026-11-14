@@ -1,0 +1,15 @@
+.git
+.venv
+node_modules
+frontend/node_modules
+frontend/dist
+validation-deps
+diagrams
+pdf
+data
+recordings
+private
+*.tif
+*.h5
+*.hdf5
+.env
