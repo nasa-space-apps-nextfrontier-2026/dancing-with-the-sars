@@ -1,0 +1,53 @@
+{
+  "kind": "buildings_base",
+  "task": "U-01",
+  "synthetic": false,
+  "source": "OpenStreetMap via HOTOSM export (HDX hotosm_lbn_buildings)",
+  "licence": "ODbL 1.0; attribution: (c) OpenStreetMap contributors",
+  "source_file": "lbn_buildings.parquet",
+  "source_file_date": "2026-11-14",
+  "built_at": "2026-11-14T13:31:40Z",
+  "demo_box_wgs84": [
+    35.0,
+    33.0,
+    36.0,
+    33.6
+  ],
+  "area_crs": "EPSG:32636",
+  "output": "data/local/buildings_base.parquet",
+  "output_sha256": "a45da7e1a3ea8543ec81688d28f22c0cda3d90c77a850d9b63dd37ebfa5f1399",
+  "counts": {
+    "input_rows": 797976,
+    "dropped_points_or_lines": 67,
+    "repaired_outlines": 0,
+    "dropped_broken_or_empty": 0,
+    "dropped_outside_box": 529373,
+    "dropped_duplicate_ids": 0,
+    "buildings": 268536
+  },
+  "use_counts": {
+    "residential": 3517,
+    "school": 191,
+    "clinic": 7,
+    "hospital": 34,
+    "water": 1,
+    "power": 4,
+    "other": 4690,
+    "unknown": 260092
+  },
+  "facility_buildings": 237,
+  "with_osm_levels": 427,
+  "with_condition_tag": 421,
+  "footprint_m2": {
+    "p10": 23.5,
+    "median": 142.8,
+    "p90": 339.4
+  },
+  "limits": [
+    "Use comes from the OSM building tag only; most buildings are untyped (use unknown).",
+    "Facility flags cover buildings tagged as such; facilities mapped as points are not here.",
+    "osm_condition_tag values are mapper reports of unknown date, not damage evidence.",
+    "OSM completeness in the demo box has not been measured against another source."
+  ],
+  "rebuild": "python -m pipelines.buildings.base --input data/raw/hotosm/lbn_buildings.parquet"
+}
