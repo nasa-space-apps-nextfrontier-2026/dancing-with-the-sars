@@ -2,7 +2,7 @@ import csv
 import gzip
 from datetime import date, timedelta
 
-from worker.services.evaluate_nightlights import evaluate, load
+from worker.services.evaluate_nightlights import agreement, evaluate, load
 
 
 def write(path, rows):
@@ -36,3 +36,14 @@ def test_cloudy_nights_make_cells_unknown(tmp_path):
     result = evaluate(load(str(path)))["NOAA-20"]
     assert result["latest_counts"] == {"unknown": 1}
     assert result["holdout_false_alarm_rate"] is None
+
+
+def test_agreement_needs_both_satellites_to_flag_the_same_date(tmp_path):
+    path = tmp_path / "h.csv.gz"
+    both = series_rows("c1", [10.0] * 98 + [2.0, 2.0], sat="NOAA-20") +         series_rows("c1", [10.0] * 98 + [2.0, 2.0], sat="NOAA-21")
+    one = series_rows("c2", [10.0] * 98 + [2.0, 2.0], sat="NOAA-20") +         series_rows("c2", [10.0] * 100, sat="NOAA-21")
+    write(path, both + one)
+    result = agreement(load(str(path)))
+    assert result["both_flag"] >= 1
+    assert result["single_satellite_flags"] > 2 * result["both_flag"] - 1
+    assert result["both_flag_rate"] < result["single_satellite_flag_rate"]
