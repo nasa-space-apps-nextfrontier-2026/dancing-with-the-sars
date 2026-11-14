@@ -4,6 +4,17 @@
 
 Written 14 November 2026 from Thanoban's new idea. It gives the other team members the full context so they can build from it. **Read section 2 first:** some parts of the idea conflict with decisions already made, and some cannot be done exactly as described. Nothing here changes the existing plan until the team agrees (section 12).
 
+## Update 14 November 2026 (later): decisions and the final data list
+
+Thanoban reviewed this plan and decided:
+
+1. **Good enough is fine.** The scene and the budget do not need to be exact. About **70% correct** (a believable, data-grounded average) is the target. Exact cost, exact video realism and per-building truth are **not** required.
+2. **The rebuild budget and duration estimator is adopted** as an *indicative planning range* (section 9). It replaces the earlier "needs a decision" status. The scope row "No rebuilding" in [PROJECT_PLAN.md](PROJECT_PLAN.md) section 3 is therefore superseded for this feature; the owner of that file should update it. Ranges only, never a quote.
+3. **Only free data is used.** The final list is section 15. Paid or unverified sources (Google Photorealistic 3D Tiles, Maxar, Mapillary, Google Open Buildings, Overture heights) are dropped.
+4. **Udula takes the new data and agent work** after finishing the ML. Tasks: [25_NEW_PLAN_TASKS.md](25_NEW_PLAN_TASKS.md).
+
+Everything else in this document stays as written, including the safety rules and the fidelity badge.
+
 ## 1. The idea in one page
 
 Instead of only a flat Google-Maps-style map, officers get a **3D "Google Earth" view** with these parts:
@@ -28,7 +39,7 @@ Instead of only a flat Google-Maps-style map, officers get a **3D "Google Earth"
 | Showing "that building got affected" | The damage model works on H3 cells of about 0.1 km², not on single buildings. Painting one building as collapsed would claim precision we do not have | Tint or hatch the **cell**, show rubble hints only where two independent sources agree, and state the cell size in the panel |
 | "Google Earth" imagery | Google Earth and Google Maps tiles cannot be used here (licence). Free imagery is 10–30 m (Sentinel-2, HLS, Landsat via NASA GIBS), not sub-metre | Stylised 3D buildings from OSM over free satellite imagery. It will look like a clean city model, not a photo |
 | 360 view "like a real accident" | Realistic casualties or people would be harmful and fabricated | No people, no casualties, no gore. Buildings, terrain, lights and fire only |
-| Rebuild budget and duration agent | The project scope says "No rebuilding: reconstruction plans and rebuild tracking are out of scope" ([PROJECT_PLAN.md](PROJECT_PLAN.md) section 3). Costs also depend on facts we do not have | **Decision needed.** If the team adopts it, it is a clearly labelled *indicative planning range*, a stretch feature after the demo, built after the plan's scope rule is changed by agreement (section 9) |
+| Rebuild budget and duration agent | The project scope says "No rebuilding: reconstruction plans and rebuild tracking are out of scope" ([PROJECT_PLAN.md](PROJECT_PLAN.md) section 3). Costs also depend on facts we do not have | **Adopted by Thanoban (14 Nov) as an indicative planning range**, a stretch feature after the core demo (section 9). The scope rule in the plan file still needs to be updated by its owner |
 | Public, building-level 3D | The safety rules forbid a public list of what is still standing and require delayed, area-level public output | 3D building-level views are **logged-in only**. The public map stays r8, delayed and approved by a person |
 | Real-time feel | Radar passes every 12 days, fires several times a day, lights daily. No live tracking is allowed | The scene shows the **latest data and its age**, plus a time-lapse of real passes. Never a live feed |
 
@@ -187,11 +198,11 @@ A side panel in the dashboard: the situation line and options first, then "Ask" 
 
 No video playback, no physics simulation, no destruction animation.
 
-## 9. Rebuild budget and duration estimator (needs a team decision)
+## 9. Rebuild budget and duration estimator (adopted as an indicative range)
 
-**Conflict:** the current scope forbids rebuild and recovery features. The project plan also says the product is for emergency response. If the team still wants this, treat it as a **separate, later feature** and change the scope rule by agreement first.
+Thanoban adopted this on 14 November 2026 with a **70% accuracy target**: a believable average range is enough. It is a **separate, later feature**, labelled "planning indication only".
 
-If adopted:
+Design:
 
 | Aspect | Design |
 |---|---|
@@ -240,7 +251,7 @@ Contract rule: any new field or endpoint goes into `docs/contracts/` first ([21]
 | # | Decision | Recommendation |
 |---|---|---|
 | 1 | Adopt the 3D bird view inside the 48 h or after the freeze? | P0 inside only if core is green; P1 and later after the freeze |
-| 2 | Allow the rebuild budget agent despite the "no rebuilding" scope rule? | Defer; decide after the demo. If yes, change [PROJECT_PLAN.md](PROJECT_PLAN.md) section 3 first |
+| 2 | Allow the rebuild budget agent despite the "no rebuilding" scope rule? | **Decided yes (14 Nov), as ranges.** Update [PROJECT_PLAN.md](PROJECT_PLAN.md) section 3 |
 | 3 | Assistant: rules only, or add a language model for the wording? | Rules first. Add a model only if it can run without sending restricted data outside |
 | 4 | Three.js on MapLibre, or CesiumJS? | MapLibre plus three.js (one stack, lighter, fully free) |
 | 5 | Who owns the 3D work? Rashiru already has about 85 hours of core work | Give P0 and the ranking to Rashiru; give P1 and P2 to whoever has free time after the freeze (Udula and Thanoban finish the ML early) |
@@ -270,3 +281,41 @@ Contract rule: any new field or endpoint goes into `docs/contracts/` first ([21]
 | Assistant gives a bad suggestion | Read-only, evidence and unknowns shown with every option, officer decides, choices logged |
 | Rebuild estimate taken as a quote | Ranges only, editable assumptions, "planning indication" label, adopted only after the team decision |
 | Licence problems | Only OSM (ODbL), NASA open data, MIT and BSD libraries; check every tile source before use |
+
+## 15. Final data list (free only, decided 14 November 2026)
+
+This replaces the longer discussion above. Use only these.
+
+| Need | Source | How we use it | Check before use |
+|---|---|---|---|
+| Building shapes, types, facilities, roads | **OpenStreetMap via HOTOSM** (HDX `hotosm_lbn_buildings`, `hotosm_lbn_roads`) | Footprints and type; ODbL attribution | None |
+| Building height, first choice | **3D-GloBFP** (per-building height, 2020, Zenodo; Asia part DOI `10.5281/zenodo.11397015`) | Height per footprint, as a range | **Check the licence on the Zenodo page**; **check the height accuracy on Lebanon** (section 15.2) |
+| Building height, fallback | **GHSL building height** (JRC, 100 m grid) | Average height of the cell when no per-building height | Attribution to JRC |
+| Height where it exists | OSM `building:levels` and `height` tags | Overrides the estimates | Only about 0.28% of buildings have it |
+| Terrain | **NASADEM** (NASA) | 3D terrain and slope | None |
+| Ground colour | **NASA GIBS** HLS 30 m true colour; optional Sentinel-2 10 m from Copernicus Data Space (free account) | Texture under the 3D scene | Cloud-free date |
+| Real events | Our data: NISAR damage cells, FIRMS fires, Black Marble lights, WorldPop people | Scene states, ranking, summaries | Already built |
+
+Height order for every building: **OSM tag, then 3D-GloBFP, then GHSL, then a default for the building type.** Floors = height divided by 3 m. Every height is stored as a low and high value with its source.
+
+### 15.1 The building table (one row per building; the agents read it)
+
+| Column | Meaning |
+|---|---|
+| `building_id` | OSM id |
+| `h3_r9`, `h3_r8` | cell the footprint centre falls in |
+| `footprint_m2` | area from the OSM outline (projected CRS, not degrees) |
+| `height_low_m`, `height_high_m`, `height_source` | range and where it came from (`osm`, `globfp`, `ghsl`, `default`) |
+| `floors_low`, `floors_high` | height range divided by 3 m |
+| `use` | OSM building type (residential, school, clinic, ...), `facility_flag` |
+| `residents_low`, `residents_high` | WorldPop people of the cell spread by floor area (range) |
+| `damage_class`, `evidence_label`, `second_sensor_agrees`, `run_id` | from Udula's damage table for the cell the building sits in (a cell result, not a building result) |
+
+### 15.2 Accuracy targets (70% is enough)
+
+| Item | Target | If not met |
+|---|---|---|
+| Building height | At least 70% of about 30 checked buildings within one storey (3 m) of a known value | Widen the ranges and fall back to GHSL or the type default; say so in the panel |
+| Footprint and type | OSM as is | Report completeness for the demo box |
+| Budget range | Planning range, about plus or minus 30 to 50% is acceptable | Show wider ranges and the assumptions |
+| 3D look | Believable city model of the right place | Fidelity badge stays |

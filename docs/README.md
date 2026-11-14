@@ -27,6 +27,7 @@ Start with the source audit, scope, architecture and your member task file. Free
 - [17_TEAM_ASSIGNMENT_AND_BRANCHES.md](17_TEAM_ASSIGNMENT_AND_BRANCHES.md)
 - [18_THANOBAN_ML_PLAN_AND_COLAB.md](18_THANOBAN_ML_PLAN_AND_COLAB.md)
 - [24_3D_BIRD_VIEW_AND_DECISION_SUPPORT_PLAN.md](24_3D_BIRD_VIEW_AND_DECISION_SUPPORT_PLAN.md) (new direction: 3D bird view, 360 scene, ranking, decision assistant)
+- [25_NEW_PLAN_TASKS.md](25_NEW_PLAN_TASKS.md) (tasks for Udula, Chames and the team under the new plan; keys; fixing the conflicting PRs)
 - [20_KISARA_AND_CHAMES_TASKS.md](20_KISARA_AND_CHAMES_TASKS.md) (small backend and data tasks, step by step)
 - [Thanoban progress log](progress/THANOBAN_PROGRESS.md)
 
