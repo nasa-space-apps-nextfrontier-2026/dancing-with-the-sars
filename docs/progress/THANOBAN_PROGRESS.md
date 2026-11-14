@@ -12,7 +12,7 @@ Read this to see where Thanoban's ML work stands. Udula: this is what you need t
 | Model A: night-light power-loss rule (baseline of 60 clear nights, drop below 50% on 2 clear nights, `unknown` when evidence is thin) | Code and 7 tests done on synthetic data; open, needs review | [#4](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/4) |
 | Model B: fire events (filter, permanent hot spots, 1 km / 12 h clustering) | Code and 6 tests done on synthetic points; open, needs review | [#5](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/5) |
 | Model C: strike-enrichment tests (near vs far, same-district control) | Harness and 4 tests done on mock data; open, needs review | [#6](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/6) |
-| Black Marble download and cropping on Colab | Blocked: needs an Earthdata Login token as a Colab secret | |
+| Black Marble download and cropping on Colab | Works for the archive (one tile tested). Near-real-time needs the LANCE licence accepted in the Earthdata account | |
 | FIRMS download | Blocked: needs the FIRMS map key | |
 | Tuning thresholds on real data | Not started (after downloads) | |
 
@@ -42,6 +42,26 @@ What this means:
 3. One tile covers the whole demo box (`h21v05`), so each night is one file.
 4. The CMR search page limit cut the NOAA-20 archive at 2,000 results. For the model we only need the last few months, so the next step is to search with a start date.
 
+## First real data test (14 November 2026, Colab, Earthdata token)
+
+Downloaded one night's Black Marble tile on Colab, cropped it to the demo box, then deleted the tile.
+
+| Check | Result |
+|---|---|
+| Archive product `VJ146A2` (NOAA-20), night of 28 Oct 2026, tile `h21v05` | Downloads with the Earthdata token. The tile is only **20.5 MB**, so 60 nights is about 1.2 GB, which is fine on Colab |
+| Tile coverage | 30–40 E, 30–40 N, 2400 x 2400 pixels (about 450 m); one tile covers the whole demo box |
+| Demo box crop | 144 rows x 240 columns = 34,560 pixels |
+| Layers present | `DNB_BRDF-Corrected_NTL`, `Gap_Filled_DNB_BRDF-Corrected_NTL`, `Mandatory_Quality_Flag`, `QF_Cloud_Mask`, `Snow_Flag`, `DNB_Lunar_Irradiance`, `Latest_High_Quality_Retrieval` |
+| That night, valid pixels | 98%; median radiance 0.46, 95th percentile 9.4 |
+| Quality flag | 91.5% good (0), 6.5% poor (1), 2.0% no retrieval (255) |
+| Cloud bits (bits 6–7 of `QF_Cloud_Mask`) | 98.3% confident clear |
+| Snow | none |
+
+What this means for the model:
+1. **The demo box includes sea**, so many pixels are dark. Per-pixel ratios on dark pixels are unstable. The rule must work on **cell totals over land pixels** (H3 cells with a minimum baseline), and the `MIN_BASELINE_RADIANCE` value in PR #4 has to be applied per cell, not per pixel. I will tune this on real history.
+2. "Clear night" will be defined as quality flag 0 and cloud bits 6–7 equal to 0, as in the Black Marble guide. To be checked against the product guide before tuning.
+3. **Near-real-time files (last 7 days) are blocked.** The server redirects to a data-licence page, so the Earthdata account has to accept the LANCE / LAADS licence first (an account action on the Earthdata website). The archive works without it, but it ends on 28 Oct (NOAA-20), so the last two weeks need the licence.
+
 ## What Thanoban hands over, and when
 
 | To | What | When |
@@ -67,8 +87,8 @@ What this means:
 
 ## Next steps (in order)
 
-1. Get the Earthdata Login token and the FIRMS map key and store them as Colab Secrets.
-2. Download one night's cropped Black Marble tile on Colab and check the radiance and quality flags (which flag means clear sky).
+1. Accept the LANCE / LAADS licence in the Earthdata account (for near-real-time data) and get the FIRMS map key.
+2. Download the last 60 clear nights as cropped tiles on Colab and build the per-cell history.
 3. Build the per-cell history table for the last 120 nights and run the rule from PR #4 on real data; tune the thresholds from the quiet cells' own scores.
 4. Download recent FIRMS points for the demo box, run the fire model from PR #5, and tune the permanent-spot rule.
 5. Run the strike tests from PR #6 on Udula's damage table when the first version arrives (by H16); confirm column names at H2.
