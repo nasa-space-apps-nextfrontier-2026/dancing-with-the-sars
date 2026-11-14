@@ -11,11 +11,11 @@ Read this to see where Thanoban's ML work stands. Udula: this is what you need t
 | Model A: night-light power-loss rule and callable function (two-satellite agreement, alert events) | Merged; real data: 49 cells flagged on 13 Nov, 1 corroborated by both satellites | [#4](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/4), [#10](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/10) |
 | Model B: fire event model | Merged | [#5](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/5) |
 | Live FIRMS feed (public files, no map key) and current fire events | Done, 4 tests, runs on real data (2 events); open, needs review | [#11](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/11) |
-| Model C: strike-enrichment tests | Merged, mock data. Event source will be UCDP, not ACLED | [#6](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/6) |
+| Model C: strike-enrichment tests, UCDP/CSV event loaders and a runner | Harness merged ([#6](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/6)); runner open, mock data only | [#12](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/12) |
 | Longer fire baseline (permanent hot spots) | Needs the FIRMS map key and its history API | |
-| Strike tests on real data | Waiting for Udula's damage table (first version by H16) and UCDP event points | |
+| Strike tests on real data | **Blocked on two things:** Udula's damage table (first version by H16) and a UCDP events file. The UCDP API returns "API token required"; a free token must be requested by a person, or the Lebanon events can be downloaded as a CSV from UCDP | |
 
-**Udula: please review PR #11.** Rashiru merges after approval. Thresholds are still the plan's starting values.
+**Udula: please review PRs #11 and #12.** Rashiru merges after approval. Thresholds are still the plan's starting values.
 
 ## FIRMS finding (14 November 2026)
 
