@@ -1,0 +1,299 @@
+{
+  "kind": "buildings_height_calibration",
+  "task": "U-03",
+  "synthetic": false,
+  "built_at": "2026-11-14T14:08:13Z",
+  "reference": "OSM building:levels x 3 m (buildings that also have a GHSL value)",
+  "reference_buildings": 414,
+  "reference_areas_r8": 62,
+  "reference_levels": {
+    "1": 120,
+    "2": 82,
+    "3": 61,
+    "4": 40,
+    "5": 25,
+    "6": 22,
+    "7": 6,
+    "8": 14,
+    "9": 7,
+    "10": 10,
+    "11": 7,
+    "12": 12,
+    "13": 1,
+    "14": 5,
+    "15": 2
+  },
+  "method": {
+    "folds": 5,
+    "grouped_by": "h3_r8",
+    "min_cell": 15,
+    "target": 0.7,
+    "ghsl_edges_m": [
+      0.0,
+      2.5,
+      4.0,
+      6.0,
+      9.0,
+      13.0
+    ],
+    "footprint_edges_m2": [
+      0.0,
+      150.0
+    ]
+  },
+  "before": {
+    "all": {
+      "n": 414,
+      "within_one_storey": 0.389,
+      "mean_abs_error_m": 5.78,
+      "bias_m": -1.13,
+      "range_holds_reference": 0.514,
+      "mean_range_width_m": 6.0
+    },
+    "by_levels": {
+      "1-2": {
+        "n": 198,
+        "within_one_storey": 0.561,
+        "mean_abs_error_m": 3.68,
+        "bias_m": 1.56,
+        "range_holds_reference": 0.783,
+        "mean_range_width_m": 5.2
+      },
+      "3-4": {
+        "n": 104,
+        "within_one_storey": 0.25,
+        "mean_abs_error_m": 5.93,
+        "bias_m": -1.2,
+        "range_holds_reference": 0.317,
+        "mean_range_width_m": 6.2
+      },
+      "5-8": {
+        "n": 64,
+        "within_one_storey": 0.203,
+        "mean_abs_error_m": 7.39,
+        "bias_m": -1.62,
+        "range_holds_reference": 0.219,
+        "mean_range_width_m": 7.2
+      },
+      "9+": {
+        "n": 48,
+        "within_one_storey": 0.229,
+        "mean_abs_error_m": 11.93,
+        "bias_m": -11.42,
+        "range_holds_reference": 0.229,
+        "mean_range_width_m": 7.5
+      }
+    }
+  },
+  "variants_held_out": [
+    {
+      "quantiles": [
+        0.15,
+        0.85
+      ],
+      "footprint_bands": false,
+      "held_out": {
+        "n": 414,
+        "within_one_storey": 0.572,
+        "mean_abs_error_m": 5.7,
+        "bias_m": -1.14,
+        "range_holds_reference": 0.829,
+        "mean_range_width_m": 15.1
+      }
+    },
+    {
+      "quantiles": [
+        0.15,
+        0.85
+      ],
+      "footprint_bands": true,
+      "held_out": {
+        "n": 414,
+        "within_one_storey": 0.541,
+        "mean_abs_error_m": 5.55,
+        "bias_m": -0.66,
+        "range_holds_reference": 0.792,
+        "mean_range_width_m": 14.7
+      }
+    },
+    {
+      "quantiles": [
+        0.1,
+        0.9
+      ],
+      "footprint_bands": false,
+      "held_out": {
+        "n": 414,
+        "within_one_storey": 0.572,
+        "mean_abs_error_m": 5.7,
+        "bias_m": -1.14,
+        "range_holds_reference": 0.886,
+        "mean_range_width_m": 17.2
+      }
+    },
+    {
+      "quantiles": [
+        0.1,
+        0.9
+      ],
+      "footprint_bands": true,
+      "held_out": {
+        "n": 414,
+        "within_one_storey": 0.541,
+        "mean_abs_error_m": 5.55,
+        "bias_m": -0.66,
+        "range_holds_reference": 0.877,
+        "mean_range_width_m": 17.2
+      }
+    },
+    {
+      "quantiles": [
+        0.05,
+        0.95
+      ],
+      "footprint_bands": false,
+      "held_out": {
+        "n": 414,
+        "within_one_storey": 0.572,
+        "mean_abs_error_m": 5.7,
+        "bias_m": -1.14,
+        "range_holds_reference": 0.928,
+        "mean_range_width_m": 20.2
+      }
+    },
+    {
+      "quantiles": [
+        0.05,
+        0.95
+      ],
+      "footprint_bands": true,
+      "held_out": {
+        "n": 414,
+        "within_one_storey": 0.541,
+        "mean_abs_error_m": 5.55,
+        "bias_m": -0.66,
+        "range_holds_reference": 0.906,
+        "mean_range_width_m": 19.5
+      }
+    }
+  ],
+  "chosen": {
+    "quantiles": [
+      0.15,
+      0.85
+    ],
+    "footprint_bands": false,
+    "meets_target": true,
+    "held_out": {
+      "n": 414,
+      "within_one_storey": 0.572,
+      "mean_abs_error_m": 5.7,
+      "bias_m": -1.14,
+      "range_holds_reference": 0.829,
+      "mean_range_width_m": 15.1
+    },
+    "held_out_by_levels": {
+      "1-2": {
+        "n": 198,
+        "within_one_storey": 0.773,
+        "mean_abs_error_m": 3.61,
+        "bias_m": 3.61,
+        "range_holds_reference": 0.904,
+        "mean_range_width_m": 10.4
+      },
+      "3-4": {
+        "n": 104,
+        "within_one_storey": 0.567,
+        "mean_abs_error_m": 4.02,
+        "bias_m": -0.01,
+        "range_holds_reference": 0.913,
+        "mean_range_width_m": 15.7
+      },
+      "5-8": {
+        "n": 64,
+        "within_one_storey": 0.391,
+        "mean_abs_error_m": 5.7,
+        "bias_m": -5.09,
+        "range_holds_reference": 0.734,
+        "mean_range_width_m": 21.2
+      },
+      "9+": {
+        "n": 48,
+        "within_one_storey": 0.0,
+        "mean_abs_error_m": 17.91,
+        "bias_m": -17.91,
+        "range_holds_reference": 0.458,
+        "mean_range_width_m": 25.2
+      }
+    }
+  },
+  "table": [
+    {
+      "ghsl_from_m": 0.0,
+      "ghsl_to_m": 2.5,
+      "footprint_from_m2": 0.0,
+      "footprint_to_m2": 1000000000000.0,
+      "n": 130,
+      "mid_m": 6.0,
+      "low_m": 3.0,
+      "high_m": 9.0
+    },
+    {
+      "ghsl_from_m": 2.5,
+      "ghsl_to_m": 4.0,
+      "footprint_from_m2": 0.0,
+      "footprint_to_m2": 1000000000000.0,
+      "n": 41,
+      "mid_m": 6.0,
+      "low_m": 3.0,
+      "high_m": 12.0
+    },
+    {
+      "ghsl_from_m": 4.0,
+      "ghsl_to_m": 6.0,
+      "footprint_from_m2": 0.0,
+      "footprint_to_m2": 1000000000000.0,
+      "n": 34,
+      "mid_m": 6.0,
+      "low_m": 3.0,
+      "high_m": 15.0
+    },
+    {
+      "ghsl_from_m": 6.0,
+      "ghsl_to_m": 9.0,
+      "footprint_from_m2": 0.0,
+      "footprint_to_m2": 1000000000000.0,
+      "n": 36,
+      "mid_m": 9.0,
+      "low_m": 3.75,
+      "high_m": 15.0
+    },
+    {
+      "ghsl_from_m": 9.0,
+      "ghsl_to_m": 13.0,
+      "footprint_from_m2": 0.0,
+      "footprint_to_m2": 1000000000000.0,
+      "n": 39,
+      "mid_m": 9.0,
+      "low_m": 3.0,
+      "high_m": 24.89999999999999
+    },
+    {
+      "ghsl_from_m": 13.0,
+      "ghsl_to_m": 1000.0,
+      "footprint_from_m2": 0.0,
+      "footprint_to_m2": 1000000000000.0,
+      "n": 134,
+      "mid_m": 16.5,
+      "low_m": 6.0,
+      "high_m": 33.0
+    }
+  ],
+  "limits": [
+    "References are OSM-tagged buildings: mostly towns, taller and better mapped than the rest.",
+    "Levels x 3 m is itself approximate (ground floors and roofs vary).",
+    "No independent survey heights for Lebanon were found; published tower heights were not used.",
+    "Heights describe the building stock around 2018, before the war."
+  ],
+  "rebuild": "python -m pipelines.buildings.height_check"
+}

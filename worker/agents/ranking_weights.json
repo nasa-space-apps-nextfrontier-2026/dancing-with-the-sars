@@ -1,0 +1,10 @@
+{
+  "note": "Default weights from doc 24 section 6.1. Officers can change them; they must add up to 100.",
+  "weights": {"people": 30, "facility": 20, "damage": 15, "fire": 15, "services": 10, "time": 5, "access": 5},
+  "people_reference_high": 2000,
+  "time_full_after_hours": 72,
+  "wide_range_points": 40,
+  "damage_class_value": {"destroyed_or_severe_candidate": 1.0, "moderate_candidate": 0.6, "possible_candidate": 0.3},
+  "single_sensor_factor": 0.75,
+  "facility_value": {"hospital": 1.0, "clinic": 1.0, "water": 1.0, "power": 1.0, "school": 0.6}
+}

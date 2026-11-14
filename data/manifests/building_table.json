@@ -1,0 +1,52 @@
+{
+  "kind": "building_table",
+  "task": "U-04",
+  "synthetic": false,
+  "safety_tag": "restricted_building_level",
+  "serve_rule": "Local input for agents only. The API serves people and damage at cell level, never per building.",
+  "built_at": "2026-11-14T14:25:47Z",
+  "inputs": {
+    "buildings_base": {
+      "file": "data/local/buildings_base.parquet",
+      "sha256": "a45da7e1a3ea8543ec81688d28f22c0cda3d90c77a850d9b63dd37ebfa5f1399"
+    },
+    "buildings_height": {
+      "file": "data/local/buildings_height.parquet",
+      "sha256": "5666e73e7e07cbd3b8945573af02d1e0a40254dc5ace4d01e6cb7b0be9d6267a"
+    },
+    "damage_cells": {
+      "file": "data/private/nisar/model/damage_cells.parquet",
+      "sha256": "d191eaca6774e8168dd33905670cd3bcea3a98a8822313943dbb9f61ecdae8b1"
+    }
+  },
+  "output": "data/local/building_table.parquet",
+  "output_sha256": "98129dbd63a8ae03afed80ace62be762cd4079fc8a8aed15ceacb387b68d8dba",
+  "buildings": 268536,
+  "damage_class_counts": {
+    "no_detected_change": 232101,
+    "unknown": 20926,
+    "possible_candidate": 7916,
+    "other_change": 3095,
+    "destroyed_or_severe_candidate": 2740,
+    "moderate_candidate": 1758
+  },
+  "evidence_label_counts": {
+    "none": 235196,
+    "unknown": 20926,
+    "observed": 11162,
+    "corroborated": 1252
+  },
+  "residential_buildings": 237736,
+  "second_sensor_agrees_buildings": 1252,
+  "people": {
+    "status": "unavailable",
+    "reason": "population file (K-04) not loaded"
+  },
+  "limits": [
+    "damage_class, evidence_label and second_sensor_agrees are H3 r9 cell results copied to each building.",
+    "second_sensor_agrees is set only in candidate cells (Sentinel-1 confirms the candidate); empty elsewhere.",
+    "Residents are a pre-displacement estimate spread by floor area, not people there now.",
+    "Heights are ranges (U-02, calibrated in U-03); towers are underestimated."
+  ],
+  "rebuild": "python -m pipelines.buildings.table"
+}

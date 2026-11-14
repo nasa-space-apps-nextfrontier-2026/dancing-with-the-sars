@@ -1,0 +1,56 @@
+{
+  "label": "Planning indication only",
+  "note": "Every value is editable. 'source' says where it comes from; 'assumption' means no public source was found. Ranges, never a quote.",
+  "currency": "USD (2025 prices)",
+  "cost_per_m2": {
+    "residential": {
+      "low": 450,
+      "high": 900,
+      "status": "sourced_with_adjustment",
+      "source": "World Bank (Aug 2025), The Syrian Conflict: Physical Damage and Reconstruction Assessment (2011-2024), Annex, Table 8 and text: housing reconstruction at 2.1x the baseline unit cost is roughly US$600/m2, including rubble clearance, site inspection and removal of unexploded ordnance. https://documents1.worldbank.org/curated/en/099102025095540101/pdf/P510947-f30bd5f6-78d5-4712-9f1e-a558b5c8ba75.pdf",
+      "adjustment": "Different country: range set at -25% to +50% of US$600/m2 because Lebanese building costs are likely higher. To check against the housing chapter of the World Bank Lebanon RDNA (March 2025)."
+    },
+    "non_residential": {
+      "low": 600,
+      "high": 1200,
+      "status": "sourced_with_adjustment",
+      "source": "Same World Bank Syria assessment (Aug 2025): public or commercial buildings at 2.3x the baseline unit cost, about US$800/m2.",
+      "adjustment": "Range -25% to +50% of US$800/m2, as for housing."
+    }
+  },
+  "damage_share": {
+    "destroyed_or_severe_candidate": 1.0,
+    "moderate_candidate": 0.5,
+    "possible_candidate": 0.2,
+    "status": "team_rule",
+    "source": "doc 24 section 9 (reuses the displacement shares: destroyed and severe 100%, moderate 50%, possible 20%)"
+  },
+  "crews": {
+    "per_neighbourhood": {
+      "low": 10,
+      "high": 40
+    },
+    "whole_demo_box": {
+      "low": 200,
+      "high": 800
+    },
+    "status": "assumption",
+    "source": "No public source found for contractor crews in south Lebanon. Two scales: one H3 r8 neighbourhood, and the whole demo box. Edit to the planned number of crews."
+  },
+  "m2_per_crew_month": {
+    "low": 150,
+    "high": 300,
+    "status": "assumption",
+    "source": "No public source found. Floor area one crew rebuilds per month; edit with contractor figures."
+  },
+  "start_delay_months": {
+    "low": 3,
+    "high": 9,
+    "status": "assumption",
+    "source": "No public source found. Covers assessment, rubble clearance and unexploded-ordnance clearance before building (the World Bank Syria assessment names these steps but gives no durations)."
+  },
+  "context": {
+    "lebanon_total_needs": "World Bank Lebanon RDNA (7 March 2025): recovery and reconstruction needs about US$11 billion for 8 Oct 2023 to 20 Dec 2024, housing the largest share. https://www.worldbank.org/en/news/press-release/2025/03/07/lebanon-s-recovery-and-reconstruction-needs-estimated-at-us-11-billion",
+    "used_in_formula": false
+  }
+}
