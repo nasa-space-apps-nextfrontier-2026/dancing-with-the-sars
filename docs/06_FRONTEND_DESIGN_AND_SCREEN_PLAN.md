@@ -1,5 +1,8 @@
 # Frontend design and screen plan
-> UI source of truth: [UI_DESIGN.md](UI_DESIGN.md) and the prototype [design/civisar-prototype.html](design/civisar-prototype.html) (14 Nov 2026). Where this older screen plan differs, the prototype wins.
+
+> **UI changed (15 Nov 2026, Thanoban):** the light prototype is archived at `docs/design/archive/civisar-prototype-v1-light.html`. The UI source of truth is now the dark 3D map mockup `docs/design/civisar-3d-map-mockup.html` with sample data `docs/design/civisar-3d-sample.json`. See `docs/26_3D_MAP_UI_AND_FRONTEND.md`. Older text below about the light prototype is kept for history.
+
+> UI source of truth: [UI_DESIGN.md](UI_DESIGN.md) and the prototype [design/archive/civisar-prototype-v1-light.html](design/archive/civisar-prototype-v1-light.html) (14 Nov 2026, now archived). Where this older screen plan differs, the prototype wins.
 
 [Blueprint index](README.md)
 
