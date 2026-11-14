@@ -9,7 +9,7 @@ docker compose up -d db                      # or: $env:CIVISAR_DB_PORT=5433 if 
 .\.venv\Scripts\python.exe -m alembic -c backend/alembic.ini upgrade head
 ```
 
-Migrations: `0001_initial_postgis` (Rashiru) and `0002_metric_value_records` (contract value id, release time and full record). Both upgrade and downgrade were tested on `postgis/postgis:16-3.4`.
+Migrations: `0001_initial_postgis` (Rashiru), `0002_metric_value_records` (contract value id, release time and full record) and `0003_alerts_and_source_status` (worker alerts and per-source fetch status). Both upgrade and downgrade were tested on `postgis/postgis:16-3.4`.
 
 ## 2. Load the radar results
 
@@ -31,8 +31,20 @@ Schema notes: `radar_area_results.classification` allows only `Unknown`, `candid
 DEMO_SYNTHETIC=false
 DATABASE_URL=postgresql+psycopg://civisar:civisar_local_only@localhost:5433/civisar
 DATA_ROOT=data
-CIVISAR_DEMO_USERS_JSON=...   # from python -m scripts.create_demo_user; give demo users the scope south-lebanon-demo
+CIVISAR_DEMO_USERS_JSON=...   # from python -m scripts.create_demo_user (default scopes: demo-area-01,south-lebanon-demo)
 ```
+
+## 3a. Worker (alerts)
+
+```powershell
+.\.venv\Scripts\python.exe -m worker.scheduler --once   # one run of every job
+.\.venv\Scripts\python.exe -m worker.scheduler          # forever: fires every 30 min, night lights daily
+```
+
+- **Fires**: Thanoban's `worker.services.firms_feed.current_events()` (public FIRMS feed, no key) -> "Fire detected" alerts. First real run (14 Nov 2026): 2 detections in the demo box over 7 days, latest 12 Nov.
+- **Possible power loss**: Thanoban's `power_loss_events()` on the per-cell night-light history set in `NIGHTLIGHT_HISTORY`; reports "unavailable" when the file is not on the machine.
+- Alerts keep only the H3 r8 neighbourhood (no coordinates). Same event -> same alert id. A failed fetch keeps the last good alerts and records the failure (shown as Cached).
+- `FIRE_RELEASE_DELAY_HOURS` (default 0): fire alerts go to signed-in roles at once; the team can set a delay.
 
 ## 4. Real-data routes
 
@@ -43,6 +55,10 @@ CIVISAR_DEMO_USERS_JSON=...   # from python -m scripts.create_demo_user; give de
 | `GET /layers/{layer_id}/tiles/{z}/{x}/{y}` | analyst+ | 256 px PNG (EPSG:3857). Change layers: red = drop, blue = rise (±6 dB); mean layers: grey. 404 outside the layer, 422 for bad coordinates. |
 | `GET /layers/{layer_id}/timeseries?area_id=<H3 r8>&from&to` | analyst+ | Per-pass candidate counts for the area (MetricValue fields), plus missing passes |
 | `GET /areas/{area_id}/damage?pass_id=A\|YYYY-MM-DD` | analyst+ | r9 results inside the area for the before/after run (`A`) or one later pass |
+| `GET /alerts?area_id&type&since&cursor&limit` | analyst+ | Alerts in the user's scopes whose release time has passed (AlertDetail). `rings`, `facilities` and `services` stay empty until population and facility data are loaded. |
+| `GET /alerts/{alert_id}` | analyst+ | One alert, or 404 (also when outside the user's scope) |
+| `GET /status` | public | Last success, freshness and Cached flag per source (FIRMS, NISAR). Never shows error text. |
+| `GET /values/{value_id}/trace` | analyst+ | The value, its source records and the model tests of its run |
 
 ## 5. Safety rules in the server
 

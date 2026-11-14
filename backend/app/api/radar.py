@@ -17,7 +17,9 @@ from fastapi.responses import Response
 
 DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 RADAR_PATHS = {"/layers", "/layers/{layer_id}", "/layers/{layer_id}/tiles/{z}/{x}/{y}",
-               "/layers/{layer_id}/timeseries", "/areas/{area_id}/damage"}
+               "/layers/{layer_id}/timeseries", "/areas/{area_id}/damage",
+               "/values/{value_id}/trace"}
+LIVE_PATHS = {"/alerts", "/alerts/{alert_id}", "/status"}
 
 
 @lru_cache(maxsize=1)
@@ -29,9 +31,15 @@ def engine() -> Any:
 
 def handle(request: Request, path: str, identity: Identity | None,
            error: Callable[[str, str, int, Request], Response]) -> Any:
+    if path in LIVE_PATHS:
+        return handle_live(request, path, identity, error)
     if path not in RADAR_PATHS:
         return None
     p, q = request.path_params, request.query_params
+
+    if path == "/values/{value_id}/trace":
+        found = radar_real.trace(engine(), p["value_id"], identity)
+        return found if found is not None else error("NOT_FOUND", "Value not found.", 404, request)
 
     if path == "/layers":
         return {"synthetic": False, "items": radar_real.list_layers(identity), "next_cursor": None}
@@ -72,3 +80,37 @@ def handle(request: Request, path: str, identity: Identity | None,
     if pass_id not in (None, "A") and not DATE.match(pass_id):
         return error("INVALID_REQUEST", "pass_id must be 'A' or YYYY-MM-DD.", 422, request)
     return radar_real.damage(engine(), p["area_id"], pass_id, identity)
+
+
+def handle_live(request: Request, path: str, identity: Identity | None,
+                error: Callable[[str, str, int, Request], Response]) -> Any:
+    import datetime as dt
+
+    from backend.app.services import live_real
+
+    if path == "/status":
+        return live_real.status(engine())
+    if path == "/alerts/{alert_id}":
+        alert = live_real.get_alert(engine(), identity, request.path_params["alert_id"])
+        return alert if alert is not None else error("NOT_FOUND", "Alert not found.", 404, request)
+    q = request.query_params
+    since = None
+    if q.get("since"):
+        try:
+            since = dt.datetime.fromisoformat(q["since"])
+        except ValueError:
+            return error("INVALID_REQUEST", "'since' must be an ISO date or time.", 422, request)
+        if since.tzinfo is None:
+            since = since.replace(tzinfo=dt.UTC)
+    try:
+        limit = int(q.get("limit", "50"))
+        offset = int(q.get("cursor", "0"))
+    except ValueError:
+        return error("INVALID_REQUEST", "limit and cursor must be integers.", 422, request)
+    if not 1 <= limit <= 100 or offset < 0:
+        return error("INVALID_REQUEST", "limit must be 1-100 and cursor not negative.", 422, request)
+    kind = q.get("type")
+    if kind not in (None, "fire_detected", "possible_power_loss"):
+        return error("INVALID_REQUEST", "Unknown alert type.", 422, request)
+    return live_real.list_alerts(engine(), identity, area_id=q.get("area_id"), kind=kind,
+                                 since=since, limit=limit, offset=offset)

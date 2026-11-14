@@ -79,6 +79,11 @@ def attach_routes(app: FastAPI) -> None:
                     return response
                 if _path == '/health':
                     return {'status': 'ok', 'synthetic': get_settings().demo_synthetic}
+                if not enabled():
+                    session = current(request)
+                    real = radar.handle(request, _path, session[0] if session else None, error)
+                    if real is not None:
+                        return real
                 if _path == '/status':
                     return {'synthetic': True, 'sources': [], 'message': 'No live sources configured'}
                 if _path == '/public/map':
@@ -109,11 +114,6 @@ def attach_routes(app: FastAPI) -> None:
                     summary = area_summary(request.path_params['area_id'])
                     return summary if summary is not None else error(
                         'NOT_FOUND', 'Area not found.', 404, request)
-                if not enabled():
-                    session = current(request)
-                    real = radar.handle(request, _path, session[0] if session else None, error)
-                    if real is not None:
-                        return real
                 if _path == '/layers':
                     if not enabled():
                         return error('UNAVAILABLE', 'No approved layer catalogue is loaded.', 503, request)

@@ -139,3 +139,40 @@ def series(engine: Any, layer_id: str, area_id: str, date_from: str | None, date
                        "limitations": rec["limitations"]})
     return {"synthetic": False, "area_id": area_id, "points": points,
             "missing_intervals": layer["missing_intervals"]}
+
+
+def trace(engine: Any, value_id: str, identity: Identity | None) -> dict | None:
+    """A value with the source records and model runs behind it (Trace contract)."""
+    from backend.app.policy.scope import area_in_scope
+    from sqlalchemy import text
+
+    with engine.connect() as conn:
+        row = conn.execute(text("SELECT record FROM metric_values WHERE value_id = :v"),
+                           {"v": value_id}).first()
+    if row is None or identity is None:
+        return None
+    rec = row[0]
+    if identity.role != "admin" and (not is_released(rec["release_at"])
+                                     or not area_in_scope(rec["area_id"], identity.area_scopes)):
+        return None
+    root = data_root()
+    sources_file = root / "local" / "radar_contract" / "sources.json"
+    sources = json.loads(sources_file.read_text(encoding="utf-8")) if sources_file.exists() else []
+    used = [s for s in sources if s["source_id"] in rec["source"]]
+    tests_file = root / "manifests" / "model_tests.json"
+    tests = json.loads(tests_file.read_text(encoding="utf-8")) if tests_file.exists() else {}
+    run_tests: list = []
+    if tests.get("run_id") == rec["processing_run_id"]:
+        run_tests = [{"holdout_false_alarms": tests.get("holdout_false_alarms"),
+                      "eye_check": tests.get("eye_check"), "strike_context": tests.get("strike_context"),
+                      "sentinel1_check": tests.get("sentinel1_check")}]
+    else:
+        for s in tests.get("time_slider", []):
+            if s.get("run_id") == rec["processing_run_id"]:
+                run_tests = [{"holdout_false_alarms": s.get("holdout_false_alarms")}]
+    redactions = ["Single-cell (H3 r9) results and exact building locations are not part of this trace."]
+    if len(used) < len(rec["source"]):
+        redactions.append("Some source records are not loaded on this server.")
+    return {"synthetic": False, "value": rec, "sources": used,
+            "runs": [{"run_id": rec["processing_run_id"], "model_tests": run_tests}],
+            "redactions": redactions}
