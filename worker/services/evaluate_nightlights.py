@@ -64,8 +64,38 @@ def evaluate(series: dict[tuple[str, str], list[Night]], holdout: int = HOLDOUT_
     return out
 
 
+def agreement(series: dict[tuple[str, str], list[Night]], holdout: int = HOLDOUT_NIGHTS) -> dict:
+    """Compare single-satellite flags with the rule "both satellites flag the same cell on the same date".
+
+    Statuses are computed for every date in the hold-out window and matched by date. A date counts
+    only when both satellites could assess the cell (possible_power_loss or no_change).
+    """
+    by_cell: dict[str, dict[str, dict[str, str]]] = defaultdict(lambda: defaultdict(dict))
+    for (sat, cell), nights in series.items():
+        for i in range(max(2, len(nights) - holdout), len(nights) + 1):
+            if len(nights) >= 4:
+                by_cell[cell][sat][nights[i - 1].date] = assess(nights[:i - 2], nights[i - 2:i]).status
+    both_assessable = single_flags = both_flags = 0
+    for sats in by_cell.values():
+        if len(sats) < 2:
+            continue
+        first, second = (sats[s] for s in sorted(sats)[:2])
+        for day in first.keys() & second.keys():
+            a, b = first[day], second[day]
+            if a in ("possible_power_loss", "no_change") and b in ("possible_power_loss", "no_change"):
+                both_assessable += 1
+                single_flags += (a == "possible_power_loss") + (b == "possible_power_loss")
+                both_flags += a == b == "possible_power_loss"
+    return {"cell_dates_assessable_by_both": both_assessable,
+            "single_satellite_flags": single_flags,
+            "single_satellite_flag_rate": single_flags / (2 * both_assessable) if both_assessable else None,
+            "both_flag": both_flags,
+            "both_flag_rate": both_flags / both_assessable if both_assessable else None}
+
+
 def main(argv: list[str]) -> int:
-    result = evaluate(load(argv[1]))
+    series = load(argv[1])
+    result = {"per_satellite": evaluate(series), "agreement": agreement(series)}
     text = json.dumps(result, indent=2)
     if len(argv) > 2:
         Path(argv[2]).write_text(text, encoding="utf-8")
