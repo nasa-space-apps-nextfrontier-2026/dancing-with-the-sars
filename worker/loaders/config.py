@@ -30,5 +30,9 @@ BOUNDARIES_MANIFEST = MANIFESTS_DIR / "boundaries.json"
 ADMIN1_FILENAME = "lbn_admin1.geojson"
 ADMIN2_FILENAME = "lbn_admin2.geojson"
 
+# --- K-02 grid ---
+GRID_CSV_GZ = LOCAL_DIR / "grid_r9.csv.gz"
+GRID_MANIFEST = MANIFESTS_DIR / "grid.json"
+
 # --- Output ---
 MAX_OUTPUT_BYTES = 1_000_000  # simplify geometry until the GeoJSON is under 1 MB

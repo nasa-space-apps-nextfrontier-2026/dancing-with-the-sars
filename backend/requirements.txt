@@ -7,4 +7,5 @@ psycopg[binary]>=3.2,<4
 geoalchemy2>=0.15,<1
 alembic>=1.13,<2
 geopandas==1.2.0
+h3==4.5.0
 shapely==2.2.0
