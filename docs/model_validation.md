@@ -1,0 +1,84 @@
+# NISAR damage model: validation results (M1-03)
+
+Owner: Udula (M1). Run date: 14 November 2026. Numbers come from `data/manifests/model_tests.json`; the hand-off record is `data/manifests/radar_run.json`.
+
+**What the model shows:** candidate radar change in dense built-up areas of south Lebanon. **What it does not show:** confirmed damage, accuracy, or totals. No damage labels exist for this area and period, so there is no precision or recall.
+
+## 1. Data and method
+
+| Item | Value |
+|---|---|
+| Radar | NISAR L2 GCOV, track 151 descending, frame 72, 20 m, HH and HV |
+| Before | 6 BETA passes, 27 Oct 2025 → 19 Jan 2026 |
+| After | 3 PROVISIONAL passes, 24 Jun → 18 Jul 2026 |
+| Time slider | 8 later passes, 11 Aug → 3 Nov 2026, each compared with the June–July baseline |
+| Area units | H3 resolution 9 cells (about 0.1 km²); results published at resolution 8 |
+| Assessed cells | Cells at least 25% covered by OSM buildings plus 30 m (5,783 of 11,362 built-up cells) |
+| Model | Isolation Forest (scikit-learn), with robust Mahalanobis distance as a cross-check |
+| Training areas | Cells with no UCDP event (exact location) within 2 km, 19 Jan – 24 Jun 2026 |
+| Classes | Quantiles of training scores: above 95% possible, above 99% moderate, above 99.9% destroyed or severe; HH must fall (collapse direction), otherwise "other change" |
+
+## 2. Checks on the input data
+
+| Check | Result | Action |
+|---|---|---|
+| Same grid on all 17 dates | Yes | None needed |
+| HH, BETA vs PROVISIONAL | Mean differs by 0.15 dB on built-up pixels (within-version spread about 0.85 dB) | Comparable |
+| HV, BETA vs PROVISIONAL | PROVISIONAL about 1.2–1.5 dB brighter everywhere | Removed by centring (robust scaling) |
+| Stripes in the change image | Up to 3.3 dB smooth column trend (known BETA banding) | Removed by destriping, estimated on all valid land pixels |
+| Water | Clear split in mean HV (water about −23 dB, land about −15 dB) | Masked below −20.5 dB, plus 40 m |
+| 23 Aug 2026 pass | HV about 2 dB brighter, with large bands | Flagged in the change index |
+
+## 3. Results
+
+**Hold-out quiet cells** (spatial blocks never used for training, 347 cells):
+
+| Level | Design rate | Observed |
+|---|---|---|
+| Possible | 5% | 8.6% |
+| Moderate | 1% | 1.2% |
+| Destroyed or severe | 0.1% | 1.2% |
+
+The top level is unreliable: 1,301 training cells cannot estimate a 0.1% tail. That class is therefore shown with medium confidence, not high.
+
+**Top-20 eye check** (radar image chips of the 20 highest-scoring cells):
+
+| Round | Plausible damage | False | Main false causes |
+|---|---|---|---|
+| All built-up densities | 4 | 16 | Terrain edges, farm fields, coastline |
+| Building density ≥ 25% | 15 | 5 | Terrain edges, noise |
+
+**Strike context** (UCDP events; association only, not ground truth; for Thanoban's M1-04 to formalise):
+
+| Measure | Value |
+|---|---|
+| Candidate rate, cells within 1 km of an event | 3.3% |
+| Candidate rate, cells 5 km or more away | 3.7% |
+| Top 20 cells within 1 km of an event | 55% (vs 37% of all assessed cells) |
+
+Overall there is **no clear link** between candidates and recorded events. Only the highest-scoring cells lean towards events. Possible reasons: single-building strikes are below the cell size; much destruction may predate the BETA "before" images; backscatter alone is a weak signal.
+
+**Time slider** (each pass vs the June–July baseline): 144–173 candidates per pass; hold-out moderate false alarms 0.1–0.4%. The 22 Oct and 3 Nov passes are V1 products compared with a PROVISIONAL baseline.
+
+## 4. What may and may not be claimed
+
+| Allowed | Not allowed |
+|---|---|
+| "Candidate change in dense built-up areas" | Confirmed damage or collapse |
+| A known false-alarm rate on quiet hold-out areas | Precision, recall or accuracy |
+| Change over time between passes | Destroyed vs severe as separate classes |
+| | Totals (radar misses damage, so counts are minimums) |
+
+## 5. Data sources and licences
+
+- NISAR L2 GCOV: NASA/ISRO, via ASF DAAC (open).
+- OSM buildings: HOTOSM export on HDX, ODbL.
+- UCDP Candidate GED 2026 (Jan–Sep): Uppsala Conflict Data Program, CC BY 4.0.
+- ACLED is **not** used: its terms forbid using ACLED data to train or test models.
+- Insecurity Insight is **not** used for locations: its coordinates are censored.
+
+## 6. Open items
+
+- Coherence (tier C: GSLC 19 Jan and 24 Jun, GUNW 7–19 Jan) is downloading; cross-gap coherence needs its own QA before use.
+- Slope and radar-shadow masks (NASADEM) are not applied yet.
+- UCDP events stop at 15 Sep 2026, so later slider passes have incomplete quiet-area selection.
