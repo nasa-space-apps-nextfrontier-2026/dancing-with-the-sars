@@ -16,6 +16,7 @@ import gzip
 import json
 import sys
 from collections import Counter, defaultdict
+from pathlib import Path
 
 from worker.services.nightlights import Night, assess
 
@@ -67,7 +68,7 @@ def main(argv: list[str]) -> int:
     result = evaluate(load(argv[1]))
     text = json.dumps(result, indent=2)
     if len(argv) > 2:
-        open(argv[2], "w", encoding="utf-8").write(text)
+        Path(argv[2]).write_text(text, encoding="utf-8")
     print(text)
     return 0
 

@@ -14,6 +14,7 @@ from __future__ import annotations
 import csv
 import gzip
 import json
+import math
 import os
 import sys
 import urllib.error
@@ -95,7 +96,8 @@ def main(days: int = 120) -> None:
     import h3
     import h5py
     import numpy as np
-    token = open(TOKEN_FILE).read().strip()
+    with open(TOKEN_FILE) as token_file:
+        token = token_file.read().strip()
     os.makedirs(WORK, exist_ok=True)
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     start = (date.today() - timedelta(days=days)).isoformat()
@@ -111,8 +113,8 @@ def main(days: int = 120) -> None:
     with h5py.File(first, "r") as h:
         found = []
         h.visititems(lambda n, o: found.append(n) if n.split("/")[-1] in ("lat", "lon") else None)
-        lat = h[[n for n in found if n.endswith("lat")][0]][:]
-        lon = h[[n for n in found if n.endswith("lon")][0]][:]
+        lat = h[next(n for n in found if n.endswith("lat"))][:]
+        lon = h[next(n for n in found if n.endswith("lon"))][:]
     r = np.where((lat >= BBOX[1]) & (lat <= BBOX[3]))[0]
     c = np.where((lon >= BBOX[0]) & (lon <= BBOX[2]))[0]
     window = (slice(r.min(), r.max() + 1), slice(c.min(), c.max() + 1))
@@ -149,7 +151,7 @@ def main(days: int = 120) -> None:
     with gzip.open(OUT, "wt", newline="") as f:
         w = csv.writer(f)
         w.writerow(["date", "satellite", "cell", "mean_radiance", "n_pixels", "n_clear"])
-        w.writerows((d, s, cell, "" if m != m else round(m, 4), n, k) for d, s, cell, m, n, k in results)
+        w.writerows((d, s, cell, "" if math.isnan(m) else round(m, 4), n, k) for d, s, cell, m, n, k in results)
     print("rows", len(results), "failed", failed[:5], "done", flush=True)
 
 
