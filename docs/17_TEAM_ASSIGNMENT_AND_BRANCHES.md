@@ -9,7 +9,8 @@ Decided 14 November 2026. This is the single source of truth for who does what a
 | Member 1 | **Udula** | ML: NISAR damage model end to end. **All large radar downloads** and model training on the strong machine |
 | Member 2 | **Thanoban** | ML on small data: night-light power-loss model, fire event model, strike-enrichment tests. Trains on free Google Colab ([plan](18_THANOBAN_ML_PLAN_AND_COLAB.md)). No backend, no radar downloads. Demo, video and submission from H38 |
 | Member 3 | **Rashiru** | **All frontend, all backend and all data work** (with Claude Code and Claude Design), and **manager of all PRs** |
-| Member 4 | **Chames** | Not working on the project (14 Nov 2026 decision). No tasks, no reviews |
+| Member 4 | **Chames** | Small read-only API endpoints (tasks C-01 to C-06). Joined 14 Nov 2026 ([task list](20_KISARA_AND_CHAMES_TASKS.md)) |
+| Extra (no Member slot) | **Kisara** | Small data loaders: boundaries, H3 grid, facilities, population, source register (tasks K-01 to K-05). Joined 14 Nov 2026 ([task list](20_KISARA_AND_CHAMES_TASKS.md)) |
 
 ## ML rules
 
@@ -29,7 +30,7 @@ Task IDs (M1 to M4) are work-package IDs. Each task has one owner and one differ
 | **Thanoban** | M1-04 night-light power-loss model, fire event model, strike-enrichment and false-alarm tests (for the damage models) · M2-06 movement design · demo story, video and submission (H38–H48, part of M4-04) | 22 + demo |
 | **Rashiru** | **Backend:** M3-01 formats, database, mock API · M3-02 sign-in, roles, safety (never cut) · M3-03 all endpoints · M3-04 worker, Docker, tunnel · **Data:** M2-01 base data and grid · M2-02 people, facilities, services · M2-03 alert plumbing · M2-04 routes · M2-05 shelters · **Frontend:** M4-01 app setup · M4-02 main map and slider · M4-03 decision screens and print · M4-04 phone layout, QA, release checklist | about 85 (too much for one person: see the cut order in 08) |
 
-Reviews (each task has a different reviewer): Udula and Thanoban review each other's ML. Rashiru's tasks are reviewed by Thanoban (data, alerts, routes, shelters, app setup, main map) and by Udula (backend, safety, decision screens, QA). Udula's tests (M1-03) are reviewed by Rashiru. Rashiru merges all PRs; his own PRs are merged after one of the two ML members approves.
+Reviews (each task has a different reviewer): Udula and Thanoban review each other's ML. Rashiru's tasks are reviewed by Thanoban (data, alerts, routes, shelters, app setup, main map) and by Udula (backend, safety, decision screens, QA). Udula's tests (M1-03) are reviewed by Rashiru. Rashiru merges all PRs; his own PRs are merged after one of the two ML members approves. **Kisara's PRs (K-01 to K-05) are reviewed by Thanoban; Chames's PRs (C-01 to C-06) are reviewed by Rashiru.** Full step-by-step tasks, branch names and tests for both are in [20_KISARA_AND_CHAMES_TASKS.md](20_KISARA_AND_CHAMES_TASKS.md); they take over the small loader and read-only endpoint parts of Rashiru's M2-01, M2-02, M3-01 and M3-03 lists.
 
 ## Branch plan
 

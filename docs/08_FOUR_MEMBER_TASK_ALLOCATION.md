@@ -16,7 +16,7 @@ Updated 14 Nov 2026: the task IDs M1 to M4 are work-package IDs; the owner is th
 | Member 1 | Udula | NISAR damage model end to end; all large radar downloads and training (strong machine) | [Udula tasks](tasks/MEMBER_1_UDULA_NISAR_ML.md) | `feature/m1-*` |
 | Member 2 | Thanoban | Small-data ML (night-light power loss, fire events), strike-enrichment evidence tests, demo and submission. Trains on free Google Colab, not locally ([plan](18_THANOBAN_ML_PLAN_AND_COLAB.md)). No backend | [Thanoban tasks](tasks/MEMBER_2_THANOBAN_SMALL_DATA_ML.md) | `feature/m1-04-*` |
 | Member 3 | Rashiru | **All frontend and all backend** (database, sign-in, safety, API, data, alerts, routes, shelters, worker, hosting) and **manager of all PRs** | [Rashiru tasks](tasks/MEMBER_3_RASHIRU_FRONTEND_BACKEND.md) | `feature/m2-*`, `feature/m3-*`, `feature/m4-*` |
-| Member 4 | Chames | Not working on the project (14 Nov 2026 decision). No tasks, no reviews | [Chames note](tasks/MEMBER_4_CHAMES_BACKEND_DATA.md) | none |
+| Member 4 | Chames | Small read-only API endpoints (C-01 to C-06), see [doc 20](20_KISARA_AND_CHAMES_TASKS.md). Kisara (no member slot) does the small data loaders K-01 to K-05 | [Chames note](tasks/MEMBER_4_CHAMES_BACKEND_DATA.md) | `feature/c-*`, `feature/k-*` |
 
 Branches, PR rules and code ownership are in [17_TEAM_ASSIGNMENT_AND_BRANCHES.md](17_TEAM_ASSIGNMENT_AND_BRANCHES.md).
 
