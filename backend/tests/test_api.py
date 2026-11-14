@@ -110,8 +110,10 @@ def test_session_restoration_logout_and_expiry(monkeypatch):
             assert login.status_code == 200
             assert visitor.get('/api/v1/session').json()['role'] == 'analyst'
             assert visitor.delete('/api/v1/session').status_code == 403
-            assert visitor.delete('/api/v1/session', headers={
-                'X-CSRF-Token': login.json()['csrf_token']}).status_code == 204
+            logout = visitor.delete('/api/v1/session', headers={
+                'X-CSRF-Token': login.json()['csrf_token']})
+            assert logout.status_code == 204
+            assert logout.content == b''
             assert visitor.get('/api/v1/session').status_code == 401
             login = visitor.post('/api/v1/session', json={
                 'username': 'analyst', 'password': 'local-test-password'})

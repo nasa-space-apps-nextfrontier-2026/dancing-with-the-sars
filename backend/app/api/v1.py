@@ -6,7 +6,7 @@ from backend.app.core.permissions import allowed, is_private_layer
 from backend.app.core.security import authenticate, issue_session, read_session, revoke_session
 from backend.app.services.synthetic_area import area_summary, enabled, source_record
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -72,7 +72,7 @@ def attach_routes(app: FastAPI) -> None:
                     return denial
                 if _path == '/session' and _method == 'DELETE':
                     revoke_session(request.cookies.get('civisar_session'))
-                    response = JSONResponse({}, status_code=204)
+                    response = Response(status_code=204)
                     response.delete_cookie('civisar_session')
                     return response
                 if _path == '/health':
