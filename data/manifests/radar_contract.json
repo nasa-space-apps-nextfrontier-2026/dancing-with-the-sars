@@ -1,0 +1,28 @@
+{
+  "schema_version": "0.1",
+  "kind": "radar_contract_export",
+  "synthetic": false,
+  "created_at": "2026-11-14T09:43:35Z",
+  "run_id": "e99a9b63914b68e6",
+  "contract": "docs/contracts/openapi.yaml components MetricValue, Layer, SourceRecord",
+  "validated": true,
+  "area_level": "H3 resolution 8 only",
+  "safety": "MetricValue restricted_aggregate; Layer restricted_until_review (analyst+); release_at = acquisition + 72 h",
+  "files": {
+    "metric_values": {
+      "path": "data/local/radar_contract/metric_values.json",
+      "records": 41508,
+      "sha256": "87ba8f3bdfb1ddd43be20fe30fee4a88704bd3af0d99ccfcdb05da32739f4b3f"
+    },
+    "layers": {
+      "path": "data/local/radar_contract/layers.json",
+      "records": 38,
+      "sha256": "fc4479da84873708f8aecc7408e6368aa83f369911c64ea9ff9f1c2bf836b4ab"
+    },
+    "sources": {
+      "path": "data/local/radar_contract/sources.json",
+      "records": 7,
+      "sha256": "201b25fac185c4ce5eac4dc3c8075daccb35644345614288bb512d00626099fd"
+    }
+  }
+}
