@@ -30,7 +30,7 @@ async function main() {
     await new Promise((done,fail) => {socket.addEventListener('open',done,{once:true});socket.addEventListener('error',fail,{once:true})})
     let sequence=0
     const pending = new Map()
-    socket.addEventListener('message', event => {const msg=JSON.parse(event.data);if(!msg.id)return;const p=pending.get(msg.id);if(!p)return;pending.delete(msg.id);if(msg.error)p.fail(new Error(msg.error.message));else p.done(msg.result)})
+    socket.addEventListener('message', event => {const msg=JSON.parse(event.data);if(msg.method==='Runtime.consoleAPICalled'&&msg.params.type==='error')console.error('Browser:',msg.params.args.map(x=>x.value||x.description).join(' '));if(!msg.id)return;const p=pending.get(msg.id);if(!p)return;pending.delete(msg.id);if(msg.error)p.fail(new Error(msg.error.message));else p.done(msg.result)})
     const send=(method,params={})=>new Promise((done,fail)=>{const id=++sequence;pending.set(id,{done,fail});socket.send(JSON.stringify({id,method,params}))})
     const evaluate=async expression=>{const r=await send('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true});if(r.exceptionDetails)throw new Error(JSON.stringify(r.exceptionDetails));return r.result.value}
     await send('Page.enable')
@@ -46,6 +46,7 @@ async function main() {
         let opened=false
         for(let attempt=0;attempt<20;attempt++){opened=await evaluate(`document.querySelector('#v-${view}')?.hidden === false`);if(opened)break;await sleep(250)}
         if (!opened) throw new Error(`Reference view ${view} did not open: ${await evaluate('document.body?.innerText?.slice(0,120)')}`)
+        await evaluate('document.fonts.ready.then(()=>true)')
         await sleep(250)
         const reference=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false})
         await writeFile(resolve(output,`prototype-${view}-${width}x${height}-light.png`),Buffer.from(reference.data,'base64'))
@@ -64,13 +65,14 @@ async function main() {
         if (process.env.CIVISAR_VISUAL_USERNAME && process.env.CIVISAR_VISUAL_PASSWORD && view!=='signin') {
           await evaluate(`fetch('/api/v1/session',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({username:${JSON.stringify(process.env.CIVISAR_VISUAL_USERNAME)},password:${JSON.stringify(process.env.CIVISAR_VISUAL_PASSWORD)}})}) .then(r=>r.ok)`)
           await send('Page.navigate',{url:`http://127.0.0.1:5173${routes[view]}`})
-          await sleep(1100)
+          await sleep(view==='main'?5000:1100)
         }
         const actualPath=await evaluate('location.pathname')
         if(actualPath!==routes[view]) throw new Error(`React route mismatch for ${view}: ${actualPath}`)
+        await evaluate('document.fonts.ready.then(()=>true)')
         const app=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false})
         await writeFile(resolve(output,`react-${view}-${width}x${height}-light.png`),Buffer.from(app.data,'base64'))
-        if(view==='main'&&width===1440) console.log('Map geometry:',await evaluate(`JSON.stringify({map:document.querySelector('.prototype-main .map')?.getBoundingClientRect().toJSON(),canvas:document.querySelector('.prototype-main canvas')?.getBoundingClientRect().toJSON(),fallback:document.querySelector('.map-fallback')?.textContent})`))
+        if(view==='main'&&width===1440) console.log('Map geometry:',await evaluate(`(()=>{const c=document.querySelector('.prototype-main canvas');return JSON.stringify({map:document.querySelector('.prototype-main .map')?.getBoundingClientRect().toJSON(),canvas:c?.getBoundingClientRect().toJSON(),webgl2:!!c?.getContext('webgl2'),webgl:!!c?.getContext('webgl'),fallback:document.querySelector('.map-fallback')?.textContent})})()`))
         if(view==='main'){
           for(const panel of ['Layers','Alerts']){
             await evaluate(`Array.from(document.querySelectorAll('#v-main .dock button')).find(b=>b.textContent.includes('${panel}')).click()`)

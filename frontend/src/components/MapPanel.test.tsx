@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup } from '@testing-library/react'
 
-vi.mock('maplibre-gl', () => ({ Map: class { remove() {} } }))
+vi.mock('maplibre-gl', () => ({ Map: class { remove() {} }, setWorkerUrl: vi.fn() }))
 
 import { AreaExplorer } from '../features/area/AreaExplorer'
 import { syntheticRadarStyle } from './MapPanel'

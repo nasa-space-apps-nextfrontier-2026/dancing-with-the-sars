@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
-import { Map as LibreMap, type StyleSpecification } from 'maplibre-gl'
+import { Map as LibreMap, setWorkerUrl, type StyleSpecification } from 'maplibre-gl'
+import mapWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url'
 import 'maplibre-gl/dist/maplibre-gl.css'
+
+setWorkerUrl(mapWorkerUrl)
 
 export type RadarMode = 'before' | 'after' | 'change' | 'swipe'
 export type Polarization = 'HH' | 'HV' | 'HH-HV'
@@ -77,9 +80,10 @@ export function MapPanel({ onSelectDemoArea, radar }: {
           version: 8, sources: {}, layers: [{ id: 'background', type: 'background',
             paint: { 'background-color': '#d8e4eb' } }],
         },
-        center: radar ? [0, 0] : [35.5, 33.3], zoom: radar ? 5 : 8,
+        center: radar ? [0, 0] : [35.5, 33.3], zoom: radar ? (node.current.clientWidth < 600 ? 6 : 7.5) : 8,
         attributionControl: false,
       })
+      map.on?.('error', event => { console.error('MapLibre render failed', event.error); setFailure(true) })
       return () => map.remove()
     } catch { setFailure(true) }
   }, [radar])

@@ -2,7 +2,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { cleanup } from '@testing-library/react'
 
-vi.mock('maplibre-gl', () => ({ Map: class { remove() {} } }))
+vi.mock('maplibre-gl', () => ({ Map: class { remove() {} }, setWorkerUrl: vi.fn() }))
 
 import { App } from './App'
 import { fixtures } from '../types/contracts'
