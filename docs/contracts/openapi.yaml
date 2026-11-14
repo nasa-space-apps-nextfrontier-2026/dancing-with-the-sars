@@ -8808,6 +8808,959 @@
           }
         }
       }
+    },
+    "/incidents": {
+      "get": {
+        "operationId": "op_41_get",
+        "summary": "ranked incidents; area-scoped",
+        "x-owner-task": "M3-03",
+        "x-domain-task": "M3-03",
+        "x-required-roles": "analyst+",
+        "x-rate-class": "read",
+        "description": "U-06 (doc 25). Server checks session, role, area scope and release_at before data access; reads only published agent output, computes nothing per request. DRAFT.",
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 256
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 4
+            }
+          },
+          {
+            "name": "area_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Role-filtered response; synthetic example",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncidentList"
+                },
+                "example": {
+                  "synthetic": true,
+                  "generated_at": "2026-11-14T12:00:00Z",
+                  "weights": {
+                    "people": 30,
+                    "facility": 20,
+                    "damage": 15,
+                    "fire": 15,
+                    "services": 10,
+                    "time": 5,
+                    "access": 5
+                  },
+                  "data_age": {
+                    "firms": "2026-11-14T11:30:00Z",
+                    "black-marble": null
+                  },
+                  "items": [
+                    {
+                      "incident_id": "damage-demo-area-01",
+                      "area_id": "demo-area-01",
+                      "kind": "damage_candidate_area",
+                      "rank": 1,
+                      "score_low": 9.0,
+                      "score_high": 89.0,
+                      "could_rank_higher": true,
+                      "parts": {
+                        "people": {
+                          "status": "unknown",
+                          "value": null,
+                          "points": null,
+                          "weight": 30,
+                          "detail": "population not loaded"
+                        },
+                        "facility": {
+                          "status": "unknown",
+                          "value": null,
+                          "points": null,
+                          "weight": 20,
+                          "detail": "population not loaded"
+                        },
+                        "damage": {
+                          "status": "known",
+                          "value": 0.6,
+                          "points": 9.0,
+                          "weight": 15,
+                          "detail": "radar damage candidate (moderate); a second radar agrees"
+                        },
+                        "fire": {
+                          "status": "unknown",
+                          "value": null,
+                          "points": null,
+                          "weight": 15,
+                          "detail": "population not loaded"
+                        },
+                        "services": {
+                          "status": "unknown",
+                          "value": null,
+                          "points": null,
+                          "weight": 10,
+                          "detail": "population not loaded"
+                        },
+                        "time": {
+                          "status": "not_applicable",
+                          "value": null,
+                          "points": null,
+                          "weight": 5,
+                          "detail": "radar result, not a timed event"
+                        },
+                        "access": {
+                          "status": "unknown",
+                          "value": null,
+                          "points": null,
+                          "weight": 5,
+                          "detail": "population not loaded"
+                        }
+                      },
+                      "reasons": [
+                        "radar damage candidate (moderate); a second radar agrees"
+                      ],
+                      "unknowns": [
+                        "people: population not loaded"
+                      ]
+                    }
+                  ],
+                  "next_cursor": null
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or expired session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "UNAUTHENTICATED",
+                    "message": "Missing or expired session",
+                    "request_id": "demo-request-01",
+                    "details": []
+                  },
+                  "synthetic": true
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role, object, area or publication policy denies access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "FORBIDDEN",
+                    "message": "Role, object, area or publication policy denies access",
+                    "request_id": "demo-request-01",
+                    "details": []
+                  },
+                  "synthetic": true
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Allowed resource absent; do not leak forbidden IDs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "REQUEST_FAILED",
+                    "message": "Allowed resource absent; do not leak forbidden IDs",
+                    "request_id": "demo-request-01",
+                    "details": []
+                  },
+                  "synthetic": true
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Revision conflict or source unavailable for requested operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "REQUEST_FAILED",
+                    "message": "Revision conflict or source unavailable for requested operation",
+                    "request_id": "demo-request-01",
+                    "details": []
+                  },
+                  "synthetic": true
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid or over-broad query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "REQUEST_FAILED",
+                    "message": "Invalid or over-broad query",
+                    "request_id": "demo-request-01",
+                    "details": []
+                  },
+                  "synthetic": true
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit; Retry-After",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "REQUEST_FAILED",
+                    "message": "Rate limit; Retry-After",
+                    "request_id": "demo-request-01",
+                    "details": []
+                  },
+                  "synthetic": true
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable and no last-good result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "REQUEST_FAILED",
+                    "message": "Dependency unavailable and no last-good result",
+                    "request_id": "demo-request-01",
+                    "details": []
+                  },
+                  "synthetic": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/incidents/{incident_id}": {
+      "get": {
+        "operationId": "op_42_get",
+        "summary": "incident with insights and recommendation; role-filtered",
+        "x-owner-task": "M3-03",
+        "x-domain-task": "M3-03",
+        "x-required-roles": "analyst+",
+        "x-rate-class": "read",
+        "description": "U-06 (doc 25). Server checks session, role, area scope and release_at before data access; reads only published agent output, computes nothing per request. DRAFT.",
+        "parameters": [
+          {
+            "name": "incident_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Role-filtered response; synthetic example",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncidentDetail"
+                },
+                "example": {
+                  "synthetic": true,
+                  "incident": {
+                    "incident_id": "damage-demo-area-01",
+                    "area_id": "demo-area-01",
+                    "kind": "damage_candidate_area",
+                    "rank": 1,
+                    "score_low": 9.0,
+                    "score_high": 89.0,
+                    "could_rank_higher": true,
+                    "parts": {
+                      "people": {
+                        "status": "unknown",
+                        "value": null,
+                        "points": null,
+                        "weight": 30,
+                        "detail": "population not loaded"
+                      },
+                      "facility": {
+                        "status": "unknown",
+                        "value": null,
+                        "points": null,
+                        "weight": 20,
+                        "detail": "population not loaded"
+                      },
+                      "damage": {
+                        "status": "known",
+                        "value": 0.6,
+                        "points": 9.0,
+                        "weight": 15,
+                        "detail": "radar damage candidate (moderate); a second radar agrees"
+                      },
+                      "fire": {
+                        "status": "unknown",
+                        "value": null,
+                        "points": null,
+                        "weight": 15,
+                        "detail": "population not loaded"
+                      },
+                      "services": {
+                        "status": "unknown",
+                        "value": null,
+                        "points": null,
+                        "weight": 10,
+                        "detail": "population not loaded"
+                      },
+                      "time": {
+                        "status": "not_applicable",
+                        "value": null,
+                        "points": null,
+                        "weight": 5,
+                        "detail": "radar result, not a timed event"
+                      },
+                      "access": {
+                        "status": "unknown",
+                        "value": null,
+                        "points": null,
+                        "weight": 5,
+                        "detail": "population not loaded"
+                      }
+                    },
+                    "reasons": [
+                      "radar damage candidate (moderate); a second radar agrees"
+                    ],
+                    "unknowns": [
+                      "people: population not loaded"
+                    ]
+                  },
+                  "insights": [
+                    {
+                      "text": "A second radar agrees in 1 of 2 neighbourhoods with radar damage candidates.",
+                      "values": {
+                        "agreeing": 1,
+                        "with_candidates": 2
+                      },
+                      "sources": [
+                        "NISAR",
+                        "Sentinel-1"
+                      ],
+                      "date": "2026-07-21T00:00:00Z"
+                    }
+                  ],
+                  "recommendation": {
+                    "assistant": "CIVISAR assistant",
+                    "situation": "Data shows: radar damage candidate (moderate); a second radar agrees. How sure: much is unknown.",
+                    "options": [
+                      {
+                        "playbook": "verification",
+                        "title": "Hold and verify with a field check",
+                        "why": [
+                          "radar damage candidate (moderate); a second radar agrees"
+                        ],
+                        "needs": [
+                          "field team with a checklist"
+                        ],
+                        "risks": [
+                          "the field team enters an area with unknown hazards"
+                        ],
+                        "trade_off": "Gain: decisions rest on what people on the ground report. Give up: time."
+                      }
+                    ],
+                    "we_do_not_know": [
+                      "population not loaded"
+                    ],
+                    "checklist": [
+                      "Protection and ordnance check before anyone enters damaged buildings"
+                    ],
+                    "next_review": {
+                      "radar": "after the next NISAR pass and its 72-hour hold"
+                    },
+                    "note": "Options, not orders. The officer decides; choices are logged by the API."
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or expired session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "UNAUTHENTICATED",
+                    "message": "Missing or expired session",
+                    "request_id": "demo-request-01",
+                    "details": []
+                  },
+                  "synthetic": true
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role, object, area or publication policy denies access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "FORBIDDEN",
+                    "message": "Role, object, area or publication policy denies access",
+                    "request_id": "demo-request-01",
+                    "details": []
+                  },
+                  "synthetic": true
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Allowed resource absent; do not leak forbidden IDs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "REQUEST_FAILED",
+                    "message": "Allowed resource absent; do not leak forbidden IDs",
+                    "request_id": "demo-request-01",
+                    "details": []
+                  },
+                  "synthetic": true
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Revision conflict or source unavailable for requested operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "REQUEST_FAILED",
+                    "message": "Revision conflict or source unavailable for requested operation",
+                    "request_id": "demo-request-01",
+                    "details": []
+                  },
+                  "synthetic": true
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid or over-broad query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "REQUEST_FAILED",
+                    "message": "Invalid or over-broad query",
+                    "request_id": "demo-request-01",
+                    "details": []
+                  },
+                  "synthetic": true
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit; Retry-After",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "REQUEST_FAILED",
+                    "message": "Rate limit; Retry-After",
+                    "request_id": "demo-request-01",
+                    "details": []
+                  },
+                  "synthetic": true
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable and no last-good result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "REQUEST_FAILED",
+                    "message": "Dependency unavailable and no last-good result",
+                    "request_id": "demo-request-01",
+                    "details": []
+                  },
+                  "synthetic": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/areas/{area_id}/budget": {
+      "get": {
+        "operationId": "op_43_get",
+        "summary": "rebuild budget and duration ranges",
+        "x-owner-task": "M3-03",
+        "x-domain-task": "M3-03",
+        "x-required-roles": "analyst+",
+        "x-rate-class": "read",
+        "description": "U-06 (doc 25). Server checks session, role, area scope and release_at before data access; reads only published agent output, computes nothing per request. DRAFT.",
+        "parameters": [
+          {
+            "name": "area_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Role-filtered response; synthetic example",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Budget"
+                },
+                "example": {
+                  "synthetic": true,
+                  "area_id": "demo-area-01",
+                  "label": "Planning indication only",
+                  "cost_usd": {
+                    "low": 450000,
+                    "high": 1800000
+                  },
+                  "duration_months": {
+                    "low": 3.0,
+                    "high": 10.3
+                  },
+                  "work_floor_area_m2": {
+                    "low": 1000,
+                    "high": 2000
+                  },
+                  "crew_scale": "per_neighbourhood",
+                  "buildings_in_candidate_cells": 4,
+                  "assumptions": {
+                    "cost_per_m2": {
+                      "residential": {
+                        "low": 450,
+                        "high": 900,
+                        "status": "sourced_with_adjustment"
+                      }
+                    }
+                  },
+                  "limits": [
+                    "Synthetic example; crew numbers are editable assumptions."
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or expired session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "UNAUTHENTICATED",
+                    "message": "Missing or expired session",
+                    "request_id": "demo-request-01",
+                    "details": []
+                  },
+                  "synthetic": true
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role, object, area or publication policy denies access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "FORBIDDEN",
+                    "message": "Role, object, area or publication policy denies access",
+                    "request_id": "demo-request-01",
+                    "details": []
+                  },
+                  "synthetic": true
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Allowed resource absent; do not leak forbidden IDs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "REQUEST_FAILED",
+                    "message": "Allowed resource absent; do not leak forbidden IDs",
+                    "request_id": "demo-request-01",
+                    "details": []
+                  },
+                  "synthetic": true
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Revision conflict or source unavailable for requested operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "REQUEST_FAILED",
+                    "message": "Revision conflict or source unavailable for requested operation",
+                    "request_id": "demo-request-01",
+                    "details": []
+                  },
+                  "synthetic": true
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid or over-broad query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "REQUEST_FAILED",
+                    "message": "Invalid or over-broad query",
+                    "request_id": "demo-request-01",
+                    "details": []
+                  },
+                  "synthetic": true
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit; Retry-After",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "REQUEST_FAILED",
+                    "message": "Rate limit; Retry-After",
+                    "request_id": "demo-request-01",
+                    "details": []
+                  },
+                  "synthetic": true
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable and no last-good result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "REQUEST_FAILED",
+                    "message": "Dependency unavailable and no last-good result",
+                    "request_id": "demo-request-01",
+                    "details": []
+                  },
+                  "synthetic": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/buildings": {
+      "get": {
+        "operationId": "op_44_get",
+        "summary": "buildings in a bbox for the 3D view; scoped; no residents",
+        "x-owner-task": "M3-03",
+        "x-domain-task": "M3-03",
+        "x-required-roles": "analyst+",
+        "x-rate-class": "read",
+        "description": "U-06 (doc 25). Server checks session, role, area scope and release_at before data access; reads only published agent output, computes nothing per request. DRAFT.",
+        "parameters": [
+          {
+            "name": "bbox",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 5
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Role-filtered response; synthetic example",
+            "content": {
+              "application/geo+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BuildingCollection"
+                },
+                "example": {
+                  "synthetic": true,
+                  "type": "FeatureCollection",
+                  "truncated": false,
+                  "fidelity": "Reconstruction from satellite data, not footage",
+                  "features": [
+                    {
+                      "type": "Feature",
+                      "geometry": null,
+                      "properties": {
+                        "building_id": "demo-building-01",
+                        "h3_r9": "demo-cell-01",
+                        "use": "residential",
+                        "height_low_m": 3.0,
+                        "height_mid_m": 6.0,
+                        "height_high_m": 9.0,
+                        "height_source": "ghsl",
+                        "floors_low": 1,
+                        "floors_high": 3,
+                        "damage_class": "moderate_candidate",
+                        "evidence_label": "observed",
+                        "second_sensor_agrees": false,
+                        "height_tag": "Inferred",
+                        "damage_tag": "From data (cell result)"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or expired session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "UNAUTHENTICATED",
+                    "message": "Missing or expired session",
+                    "request_id": "demo-request-01",
+                    "details": []
+                  },
+                  "synthetic": true
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role, object, area or publication policy denies access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "FORBIDDEN",
+                    "message": "Role, object, area or publication policy denies access",
+                    "request_id": "demo-request-01",
+                    "details": []
+                  },
+                  "synthetic": true
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Allowed resource absent; do not leak forbidden IDs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "REQUEST_FAILED",
+                    "message": "Allowed resource absent; do not leak forbidden IDs",
+                    "request_id": "demo-request-01",
+                    "details": []
+                  },
+                  "synthetic": true
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Revision conflict or source unavailable for requested operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "REQUEST_FAILED",
+                    "message": "Revision conflict or source unavailable for requested operation",
+                    "request_id": "demo-request-01",
+                    "details": []
+                  },
+                  "synthetic": true
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid or over-broad query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "REQUEST_FAILED",
+                    "message": "Invalid or over-broad query",
+                    "request_id": "demo-request-01",
+                    "details": []
+                  },
+                  "synthetic": true
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit; Retry-After",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "REQUEST_FAILED",
+                    "message": "Rate limit; Retry-After",
+                    "request_id": "demo-request-01",
+                    "details": []
+                  },
+                  "synthetic": true
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable and no last-good result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": {
+                    "code": "REQUEST_FAILED",
+                    "message": "Dependency unavailable and no last-good result",
+                    "request_id": "demo-request-01",
+                    "details": []
+                  },
+                  "synthetic": true
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -12260,6 +13213,570 @@
             "type": "string"
           }
         }
+      },
+      "IncidentPart": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status",
+          "value",
+          "points",
+          "weight",
+          "detail"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "known",
+              "unknown",
+              "not_applicable"
+            ]
+          },
+          "value": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "points": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "weight": {
+            "type": "integer"
+          },
+          "detail": {
+            "type": "string"
+          }
+        },
+        "description": "One named part of the priority score. Unknown parts have value and points null; they never count as zero."
+      },
+      "Incident": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "incident_id",
+          "area_id",
+          "kind",
+          "rank",
+          "score_low",
+          "score_high",
+          "could_rank_higher",
+          "parts",
+          "reasons",
+          "unknowns"
+        ],
+        "properties": {
+          "incident_id": {
+            "type": "string"
+          },
+          "area_id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "fire_detected",
+              "possible_power_loss",
+              "damage_candidate_area"
+            ]
+          },
+          "rank": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "score_low": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "score_high": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "could_rank_higher": {
+            "type": "boolean"
+          },
+          "parts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "people",
+              "facility",
+              "damage",
+              "fire",
+              "services",
+              "time",
+              "access"
+            ],
+            "properties": {
+              "people": {
+                "$ref": "#/components/schemas/IncidentPart"
+              },
+              "facility": {
+                "$ref": "#/components/schemas/IncidentPart"
+              },
+              "damage": {
+                "$ref": "#/components/schemas/IncidentPart"
+              },
+              "fire": {
+                "$ref": "#/components/schemas/IncidentPart"
+              },
+              "services": {
+                "$ref": "#/components/schemas/IncidentPart"
+              },
+              "time": {
+                "$ref": "#/components/schemas/IncidentPart"
+              },
+              "access": {
+                "$ref": "#/components/schemas/IncidentPart"
+              }
+            }
+          },
+          "reasons": {
+            "type": "array",
+            "maxItems": 2,
+            "items": {
+              "type": "string"
+            }
+          },
+          "unknowns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "Ranked incident (doc 24 section 6.1). Ordered by what is known (score_low); the range shows the effect of unknown parts."
+      },
+      "IncidentList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "synthetic",
+          "generated_at",
+          "weights",
+          "data_age",
+          "items",
+          "next_cursor"
+        ],
+        "properties": {
+          "synthetic": {
+            "type": "boolean"
+          },
+          "generated_at": {
+            "type": "string"
+          },
+          "weights": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer"
+            }
+          },
+          "data_age": {
+            "type": "object",
+            "additionalProperties": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Incident"
+            }
+          },
+          "next_cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "Insight": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text",
+          "values",
+          "sources",
+          "date"
+        ],
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "values": {
+            "type": "object"
+          },
+          "sources": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "date": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "description": "Template sentence; every number in text appears in values."
+      },
+      "Recommendation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "assistant",
+          "situation",
+          "options",
+          "we_do_not_know",
+          "checklist",
+          "next_review",
+          "note"
+        ],
+        "properties": {
+          "assistant": {
+            "type": "string",
+            "const": "CIVISAR assistant"
+          },
+          "situation": {
+            "type": "string"
+          },
+          "options": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 3,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "playbook",
+                "title",
+                "why",
+                "needs",
+                "risks",
+                "trade_off"
+              ],
+              "properties": {
+                "playbook": {
+                  "type": "string",
+                  "enum": [
+                    "medical",
+                    "evacuation",
+                    "power",
+                    "water",
+                    "verification"
+                  ]
+                },
+                "title": {
+                  "type": "string"
+                },
+                "why": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "needs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "risks": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "trade_off": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "we_do_not_know": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "checklist": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "next_review": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "description": "Rule-based options, not orders (doc 24 section 7). Filtered to the caller's role."
+      },
+      "IncidentDetail": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "synthetic",
+          "incident",
+          "insights",
+          "recommendation"
+        ],
+        "properties": {
+          "synthetic": {
+            "type": "boolean"
+          },
+          "incident": {
+            "$ref": "#/components/schemas/Incident"
+          },
+          "insights": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Insight"
+            }
+          },
+          "recommendation": {
+            "$ref": "#/components/schemas/Recommendation"
+          }
+        }
+      },
+      "Budget": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "synthetic",
+          "area_id",
+          "label",
+          "cost_usd",
+          "duration_months",
+          "work_floor_area_m2",
+          "crew_scale",
+          "buildings_in_candidate_cells",
+          "assumptions",
+          "limits"
+        ],
+        "properties": {
+          "synthetic": {
+            "type": "boolean"
+          },
+          "area_id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string",
+            "const": "Planning indication only"
+          },
+          "cost_usd": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "low",
+              "high"
+            ],
+            "properties": {
+              "low": {
+                "type": "number"
+              },
+              "high": {
+                "type": "number"
+              }
+            }
+          },
+          "duration_months": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "low",
+              "high"
+            ],
+            "properties": {
+              "low": {
+                "type": "number"
+              },
+              "high": {
+                "type": "number"
+              }
+            }
+          },
+          "work_floor_area_m2": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "low",
+              "high"
+            ],
+            "properties": {
+              "low": {
+                "type": "number"
+              },
+              "high": {
+                "type": "number"
+              }
+            }
+          },
+          "crew_scale": {
+            "type": "string",
+            "enum": [
+              "per_neighbourhood",
+              "whole_demo_box"
+            ]
+          },
+          "buildings_in_candidate_cells": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "assumptions": {
+            "type": "object",
+            "description": "Every value with its source or the word assumption."
+          },
+          "limits": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "Rebuild budget and duration as ranges (doc 24 section 9). Never a single number, never a quote."
+      },
+      "BuildingCollection": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "synthetic",
+          "type",
+          "features",
+          "truncated",
+          "fidelity"
+        ],
+        "properties": {
+          "synthetic": {
+            "type": "boolean"
+          },
+          "type": {
+            "type": "string",
+            "const": "FeatureCollection"
+          },
+          "truncated": {
+            "type": "boolean"
+          },
+          "fidelity": {
+            "type": "string",
+            "const": "Reconstruction from satellite data, not footage"
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "geometry",
+                "properties"
+              ],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "const": "Feature"
+                },
+                "geometry": {
+                  "description": "GeoJSON Polygon (WGS84) for signed-in roles; Nullable or redacted in synthetic example; refine semantics at H2."
+                },
+                "properties": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "building_id",
+                    "h3_r9",
+                    "use",
+                    "height_low_m",
+                    "height_mid_m",
+                    "height_high_m",
+                    "height_source",
+                    "floors_low",
+                    "floors_high",
+                    "damage_class",
+                    "evidence_label",
+                    "second_sensor_agrees",
+                    "height_tag",
+                    "damage_tag"
+                  ],
+                  "properties": {
+                    "building_id": {
+                      "type": "string"
+                    },
+                    "h3_r9": {
+                      "type": "string"
+                    },
+                    "use": {
+                      "type": "string"
+                    },
+                    "height_low_m": {
+                      "type": "number"
+                    },
+                    "height_mid_m": {
+                      "type": "number"
+                    },
+                    "height_high_m": {
+                      "type": "number"
+                    },
+                    "height_source": {
+                      "type": "string",
+                      "enum": [
+                        "osm",
+                        "ghsl",
+                        "default"
+                      ]
+                    },
+                    "floors_low": {
+                      "type": "integer"
+                    },
+                    "floors_high": {
+                      "type": "integer"
+                    },
+                    "damage_class": {
+                      "type": "string"
+                    },
+                    "evidence_label": {
+                      "type": "string"
+                    },
+                    "second_sensor_agrees": {
+                      "type": [
+                        "boolean",
+                        "null"
+                      ]
+                    },
+                    "height_tag": {
+                      "type": "string",
+                      "const": "Inferred"
+                    },
+                    "damage_tag": {
+                      "type": "string",
+                      "const": "From data (cell result)"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Buildings in a bounding box for the 3D view (doc 24 section 4). Damage fields are H3 r9 cell results, never building results. No residents per building (doc 07). Signed-in, scoped, withheld before release_at."
       }
     }
   },
