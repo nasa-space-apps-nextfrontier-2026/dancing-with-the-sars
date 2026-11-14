@@ -7,16 +7,16 @@ Decided 14 November 2026. This is the single source of truth for who does what a
 | Member slot | Person | Role |
 |---|---|---|
 | Member 1 | **Udula** | ML: NISAR damage model end to end. **All large radar downloads** and model training on the strong machine |
-| Member 2 | **Thanoban** | ML on small data: night-light power-loss model, fire event model, strike-enrichment tests. No backend, no radar downloads. Demo, video and submission from H38 |
-| Member 3 | **Rashiru** | Frontend (with Claude Code and Claude Design), most of the backend, **manager of all PRs** |
-| Member 4 | **Chames** | Backend only: the rest of the backend and data work |
+| Member 2 | **Thanoban** | ML on small data: night-light power-loss model, fire event model, strike-enrichment tests. Trains on free Google Colab ([plan](18_THANOBAN_ML_PLAN_AND_COLAB.md)). No backend, no radar downloads. Demo, video and submission from H38 |
+| Member 3 | **Rashiru** | **All frontend, all backend and all data work** (with Claude Code and Claude Design), and **manager of all PRs** |
+| Member 4 | **Chames** | Not working on the project (14 Nov 2026 decision). No tasks, no reviews |
 
 ## ML rules
 
 1. **Split by dataset, not by stage.** Each ML person owns their model end to end. No "one downloads, the other preprocesses".
 2. **All large downloads are Udula's.** Thanoban never downloads radar files. He works only with small data: Black Marble night lights, FIRMS fires, ACLED and Insecurity Insight points, and the small damage table and crops Udula shares.
 3. **Workload is divided evenly**: about 25 h (Udula) and 22 h (Thanoban).
-4. Both write outputs in schemas fixed at H2, and use the `h3` library directly, so neither waits on the other or on Chames. Thanoban waits on Udula's damage table only for the final run of his tests (mock until H16).
+4. Both write outputs in schemas fixed at H2, and use the `h3` library directly, so neither waits on the other or on Rashiru. Thanoban waits on Udula's damage table only for the final run of his tests (mock until H16).
 5. A second radar model on Sentinel-1 is **not** in the core. It is a stretch task for Udula's machine only.
 
 ## Who does which task
@@ -27,10 +27,9 @@ Task IDs (M1 to M4) are work-package IDs. Each task has one owner and one differ
 |---|---|---|
 | **Udula** | M1-01 NISAR scenes, download, crop · M1-02 alignment, features, anomaly model, damage classes, change images (stretch: GSLC coherence) · M1-03 hold-out tests and top-20 eye check | 25 |
 | **Thanoban** | M1-04 night-light power-loss model, fire event model, strike-enrichment and false-alarm tests (for the damage models) · M2-06 movement design · demo story, video and submission (H38–H48, part of M4-04) | 22 + demo |
-| **Rashiru** | M3-01 formats, database, mock API · M3-02 sign-in, roles, safety checks (never cut) · M3-03 protected endpoints (routes, shelters, closures, brief, trace) · M4-01 app setup and sign-in · M4-02 main map and slider · M4-03 decision screens and print · M4-04 phone layout, QA, release checklist | 50 |
-| **Chames** | M2-01 base data and grid · M2-02 people, facilities, services · M2-03 alert plumbing (calls Thanoban's functions) · M2-04 routes · M2-05 shelters · M3-03 plain endpoints · M3-04 worker, Docker, tunnel | 34 |
+| **Rashiru** | **Backend:** M3-01 formats, database, mock API · M3-02 sign-in, roles, safety (never cut) · M3-03 all endpoints · M3-04 worker, Docker, tunnel · **Data:** M2-01 base data and grid · M2-02 people, facilities, services · M2-03 alert plumbing · M2-04 routes · M2-05 shelters · **Frontend:** M4-01 app setup · M4-02 main map and slider · M4-03 decision screens and print · M4-04 phone layout, QA, release checklist | about 85 (too much for one person: see the cut order in 08) |
 
-Reviews: Udula and Thanoban review each other's ML work. Rashiru reviews Chames's tasks and merges all PRs. Chames reviews Rashiru's tasks, and M1-03 for independence. Rashiru's load is the risk: the levers are in [08](08_FOUR_MEMBER_TASK_ALLOCATION.md).
+Reviews (each task has a different reviewer): Udula and Thanoban review each other's ML. Rashiru's tasks are reviewed by Thanoban (data, alerts, routes, shelters, app setup, main map) and by Udula (backend, safety, decision screens, QA). Udula's tests (M1-03) are reviewed by Rashiru. Rashiru merges all PRs; his own PRs are merged after one of the two ML members approves.
 
 ## Branch plan
 
@@ -46,7 +45,7 @@ gitGraph
   commit id: "Thanoban"
   checkout dev
   branch feature/m2-02-people-services
-  commit id: "Chames"
+  commit id: "Rashiru data"
   checkout dev
   branch feature/m3-02-auth-safety
   commit id: "Rashiru"
@@ -69,7 +68,7 @@ gitGraph
 
 ### Rules
 
-1. **One branch per task**, created from `dev`, deleted after merge. Example names: `feature/m1-01-nisar-download` (Udula), `feature/m1-04-services-models` (Thanoban), `feature/m2-02-people-services` (Chames), `feature/m3-02-auth-safety` and `feature/m4-02-main-map` (Rashiru).
+1. **One branch per task**, created from `dev`, deleted after merge. Example names: `feature/m1-01-nisar-download` (Udula), `feature/m1-04-services-models` (Thanoban), `feature/m2-02-people-services` (Rashiru), `feature/m3-02-auth-safety` and `feature/m4-02-main-map` (Rashiru).
 2. **No direct pushes to `main` or `dev`. No force pushes. No `reset --hard`.** Branch protection needs repo admin, so Rashiru or the repo leader switches it on.
 3. **PRs go into `dev`.** Small, one task, using the PR template below. One approval from someone other than the author, checker and tests green, then **Rashiru merges** with squash merge.
 4. **`dev` to `main`** only at checkpoints, by Rashiru, with a normal merge commit: **H24** (real data), **H38** (feature freeze, tag `v0.1.0-demo-rc1`), **H48** (final, tag `v0.1.0-demo` after review).
@@ -85,8 +84,7 @@ gitGraph
 |---|---|
 | `pipelines/radar/nisar/` | Udula |
 | `pipelines/services/` (night lights, fires), `pipelines/evaluation/` | Thanoban |
-| `pipelines/geodata/`, `pipelines/alerts/`, `pipelines/routing/`, `pipelines/shelter/`, `worker/`, `infra/` | Chames |
-| `backend/app/auth/`, `backend/app/policy/`, `web/`, `docs/contracts/` | Rashiru |
+| `pipelines/geodata/`, `pipelines/alerts/`, `pipelines/routing/`, `pipelines/shelter/`, `worker/`, `infra/`, `backend/`, `web/`, `docs/contracts/` | Rashiru |
 
 Because each ML person has their own folder and branch, they never edit the same files.
 
@@ -96,12 +94,12 @@ Because each ML person has their own folder and branch, they never edit the same
 /pipelines/radar/nisar/             @udula
 /pipelines/services/                @thanoban
 /pipelines/evaluation/              @thanoban
-/pipelines/geodata/                 @chames
-/pipelines/alerts/                  @chames
-/pipelines/routing/                 @chames
-/pipelines/shelter/                 @chames
-/worker/                            @chames
-/infra/                             @chames
+/pipelines// @rashiru
+/pipelines// @rashiru
+/pipelines// @rashiru
+/pipelines// @rashiru
+// @rashiru
+// @rashiru
 /backend/app/auth/                  @rashiru
 /backend/app/policy/                @rashiru
 /web/                               @rashiru
@@ -125,17 +123,17 @@ Reviewer (not the author):
 
 ## Parallel timeline
 
-| Hours | Udula | Thanoban | Rashiru | Chames |
-|---|---|---|---|---|
-| 0–2 | Start NISAR downloads | Small downloads: Black Marble, FIRMS sample | App skeleton, repo, `dev`, protection | Download base data |
-| **2** | **All four agree IDs, value row, damage-table and alert schemas, JSON shapes** | | | |
-| 2–8 | Crop, align, mask | Night-light baseline, fire filter | Database, sign-in, mock API; sign-in screen | Grid, residents, facilities |
-| 8–16 | Features, quiet cells, model | Power-loss model, fire events, test harness on mock | Main map, slider (mock) | Services, alert plumbing, test road graph |
-| 16–24 | Change images, damage table v1 | Real run on damage table, strike tests | Real data in API; summary and alert screens | Alerts joined with damage, routes |
-| **24** | **Everything on real data. `dev` → `main`** | | | |
-| 24–32 | NISAR tests, final model | Test results to Sources page | Routes, shelters, sources screens | Routes, shelters |
-| **38** | **Feature freeze, tag `v0.1.0-demo-rc1`** | | | |
-| 38–48 | Help test | Demo story, video, submission | Fixes, QA | Backup laptop, fixes |
+| Hours | Udula | Thanoban (on Colab) | Rashiru |
+|---|---|---|---|
+| 0–2 | Start NISAR downloads | Colab set-up, small test downloads (Black Marble, FIRMS sample) | Repo, `dev` protection, app skeleton, database |
+| **2** | **All agree IDs, value row, damage-table and alert schemas, JSON shapes** | | |
+| 2–8 | Crop, align, mask | Night-light baseline per cell, fire filter | Sign-in, roles, mock API; sign-in screen; base data and grid |
+| 8–16 | Features, quiet cells, model | Power-loss model, fire events, test harness on mock | Main map, slider (mock); people, facilities, alert plumbing |
+| 16–24 | Change images, damage table v1 | Real run on damage table, strike tests | Real data in API; summary and alert screens; test road graph, routes |
+| **24** | **Everything on real data. `dev` → `main`** | | |
+| 24–32 | NISAR tests, final model | Test results to Sources page | Routes, shelters, sources screens |
+| **38** | **Feature freeze, tag `v0.1.0-demo-rc1`** | | |
+| 38–48 | Help test; take over tasks from Rashiru by agreement | Demo story, video, submission | Fixes, QA, backup laptop |
 
 ## Starting state
 

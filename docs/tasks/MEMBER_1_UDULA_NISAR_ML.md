@@ -58,7 +58,7 @@ Handoff checklist: include schema version, exact artifact paths, units/CRS/date,
 | Scope | Spatial hold-out, enrichment with controls, 20 manual top cells, uncertainty report. These tests are the main proof. "No matching assessment available" is the normal case: no UNOSAT exists for Lebanon and no 2026 UNDP/CNRS-L was found; use one only if it appears at H0. Udula owns the hold-out areas and the 20-cell eye check for the NISAR model. The strike-enrichment and evidence tests are built and run by Thanoban inside M1-04 on small tables; the combined results go to the Sources page. |
 | Priority / phase | MVP QA; overlay conditional |
 | Accountable owner | Member 1 |
-| One reviewer | Member 4 |
+| One reviewer | Member 3 |
 | Dependency | M1-02; permitted M2-03 context |
 | Expected files / outputs | pipelines/radar/evaluate.py; data/manifests/model_tests.json; docs/model_validation.md (implementation output) |
 | Required stub / mock | fixed synthetic score distribution and manual-review checklist |
@@ -66,7 +66,7 @@ Handoff checklist: include schema version, exact artifact paths, units/CRS/date,
 | Input / output contract | cells + hold-out + reports → measured test results and limitations |
 | Local verification (planned) | `python -m pytest tests/unit/test_evaluation.py` |
 | Test cases | T-ML, T-VALIDATION: no leakage; duplicate reports; false-alarm numerator/denominator; no fake accuracy |
-| Definition of Done | Expected artifacts committed in a small PR to dev; Member 4 reviews tests and source/safety implications; contracts and lineage validated; fixture/real status declared; receiving task acknowledges handoff. Scientific failures stay visible and block unsupported claims. |
+| Definition of Done | Expected artifacts committed in a small PR to dev; Member 3 reviews tests and source/safety implications; contracts and lineage validated; fixture/real status declared; receiving task acknowledges handoff. Scientific failures stay visible and block unsupported claims. |
 | Integration checkpoint | H32 QA results to M3 trace and M4 Sources |
 | Blockers / fallback | No aligned labels; report independent QA, no precision/recall or confirmed collapse claims |
 
