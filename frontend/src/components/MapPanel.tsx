@@ -88,8 +88,8 @@ export function MapPanel({ onSelectDemoArea, radar }: {
       ? `Non-georeferenced synthetic radar grid: ${radar.mode}, ${radar.polarization}`
       : 'Synthetic blank map canvas; no satellite imagery or operational locations loaded'} />
     <div className="map-badge">{radar
-      ? 'Synthetic grid ? Not NISAR imagery ? No geographic position'
-      : 'Illustrative demo data ? No imagery loaded'}</div>
+      ? 'Synthetic grid · Not NISAR imagery · No geographic position'
+      : 'Illustrative demo data · No imagery loaded'}</div>
     {onSelectDemoArea && <button className="map-select" onClick={onSelectDemoArea}>Select synthetic demo area</button>}
     {failure && <p className="map-fallback">Map renderer unavailable. Area list remains accessible.</p>}
   </div>

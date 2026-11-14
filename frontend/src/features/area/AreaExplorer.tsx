@@ -10,7 +10,7 @@ type LoadState =
   | { status: 'idle' | 'loading' | 'error' | 'denied' }
   | { status: 'ready'; area: AreaSummary; source: SourceRecord }
 
-export function AreaExplorer() {
+export function AreaExplorer({showTimeline=true}:{showTimeline?:boolean}) {
   const [state, setState] = useState<LoadState>({ status: 'idle' })
   const [view, setView] = useState<RadarView>({ mode: 'before', polarization: 'HH', opacity: 75, split: 50 })
   const [scene, setScene] = useState(0)
@@ -36,7 +36,8 @@ export function AreaExplorer() {
     ? 'Unknown' : `${residents.low.toLocaleString()}–${residents.high.toLocaleString()} ${residents.unit}`
 
   return <div className="area-explorer">
-    <div className="radar-controls" aria-label="Synthetic radar comparison controls">
+    {showTimeline && <div className="radar-controls" aria-label="Synthetic radar comparison controls">
+      <div className="prototype-timeline-head"><span className="cv-sm"><b>NISAR track 151 descending</b> <span className="cv-faint">· Synthetic pass comparison · 24 Jun – 03 Nov 2026</span></span><span className="cv-tag">{scene===0?'Before window':'After window'}</span></div>
       <fieldset><legend>View</legend>{(['before','after','change','swipe'] as RadarMode[]).map(mode =>
         <button key={mode} type="button" aria-pressed={view.mode === mode} onClick={() => {setView({...view,mode});if(mode==='before'||mode==='after')setScene(mode==='before'?0:1)}}>{mode[0].toUpperCase()+mode.slice(1)}</button>)}</fieldset>
       <fieldset><legend>Polarization</legend>{(['HH','HV','HH-HV'] as Polarization[]).map(polarization =>
@@ -45,7 +46,7 @@ export function AreaExplorer() {
       <output>{scene === 0 ? 'Before window: 27 Oct 2025–19 Jan 2026' : 'After window: 24 Jun–03 Nov 2026'}</output>
       {view.mode === 'swipe' && <label>Swipe split {view.split}%<input type="range" min="0" max="100" step="1" value={view.split} onChange={event => setView({...view,split:Number(event.target.value)})}/></label>}
       <label>Layer opacity {view.opacity}%<input type="range" min="0" max="100" step="5" value={view.opacity} onChange={event => setView({...view,opacity:Number(event.target.value)})}/></label>
-    </div>
+    </div>}
     <MapPanel onSelectDemoArea={selectDemoArea} radar={view}/>
     <p className="map-note">Synthetic non-georeferenced cells only. South Lebanon demo scope: track 151 descending, frame 72. Processing: synthetic-ui-v1. Provenance: PROJECT_PLAN.md snapshot of 13 Nov 2026; no granule IDs or validated radar pixels loaded. Evidence: Unknown. Uncertainty: unvalidated illustration. Acquisition gap: 20 Jan–17 Jun 2026; no observations are interpolated. Slider selects window endpoints, not individual passes.</p>
     {state.status === 'idle' && <SystemState kind="empty" message="Select the synthetic demo area to request its area summary from the API."/>}
