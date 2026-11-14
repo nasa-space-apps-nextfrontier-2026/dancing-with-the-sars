@@ -9,4 +9,4 @@ def handler(method: str, path: str):
     return decorator
 
 # Import handler modules to register them
-from . import sources  # noqa: F401
+from . import sources  # noqa: E402,F401  (registers handlers after HANDLERS exists)
