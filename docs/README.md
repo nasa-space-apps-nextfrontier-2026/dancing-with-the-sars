@@ -22,16 +22,17 @@ Start with the source audit, scope, architecture and your member task file. Free
 - [13_DEMO_STORY_SUBMISSION_AND_CITATIONS.md](13_DEMO_STORY_SUBMISSION_AND_CITATIONS.md)
 - [14_REQUIREMENTS_TRACEABILITY_MATRIX.md](14_REQUIREMENTS_TRACEABILITY_MATRIX.md)
 - [15_TEAM_ONBOARDING.md](15_TEAM_ONBOARDING.md)
+- [17_TEAM_ASSIGNMENT_AND_BRANCHES.md](17_TEAM_ASSIGNMENT_AND_BRANCHES.md)
 
 ## Supporting artifacts
 
 - [Dataset exclusions](03A_DATASET_EXCLUSIONS.md)
 - [Source section coverage](14A_SOURCE_SECTION_COVERAGE.md)
 - [Source URL register](14B_SOURCE_LINK_REGISTER.md)
-- [Member 1: radar/ML](tasks/MEMBER_1_RADAR_ML.md)
-- [Member 2: geodata/alerts](tasks/MEMBER_2_GEODATA_ALERTS.md)
-- [Member 3: backend/security](tasks/MEMBER_3_BACKEND_SECURITY.md)
-- [Member 4: frontend/demo](tasks/MEMBER_4_FRONTEND_DEMO.md)
+- [Udula (Member 1): NISAR ML](tasks/MEMBER_1_UDULA_NISAR_ML.md)
+- [Thanoban (Member 2): small-data ML](tasks/MEMBER_2_THANOBAN_SMALL_DATA_ML.md)
+- [Rashiru (Member 3): frontend and backend](tasks/MEMBER_3_RASHIRU_FRONTEND_BACKEND.md)
+- [Chames (Member 4): backend and data](tasks/MEMBER_4_CHAMES_BACKEND_DATA.md)
 - [Contract inventory and eight synthetic JSON examples](contracts/README.md)
 - [Draft OpenAPI](contracts/openapi.yaml)
 - [Planning manifest](contracts/planning_manifest.json)

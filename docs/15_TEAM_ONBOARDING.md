@@ -20,10 +20,10 @@ git clone https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-
 cd dancing-with-the-sars
 git fetch origin
 git switch dev
-git switch -c feature/m3-backend-security
+git switch -c feature/<task-id>-<short-name>   # e.g. feature/m1-02-nisar-model
 ```
 
-Remote branches must have been pushed before a fresh clone can switch to them. Until then use the local branches or an approved repository handoff; do not claim remote availability. Each member uses their feature branch from [allocation](08_FOUR_MEMBER_TASK_ALLOCATION.md). Preserve dirty work and inspect existing branch before creating.
+Remote branches must have been pushed before a fresh clone can switch to them. Until then use the local branches or an approved repository handoff; do not claim remote availability. Each task gets its own short-lived `feature/<task-id>-<short-name>` branch from `dev`; see [team assignment and branches](17_TEAM_ASSIGNMENT_AND_BRANCHES.md). Preserve dirty work and inspect existing branch before creating.
 
 ## Planned startup after M3/M4 scaffold
 
@@ -43,4 +43,4 @@ H3 numeric precision loss → strings. Metres computed in degrees → project be
 
 ## Handoff and support
 
-Every handoff includes artifact/schema version, checksum, date/CRS/unit, licence/tag, tests and known gaps. Member 1 contact [pending]; Member 2 [pending]; Member 3 [pending]; Member 4 [pending]. Raise scientific uncertainty to M1, GIS/source semantics to M2, permissions/deployment to M3, UI/demo truthfulness to M4. A blocked source does not permit fake evidence. Recovery uses [DevOps rollback](11_DEVOPS_DEPLOYMENT_AND_GIT_WORKFLOW.md); no destructive Git recovery.
+Every handoff includes artifact/schema version, checksum, date/CRS/unit, licence/tag, tests and known gaps. Contacts: Udula (Member 1) [contact pending]; Thanoban (Member 2) [pending]; Rashiru (Member 3) [pending]; Chames (Member 4) [pending]. Raise NISAR science to Udula, night-light/fire model and test questions to Thanoban, permissions, API and UI to Rashiru, GIS/source semantics, routes and deployment to Chames. A blocked source does not permit fake evidence. Recovery uses [DevOps rollback](11_DEVOPS_DEPLOYMENT_AND_GIT_WORKFLOW.md); no destructive Git recovery.

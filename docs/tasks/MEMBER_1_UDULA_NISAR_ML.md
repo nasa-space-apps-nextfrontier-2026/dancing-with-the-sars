@@ -1,15 +1,17 @@
-# Member 1 work package
+# Member 1 work package: Udula
 
-[Team allocation](../08_FOUR_MEMBER_TASK_ALLOCATION.md) · [Roadmap](../09_48_HOUR_DEVELOPMENT_ROADMAP.md) · [Contracts](../contracts/README.md)
+Udula: NISAR damage model, end to end (all large radar downloads and training).
 
-Status: planned implementation, not completed work. File paths below are proposed outputs, not present application code. Effort means active work within the given window; allow breaks and integration buffer. All implementation details beyond cited source are ARCHITECT RECOMMENDATION.
+[Team assignment and branches](../17_TEAM_ASSIGNMENT_AND_BRANCHES.md) · [Team allocation](../08_FOUR_MEMBER_TASK_ALLOCATION.md) · [Roadmap](../09_48_HOUR_DEVELOPMENT_ROADMAP.md) · [Contracts](../contracts/README.md)
+
+Status: planned implementation, not completed work. Task IDs (M1 to M4) are work-package IDs; the owner field names the person (Member 1 = Udula, 2 = Thanoban, 3 = Rashiru, 4 = Chames). File paths below are proposed outputs, not present application code. Effort means active work within the given window; allow breaks and integration buffer. All implementation details beyond cited source are ARCHITECT RECOMMENDATION.
 
 ## M1-01: Scene discovery, licence and tier preflight
 
 | Field | Commitment |
 |---|---|
 | Source trace | ARCHITECTURE.md §1.1; DATA_AND_API_PLAN.md §§1–2; NASA_DATASET_ANALYSIS.md §9 |
-| Scope | Search BETA/provisional/V1, save actual overlap, track/frame, acquisition/version, download tiers only during development. |
+| Scope | Search BETA/provisional/V1, save actual overlap, track/frame, acquisition/version, download tiers only during development. Owner is Udula, who does all large downloads on the strong machine and shares only small crops (14 Nov 2026 team decision). |
 | Priority / phase | MVP |
 | Accountable owner | Member 1 |
 | One reviewer | Member 2 |
@@ -31,7 +33,7 @@ Handoff checklist: include schema version, exact artifact paths, units/CRS/date,
 | Field | Commitment |
 |---|---|
 | Source trace | ARCHITECTURE.md §§1.3/1.5; DATA_AND_API_PLAN.md §1 |
-| Scope | Registration, masking, version normalization, HH/HV features, quiet blocks, Isolation Forest/Mahalanobis, fallback, reason codes and COGs. |
+| Scope | Registration, masking, version normalization, HH/HV features, quiet blocks, Isolation Forest/Mahalanobis, fallback, reason codes and COGs. Stretch only if core is green: GSLC coherence (Udula's machine). |
 | Priority / phase | MVP |
 | Accountable owner | Member 1 |
 | One reviewer | Member 2 |
@@ -53,7 +55,7 @@ Handoff checklist: include schema version, exact artifact paths, units/CRS/date,
 | Field | Commitment |
 |---|---|
 | Source trace | ARCHITECTURE.md §§1.2/1.4; NASA_DATASET_ANALYSIS.md §9 |
-| Scope | Spatial hold-out, enrichment with controls, 20 manual top cells, uncertainty report. These tests are the main proof. "No matching assessment available" is the normal case: no UNOSAT exists for Lebanon and no 2026 UNDP/CNRS-L was found; use one only if it appears at H0. |
+| Scope | Spatial hold-out, enrichment with controls, 20 manual top cells, uncertainty report. These tests are the main proof. "No matching assessment available" is the normal case: no UNOSAT exists for Lebanon and no 2026 UNDP/CNRS-L was found; use one only if it appears at H0. Udula owns the hold-out areas and the 20-cell eye check for the NISAR model. The strike-enrichment and evidence tests are built and run by Thanoban inside M1-04 on small tables; the combined results go to the Sources page. |
 | Priority / phase | MVP QA; overlay conditional |
 | Accountable owner | Member 1 |
 | One reviewer | Member 4 |
@@ -67,49 +69,5 @@ Handoff checklist: include schema version, exact artifact paths, units/CRS/date,
 | Definition of Done | Expected artifacts committed in a small PR to dev; Member 4 reviews tests and source/safety implications; contracts and lineage validated; fixture/real status declared; receiving task acknowledges handoff. Scientific failures stay visible and block unsupported claims. |
 | Integration checkpoint | H32 QA results to M3 trace and M4 Sources |
 | Blockers / fallback | No aligned labels; report independent QA, no precision/recall or confirmed collapse claims |
-
-Handoff checklist: include schema version, exact artifact paths, units/CRS/date, checksum/run ID, sensitivity and licence tags, known gaps, reproduction command, test result and receiving member acknowledgement. No credentials or raw sensitive files in PR.
-
-## M1-04: Conditional coherence and cross-sensor experiment
-
-| Field | Commitment |
-|---|---|
-| Source trace | ARCHITECTURE.md tier C/stretch; NASA_DATASET_ANALYSIS.md §§2/3.1 |
-| Scope | OPERA cross-check, track172, NISAR_COP note; GSLC/GUNW coherence only with validity evidence. |
-| Priority / phase | Stretch / later |
-| Accountable owner | Member 1 |
-| One reviewer | Member 2 |
-| Dependency | M1-02 and M1-03 gates |
-| Expected files / outputs | pipelines/radar/crosscheck.py; data/manifests/optional_features.json |
-| Required stub / mock | disabled-feature fixture; unavailable GUNW state |
-| Effort and hackathon window | H24–H36 only if core green; max 4 active h; otherwise after hackathon |
-| Input / output contract | aligned products → optional feature + QA, never silently required |
-| Local verification (planned) | `python -m pytest tests/geo/test_crosscheck.py` |
-| Test cases | T-COHERENCE, T-DISPLAY: baseline mismatch rejects; GIBS never analytical; schedule provisional |
-| Definition of Done | Expected artifacts committed in a small PR to dev; Member 2 reviews tests and source/safety implications; contracts and lineage validated; fixture/real status declared; receiving task acknowledges handoff. Scientific failures stay visible and block unsupported claims. |
-| Integration checkpoint | H36 go/no-go with M4; nothing new after H38 |
-| Blockers / fallback | Huge downloads/cross-gap decorrelation; omit feature and disclose |
-
-Handoff checklist: include schema version, exact artifact paths, units/CRS/date, checksum/run ID, sensitivity and licence tags, known gaps, reproduction command, test result and receiving member acknowledgement. No credentials or raw sensitive files in PR.
-
-## M2-05: Shelter scoring and capacity ranges
-
-| Field | Commitment |
-|---|---|
-| Source trace | PROJECT_PLAN.md §6.7; DATA_AND_API_PLAN.md §3 |
-| Scope | Moved from Member 2 to Member 1 on 14 Nov 2026 to balance load; starts after H24 when radar work eases. Buildings first, configurable modes, uncertain floor-area estimate, access/hazard caveats, field-check requests; scoped open-land screen. |
-| Priority / phase | MVP buildings; open land lower priority |
-| Accountable owner | Member 1 |
-| One reviewer | Member 2 |
-| Dependency | M2-01; M1-02; M2-02; M3-02 |
-| Expected files / outputs | pipelines/shelter/candidates.py; capacity.py; data/private/shelter_candidates.parquet |
-| Required stub / mock | redacted ShelterCandidate example and synthetic candidate geometries |
-| Effort and hackathon window | H24–H32; 4 active h |
-| Input / output contract | authorized area + assumptions → ranked candidates + capacity range |
-| Local verification (planned) | `python -m pytest tests/unit/test_shelter.py` |
-| Test cases | T-SHELTER: modes, bounds, missing levels/GHSL, known hazard exclusion; never certify safety |
-| Definition of Done | Expected artifacts committed in a small PR to dev; Member 2 reviews tests and source/safety implications; contracts and lineage validated; fixture/real status declared; receiving task acknowledges handoff. Scientific failures stay visible and block unsupported claims. |
-| Integration checkpoint | H24 first list; H32 final callable M3/M4 |
-| Blockers / fallback | Height and structural uncertainty; type default explicitly labelled or no capacity; cut open land before buildings |
 
 Handoff checklist: include schema version, exact artifact paths, units/CRS/date, checksum/run ID, sensitivity and licence tags, known gaps, reproduction command, test result and receiving member acknowledgement. No credentials or raw sensitive files in PR.

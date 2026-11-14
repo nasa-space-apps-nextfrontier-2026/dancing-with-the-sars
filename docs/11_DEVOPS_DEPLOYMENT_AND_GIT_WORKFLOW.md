@@ -11,25 +11,7 @@ Original branch `docs/architecture-plan` at `022599111ea437b62bf297851e0109f08cd
 
 After validating and committing docs, create `dev` at the plan commit only if still absent locally/remotely. Existing dev would require a reviewed ordinary PR/merge, never reset or overwrite. No feature branches are created until implementation starts. Remote push is left pending because no prior explicit push authorization is established; local commit/branches fulfill the safe fallback in the request. Exact optional push commands are below.
 
-```mermaid
-gitGraph
-  commit id: "default e99348c"
-  branch docs/architecture-plan
-  checkout docs/architecture-plan
-  commit id: "architecture 8e20508"
-  commit id: "split 0225991"
-  branch planning/civisar-full-architecture
-  checkout planning/civisar-full-architecture
-  commit id: "planning docs"
-  branch dev
-  checkout dev
-  branch feature/m1-radar-damage
-  branch feature/m2-geodata-alerts
-  branch feature/m3-backend-security
-  branch feature/m4-frontend-demo
-```
-
-Graph shows ancestry/target workflow, not a claim that feature branches already exist. Since new dev starts at the planning commit, an initial planning→dev PR would have no diff. Subsequent planning amendments use planning→dev PRs; feature branches originate from dev. Existing integration branches instead receive a real planning-docs PR. Reviewed dev later promotes to detected default main. Do not merge into main during this task.
+Branches are planned in [17_TEAM_ASSIGNMENT_AND_BRANCHES.md](17_TEAM_ASSIGNMENT_AND_BRANCHES.md) (updated 14 Nov 2026): `main` (demo-ready, tagged) and `dev` (protected integration branch), with short-lived `feature/<task-id>-<short-name>` branches per task, `docs/<name>` for documentation and `fix/<short-name>` after the H38 freeze. Rashiru manages and merges all PRs; Chames reviews Rashiru's. No `dev` exists yet: create it from `main` first. Feature branches originate from `dev`; reviewed `dev` is promoted to `main` at H24, H38 and H48. Do not merge into `main` during planning.
 
 ## Commands (Windows Git is installed outside PATH)
 
@@ -42,14 +24,14 @@ Graph shows ancestry/target workflow, not a claim that feature branches already 
 & 'C:\Program Files\Git\cmd\git.exe' push -u origin dev
 # At implementation start, with clean working tree:
 & 'C:\Program Files\Git\cmd\git.exe' switch dev
-& 'C:\Program Files\Git\cmd\git.exe' switch -c feature/m1-radar-damage
+& 'C:\Program Files\Git\cmd\git.exe' switch -c feature/m1-01-nisar-download
 ```
 
-Members 2–4 use their exact feature branch names from [allocation](08_FOUR_MEMBER_TASK_ALLOCATION.md). macOS/Linux use `git` with the same arguments. If branch already exists, inspect/check it out without recreating. Dirty tree: preserve work; use a scoped commit by owner or isolated worktree after inspection, never destructive cleaning. On conflicts, review both sides with owners, resolve intentionally and rerun contracts/tests; use merge abort if resolution is uncertain, never force-push shared branches. No reset --hard, clean -fd, force push or branch deletion.
+Everyone uses `feature/<task-id>-<short-name>` branches. macOS/Linux use `git` with the same arguments. If branch already exists, inspect/check it out without recreating. Dirty tree: preserve work; use a scoped commit by owner or isolated worktree after inspection, never destructive cleaning. On conflicts, review both sides with owners, resolve intentionally and rerun contracts/tests; use merge abort if resolution is uncertain, never force-push shared branches. No reset --hard, clean -fd, force push or branch deletion.
 
 ## PR/protection/release recommendations
 
-ARCHITECT RECOMMENDATION: protect main/dev against direct pushes and force pushes; require one non-author review, successful CI, resolved comments and up-to-date merge checks. No protection was configured remotely here. Member 3 reviews any auth/layer/retention change; Member 1 reviews radar science; Member 2 reviews GIS/data semantics; Member 4 reviews UX/demo truthfulness. Small PRs include source/task IDs, input/output contract, actual validation, data sensitivity and rollback. Avoid mixing code/large binaries with documentation PRs.
+ARCHITECT RECOMMENDATION: protect main/dev against direct pushes and force pushes; require one non-author review, successful CI, resolved comments and up-to-date merge checks. No protection was configured remotely here. Rashiru merges all PRs and reviews Chames's work; Chames reviews Rashiru's; Udula and Thanoban review each other's ML; any auth/layer/retention change is also reviewed by Rashiru. Small PRs include source/task IDs, input/output contract, actual validation, data sensitivity and rollback. Avoid mixing code/large binaries with documentation PRs.
 
 CI proposed gates: source/reference integrity; Markdown/JSON/OpenAPI; Python formatting and meaningful tests; PostGIS integration; frontend typecheck/build/components; role/file/privacy tests; E2E and secret/dependency checks. Fork CI has no production credentials. Pin dependencies/containers with a documented update process after verification. Release candidate `v0.1.0-demo-rc1`, final `v0.1.0-demo` only after H48 review; tags not created in planning. Record full commit and approved dataset/run manifest in release notes.
 
