@@ -27,7 +27,11 @@ def check(ok, message):
         errors.append(message)
 
 for filename, expected in manifest['reference_sha256'].items():
-    check(hashlib.sha256((D / filename).read_bytes()).hexdigest() == expected,
+    raw = (D / filename).read_bytes()
+    # Line endings differ between Windows and Unix checkouts; accept either form.
+    lf = raw.replace(b'\r\n', b'\n')
+    check(expected in (hashlib.sha256(lf).hexdigest(),
+                       hashlib.sha256(lf.replace(b'\n', b'\r\n')).hexdigest()),
           'Reference changed: ' + filename)
     counts['unchanged_references'] += 1
 for filename in manifest['required_documents']:
