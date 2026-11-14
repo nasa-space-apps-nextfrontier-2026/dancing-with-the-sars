@@ -1,3 +1,5 @@
 # Contributing to CIVISAR
 
 Use `dev` as the integration base. Branches are `feature/<task-id>-<short-name>` from `dev` (see [team assignment and branches](docs/17_TEAM_ASSIGNMENT_AND_BRANCHES.md)); Rashiru merges all PRs. Each PR names a task ID, source section, contract input/output, actual test results, synthetic/real data status, reviewer and known safety limits. One reviewer other than the author is required. M3 reviews auth and file policy, M1 reviews radar science, M2 reviews GIS semantics, M4 reviews UI claims. Run the commands in [README](README.md). Never commit .env, secrets, real conflict-area operational data or raw radar. Planning conflicts remain in the [decision log](docs/12_RISK_REGISTER_AND_DECISION_LOG.md); changing a draft contract requires an agreed contract PR first. Do not force-push or alter main during scaffold work.
+
+UI work follows `docs/design/civisar-prototype.html` (see `docs/UI_DESIGN.md`). Build `frontend/src/` to match it; do not change the prototype inside a feature PR.

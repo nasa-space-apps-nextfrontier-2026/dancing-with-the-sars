@@ -1,8 +1,15 @@
 # CIVISAR: UI Design and Outputs
 
-**This is the CIVISAR UI design:** https://claude.ai/artifact/6or9wWJWrdVx1kz3LQzbdw#components
+**The UI source of truth is the prototype file in this repo: [design/civisar-prototype.html](design/civisar-prototype.html)** (added 14 Nov 2026, on `dev`). Open it in a browser. It is one HTML file with the colours, type, components, screens, light and dark themes and wording rules. The frontend is built to match it, and Codex, Claude Code or any other tool can read the real markup and styles from it. The older Claude Design link ([artifact](https://claude.ai/artifact/6or9wWJWrdVx1kz3LQzbdw#components)) is private to the owner's account, so do not rely on it: if the two differ, the repo file wins.
 
-It is a design system made with Claude Design. It holds the screens, components, colours, type and wording rules. The screens are mockups with **illustrative demo data**, and every map in them carries a badge saying so. The real app rebuilds the map with a real map library and keeps the same symbols, tokens and wording.
+The screens are mockups with **illustrative demo data**, and every map in them carries a badge saying so. The real app rebuilds the map with a real map library and keeps the same symbols, tokens and wording.
+
+**Rules for building the frontend (`frontend/src/`)**
+1. Copy the CSS variables from the prototype's `:root` and `[data-theme="dark"]` blocks into `frontend/src/styles.css` as the design tokens. Do not invent new colours.
+2. Rebuild each screen and component as React components in `frontend/src/components/`, with the same structure, labels and wording. Keep the evidence labels (Observed, Reported, Corroborated, Unknown) and damage colours as in the prototype.
+3. Do not edit the prototype to match the code. Change it only through a docs PR that says what changed.
+4. Replace the demo data and the drawn map with real API data and a real map library. Keep the "illustrative data" badge wherever mock data is shown.
+5. The prototype already has a "Sign in for responder layers" panel. Sign-in is still required (section 6), so build the sign-in screen and logged-out view from it.
 
 This file explains what CIVISAR produces (its outputs) and where each output appears in the design. See [PROJECT_PLAN.md](PROJECT_PLAN.md) for the features and [DATASETS.md](DATASETS.md) for the data.
 
@@ -96,7 +103,7 @@ Fewest clicks: any place, alert or facility → its routes (1 click). Alert → 
 
 ## 6. Sign-in (decided: login required)
 
-Decided on 13 Nov 2026: **login is required**, as in the plan's safety rules. The design currently has no sign-in screen, so it needs two more screens:
+Decided on 13 Nov 2026: **login is required**, as in the plan's safety rules. The prototype only has a sign-in prompt panel, so the full screens still need building:
 
 - **Sign-in screen** for authorised responders and coordinators.
 - **Logged-out view**: the public-safe map only (data layers and area-level results). Routes, shelter candidates, displacement sites, area briefs and dispatch reports are hidden, with a short line saying they need sign-in. The demo shows an unauthorised user trying to reach shelter locations and being blocked.
