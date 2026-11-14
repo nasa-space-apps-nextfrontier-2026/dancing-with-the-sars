@@ -1,6 +1,6 @@
 # Udula: work log (M1 radar ML, M3 backend, U-01 to U-07)
 
-Read this to see what Udula has finished, what is waiting, and what needs a team decision. Tasks: [Member 1](../tasks/MEMBER_1_UDULA_NISAR_ML.md) (M1-01 to M1-03); since 14 November 2026 the backend part of [Member 3](../tasks/MEMBER_3_RASHIRU_FRONTEND_BACKEND.md) (M3-01 to M3-04; Rashiru keeps the frontend); and the new-plan tasks U-01 to U-07 in [doc 25](../25_NEW_PLAN_TASKS.md). Last updated 14 November 2026 (evening).
+Read this to see what Udula has finished, what is waiting, and what needs a team decision. Tasks: [Member 1](../tasks/MEMBER_1_UDULA_NISAR_ML.md) (M1-01 to M1-03); since 14 November 2026 the backend part of [Member 3](../tasks/MEMBER_3_RASHIRU_FRONTEND_BACKEND.md) (M3-01 to M3-04; Rashiru keeps the frontend); and the new-plan tasks U-01 to U-07 in doc 25 (`docs/25_NEW_PLAN_TASKS.md`). Last updated 14 November 2026 (evening).
 
 ## 1. Summary
 
