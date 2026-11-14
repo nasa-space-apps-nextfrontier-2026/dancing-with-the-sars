@@ -7,16 +7,19 @@ Read this to see where Thanoban's ML work stands. Udula: this is what you need t
 | Item | State | PR |
 |---|---|---|
 | Colab set-up (CLI in WSL2, signed in, free account) | Done and tested | |
-| Black Marble granule search (CMR) with 120-day default | Merged into `dev` | [#3](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/3), [#7](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/7) |
-| Model A: night-light power-loss rule | Merged | [#4](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/4) |
-| Black Marble history builder (Colab) and real-data evaluation | Merged; real run done (see below) | [#9](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/9) |
-| Model A as a callable function (two-satellite agreement, alert events) | Done, 5 tests, runs on real data; open, needs review | [#10](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/10) |
-| Model B: fire events (filter, permanent hot spots, 1 km / 12 h clustering) | Code and 6 tests on synthetic points; open, needs review | [#5](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/5) |
-| Model C: strike-enrichment tests (near vs far, same-district control) | Harness and 4 tests on mock data; open, needs review. Event source will be UCDP, not ACLED | [#6](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/6) |
-| FIRMS download | Blocked: needs the FIRMS map key | |
-| Strike tests on real data | Waiting for Udula's damage table (first version by H16) | |
+| Black Marble search, history builder, real-data evaluation | Merged | [#3](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/3), [#7](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/7), [#9](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/9) |
+| Model A: night-light power-loss rule and callable function (two-satellite agreement, alert events) | Merged; real data: 49 cells flagged on 13 Nov, 1 corroborated by both satellites | [#4](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/4), [#10](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/10) |
+| Model B: fire event model | Merged | [#5](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/5) |
+| Live FIRMS feed (public files, no map key) and current fire events | Done, 4 tests, runs on real data (2 events); open, needs review | [#11](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/11) |
+| Model C: strike-enrichment tests | Merged, mock data. Event source will be UCDP, not ACLED | [#6](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/6) |
+| Longer fire baseline (permanent hot spots) | Needs the FIRMS map key and its history API | |
+| Strike tests on real data | Waiting for Udula's damage table (first version by H16) and UCDP event points | |
 
-**Udula: please review PRs #10, #5 and #6** (you are the assigned reviewer); Rashiru merges after your approval. #3, #4, #7 and #9 are already merged. Thresholds are still the plan's starting values.
+**Udula: please review PR #11.** Rashiru merges after approval. Thresholds are still the plan's starting values.
+
+## FIRMS finding (14 November 2026)
+
+FIRMS publishes **public CSV files** for the last 24 h, 48 h and 7 days (`firms.modaps.eosdis.nasa.gov/data/active_fire/noaa-20-viirs-c2/csv/J1_VIIRS_C2_Global_7d.csv`, and `noaa-21-viirs-c2` / `J2_...`). They need **no map key**. A real run on Colab took 5 seconds: about 390,000 global rows per file, 2 detections in the demo box over 7 days (NOAA-20 only), so 2 events. The map key is only needed for a longer history, which the permanent-hot-spot rule wants (5 or more days of detections in the same place). DATASETS.md still says "FIRMS API (free map key)"; this should be updated by whoever owns that file.
 
 ## How the work runs
 
@@ -101,7 +104,7 @@ Built the per-cell history on Colab (230 nightly tiles, NOAA-20 and NOAA-21, las
 
 ## Next steps (in order)
 
-1. Get the FIRMS map key (it is emailed to the account owner).
+1. Get the FIRMS map key only if we want a longer fire history (the live feed already works without it).
 2. Download the last 60 clear nights as cropped tiles on Colab and build the per-cell history.
 3. Hand the callable night-light function (PR #10) to Rashiru for the alert plumbing; later check which flagged cells line up with UCDP events and the radar damage.
 4. Download recent FIRMS points for the demo box, run the fire model from PR #5, and tune the permanent-spot rule.
