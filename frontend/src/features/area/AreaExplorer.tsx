@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { DataAge, EvidenceLabel, SystemState } from '../../components/Evidence'
 import { MapPanel } from '../../components/MapPanel'
-import { api } from '../../services/api'
+import { api, apiErrorCode } from '../../services/api'
 import type { AreaSummary, SourceRecord } from '../../types/contracts'
 import './AreaExplorer.css'
 
 const DEMO_AREA_ID = 'demo-area-01'
 type LoadState =
-  | { status: 'idle' | 'loading' | 'error' }
+  | { status: 'idle' | 'loading' | 'error' | 'denied' }
   | { status: 'ready'; area: AreaSummary; source: SourceRecord }
 
 export function AreaExplorer() {
@@ -23,8 +23,8 @@ export function AreaExplorer() {
       const source = await api.sourceRecord(sourceId)
       if (source.synthetic !== true || source.source_id !== sourceId) throw new Error('Unexpected source')
       setState({ status: 'ready', area, source })
-    } catch {
-      setState({ status: 'error' })
+    } catch (failure) {
+      setState({ status: apiErrorCode(failure) === 'FORBIDDEN' ? 'denied' : 'error' })
     }
   }
 
@@ -39,6 +39,7 @@ export function AreaExplorer() {
     {state.status === 'idle' && <SystemState kind="empty" message="Select the synthetic demo area to request its area summary from the API."/>}
     {state.status === 'loading' && <SystemState kind="loading" message="Loading synthetic area and source from the API…"/>}
     {state.status === 'error' && <SystemState kind="error" message="Area information is unavailable. Check sign-in and the local API."/>}
+    {state.status === 'denied' && <SystemState kind="error" message="Access denied for this area. Your server-side role or area scope does not permit it."/>}
     {ready && <section className="area-result" aria-label="Selected area summary">
       <h3>{ready.area.name} <span className="demo-inline">Synthetic example</span></h3>
       <p>Residents (synthetic range): <strong>{range}</strong></p>

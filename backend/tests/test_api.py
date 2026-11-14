@@ -94,3 +94,32 @@ def test_synthetic_adapter_does_not_serve_as_real_data(monkeypatch):
             assert visitor.get('/api/v1/areas/demo-area-01/summary').status_code == 503
     finally:
         get_settings.cache_clear()
+
+
+def test_session_restoration_logout_and_expiry(monkeypatch):
+    from backend.app.core import security
+
+    monkeypatch.setenv('CIVISAR_DEMO_USERS_JSON', json.dumps({
+        'analyst': {'password_hash': hash_password('local-test-password'),
+                    'role': 'analyst', 'area_scopes': ['demo-area-01']}}))
+    get_settings.cache_clear()
+    try:
+        with TestClient(app) as visitor:
+            login = visitor.post('/api/v1/session', json={
+                'username': 'analyst', 'password': 'local-test-password'})
+            assert login.status_code == 200
+            assert visitor.get('/api/v1/session').json()['role'] == 'analyst'
+            assert visitor.delete('/api/v1/session').status_code == 403
+            assert visitor.delete('/api/v1/session', headers={
+                'X-CSRF-Token': login.json()['csrf_token']}).status_code == 204
+            assert visitor.get('/api/v1/session').status_code == 401
+            login = visitor.post('/api/v1/session', json={
+                'username': 'analyst', 'password': 'local-test-password'})
+            token = visitor.cookies.get('civisar_session')
+            key = security.hashlib.sha256(token.encode()).hexdigest()
+            identity, _, csrf = security._sessions[key]
+            security._sessions[key] = (identity, security.time.time() - 1, csrf)
+            assert visitor.get('/api/v1/session').status_code == 401
+            assert visitor.get('/api/v1/areas/demo-area-01/summary').status_code == 401
+    finally:
+        get_settings.cache_clear()

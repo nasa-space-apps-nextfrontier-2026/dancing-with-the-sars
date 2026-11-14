@@ -5,6 +5,7 @@ import { fixtures } from '../types/contracts'
 import { EvidenceLabel, DataAge, SystemState } from '../components/Evidence'
 import { MapPanel } from '../components/MapPanel'
 import { AreaExplorer } from '../features/area/AreaExplorer'
+import { useAuth } from './useAuth'
 
 const pages = [
   ['/', 'Main map'], ['/alerts', 'Alert detail'], ['/areas', 'Area summary'], ['/brief', 'Area brief'],
@@ -33,7 +34,31 @@ function Protected({session,level,children}:{session:Session|null;level:number;c
   return <>{children}</>
 }
 export function App() {
-  const [session,setSession]=useState<Session|null>(null)
-  const [theme,setTheme]=useState<'light'|'dark'>('light')
-  return <BrowserRouter><div className={`app ${theme}`}><header><div><strong>CIVISAR</strong><span> NASA Space Apps · Dancing with the SARs</span></div><div><span className="demo-mark">Illustrative demo data</span><button onClick={()=>setTheme(theme==='light'?'dark':'light')} aria-label="Toggle theme">{theme==='light'?'Dark':'Light'} theme</button>{session?<button onClick={async()=>{await api.signOut(session.csrf_token).catch(()=>{});setSession(null)}}>Sign out</button>:<Link to="/signin">Sign in</Link>}</div></header><nav className="primary-nav" aria-label="Main navigation">{pages.map(([path,label])=><Link key={path} to={path}>{label}</Link>)}</nav><main><Routes><Route path="/signin" element={<SignIn onSignIn={setSession}/>}/><Route path="/" element={session?<MainMap/>:<PublicPreview/>}/><Route path="/alerts" element={<Protected session={session} level={1}><AlertDetail/></Protected>}/><Route path="/areas" element={<Protected session={session} level={1}><AreaSummary/></Protected>}/><Route path="/brief" element={<Protected session={session} level={1}><AreaBrief/></Protected>}/><Route path="/routes" element={<Protected session={session} level={2}><RouteScreen/></Protected>}/><Route path="/shelters" element={<Protected session={session} level={3}><Shelters/></Protected>}/><Route path="/inspector" element={<Protected session={session} level={1}><Inspector/></Protected>}/><Route path="/sources" element={<Sources/>}/></Routes></main><footer>Development scaffold · No operational guidance · Field verification required</footer></div></BrowserRouter>
+  const { state, signIn, signOut, retry } = useAuth()
+  const session = state.kind === 'signed_in' ? state.session : null
+  const [theme, setTheme] = useState<'light' | 'dark'>('light')
+  return <BrowserRouter><div className={`app ${theme}`}>
+    <header><div><strong>CIVISAR</strong><span> NASA Space Apps ? Dancing with the SARs</span></div><div>
+      <span className="demo-mark">Illustrative demo data</span>
+      <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} aria-label="Toggle theme">{theme === 'light' ? 'Dark' : 'Light'} theme</button>
+      {session ? <button onClick={() => { void signOut() }}>Sign out</button> : state.kind === 'checking' ? null : <Link to="/signin">Sign in</Link>}
+    </div></header>
+    <nav className="primary-nav" aria-label="Main navigation">{pages.map(([path, label]) => <Link key={path} to={path}>{label}</Link>)}</nav>
+    <main>{state.kind === 'checking' ? <SystemState kind="loading" message="Checking session?" /> : <>
+      {state.kind === 'expired' && <SystemState kind="error" message="Session expired. Sign in again." />}
+      {state.kind === 'unavailable' && <div><SystemState kind="unavailable" message="Session status is unavailable. Protected content is hidden."/><button onClick={retry}>Retry session check</button></div>}
+      <Routes>
+        <Route path="/signin" element={session ? <Navigate to="/" replace /> : <SignIn onSignIn={signIn} />} />
+        <Route path="/" element={session ? <MainMap /> : <PublicPreview />} />
+        <Route path="/alerts" element={<Protected session={session} level={1}><AlertDetail /></Protected>} />
+        <Route path="/areas" element={<Protected session={session} level={1}><AreaSummary /></Protected>} />
+        <Route path="/brief" element={<Protected session={session} level={1}><AreaBrief /></Protected>} />
+        <Route path="/routes" element={<Protected session={session} level={2}><RouteScreen /></Protected>} />
+        <Route path="/shelters" element={<Protected session={session} level={3}><Shelters /></Protected>} />
+        <Route path="/inspector" element={<Protected session={session} level={1}><Inspector /></Protected>} />
+        <Route path="/sources" element={<Sources />} />
+      </Routes>
+    </>}</main>
+    <footer>Development scaffold ? No operational guidance ? Field verification required</footer>
+  </div></BrowserRouter>
 }

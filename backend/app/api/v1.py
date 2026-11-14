@@ -40,7 +40,7 @@ def authorize(request: Request, role: str, path: str):
         role = 'analyst+'
     if not allowed(identity, role, scope_from_request(request, path)):
         return error('FORBIDDEN', 'Your role cannot access this resource.', 403, request)
-    if (request.method in ('POST', 'PATCH', 'DELETE') and path != '/session'
+    if (request.method in ('POST', 'PATCH', 'DELETE') and not (path == '/session' and request.method == 'POST')
             and (not session or request.headers.get('X-CSRF-Token') != session[1])):
         return error('FORBIDDEN', 'CSRF check failed.', 403, request)
     return None
