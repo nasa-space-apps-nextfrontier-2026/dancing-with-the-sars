@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+.venv/
+venv/
+validation-deps/
+
+# Node
+node_modules/
+
+# Secrets and local config
+.env
+.env.*
+!.env.example
+
+# Data downloads (radar files are GBs)
+data/raw/
+*.h5
+*.nc
+
+# Validation and build leftovers
+diagrams/
+diagram-results.json
+created-files.json
+source-hashes.json
+planning-work/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
