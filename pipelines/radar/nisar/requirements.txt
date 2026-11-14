@@ -1,0 +1,12 @@
+# M1 NISAR radar pipeline (Udula). Install into a separate venv:
+#   python -m pip install -r pipelines/radar/nisar/requirements.txt
+numpy>=2.0
+pandas>=2.2
+h5py>=3.11
+rasterio>=1.4
+pyproj>=3.6
+h3>=4.1,<5
+scikit-learn>=1.5
+earthaccess>=0.12
+pyarrow>=17
+pytest>=8
