@@ -1,4 +1,5 @@
 # Frontend design and screen plan
+> UI source of truth: [UI_DESIGN.md](UI_DESIGN.md) and the prototype [design/civisar-prototype.html](design/civisar-prototype.html) (14 Nov 2026). Where this older screen plan differs, the prototype wins.
 
 [Blueprint index](README.md)
 

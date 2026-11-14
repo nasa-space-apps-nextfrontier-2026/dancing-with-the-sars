@@ -25,6 +25,8 @@ Start with the source audit, scope, architecture and your member task file. Free
 - [14_REQUIREMENTS_TRACEABILITY_MATRIX.md](14_REQUIREMENTS_TRACEABILITY_MATRIX.md)
 - [15_TEAM_ONBOARDING.md](15_TEAM_ONBOARDING.md)
 - [17_TEAM_ASSIGNMENT_AND_BRANCHES.md](17_TEAM_ASSIGNMENT_AND_BRANCHES.md)
+- [18_THANOBAN_ML_PLAN_AND_COLAB.md](18_THANOBAN_ML_PLAN_AND_COLAB.md)
+- [Thanoban progress log](progress/THANOBAN_PROGRESS.md)
 
 ## Supporting artifacts
 
@@ -33,8 +35,8 @@ Start with the source audit, scope, architecture and your member task file. Free
 - [Source URL register](14B_SOURCE_LINK_REGISTER.md)
 - [Udula (Member 1): NISAR ML](tasks/MEMBER_1_UDULA_NISAR_ML.md)
 - [Thanoban (Member 2): small-data ML](tasks/MEMBER_2_THANOBAN_SMALL_DATA_ML.md)
-- [Rashiru (Member 3): frontend and backend](tasks/MEMBER_3_RASHIRU_FRONTEND_BACKEND.md)
-- [Chames (Member 4): backend and data](tasks/MEMBER_4_CHAMES_BACKEND_DATA.md)
+- [Rashiru (Member 3): all frontend and backend](tasks/MEMBER_3_RASHIRU_FRONTEND_BACKEND.md)
+- [Chames (Member 4): not on the project](tasks/MEMBER_4_CHAMES_BACKEND_DATA.md)
 - [Contract inventory and eight synthetic JSON examples](contracts/README.md)
 - [Draft OpenAPI](contracts/openapi.yaml)
 - [Planning manifest](contracts/planning_manifest.json)

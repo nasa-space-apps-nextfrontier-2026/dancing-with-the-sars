@@ -16,7 +16,7 @@ Status: planned implementation, not completed work. Task IDs (M1 to M4) are work
 | Accountable owner | Member 1 |
 | One reviewer | Member 2 |
 | Dependency | none; H2 contract freeze |
-| Expected files / outputs | pipelines/radar/discover.py; data/manifests/nisar.json; pipelines/radar/config/demo_aoi.json |
+| Expected files / outputs | worker/radar/discover.py; data/manifests/nisar.json; worker/radar/config/demo_aoi.json |
 | Required stub / mock | metadata-only synthetic granules, missing-pass list |
 | Effort and hackathon window | H0–H8; 5 active h plus download wait |
 | Input / output contract | AOI + collection IDs → versioned granule manifest |
@@ -38,7 +38,7 @@ Handoff checklist: include schema version, exact artifact paths, units/CRS/date,
 | Accountable owner | Member 1 |
 | One reviewer | Member 2 |
 | Dependency | M1-01; M2-01 grid; M3-01 schema |
-| Expected files / outputs | pipelines/radar/process.py; pipelines/radar/model.py; data/private/damage_cells.parquet; data/private/change/*.tif; data/manifests/radar_run.json |
+| Expected files / outputs | worker/radar/process.py; worker/radar/model.py; data/private/damage_cells.parquet; data/private/change/*.tif; data/manifests/radar_run.json |
 | Required stub / mock | small synthetic arrays and H3 cells; no war-zone geometry |
 | Effort and hackathon window | H2–H24; 14 active h |
 | Input / output contract | granules + grid → damage_cells v0.1 + COG index |
@@ -58,15 +58,15 @@ Handoff checklist: include schema version, exact artifact paths, units/CRS/date,
 | Scope | Spatial hold-out, enrichment with controls, 20 manual top cells, uncertainty report. These tests are the main proof. "No matching assessment available" is the normal case: no UNOSAT exists for Lebanon and no 2026 UNDP/CNRS-L was found; use one only if it appears at H0. Udula owns the hold-out areas and the 20-cell eye check for the NISAR model. The strike-enrichment and evidence tests are built and run by Thanoban inside M1-04 on small tables; the combined results go to the Sources page. |
 | Priority / phase | MVP QA; overlay conditional |
 | Accountable owner | Member 1 |
-| One reviewer | Member 4 |
+| One reviewer | Member 3 |
 | Dependency | M1-02; permitted M2-03 context |
-| Expected files / outputs | pipelines/radar/evaluate.py; data/manifests/model_tests.json; docs/model_validation.md (implementation output) |
+| Expected files / outputs | worker/radar/evaluate.py; data/manifests/model_tests.json; docs/model_validation.md (implementation output) |
 | Required stub / mock | fixed synthetic score distribution and manual-review checklist |
 | Effort and hackathon window | H24–H32; 6 active h |
 | Input / output contract | cells + hold-out + reports → measured test results and limitations |
 | Local verification (planned) | `python -m pytest tests/unit/test_evaluation.py` |
 | Test cases | T-ML, T-VALIDATION: no leakage; duplicate reports; false-alarm numerator/denominator; no fake accuracy |
-| Definition of Done | Expected artifacts committed in a small PR to dev; Member 4 reviews tests and source/safety implications; contracts and lineage validated; fixture/real status declared; receiving task acknowledges handoff. Scientific failures stay visible and block unsupported claims. |
+| Definition of Done | Expected artifacts committed in a small PR to dev; Member 3 reviews tests and source/safety implications; contracts and lineage validated; fixture/real status declared; receiving task acknowledges handoff. Scientific failures stay visible and block unsupported claims. |
 | Integration checkpoint | H32 QA results to M3 trace and M4 Sources |
 | Blockers / fallback | No aligned labels; report independent QA, no precision/recall or confirmed collapse claims |
 
