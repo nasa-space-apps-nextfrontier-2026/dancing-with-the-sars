@@ -4,7 +4,7 @@ Thanoban: small-data ML (night lights, fires, evidence tests); no backend, no ra
 
 [Team assignment and branches](../17_TEAM_ASSIGNMENT_AND_BRANCHES.md) · [Team allocation](../08_FOUR_MEMBER_TASK_ALLOCATION.md) · [Roadmap](../09_48_HOUR_DEVELOPMENT_ROADMAP.md) · [Contracts](../contracts/README.md)
 
-Status: planned implementation, not completed work. Task IDs (M1 to M4) are work-package IDs; the owner field names the person (Member 1 = Udula, 2 = Thanoban, 3 = Rashiru, 4 = Chames). File paths below are proposed outputs, not present application code. Effort means active work within the given window; allow breaks and integration buffer. All implementation details beyond cited source are ARCHITECT RECOMMENDATION.
+Status: planned implementation, not completed work. Task IDs (M1 to M4) are work-package IDs; the owner field names the person (Member 1 = Udula, 2 = Thanoban, 3 = Rashiru, 4 = Chames (no tasks)). File paths below are proposed outputs, not present application code. Effort means active work within the given window; allow breaks and integration buffer. All implementation details beyond cited source are ARCHITECT RECOMMENDATION.
 
 ## M1-04: Services-loss models (night lights, fires) and evidence tests
 
@@ -23,7 +23,7 @@ Status: planned implementation, not completed work. Task IDs (M1 to M4) are work
 | Local verification (planned) | `python -m pytest tests/geo/test_services.py tests/unit/test_strike_tests.py` |
 | Test cases | T-ALERT, T-SERVICES: insufficient clear nights → Unknown; permanent hot spot removed; two sources agree → Corroborated; no cause claimed; strike enrichment near vs far with same-district control |
 | Definition of Done | Expected artifacts committed in a small PR to dev; Member 1 reviews tests and source/safety implications; contracts and lineage validated; fixture/real status declared; receiving task acknowledges handoff. Scientific failures stay visible and block unsupported claims. |
-| Integration checkpoint | H12 callable functions to Chames (M2-03); H24 real run on Udula's damage table; H32 test numbers to the Sources page |
+| Integration checkpoint | H12 callable functions to Rashiru (M2-03); H24 real run on Udula's damage table; H32 test numbers to the Sources page |
 | Blockers / fallback | Too few clear nights → Unknown; missing NRT history → archive join; no damage table in time → report tests on mock only and say so |
 
 Handoff checklist: include schema version, exact artifact paths, units/CRS/date, checksum/run ID, sensitivity and licence tags, known gaps, reproduction command, test result and receiving member acknowledgement. No credentials or raw sensitive files in PR.
@@ -36,7 +36,7 @@ Handoff checklist: include schema version, exact artifact paths, units/CRS/date,
 | Scope | DTM/Meta coarse delayed trends; future watch list and selective processing; no individual/camp coordinates. |
 | Priority / phase | Stretch movement; global after hackathon |
 | Accountable owner | Member 2 |
-| One reviewer | Member 3 |
+| One reviewer | Member 1 |
 | Dependency | M2-02; licences; M3-02 privacy |
 | Expected files / outputs | docs/backlog/movement_global.md; future pipelines/geodata/movement.py |
 | Required stub / mock | unavailable/disabled trend fixture |
@@ -44,7 +44,7 @@ Handoff checklist: include schema version, exact artifact paths, units/CRS/date,
 | Input / output contract | permitted coarse reports → delayed trend, not live people |
 | Local verification (planned) | `python -m pytest tests/unit/test_movement.py (after implementation)` |
 | Test cases | T-MOVEMENT, T-BACKLOG: aggregation/delay, no individual payloads |
-| Definition of Done | Expected artifacts committed in a small PR to dev; Member 3 reviews tests and source/safety implications; contracts and lineage validated; fixture/real status declared; receiving task acknowledges handoff. Scientific failures stay visible and block unsupported claims. |
+| Definition of Done | Expected artifacts committed in a small PR to dev; Member 1 reviews tests and source/safety implications; contracts and lineage validated; fixture/real status declared; receiving task acknowledges handoff. Scientific failures stay visible and block unsupported claims. |
 | Integration checkpoint | H38 record deferred scope; later approved iteration |
 | Blockers / fallback | Licences, cadence, sample bias; stay disabled |
 
