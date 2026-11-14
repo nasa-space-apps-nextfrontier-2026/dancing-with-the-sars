@@ -7,16 +7,16 @@ Read this to see where Thanoban's ML work stands. Udula: this is what you need t
 | Item | State | PR |
 |---|---|---|
 | Colab set-up (CLI in WSL2, signed in, free account) | Done and tested | |
-| Black Marble granule search (CMR) for the demo box | Merged into `dev` | [#3](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/3) |
-| 120-day default window and date-range search | Open, needs review | [#7](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/7) |
-| Model A: night-light power-loss rule (baseline of 60 clear nights, drop below 50% on 2 clear nights, `unknown` when evidence is thin) | Code and 7 tests done; first real-data run done (see below); open, needs review | [#4](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/4) |
-| Model B: fire events (filter, permanent hot spots, 1 km / 12 h clustering) | Code and 6 tests done on synthetic points; open, needs review | [#5](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/5) |
-| Model C: strike-enrichment tests (near vs far, same-district control) | Harness and 4 tests done on mock data; open, needs review | [#6](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/6) |
-| Black Marble download and cropping on Colab | Works for the archive (one tile tested) and near-real-time (LANCE app authorised) | |
+| Black Marble granule search (CMR) with 120-day default | Merged into `dev` | [#3](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/3), [#7](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/7) |
+| Model A: night-light power-loss rule | Merged | [#4](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/4) |
+| Black Marble history builder (Colab) and real-data evaluation | Merged; real run done (see below) | [#9](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/9) |
+| Model A as a callable function (two-satellite agreement, alert events) | Done, 5 tests, runs on real data; open, needs review | [#10](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/10) |
+| Model B: fire events (filter, permanent hot spots, 1 km / 12 h clustering) | Code and 6 tests on synthetic points; open, needs review | [#5](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/5) |
+| Model C: strike-enrichment tests (near vs far, same-district control) | Harness and 4 tests on mock data; open, needs review. Event source will be UCDP, not ACLED | [#6](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/6) |
 | FIRMS download | Blocked: needs the FIRMS map key | |
-| Tuning thresholds on real data | Not started (after downloads) | |
+| Strike tests on real data | Waiting for Udula's damage table (first version by H16) | |
 
-All code is in `worker/services/` and `worker/evaluation/` (standard library only) with tests in `worker/tests/`. **Udula: please review PRs #7, #4, #5 and #6** (you are the assigned reviewer); Rashiru merges after your approval. No real data is used yet, so the numbers in the models are starting values, not tuned results.
+**Udula: please review PRs #10, #5 and #6** (you are the assigned reviewer); Rashiru merges after your approval. #3, #4, #7 and #9 are already merged. Thresholds are still the plan's starting values.
 
 ## How the work runs
 
@@ -103,7 +103,7 @@ Built the per-cell history on Colab (230 nightly tiles, NOAA-20 and NOAA-21, las
 
 1. Get the FIRMS map key (it is emailed to the account owner).
 2. Download the last 60 clear nights as cropped tiles on Colab and build the per-cell history.
-3. Wire the two-satellite agreement rule into the callable night-light function for Rashiru (H12), then check which flagged cells line up with ACLED/UCDP events and the radar damage later.
+3. Hand the callable night-light function (PR #10) to Rashiru for the alert plumbing; later check which flagged cells line up with UCDP events and the radar damage.
 4. Download recent FIRMS points for the demo box, run the fire model from PR #5, and tune the permanent-spot rule.
 5. Run the strike tests from PR #6 on Udula's damage table when the first version arrives (by H16); confirm column names at H2.
 6. Hand callable functions to Rashiru (H12) and the test numbers for the Sources page (H32).
