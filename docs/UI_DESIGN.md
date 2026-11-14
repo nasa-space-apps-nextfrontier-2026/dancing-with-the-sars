@@ -1,6 +1,8 @@
 # CIVISAR: UI Design and Outputs
 
-**The UI source of truth is the prototype file in this repo: [design/civisar-prototype.html](design/civisar-prototype.html)** (added 14 Nov 2026, on `dev`). Open it in a browser. It is one HTML file with the colours, type, components, screens, light and dark themes and wording rules. The frontend is built to match it, and Codex, Claude Code or any other tool can read the real markup and styles from it. The older Claude Design link ([artifact](https://claude.ai/artifact/6or9wWJWrdVx1kz3LQzbdw#components)) is private to the owner's account, so do not rely on it: if the two differ, the repo file wins.
+> **UI changed (15 Nov 2026, Thanoban):** the light prototype is archived at `docs/design/archive/civisar-prototype-v1-light.html`. The UI source of truth is now the dark 3D map mockup `docs/design/civisar-3d-map-mockup.html` with sample data `docs/design/civisar-3d-sample.json`. See `docs/26_3D_MAP_UI_AND_FRONTEND.md`. Older text below about the light prototype is kept for history.
+
+**The UI source of truth is the prototype file in this repo: [design/archive/civisar-prototype-v1-light.html](design/archive/civisar-prototype-v1-light.html)** (added 14 Nov 2026, on `dev`). Open it in a browser. It is one HTML file with the colours, type, components, screens, light and dark themes and wording rules. The frontend is built to match it, and Codex, Claude Code or any other tool can read the real markup and styles from it. The older Claude Design link ([artifact](https://claude.ai/artifact/6or9wWJWrdVx1kz3LQzbdw#components)) is private to the owner's account, so do not rely on it: if the two differ, the repo file wins.
 
 The screens are mockups with **illustrative demo data**, and every map in them carries a badge saying so. The real app rebuilds the map with a real map library and keeps the same symbols, tokens and wording.
 
