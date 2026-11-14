@@ -9,7 +9,7 @@ def handler(method: str, path: str):
     return decorator
 
 # Import handler modules to register them
-from . import (  # noqa: E402
+from . import (
     alerts,  # noqa: F401
     areas,  # noqa: F401
     people_facilities,  # noqa: F401
