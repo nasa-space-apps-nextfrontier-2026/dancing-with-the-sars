@@ -1,0 +1,61 @@
+name: Deploy RescueForce public demo
+on:
+  push:
+    branches: ['feature/m4-azure-deployment']
+    paths: ['frontend/**', 'infrastructure/azure/**', '.github/workflows/feature-m4-azure-deployment_rescueforce-demo.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: rescueforce-azure-public-demo
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install and build public frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run lint
+          npm run test
+          npm run build
+      - name: Package only public assets and runtime
+        run: |
+          mkdir -p release/dist
+          cp -R frontend/dist/. release/dist/
+          cp frontend/server.mjs release/server.mjs
+          cp infrastructure/azure/package.json release/package.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rescueforce-public-demo
+          path: release/
+          if-no-files-found: error
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: rescueforce-public-demo
+          path: release
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_8FD2F36BB0414FBCA73E4C0B53A29B1E }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_0D3A35E49F924ED9AA4AD3B2243E509D }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_F96475E534C04310943B7389B4D0BAC9 }}
+      - uses: azure/webapps-deploy@v3
+        with:
+          app-name: rescueforce-demo
+          slot-name: Production
+          package: release
+          startup-command: node server.mjs
