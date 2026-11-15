@@ -151,10 +151,10 @@ function BuildingDetail({ ctx, b, back, onClose }: { ctx: MapCtx; b: BuildingInf
       <dl className="kv">
         <dt>OSM id</dt><dd>{b.id}</dd><dt>Footprint</dt><dd>OSM building outline</dd><dt>Height</dt><dd>{b.height}</dd><dt>Floors</dt><dd>{b.floors}</dd>
         <dt>Use</dt><dd>{b.use}</dd><dt>Material</dt><dd>{b.material || 'not tagged (neutral tone shown)'}</dd><dt>Facility</dt><dd>{b.facility ? 'Yes' : 'No'}</dd>
-        <dt>Residents</dt><dd>{b.residents}</dd><dt>Damage class</dt><dd>{c ? DMG_LABEL[c.damage_class] : '—'}</dd><dt>Evidence</dt><dd>{c ? c.evidence : '—'}</dd>
+        <dt>Residents</dt><dd>Not shown per building (people are counted per area)</dd><dt>Damage class</dt><dd>{c ? DMG_LABEL[c.damage_class] : '—'}</dd><dt>Evidence</dt><dd>{c ? c.evidence : '—'}</dd>
         <dt>Second sensor</dt><dd>{c ? (c.second_sensor ? 'Agrees' : 'Not yet / disagrees') : '—'}</dd><dt>Run id</dt><dd>{ctx.data.meta.run_id}</dd>
       </dl>
-      <div style={{ marginTop: 16 }}><Note>Shapes and heights come from OpenStreetMap. Damage values are sample data.</Note></div>
+      <div style={{ marginTop: 16 }}><Note>Shapes and heights come from OpenStreetMap. {ctx.data.meta.availability ? 'Damage is the radar result of the building’s H3 cell (a candidate), not a check of this building.' : 'Damage values are sample data.'}</Note></div>
     </div></>
 }
 
