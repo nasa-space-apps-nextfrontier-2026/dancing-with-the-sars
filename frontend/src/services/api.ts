@@ -18,6 +18,8 @@ export async function request<T>(path: string, options: RequestInit = {}): Promi
   return data as T
 }
 
+export type Role = 'analyst' | 'officer' | 'coordinator' | 'admin'
+export type Session = { user_id: string; role: Role | string; area_scopes: string[]; csrf_token: string; synthetic: boolean; expires_at?: string }
 export type SourceRecord = {
   synthetic: boolean
   source_id: string
@@ -57,15 +59,22 @@ export const api = {
     }
     throw new Error('Source catalogue pagination did not terminate.')
   },
-  /** Released API data when the backend serves it; otherwise the labelled sample file (no sign-in in the app). */
-  mapData: async (): Promise<{ data: MapData; sample: boolean }> => {
-    try {
+  /** The current cookie session, or null when nobody is signed in (or no backend runs). */
+  currentSession: async (): Promise<Session | null> => {
+    try { return await request<Session>('/session') } catch { return null }
+  },
+  signIn: (username: string, password: string) =>
+    request<Session>('/session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) }),
+  signOut: (csrf: string) => request<unknown>('/session', { method: 'DELETE', headers: { 'X-CSRF-Token': csrf } }),
+  /** Signed in: the released, area-scoped /map/context bundle; its errors are shown, never replaced by sample data.
+   *  Signed out: the labelled sample file (the public demo). Real data always needs sign-in (doc 07). */
+  mapData: async (session: Session | null): Promise<{ data: MapData; sample: boolean }> => {
+    if (session && !session.synthetic) {
       const bundle = await request<FrontendMapBundle>('/map/context?limit=100')
       return { data: toMapData(bundle), sample: false }
-    } catch {
-      const response = await fetch('/sample/civisar-3d-sample.json', { cache: 'no-store' })
-      if (!response.ok) throw new Error('Sample map data not found')
-      return { data: (await response.json()) as MapData, sample: true }
     }
+    const response = await fetch('/sample/civisar-3d-sample.json', { cache: 'no-store' })
+    if (!response.ok) throw new Error('Sample map data not found')
+    return { data: (await response.json()) as MapData, sample: true }
   },
 }

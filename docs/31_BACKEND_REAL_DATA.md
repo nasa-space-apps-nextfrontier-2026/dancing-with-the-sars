@@ -9,7 +9,7 @@ docker compose up -d db                      # or: $env:CIVISAR_DB_PORT=5433 if 
 .\.venv\Scripts\python.exe -m alembic -c backend/alembic.ini upgrade head
 ```
 
-Migrations: `0001_initial_postgis` (Rashiru), `0002_metric_value_records` (contract value id, release time and full record), `0003_alerts_and_source_status` (worker alerts and per-source fetch status), `0004_briefs` (stored briefs), `0005_audit_reviews_access_jobs` (audit log, alert reviews, admin role changes, manual job runs), and `0006_agent_outputs` (restricted incident ranking, recommendation, insight, budget and building-context outputs loaded by `scripts/load_agent_outputs.py`). Revisions through `0005` were previously exercised on disposable `postgis/postgis:16-3.4`; `0006` has not been live-PostGIS verified in the M4 integration and no migration or loader was run during that work.
+Migrations: `0001_initial_postgis` (Rashiru), `0002_metric_value_records` (contract value id, release time and full record), `0003_alerts_and_source_status` (worker alerts and per-source fetch status), `0004_briefs` (stored briefs), `0005_audit_reviews_access_jobs` (audit log, alert reviews, admin role changes, manual job runs), `0006_agent_outputs` (restricted incident ranking, recommendation, insight, budget and building-context outputs loaded by `scripts/load_agent_outputs.py`) and `0007_facilities` (K-03 facilities inside Lebanon, loaded by `scripts/load_facilities.py`). Upgrade, downgrade and upgrade of every revision through `0007` were checked on `postgis/postgis:16-3.4` on 15 Nov 2026.
 
 ## 2. Load the radar results
 
@@ -66,8 +66,8 @@ CIVISAR_DEMO_USERS_JSON=...   # from python -m scripts.create_demo_user (default
 | `GET /areas/{area_id}/people?as_of` | analyst+ | The three people ranges at the optional ISO date/datetime cutoff; observations or releases after `as_of` are excluded. 503 until population and eligible released radar evidence are available. |
 | `GET /areas/{area_id}/services?as_of` | analyst+ | Power from released power-loss alerts at the optional ISO date/datetime cutoff; alerts detected or released later are excluded. Water, health and comms remain Unknown. |
 | `GET /areas/{area_id}/validation` | analyst+ | Empty list with `availability: unavailable...`: no independent damage assessment exists yet |
-| `GET /areas/{area_id}/facilities` | analyst+ | 503 until Kisara's facility data is loaded (never an empty "no facilities") |
-| `GET /sources`, `GET /sources/{id}` | public | Source records from the contract export; 503 when none are loaded |
+| `GET /areas/{area_id}/facilities?type&cursor&limit` | analyst+ | Facilities in the area (`<H3 r8>`, `<H3 r9>` or `south-lebanon-demo`) and the user's scope (section 4c). Analysts: type, operating status and damage status, no location; officer and above also get the point. 503 until loaded (never an empty "no facilities") |
+| `GET /sources`, `GET /sources/{id}` | public | Source records from the radar contract export, then the source register `data/manifests/sources.json` (Black Marble, FIRMS, WorldPop, GHS-OBAT, OSM facilities, HDX boundaries; checked against `SourceRecord` by `worker/loaders/sources.py`). Records marked synthetic are never served. 503 when the radar export is not loaded |
 | `POST /alerts/{alert_id}/reviews` | analyst+, CSRF | Body `{status, note}`, status `reviewed` / `needs_follow_up` / `not_relevant`. Only on alerts the reviewer may see. |
 | `GET /admin/audit?from&to&cursor` | admin | Last 30 days: actor, action, coarse resource type, outcome, time |
 | `PATCH /admin/users/{user_id}/roles` | admin, CSRF | Body `{role, area_scopes, reason}`. Ends that user's sessions; applies at their next sign-in. An admin cannot remove their own admin role (409). |
@@ -105,6 +105,18 @@ One transaction; a reload replaces the previous one; a building with residents i
 | `GET /buildings?bbox&limit` | analyst+ | GeoJSON buildings for the 3D view; bbox at most 0.05 square degrees, limit 1-5000, `truncated` when cut; cell damage result; no residents |
 
 All four answer 503 until the agent outputs are loaded, and 404 for anything held or outside the user's scope.
+
+## 4c. Facilities (K-03)
+
+Migration `0007_facilities` adds `facility_runs` and `facilities` (point, H3 r9 and r8; names are not stored). Load Kisara's files (from her K-01 and K-03 scripts, never from Git):
+
+```powershell
+.\.venv\Scripts\python.exe -m scripts.load_facilities --facilities data/local/facilities.csv --boundaries data/local/boundaries.geojson
+```
+
+One transaction; a reload replaces the previous one. Only clinics, hospitals, schools, water and power sites **inside the Lebanon boundary** are kept: the demo box also covers part of northern Israel, while buildings and population cover Lebanon only. Result on 15 Nov 2026: 383 loaded (11 clinics, 41 hospitals, 81 schools, 137 water, 113 power), 160 outside Lebanon dropped.
+
+Rules (doc 07): operating status is always `Unknown` (no source says a site is open); damage status is the released radar result of the facility's H3 r9 cell, and a cell with no detected change reads "No radar change detected in this cell. Not confirmed undamaged or open."; label `Reported` (OpenStreetMap). In synthetic mode the people, facilities and areas handlers serve the sample records only and never read local data files.
 
 ## 5. Safety rules in the server
 

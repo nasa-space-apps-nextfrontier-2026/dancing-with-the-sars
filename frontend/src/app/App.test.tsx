@@ -7,7 +7,7 @@ import { App } from './App'
 
 afterEach(() => { cleanup(); window.history.pushState({}, '', '/') })
 describe('public routes', () => {
-  it('opens on the landing page with links into the map and no sign-in', async () => {
+  it('opens on the landing page with links into the map and no sign-in wall', async () => {
     render(<App />)
     expect((await screen.findByRole('heading', { level: 1 })).textContent).toMatch(/War damages more/)
     const links = Array.from(document.querySelectorAll('a[data-link]')).map(a => a.getAttribute('href'))
@@ -16,9 +16,15 @@ describe('public routes', () => {
     expect(document.body.textContent).not.toMatch(/sign in|password/i)
   })
   it('sends unknown paths back to the landing page', async () => {
-    window.history.pushState({}, '', '/signin')
+    window.history.pushState({}, '', '/nowhere')
     render(<App />)
     await screen.findByRole('heading', { level: 1 })
     expect(window.location.pathname).toBe('/')
+  })
+  it('has a sign-in page for real data', async () => {
+    window.history.pushState({}, '', '/signin')
+    render(<App />)
+    expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'Continue with sample data' }).getAttribute('href')).toBe('/map')
   })
 })

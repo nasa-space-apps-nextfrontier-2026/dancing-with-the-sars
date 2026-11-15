@@ -81,7 +81,7 @@ export const LANDING_MARKUP = `
         </div>
         <div class="fcard glass" id="fc-shelter">
           <div class="k"><i><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg></i>Nearest shelter option</div>
-          <h4>Khiam public school</h4>
+          <h4>Sample shelter 1</h4>
           <p><b>1.8 km by road</b> · room for about <b>250–400 people</b></p>
           <div class="row"><span class="tag">Candidate · check before use</span></div>
         </div>

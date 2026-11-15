@@ -4,8 +4,9 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 // Each page loads its own code: the landing page never downloads Cesium, the dashboard never downloads three.js.
 const Landing = lazy(() => import('../features/landing/Landing').then(m => ({ default: m.Landing })))
 const MapScreen = lazy(() => import('../features/map/MapScreen').then(m => ({ default: m.MapScreen })))
+const SignIn = lazy(() => import('../features/signin/SignIn').then(m => ({ default: m.SignIn })))
 
-/** Two public routes: the landing page and the dashboard. No sign-in. */
+/** Public: the landing page and the dashboard with labelled sample data. Real data needs sign-in (/signin). */
 export function App() {
   return (
     <BrowserRouter>
@@ -13,6 +14,7 @@ export function App() {
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/map" element={<MapScreen />} />
+          <Route path="/signin" element={<SignIn />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>

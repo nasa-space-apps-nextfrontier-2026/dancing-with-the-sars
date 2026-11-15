@@ -42,10 +42,10 @@ export function initLanding(root, navigate) {
     ];
     const FIRES = [{lon:35.6199, lat:33.3306, big:1}, {lon:35.6213, lat:33.3294, big:.7}];
     const SHELTERS = [
-      {name:'Khiam public school', lon:35.6105, lat:33.3372},
-      {name:'Western quarter mosque', lon:35.6150, lat:33.3345},
+      {name:'Sample shelter 1', lon:35.6105, lat:33.3372},
+      {name:'Sample shelter 3', lon:35.6150, lat:33.3345},
     ];
-    const ROUTES = [ // available road and the ridge road near damage (endpoints; geometry from OSRM)
+    const ROUTES = [ // available road and the ridge road near damage (endpoints; drawn as sample straight lines)
       {id:'west', a:[35.6060,33.3390], b:[35.6190,33.3308], label:'Western road', blocked:false},
       {id:'ridge', a:[35.6168,33.3289], b:[35.6245,33.3283], label:'Ridge road', blocked:true},
       {id:'sh1', a:[35.6195,33.3305], b:[35.6105,33.3372], label:'To shelter', blocked:false, shelter:true},
@@ -103,12 +103,8 @@ export function initLanding(root, navigate) {
       svgAdd(gD, 'rect', {x:p.x-s/2, y:p.y-s/2, width:s, height:s, rx:3, fill:`url(#hp${i})`, 'fill-opacity':.85, class:'z-dmg'});
     });
 
-    /* routes: real roads from the free OSRM demo server; parts near damage turn red ("may be blocked") */
-    async function osrm(a, b){
-      const url = `https://router.project-osrm.org/route/v1/driving/${a[0]},${a[1]};${b[0]},${b[1]}?overview=full&geometries=geojson`;
-      try { const ctl = new AbortController(); setTimeout(() => ctl.abort(), 7000); const j = await (await fetch(url, {signal:ctl.signal})).json();
-        return j.code === 'Ok' ? j.routes[0].geometry.coordinates : null; } catch { return null; }
-    }
+    /* routes: sample lines between the endpoints (no public routing server is called; doc 03/07);
+       parts near damage turn red ("may be blocked") */
     const routeEls = [];
     function drawRoute(r, coords){
       const pts = coords.map(([lon, lat]) => ({lon, lat}));
@@ -128,13 +124,7 @@ export function initLanding(root, navigate) {
       return {mid, touches: r.blocked || near.some(Boolean)};
     }
     const routeInfo = {};
-    ROUTES.forEach(r => { routeInfo[r.id] = drawRoute(r, [r.a, r.b]); });                      // straight placeholder at first
-    Promise.all(ROUTES.map(r => osrm(r.a, r.b))).then(res => {
-      if (!res.some(Boolean)) return;
-      gR.innerHTML = ''; routeEls.length = 0;
-      ROUTES.forEach((r, i) => { routeInfo[r.id] = drawRoute(r, res[i] || [r.a, r.b]); });
-      placeRouteTags();
-    });
+    ROUTES.forEach(r => { routeInfo[r.id] = drawRoute(r, [r.a, r.b]); });                      // sample straight lines
 
     /* =================== screen-space markers =================== */
     const fx = $('#fx'), markers = [];
