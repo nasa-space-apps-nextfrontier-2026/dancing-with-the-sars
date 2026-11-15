@@ -2,7 +2,7 @@
   "schema_version": "0.1",
   "kind": "radar_contract_export",
   "synthetic": false,
-  "created_at": "2026-11-14T09:43:35Z",
+  "created_at": "2026-11-15T15:16:47Z",
   "run_id": "e99a9b63914b68e6",
   "contract": "docs/contracts/openapi.yaml components MetricValue, Layer, SourceRecord",
   "validated": true,

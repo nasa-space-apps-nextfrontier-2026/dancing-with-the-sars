@@ -57,14 +57,13 @@ def build(
     unavailable: dict[str, str] = {
         "shelters": "Validated shelter data is not loaded.",
         "routes": "Validated road and closure data is not loaded.",
-        # Facility points are not part of this bundle (doc 07: analysts never get locations), so the
-        # map must show facilities as Unknown, never as "0 affected".
-        "facilities": (
-            "Facilities are listed per area, not on this map."
-            if facilities_real.loaded(engine)
-            else "Validated facility data is not loaded."
-        ),
     }
+    try:
+        facility_rows = facilities_real.all_in_scope(engine, identity)
+    except facilities_real.NotLoaded:
+        facility_rows = None
+        # Missing facilities read Unknown on the map, never "0 affected" (D28).
+        unavailable["facilities"] = "Validated facility data is not loaded."
     if not _night_lights_loaded(engine):
         unavailable["night_lights"] = (
             "Night-light history is not loaded: possible power loss is Unknown, not zero."
@@ -107,36 +106,45 @@ def build(
     budgets: dict[str, dict[str, Any]] = {}
     cell_ids: set[str] = set()
 
-    for incident in incidents["items"]:
-        incident_id = incident["incident_id"]
-        incident_area = incident["area_id"]
+    def _one(incident: dict[str, Any]) -> dict[str, Any]:
+        """All per-incident reads (several round trips each); run in parallel for remote databases."""
+        area = incident["area_id"]
+        out: dict[str, Any] = {"id": incident["incident_id"], "area": area}
+        out["detail"] = agents_real.get_incident(engine, identity, incident["incident_id"])
+        out["damage"] = radar_real.damage(engine, area, None, identity)
+        out["budget"] = agents_real.area_budget(engine, area)
+        try:
+            out["people"] = areas_real.people(engine, area, identity)
+        except summary_real.Unavailable:
+            out["people_unavailable"] = True
+        return out
+
+    from concurrent.futures import ThreadPoolExecutor
+
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        results = list(pool.map(_one, incidents["items"]))
+
+    for r in results:
+        incident_area = r["area"]
         cell_ids.add(incident_area)
-
-        detail = agents_real.get_incident(engine, identity, incident_id)
-        if detail is not None:
-            details[incident_id] = detail
-
-        area_damage = radar_real.damage(engine, incident_area, None, identity)
+        if r["detail"] is not None:
+            details[r["id"]] = r["detail"]
+        area_damage = r["damage"]
         damage[incident_area] = area_damage
         if not area_damage["items"]:
             unavailable[f"damage:{incident_area}"] = (
                 "No eligible released radar result is available; this is not a zero-impact result."
             )
         cell_ids.update(item["area_id"] for item in area_damage["items"])
-
-        budget = agents_real.area_budget(engine, incident_area)
-        if budget is not None:
-            budgets[incident_area] = budget
-
-        try:
-            population = areas_real.people(engine, incident_area, identity)
-        except summary_real.Unavailable:
+        if r["budget"] is not None:
+            budgets[incident_area] = r["budget"]
+        if r.get("people_unavailable"):
             unavailable[f"people:{incident_area}"] = "Population evidence is not loaded."
-        else:
-            if population is not None:
-                people[incident_area] = population
+        elif r.get("people") is not None:
+            people[incident_area] = r["people"]
 
     cell_ids.update(alert["area_id"] for alert in alerts["items"])
+    facilities = _facilities(facility_rows, damage, identity) if facility_rows is not None else None
     return {
         "synthetic": False,
         "generated_at": incidents["generated_at"],
@@ -147,6 +155,43 @@ def build(
         "alerts": alerts,
         "people": people,
         "budgets": budgets,
+        "facilities": facilities,
         "centroids": _centroids(cell_ids),
         "unavailable": unavailable,
     }
+
+
+FACILITY_TYPES = ("clinic", "hospital", "school", "water", "power")
+
+
+def _facilities(rows: list[Any], damage: dict[str, dict[str, Any]], identity: Identity) -> dict[str, Any]:
+    """Facility points and per-incident-area counts, from one query and the damage already read.
+
+    Damage status comes from the released r9 results fetched for the incident areas; a facility
+    outside those areas is "not assessed in this view", never "undamaged". Points are given to
+    roles allowed to see locations (the public viewer is coordinator-level, decision D30)."""
+    r9_items = {item["area_id"]: item for area in damage.values() for item in area["items"]}
+    show_point = identity.role in facilities_real.LOCATION_ROLES
+    items, by_area = [], {}
+    for r in rows:
+        assessed = r.h3_r8 in damage
+        items.append({
+            "facility_id": r.facility_id,
+            "type": r.type,
+            "area_id": r.h3_r9,
+            "parent_r8": r.h3_r8,
+            "operating_status": "Unknown",
+            "damage_status": (facilities_real.damage_status(r9_items.get(r.h3_r9)) if assessed
+                              else "Not assessed in this view. Unknown."),
+            "label": "Reported",
+            "date": r.osm_timestamp.isoformat() if r.osm_timestamp else None,
+            "geometry": ({"type": "Point", "coordinates": [round(r.lon, 6), round(r.lat, 6)]}
+                         if show_point else None),
+        })
+        if assessed:
+            counts = by_area.setdefault(r.h3_r8, {t: 0 for t in (*FACILITY_TYPES, "total")})
+            counts[r.type] = counts.get(r.type, 0) + 1
+            counts["total"] += 1
+    for area in damage:
+        by_area.setdefault(area, {t: 0 for t in (*FACILITY_TYPES, "total")})
+    return {"synthetic": False, "source": [facilities_real.SOURCE], "items": items, "by_area": by_area}

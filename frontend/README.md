@@ -12,7 +12,7 @@ npm run dev        # login-free, labelled synthetic preview at http://127.0.0.1:
 - **Routes:** `/` is the RescueForce landing page (3D Earth story), `/map` is the dashboard. Every "Try" / "Open RescueForce" link goes to `/map`.
 - **No sign-in (decided 15 Nov 2026).** Both pages are public and the sign-in page was removed. The backend session endpoints still exist; the frontend does not call them.
 - **Cesium token (free):** put `VITE_CESIUM_ION_TOKEN=...` in `frontend/.env.local` (git-ignored); set the same variable in the deploy build. Visitors are never asked for it. Without it the map works on flat ground; developers can add one from the dashboard's ⋯ menu.
-- **Data:** the labelled sample file ("Sample data" badge) until the backend serves released data publicly. Inputs listed as unavailable show as Unknown, never 0. The Sources panel reads `/api/v1/sources`.
+- **Data:** no sign-in. The dashboard loads the real bundle from `/api/v1/map/context` ("Real data" badge with the agents' run date). Only when the API cannot be reached, or has no incidents loaded, it shows the labelled sample file ("Sample data" badge). Inputs listed as unavailable show as Unknown, never 0. The Sources panel reads `/api/v1/sources`.
 - **No external routing.** Route and shelter lines are sample drawings (routes and shelters are demo-only, doc 07); no public routing server is called (doc 03). Sample shelters use generic names, never real sites.
 - Checks: `npm run lint`, `npx tsc -b`, `npm test`.
 
@@ -27,7 +27,7 @@ npm run dev        # login-free, labelled synthetic preview at http://127.0.0.1:
 | `src/features/map/panels.tsx` | Incident panel (Summary, Impacts, Shelters, Power, Insights), building and shelter detail, ranking, decision assistant, budget, layers, legend. |
 | `src/features/map/engine.ts` | All CesiumJS code: globe, terrain, OSM buildings, overlays, fire/damage effects, sample route lines, camera flights, 2D/3D/split. |
 | `src/features/map/analysis.ts` | Pure helpers (distances, ranges, impacts, route stats). Unit-tested. |
-| `src/services/api.ts` | API helpers, the Sources catalogue and map data (the labelled sample file `public/sample/civisar-3d-sample.json`). |
+| `src/services/api.ts` | API helpers, the Sources catalogue and map data: the real `/map/context` bundle (converted in `src/services/mapData.ts`), else the labelled sample file `public/sample/civisar-3d-sample.json`. |
 | `src/styles.css` | Tokens and components copied from the mockup. |
 
 ## Build rules

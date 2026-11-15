@@ -2,7 +2,7 @@
   "kind": "buildings_height_calibration",
   "task": "U-03",
   "synthetic": false,
-  "built_at": "2026-11-14T14:08:13Z",
+  "built_at": "2026-11-15T15:43:15Z",
   "reference": "OSM building:levels x 3 m (buildings that also have a GHSL value)",
   "reference_buildings": 414,
   "reference_areas_r8": 62,

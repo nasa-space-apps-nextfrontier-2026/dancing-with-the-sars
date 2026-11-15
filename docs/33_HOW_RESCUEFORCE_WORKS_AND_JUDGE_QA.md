@@ -10,7 +10,7 @@ Status: 15 Nov 2026 (Thanoban). One place to prepare the presentation. Every num
 
 - **Landing page** (`/`): the story (3D Earth → dive to the affected area → what responders see) and the "Try RescueForce" button.
 - **Dashboard** (`/map`): 3D, 2D and split map. Incident ranking, insights, decision assistant, rebuild budget, building and shelter details, a satellite-pass timeline and a Sources panel.
-- **No sign-in** (team decision, 15 Nov 2026, PR #47): the public demo shows **labelled sample data**. Real released data needs a separate public-release step on the backend (doc 31).
+- **No sign-in, real data** (decision D30, 15 Nov 2026, supersedes D20): the dashboard opens directly and shows the **full real data** from the hosted PostGIS database (Supabase), so the NASA judging team can use it without an account. Labelled sample data appears only if the API cannot be reached. Writes (reviews, briefs, admin) still need sign-in.
 - Rules everywhere: evidence labels **Observed / Reported / Corroborated / Unknown**; numbers as **ranges**; damage and routes are **candidates / not verified**; never the word "safe"; no vehicle or phone tracking; a missing input is **Unknown, never 0**.
 
 ---
@@ -34,16 +34,19 @@ Status: 15 Nov 2026 (Thanoban). One place to prepare the presentation. Every num
 
 ### What is real and what is sample in the demo?
 
-| Part | Public demo (website) | Backend real-data mode (doc 31) |
-| --- | --- | --- |
-| Damage candidates | Sample (`civisar-3d-sample.json`) | **Real** M1 radar results for the demo box: 13,669 areas, 52,786 cell results |
-| Fires | Sample points | **Real** FIRMS feed every 30 min |
-| Power loss | Sample cells | **Real** Black Marble rule when the night history is on the machine |
-| Population, buildings, facilities | Sample values | **Real** WorldPop, OSM, GHSL tables |
-| Ranking, insights, assistant, budget | Sample text | **Real** agents run on the real tables (`worker/agents/`) |
-| Routes, shelters | **Demo drawings only** (see section 7–8) | Not built yet |
+Loaded into the hosted database on 15 Nov 2026 (doc 31 section 6):
 
-**Short answer for judges:** fires and night lights are live feeds; radar damage is real but arrives per satellite pass (days, not minutes); population and buildings are fixed pre-war datasets. The public website shows labelled sample data so nobody mistakes it for a live operational picture.
+| Part | Public dashboard (website) | Real numbers |
+| --- | --- | --- |
+| Damage candidates | **Real** | NISAR radar: 13,669 areas, 52,786 cell results, 41,508 values |
+| Fires | **Real** | FIRMS feed every 30 min |
+| Power loss | **Real** | Black Marble rule: 49 possible-power-loss alerts (50 alerts in all with fires) |
+| Buildings, population, facilities | **Real** | 268,536 OSM buildings with GHSL heights; WorldPop 2020 per H3 r9 cell; 383 facilities inside Lebanon |
+| Ranking, insights, assistant, budget | **Real** | 179 incidents, 537 recommendations, 131 budget areas from the agents (`worker/agents/`) |
+| Routes, shelters | **Demo drawings only** (D21, sections 7–8) | Not built yet |
+| If the API is down | Labelled **sample data** fallback | none |
+
+**Short answer for judges:** fires and night lights are live feeds; radar damage is real but arrives per satellite pass (days, not minutes); population and buildings are fixed pre-war datasets. The public website shows this real data directly (D30); every value keeps its evidence label, range and source date, and routes and shelters stay labelled demo drawings.
 
 ### Can it become a live detection system?
 
@@ -187,8 +190,8 @@ Context: the World Bank Lebanon RDNA (7 Mar 2025) puts total recovery needs at a
 
 ## 13. Likely judge questions (short answers)
 
-1. **Is this live?** Fires (every 30 min) and night lights (daily) are live feeds. Radar damage updates per satellite pass (days). Population and buildings are fixed datasets. The public demo uses labelled sample data.
-2. **Is the data real?** Yes in the backend: real NISAR, Sentinel-1, FIRMS, Black Marble, WorldPop, OSM, GHSL. The public site uses sample data on purpose, because it is not an operational system.
+1. **Is this live?** Fires (every 30 min) and night lights (daily) are live feeds. Radar damage updates per satellite pass (days). Population and buildings are fixed datasets. The public dashboard shows the real data.
+2. **Is the data real?** Yes: real NISAR, Sentinel-1, FIRMS, Black Marble, WorldPop, OSM, GHSL, served from the hosted database to the public dashboard. Only routes and shelters are demo drawings.
 3. **How do you know a building is damaged?** We don't claim to: radar change that is unusual compared with quiet areas becomes a *candidate*; a second radar can corroborate it; a person must verify.
 4. **What about night: how do you detect power cuts?** Night lights are only measured at night (~1:30 am). Each cell is compared with its own last 60 clear nights; below 50 % on 2 clear nights = possible power loss; two satellites must agree for high confidence; daytime shows the latest night's result.
 5. **Why radar?** It sees through cloud and smoke, day and night.

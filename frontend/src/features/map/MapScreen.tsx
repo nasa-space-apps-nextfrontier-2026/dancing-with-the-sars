@@ -152,7 +152,7 @@ export function MapScreen() {
 
   return <>
     <div id="scene">
-      <div id="v3wrap"><div ref={v3Ref} style={{ position: 'absolute', inset: 0 }} /><div className="viewlabel glass">3D</div></div>
+      <div id="v3wrap"><div ref={v3Ref} style={{ position: 'absolute', inset: 0 }} /><div className="viewlabel glass">3D</div><div className="fidelity glass">Reconstruction from satellite data, not footage</div></div>
       <div id="v2wrap"><div ref={v2Ref} style={{ position: 'absolute', inset: 0 }} /><div className="viewlabel glass">2D</div></div>
     </div>
     <div id="vig" />
@@ -164,7 +164,9 @@ export function MapScreen() {
           onClick={() => setLeft(p === 'map' ? null : (`page:${p}` as LeftKey))}>{p[0].toUpperCase() + p.slice(1)}</button>)}
       </nav>
       <div className="spacer" />
-      {sample && <span className="badge-sample" title="All incidents and values are sample data">Sample data</span>}
+      {data && (sample
+        ? <span className="badge-sample" title="The API could not be reached: all incidents and values are sample data">Sample data</span>
+        : <span className="badge-sample badge-real" title={`Agents run ${data.meta.generated_at}`}>Real data · NISAR, FIRMS, Black Marble · {data.meta.generated_at.slice(0, 10)}</span>)}
       <div className="pill glass seg" role="group" aria-label="Base map">
         {([['sat', 'Satellite'], ['streets', 'Streets']] as const).map(([k, t]) => <button key={k} aria-pressed={base === k} onClick={() => setBase(k)}>{t}</button>)}
       </div>
@@ -176,7 +178,7 @@ export function MapScreen() {
       <div className="usermenu">
         <button className="avatar" aria-haspopup="menu" aria-expanded={menu} aria-label="Menu" onClick={() => setMenu(m => !m)} title="Menu">⋯</button>
         {menu && <div className="menu glass" role="menu">
-          <div className="who"><b>RescueForce demo</b>Sample data · open access</div>
+          <div className="who"><b>RescueForce</b>{sample ? 'Sample data' : 'Real data'} · open access</div>
           <Link className="btn ghost sm" role="menuitem" to="/">Home page</Link>
           {token
             ? <button className="btn ghost sm" role="menuitem" onClick={() => { setMenu(false); try { localStorage.removeItem(TOKEN_KEY) } catch { /* ignore */ } setToken(null) }}>Forget Cesium token</button>
@@ -215,7 +217,7 @@ export function MapScreen() {
           <input type="range" min={0} max={maxPass} step={1} value={passIdx} onChange={e => playback.select(+e.target.value)} aria-label="Satellite pass date" />
           {data.passes.map((p, i) => <div key={p.id} className={`tick${p.status === 'missed' ? ' missed' : ''}${i === passIdx ? ' cur' : ''}`} style={{ left: `${(i / n) * 100}%` }} title={p.status === 'missed' ? 'Missed pass' : p.sensor} />)}
         </div>
-        <div className="ticklabels">{data.passes.map((p, i) => <span key={p.id} style={{ left: `${(i / n) * 100}%` }}>{p.date.slice(5).replace('-', '/')}{p.status === 'missed' ? ' · missed' : ''}</span>)}</div>
+        <div className="ticklabels">{data.passes.map((p, i) => (i === 0 || i === data.passes.length - 1 || (i === passIdx && i > 1 && i < data.passes.length - 2)) && <span key={p.id} style={{ left: `${(i / n) * 100}%` }}>{p.date.slice(5).replace('-', '/')}{p.status === 'missed' ? ' · missed' : ''}</span>)}</div>
       </div>
       <div className="camctl">
         <span className="hint">Drag to orbit<br />Scroll to zoom</span>

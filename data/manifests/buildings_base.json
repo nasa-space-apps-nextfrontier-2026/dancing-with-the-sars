@@ -5,8 +5,8 @@
   "source": "OpenStreetMap via HOTOSM export (HDX hotosm_lbn_buildings)",
   "licence": "ODbL 1.0; attribution: (c) OpenStreetMap contributors",
   "source_file": "lbn_buildings.parquet",
-  "source_file_date": "2026-11-14",
-  "built_at": "2026-11-14T13:31:40Z",
+  "source_file_date": "2026-11-15",
+  "built_at": "2026-11-15T15:26:30Z",
   "demo_box_wgs84": [
     35.0,
     33.0,

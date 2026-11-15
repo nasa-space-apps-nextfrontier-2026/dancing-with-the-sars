@@ -1,6 +1,6 @@
 import { afterEach, expect, it, vi } from 'vitest'
 import { api } from './api'
-import { toMapData, type FrontendMapBundle } from './mapData'
+import { assumptionLines, cleanNote, toMapData, type FrontendMapBundle } from './mapData'
 
 const bundle: FrontendMapBundle = {
   synthetic: false,
@@ -48,12 +48,30 @@ it('preserves missing acquisitions and unavailable raster layers', () => {
   expect(data.radar_layers).toEqual([])
 })
 
-it('loads only the labelled sample file (public demo, no sign-in)', async () => {
+it('loads the real API bundle without sign-in', async () => {
+  const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => bundle })
+  vi.stubGlobal('fetch', fetchMock)
+  const result = await api.mapData()
+  expect(result.sample).toBe(false)
+  expect(result.data.incidents[0].id).toBe('i1')
+  expect(fetchMock.mock.calls[0][0]).toBe('/api/v1/map/context?limit=100')
+})
+
+it('falls back to the labelled sample file only when the API cannot be reached', async () => {
   const sample = toMapData(bundle)
-  const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => sample })
+  const fetchMock = vi.fn()
+    .mockRejectedValueOnce(new Error('offline'))
+    .mockResolvedValueOnce({ ok: true, json: async () => sample })
   vi.stubGlobal('fetch', fetchMock)
   const result = await api.mapData()
   expect(result.sample).toBe(true)
-  expect(fetchMock).toHaveBeenCalledTimes(1)
-  expect(fetchMock).toHaveBeenCalledWith('/sample/civisar-3d-sample.json', { cache: 'no-store' })
+  expect(fetchMock).toHaveBeenLastCalledWith('/sample/civisar-3d-sample.json', { cache: 'no-store' })
+})
+
+it('formats budget assumptions as text and keeps the assistant honest', () => {
+  const lines = assumptionLines({ currency: 'USD (2025 prices)', cost_per_m2: { residential: { low: 450, high: 900, status: 'sourced_with_adjustment', source: 'World Bank https://example.org/x.pdf' } } })
+  expect(lines.join(' ')).not.toContain('[object Object]')
+  expect(lines.join(' ')).not.toContain('https://')
+  expect(lines).toContain('cost per m2 residential: 450–900 (sourced with adjustment)')
+  expect(cleanNote('Options, not orders. The officer decides; choices are logged by the API.')).toBe('Options, not orders. The officer decides.')
 })

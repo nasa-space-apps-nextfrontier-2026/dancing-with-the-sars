@@ -68,6 +68,7 @@ Recorded by Udula, who was asked by the team to merge everything and finalise it
 | D27 | People per building | Never shown or served: the API never returns residents per building and the dashboard says "Not shown per building (people are counted per area)". | APPROVED | `load_agent_outputs.py` refusal; building detail panel |
 | D28 | Missing inputs | A missing input reads Unknown with its reason, never 0 (facilities on the map, roads, night lights, damage, people). | APPROVED | `map_context_real.py` `unavailable`; incident panel tests |
 | D29 | Source list | `/sources` lists only the sources the served data comes from (radar export plus `data/manifests/sources.json`); every record matches `SourceRecord`. | APPROVED | `worker/loaders/sources.py`; `test_source_register.py` |
+| D30 | Public real data, no sign-in (supersedes D20) | Decided by Thanoban on 15 Nov 2026 for the submission: the dashboard opens with no sign-in and shows the full real data (radar, incidents, agents, buildings, facilities, fires, power loss) because the NASA judging team must use it directly. Writes (reviews, briefs, admin) still need sign-in. This overrides the earlier restriction in the M1 data README and D20; the team was told in the PR. People per building stay hidden (D27). | APPROVED | backend public read setting; `frontend/src/services/api.ts` |
 
 
 ## Proposed ADRs

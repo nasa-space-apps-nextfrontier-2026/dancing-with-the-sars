@@ -10,7 +10,7 @@
   "source_url": "https://data.humdata.org/dataset/569beba7-bad7-4951-a19d-468a035461cd/resource/81ca0135-b5c9-46e0-a546-f0bdd6d7fd42/download/lbn_admin_boundaries.geojson.zip",
   "dataset": "Lebanon - Subnational Administrative Boundaries",
   "dataset_id": "569beba7-bad7-4951-a19d-468a035461cd",
-  "download_date": "2026-11-14",
+  "download_date": "2026-11-15",
   "licence": "Creative Commons Attribution for Intergovernmental Organisations (CC BY-IGO)",
   "licence_url": "https://data.humdata.org/dataset/569beba7-bad7-4951-a19d-468a035461cd",
   "row_count": 14,
@@ -26,5 +26,5 @@
     "parent_id",
     "geometry"
   ],
-  "output": "C:\\Users\\USER\\Desktop\\dancing-with-the-sars\\data\\local\\boundaries.geojson"
+  "output": "D:\\PROJECTS\\NasaSpaceApps26\\data\\local\\boundaries.geojson"
 }

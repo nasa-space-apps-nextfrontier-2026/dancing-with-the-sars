@@ -29,6 +29,8 @@ NASA data found and downloaded through these tools:
 | GHSL building height (GHS-OBAT, EU JRC) | Building height and floors as a range | CC BY 4.0 |
 | Esri World Imagery and "Streets & labels" tiles | Satellite ground imagery and labels in the map | **VERIFY** |
 | OpenStreetMap raster tiles | Streets base map | **VERIFY** tile usage policy |
+| WorldPop 2020 Lebanon (constrained and unconstrained) | People ranges per H3 r9 cell | CC BY 4.0 |
+| OCHA COD-AB Lebanon boundaries (HDX) | Area names and the Lebanon boundary for facilities | CC BY-IGO |
 | World Bank damage and needs assessment (Syria, Aug 2025) | Anchor for the rebuild cost per m2 | Public report; cite it |
 
 ## 3. APIs and services
@@ -40,6 +42,8 @@ NASA data found and downloaded through these tools:
 | Earthdata Login, LAADS DAAC, LANCE | Download NASA files, including near-real-time Black Marble | free account token; the "LANCE" Earthdata application authorised |
 | FIRMS public CSV feed | Live fire points | none |
 | Cesium ion (World Terrain, OSM Buildings) | 3D terrain and buildings in the map | free Community token in `VITE_CESIUM_ION_TOKEN`; **VERIFY** free-tier terms |
+| Supabase (hosted PostgreSQL with PostGIS) | Database for all real data served to the dashboard | project account; `DATABASE_URL` only in `.env` and the host's secrets; Supabase's public Data API roles revoked |
+| Overpass API (OpenStreetMap) | Download of OSM facilities (health, schools, water, power) | none |
 | OSRM public demo server | Road routes in the map | none; **VERIFY** demo-use terms |
 
 Key names are in `.env.example` and `docs/progress/KEYS.md` (names and expiry dates, never values).

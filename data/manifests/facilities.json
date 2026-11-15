@@ -11,7 +11,7 @@
   "source": "OpenStreetMap (Overpass API)",
   "credit": "OpenStreetMap contributors",
   "licence": "Open Data Commons Open Database License (ODbL)",
-  "generated_date": "2026-11-14",
+  "generated_date": "2026-11-15",
   "count_per_type": {
     "clinic": 32,
     "hospital": 45,
@@ -32,5 +32,5 @@
     "status",
     "status_source"
   ],
-  "output": "C:\\Users\\USER\\Desktop\\dancing-with-the-sars\\data\\manifests\\facilities.json"
+  "output": "D:\\PROJECTS\\NasaSpaceApps26\\data\\manifests\\facilities.json"
 }

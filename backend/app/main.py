@@ -38,3 +38,25 @@ def ready():
     except SQLAlchemyError:
         pass
     return JSONResponse({'status': 'unavailable', 'database': 'unavailable'}, status_code=503)
+
+
+@app.on_event('startup')
+def warm_public_map_context() -> None:
+    """With PUBLIC_REAL_DATA on, build the public /map/context bundle (limit=100) in the background
+    so the first visitor does not wait for it. Failures are logged; the route then builds on demand."""
+    settings = get_settings()
+    if not (settings.public_real_data and not settings.demo_synthetic):
+        return
+    import threading
+
+    from .api import radar
+    from .api.v1 import PUBLIC_VIEWER
+
+    def _warm() -> None:
+        try:
+            radar._cached_map_context(PUBLIC_VIEWER, None, 100)
+            logging.getLogger(__name__).info('public /map/context warmed')
+        except Exception:
+            logging.getLogger(__name__).exception('public /map/context warm-up failed')
+
+    threading.Thread(target=_warm, daemon=True).start()

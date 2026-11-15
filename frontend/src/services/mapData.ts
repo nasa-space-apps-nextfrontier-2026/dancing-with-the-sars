@@ -1,5 +1,5 @@
 import type {
-  Budget, DamageCell, Evidence, Fire, Incident, MapData, NightCell, Pass, PopCell, Range,
+  Assistant, Budget, DamageCell, Evidence, Fire, Incident, MapData, NightCell, Pass, PopCell, Range,
 } from '../types/map'
 
 type IncidentPart = { status: 'known' | 'unknown' | 'not_applicable'; value: number | null; points: number | null; weight: number; detail: string }
@@ -8,7 +8,11 @@ type ApiIncident = {
   rank: number; score_low: number; score_high: number; parts: Record<string, IncidentPart>; reasons: string[]; unknowns: string[]
 }
 type ApiInsight = { text: string; sources: string[]; date: string | null }
-type ApiRecommendation = { checklist: string[] }
+type ApiOption = { title: string; trade_off?: string; why?: string[]; needs?: string[]; risks?: string[] }
+type ApiRecommendation = {
+  checklist: string[]; situation?: string; options?: ApiOption[]; we_do_not_know?: string[]
+  next_review?: Record<string, string>; note?: string
+}
 type ApiIncidentDetail = { incident: ApiIncident; insights: ApiInsight[]; recommendation: ApiRecommendation }
 type ApiDamage = { area_id: string; candidate_class: string; score: number | null; reason_codes: string[]; run_id: string }
 type ApiLayer = { layer_id: string; title?: string; product: string; tile_url?: string; date?: string; attribution?: string; available_acquisitions: string[]; missing_intervals: { start: string; end: string; reason: string }[] }
@@ -17,7 +21,7 @@ type ApiAlert = {
   alert_id: string; area_id: string; type: 'fire_detected' | 'possible_power_loss'; detected_at: string; label: Evidence
   source: string[]; satellite: string; rings: { radius_m: number; people: ApiMetric }[]
 }
-type ApiBudget = { area_id: string; cost_usd: Range; assumptions: Record<string, unknown>; limits: string[] }
+type ApiBudget = { area_id: string; cost_usd: Range; duration_months?: Range; label?: string; assumptions: Record<string, unknown>; limits?: string[] }
 
 export type FrontendMapBundle = {
   synthetic: false
@@ -31,6 +35,21 @@ export type FrontendMapBundle = {
   budgets: Record<string, ApiBudget>
   centroids: Record<string, [number, number]>
   unavailable: Record<string, string>
+  /** Optional: facility counts by type per area (H3 r8), when the API sends them. */
+  facilities?: { by_area?: Record<string, Record<string, number>> } | null
+}
+
+/** Per-type counts for one area, without the `total` field and without types that have no sites. */
+function facilityCounts(c: Record<string, number> | undefined): Record<string, number> | undefined {
+  if (!c) return undefined
+  return Object.fromEntries(Object.entries(c).filter(([k, n]) => k !== 'total' && n > 0))
+}
+
+/** Incident title is its type; people stay in the People card. */
+const KIND_NAME: Record<string, string> = {
+  damage_candidate_area: 'Possible damage (candidate)',
+  possible_power_loss: 'Possible power loss',
+  fire_detected: 'Fire detected',
 }
 
 const range = (value: number | null | undefined): Range => {
@@ -70,7 +89,45 @@ function affectedPeople(bundle: FrontendMapBundle, areaId: string): Range | unde
   return value ? { low: value.low, high: value.high } : undefined
 }
 
-/** Convert the authenticated API bundle into the unchanged 3D-map view model. */
+
+/** Assistant text must not claim what the product does not do: officer choices are not logged anywhere. */
+export function cleanNote(note: string | undefined): string {
+  const text = (note ?? '').replace(/;?\s*choices are logged by the API\.?/i, '.').replace(/\.\./g, '.').trim()
+  return text || 'Options, not orders. The officer decides.'
+}
+
+function assistant(rec: ApiRecommendation | undefined): Assistant | undefined {
+  if (!rec?.situation && !rec?.options?.length) return undefined
+  return {
+    situation: rec.situation ?? '',
+    options: (rec.options ?? []).map(o => ({ title: o.title, trade_off: o.trade_off ?? '', why: o.why ?? [], needs: o.needs ?? [], risks: o.risks ?? [] })),
+    unknowns: rec.we_do_not_know ?? [],
+    next_review: Object.entries(rec.next_review ?? {}),
+    note: cleanNote(rec.note),
+  }
+}
+
+const isRange = (v: unknown): v is { low: number; high: number } =>
+  !!v && typeof v === 'object' && typeof (v as Range).low === 'number' && typeof (v as Range).high === 'number'
+
+/** Budget assumptions as readable lines (never "[object Object]"). URLs are dropped from the text. */
+export function assumptionLines(value: unknown, path = ''): string[] {
+  const label = path.replaceAll('_', ' ')
+  if (value == null) return []
+  if (isRange(value)) {
+    const rest = Object.entries(value).filter(([k]) => k !== 'low' && k !== 'high')
+    const head = `${label}: ${value.low.toLocaleString('en')}–${value.high.toLocaleString('en')}`
+    const status = rest.find(([k]) => k === 'status')
+    return [status ? `${head} (${String(status[1]).replaceAll('_', ' ')})` : head,
+      ...rest.filter(([k]) => k !== 'status').flatMap(([k, v]) => assumptionLines(v, `${label} ${k}`.trim()))]
+  }
+  if (Array.isArray(value)) return value.flatMap(v => assumptionLines(v, path))
+  if (typeof value === 'object') return Object.entries(value).flatMap(([k, v]) => assumptionLines(v, path ? `${path} ${k}` : k))
+  const text = String(value).replace(/https?:\/\/\S+/g, '').replace(/\s+/g, ' ').trim()
+  return text ? [label ? `${label}: ${text}` : text] : []
+}
+
+/** Convert the API bundle into the unchanged 3D-map view model. */
 export function toMapData(bundle: FrontendMapBundle): MapData {
   const timeline = passes(bundle)
   const latestPass = timeline.filter(pass => pass.status === 'ok').at(-1)?.id ?? ''
@@ -101,9 +158,11 @@ export function toMapData(bundle: FrontendMapBundle): MapData {
     const people = affectedPeople(bundle, item.area_id)
     const damageAvailable = !bundle.unavailable[`damage:${item.area_id}`]
     const suggestions = detail?.recommendation.checklist ?? []
+    const alert = bundle.alerts.items.find(a => a.area_id === item.area_id && item.kind === a.type)
     return [{
       id: item.incident_id,
-      name: item.reasons[0] || item.kind.replaceAll('_', ' '),
+      name: KIND_NAME[item.kind] ?? item.kind.replaceAll('_', ' '),
+      facility_counts: facilityCounts(bundle.facilities?.by_area?.[item.area_id]),
       area: item.area_id,
       ...point,
       rank: item.rank,
@@ -118,6 +177,8 @@ export function toMapData(bundle: FrontendMapBundle): MapData {
       people_available: !!people,
       why: Object.entries(item.parts).map(([factor, part]) => ({ factor, value: part.detail, weight: part.weight / 100 })),
       insights: (detail?.insights ?? []).map(insight => ({ text: insight.text, evidence: 'Unknown' as Evidence, source: insight.sources.join(', '), source_date: insight.date ?? 'Unknown' })),
+      assistant: assistant(detail?.recommendation),
+      acquired_at: alert?.detected_at ?? latestPass,
       suggestions: suggestions.map((text, index) => ({ id: `${item.incident_id}-check-${index + 1}`, kind: 'check' as const, text, reason: item.unknowns[index] ?? 'Requires officer verification.' })),
     }]
   })
@@ -143,7 +204,9 @@ export function toMapData(bundle: FrontendMapBundle): MapData {
     low: value.cost_usd.low,
     high: value.cost_usd.high,
     unit: 'USD',
-    assumptions: [...Object.entries(value.assumptions).map(([key, val]) => `${key}: ${String(val)}`), ...value.limits],
+    label: value.label ?? 'Planning indication only',
+    duration_months: value.duration_months,
+    assumptions: [...assumptionLines(value.assumptions), ...(value.limits ?? [])],
   }))
 
   return {
@@ -152,7 +215,7 @@ export function toMapData(bundle: FrontendMapBundle): MapData {
       generated_at: bundle.generated_at,
       region: 'South Lebanon',
       change_delay_hours: 72,
-      officer: 'Authenticated responder',
+      officer: 'Open access (real data)',
       availability: bundle.unavailable,
     },
     imagery: {

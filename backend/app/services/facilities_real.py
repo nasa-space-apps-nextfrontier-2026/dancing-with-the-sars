@@ -48,6 +48,32 @@ def _cell_damage(engine: Any, area_r8: str, identity: Identity) -> dict[str, str
     return out
 
 
+def all_in_scope(engine: Any, identity: Identity) -> list[Any]:
+    """Every loaded facility in the identity's scope, in one query (used by /map/context)."""
+    from sqlalchemy import text
+
+    with engine.connect() as conn:
+        if conn.execute(text("SELECT run_id FROM facility_runs LIMIT 1")).first() is None:
+            raise NotLoaded
+        rows = conn.execute(text(
+            "SELECT facility_id, type, h3_r9, h3_r8, osm_timestamp, ST_X(geom) AS lon, ST_Y(geom) AS lat "
+            "FROM facilities ORDER BY facility_id")).all()
+    return [r for r in rows if area_in_scope(r.h3_r9, identity.area_scopes)]
+
+
+def damage_status(item: dict[str, Any] | None) -> str:
+    """Damage text for one released r9 radar item (None: no detected change in this cell)."""
+    if item is None:
+        return NO_CHANGE
+    level = next((c.split(":", 1)[1] for c in item["reason_codes"] if c.startswith("level:")), None)
+    if item["candidate_class"] == "candidate_change":
+        return (f"Radar damage candidate in this cell ({level or 'unclassed'}). "
+                "Not confirmed; field check needed.")
+    if item["candidate_class"] == "other_change":
+        return "Radar change in this cell, not classed as damage. Not confirmed."
+    return "Radar could not assess this cell. Unknown."
+
+
 def list_facilities(engine: Any, identity: Identity, area_id: str, kind: str | None,
                     limit: int, offset: int) -> dict | None:
     """None when the area id is not an H3 r8/r9 cell or the demo box (router answers 404)."""
