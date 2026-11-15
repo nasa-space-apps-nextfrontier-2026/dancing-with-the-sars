@@ -16,6 +16,7 @@ from worker.agents.inputs import (
     AreaFacts,
     area_facts,
     as_json,
+    load_population,
     load_published,
     load_table,
 )
@@ -97,10 +98,11 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--published", type=Path, default=Path("data/published"))
     ap.add_argument("--table", type=Path, default=Path("data/local/building_table.parquet"))
+    ap.add_argument("--population", type=Path, default=Path("data/local/population.csv.gz"))
     ap.add_argument("--out", type=Path, default=Path("data/local/agents/insights.json"))
     args = ap.parse_args(argv)
     alerts, sources = load_published(args.published)
-    facts = area_facts(load_table(args.table))
+    facts = area_facts(load_table(args.table), load_population(args.population))
     result = {"items": insights(rank(alerts, facts, sources), facts, alerts, sources)}
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(as_json(result), encoding="utf-8")
