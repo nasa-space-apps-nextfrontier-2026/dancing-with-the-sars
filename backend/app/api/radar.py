@@ -336,10 +336,20 @@ def handle_areas(
 
     p, q = request.path_params, request.query_params
     if path in ("/sources", "/sources/{source_id}"):
-        f = radar_real.data_root() / "local" / "radar_contract" / "sources.json"
-        if not f.exists():
+        # Radar export (M1-03) plus the source register (K-05, data/manifests/sources.json), which
+        # lists the other sources the served data comes from; both are SourceRecord-valid.
+        files = [
+            radar_real.data_root() / "local" / "radar_contract" / "sources.json",
+            radar_real.data_root() / "manifests" / "sources.json",
+        ]
+        if not files[0].exists():
             return error("UNAVAILABLE", "No approved source catalogue is loaded.", 503, request)
-        records = json.loads(f.read_text(encoding="utf-8"))
+        records, seen = [], set()
+        for f in files:
+            for r in json.loads(f.read_text(encoding="utf-8")) if f.exists() else []:
+                if r.get("source_id") not in seen and r.get("synthetic") is not True:
+                    seen.add(r["source_id"])
+                    records.append(r)
         if path == "/sources/{source_id}":
             found = next((r for r in records if r["source_id"] == p["source_id"]), None)
             return (

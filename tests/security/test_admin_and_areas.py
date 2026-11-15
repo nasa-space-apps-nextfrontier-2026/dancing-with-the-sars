@@ -571,6 +571,19 @@ def test_sources_are_public_and_paged(db):
     assert c.get("/api/v1/sources/zzz").status_code == 404
 
 
+def test_sources_add_the_register_after_the_radar_export(db, tmp_path):
+    (tmp_path / "manifests").mkdir()
+    (tmp_path / "manifests" / "sources.json").write_text(json.dumps([
+        {"source_id": "s2", "name": "duplicate"},           # radar export wins
+        {"source_id": "reg1", "name": "register"},
+        {"source_id": "fake", "name": "sample", "synthetic": True},  # never served as real
+    ]))
+    r = TestClient(app).get("/api/v1/sources").json()
+    assert [s["source_id"] for s in r["items"]] == ["s1", "s2", "reg1"]
+    assert r["items"][1]["name"] == "two"
+    assert TestClient(app).get("/api/v1/sources/reg1").json()["name"] == "register"
+
+
 def test_missing_operational_datasets_are_honestly_unavailable(db):
     officer = login("officer")
     assert officer.post("/api/v1/routes", json={}).status_code == 503

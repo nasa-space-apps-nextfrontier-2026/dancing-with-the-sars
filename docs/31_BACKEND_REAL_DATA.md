@@ -67,7 +67,7 @@ CIVISAR_DEMO_USERS_JSON=...   # from python -m scripts.create_demo_user (default
 | `GET /areas/{area_id}/services?as_of` | analyst+ | Power from released power-loss alerts at the optional ISO date/datetime cutoff; alerts detected or released later are excluded. Water, health and comms remain Unknown. |
 | `GET /areas/{area_id}/validation` | analyst+ | Empty list with `availability: unavailable...`: no independent damage assessment exists yet |
 | `GET /areas/{area_id}/facilities?type&cursor&limit` | analyst+ | Facilities in the area (`<H3 r8>`, `<H3 r9>` or `south-lebanon-demo`) and the user's scope (section 4c). Analysts: type, operating status and damage status, no location; officer and above also get the point. 503 until loaded (never an empty "no facilities") |
-| `GET /sources`, `GET /sources/{id}` | public | Source records from the contract export; 503 when none are loaded |
+| `GET /sources`, `GET /sources/{id}` | public | Source records from the radar contract export, then the source register `data/manifests/sources.json` (Black Marble, FIRMS, WorldPop, GHS-OBAT, OSM facilities, HDX boundaries; checked against `SourceRecord` by `worker/loaders/sources.py`). Records marked synthetic are never served. 503 when the radar export is not loaded |
 | `POST /alerts/{alert_id}/reviews` | analyst+, CSRF | Body `{status, note}`, status `reviewed` / `needs_follow_up` / `not_relevant`. Only on alerts the reviewer may see. |
 | `GET /admin/audit?from&to&cursor` | admin | Last 30 days: actor, action, coarse resource type, outcome, time |
 | `PATCH /admin/users/{user_id}/roles` | admin, CSRF | Body `{role, area_scopes, reason}`. Ends that user's sessions; applies at their next sign-in. An admin cannot remove their own admin role (409). |
