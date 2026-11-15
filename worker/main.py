@@ -14,12 +14,18 @@ if __name__ == '__main__':
     parser.add_argument('--damage', help='NISAR damage table (.parquet or .csv)')
     parser.add_argument('--history', help='Black Marble per-cell history (.csv.gz)')
     parser.add_argument('--fires', action='store_true', help='also fetch the live FIRMS feed')
+    parser.add_argument('--agents', action='store_true',
+                        help='publish the agents (ranking, insights, assistant, budget, buildings)')
+    parser.add_argument('--table', default='data/local/building_table.parquet', help='U-04 building table')
     parser.add_argument('--out', default='data/published')
     args = parser.parse_args()
     if args.publish:
         from worker.publish import publish
         print(json.dumps(publish(args.out, args.damage, args.history, args.fires), default=str))
+    elif args.agents:
+        from worker.agents.publish_agents import publish_agents
+        print(json.dumps(publish_agents(args.out, args.table), default=str))
     elif args.once:
         print(json.dumps(run_once(), default=str))
     else:
-        parser.error('use --once or --publish')
+        parser.error('use --once, --publish or --agents')

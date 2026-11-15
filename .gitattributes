@@ -1,0 +1,2 @@
+# Keep contract fixtures byte-exact so their SHA-256 checksums hold on every OS.
+shared/fixtures/** -text
