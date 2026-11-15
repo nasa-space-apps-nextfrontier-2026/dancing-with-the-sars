@@ -4,13 +4,19 @@
 
 Written 14 November 2026 by Thanoban. Read [doc 24](24_3D_BIRD_VIEW_AND_DECISION_SUPPORT_PLAN.md) first: it explains the new plan (3D bird view and 360 scene, ranking, decision assistant, rebuild budget). **The target is about 70% right, not exact.** A believable, data-grounded average is enough for the scene and the budget.
 
+## M3 publication update (15 November 2026)
+
+This task plan preserves the original PR #21 JSON publication roadmap for historical traceability. That architecture is superseded: PostGIS is the authoritative real-data API store, and the current `GET /public/map` endpoint is permanently suppressed. `PUBLIC_RELEASE_APPROVED=true` cannot enable publication; suppressed requests return without constructing a database engine or querying PostGIS.
+
+Before any future public release system can be enabled, it requires immutable artifact-bound approval, licence and QA checks, high-risk-cell review, spatial-cohort controls and snapshot-differencing analysis. H3 r8 aggregation and a three-candidate threshold are not sufficient humanitarian protection. References below to `worker.publish`, `PUBLISHED_DIR`, the JSON Store, wildcard scope or configurable public release describe the original PR #21 plan, not current M3 runtime behavior.
+
 ## 1. Where we are
 
 | Done | Who |
 |---|---|
 | NISAR damage model, tests, Sentinel-1 cross-check, contract export, time-slider tables | **Udula** (the ML work is finished; thank you) |
 | Night-light power-loss model, fire event model, live FIRMS feed, dataset records | Thanoban |
-| ML outputs wired to the API: `worker.publish`, published-artifact store, endpoints for areas, damage, values, alerts, status, public map ([PR #21](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/21), merged) | Thanoban |
+| Historical PR #21 milestone: `worker.publish`, the published-artifact JSON Store and related endpoint design were merged, then superseded by the PostGIS-backed M3 integration described above | Thanoban |
 | Final free data list for the 3D scene, building heights and the budget (doc 24, section 15) | Thanoban |
 
 ## 2. Rules for every task
@@ -18,7 +24,7 @@ Written 14 November 2026 by Thanoban. Read [doc 24](24_3D_BIRD_VIEW_AND_DECISION
 - Work on `dev` through a branch `feature/<task-id>-<short-name>` and a PR into `dev`. No direct push, no force push. Rashiru merges.
 - **Contract first:** a new field or endpoint goes into `docs/contracts/` in its own PR before code depends on it ([21](21_ML_BACKEND_FRONTEND_INTEGRATION.md)).
 - No large data, no secrets in Git. Big files go to `data/local/` (ignored); a small manifest in `data/manifests/` says how to rebuild them.
-- Safety wording: never "safe"; ranges not single numbers; evidence labels Observed / Reported / Corroborated / Unknown; no live vehicle or phone data; building-level results are for logged-in roles only; public output is delayed and area level.
+- Safety wording: never "safe"; ranges not single numbers; evidence labels Observed / Reported / Corroborated / Unknown; no live vehicle or phone data; building-level results are for logged-in roles only. Current public output is suppressed; delayed area-level publication remains future work subject to the controls above.
 - CI must pass: `ruff check backend worker tests scripts` (newer ruff, including FURB, BLE, ISC rules), `python -m pytest`. Check locally before pushing.
 - Commits use your own name, no AI co-author line.
 
@@ -75,7 +81,7 @@ Budget inputs: put cost per m² ranges, crew capacity and start delays in `worke
 Tests: ranking shows reasons and unknowns; a part with no data is unknown, not zero; the assistant never prints a number that the tables did not provide; the budget returns a range and lists its assumptions; no text contains "safe" or "confirmed damage".
 Branches: `feature/u-05-agent-ranking`, `...-insights`, `...-assistant`, `...-budget`.
 
-### U-06: Publish and the backend endpoints
+### U-06: Publish and the backend endpoints (original roadmap; future work must use the current PostGIS architecture)
 | Item | Detail |
 |---|---|
 | Contract first | Open a PR in `docs/contracts/` adding: `GET /incidents` (ranked list), `GET /incidents/{id}` (with insights and recommendation), `GET /areas/{id}/budget`, and a bulk `GET /buildings?bbox=` (GeoJSON, role and scope filtered, 72 hour gate). Agree it with Rashiru. |
@@ -93,11 +99,13 @@ We will need real keys when we deploy. **Never put a key in Git, in a PR, in cha
 | `UCDP_ACCESS_TOKEN` | UCDP conflict events API | Whoever registers (Udula or Thanoban) | Free token; or download the CSV instead |
 | `SESSION_SECRET`, `DATABASE_URL`, `CIVISAR_DEMO_USERS_JSON` | Backend sign-in and database | Rashiru | Generated locally; never shared |
 | `COPERNICUS_USER`, `COPERNICUS_PASSWORD` | Sentinel-2 colour texture (optional) | Whoever uses it | Free account |
-| `PUBLISHED_DIR`, `PUBLIC_RELEASE_APPROVED` | Where the API reads data; whether the public map may show data | Rashiru | `PUBLIC_RELEASE_APPROVED` stays `false` until a person approves a release |
+| `PUBLISHED_DIR`, `PUBLIC_RELEASE_APPROVED` | **Historical PR #21 settings; not active in current M3** | Rashiru | The JSON directory fallback was not retained, and `PUBLIC_RELEASE_APPROVED=true` cannot enable the hard-suppressed public map. A future replacement must use artifact-bound approval and the review controls above. |
 
 Steps: (1) add every new key **name** (empty value) to `.env.example` in a PR; (2) keep real values only in your local `.env` and in the deploy secret store (GitHub Actions secrets or the server's environment); (3) when a key is made, rotated or about to expire, **tell Rashiru the key name and expiry date, not the value**, so the deploy store is updated; (4) if a key is ever pasted anywhere public, treat it as leaked and make a new one at once. Add a short `docs/progress/KEYS.md` listing names, owners and expiry dates (no values).
 
-## 4. Chames: fix the conflicting pull requests (do this first)
+## 4. Historical merge instructions for Chames (completed/superseded)
+
+The following instructions record how the PR #21-era JSON handlers were originally intended to be preserved while resolving conflicts. They are not current implementation guidance; the synchronized M3 branch retains PostGIS as authoritative and does not use the JSON Store, `PUBLISHED_DIR` fallback or wildcard scope.
 
 Your three PRs conflict with `dev`, so none can merge: [#18](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/18) (C-01 handler registry), [#19](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/19) (C-02 status and sources), [#22](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/22) (C-03 areas, summary, values). All conflict in **one file: `backend/app/api/v1.py`**.
 
@@ -120,7 +128,7 @@ After that, finish your remaining C tasks in [doc 20](20_KISARA_AND_CHAMES_TASKS
 - Contract PR for the new endpoints (with Udula); update `docs/contracts/` and the typed client in `frontend/src/services`.
 - Frontend P0 from doc 24 section 3: bird view toggle (pitch and rotate the MapLibre map, extruded buildings from the building table), fire particle sprite instead of the emoji, the new colour tokens, the ranking list and the assistant panel. Use the Claude Design prototype as the source of truth.
 - Update the scope row "No rebuilding" in [PROJECT_PLAN.md](PROJECT_PLAN.md) section 3 (the budget range is adopted), and update the planning manifest hashes if that file changes.
-- Put the secret names from U-07 into the deploy setup; keep `PUBLIC_RELEASE_APPROVED=false` until a release is approved by a person.
+- **Superseded PR #21 deployment instruction:** `PUBLIC_RELEASE_APPROVED` was originally to remain false until human approval. Current M3 is hard-suppressed regardless of that setting; any future publication design requires immutable artifact-bound approval and the additional review controls above.
 
 ## 6. Thanoban
 

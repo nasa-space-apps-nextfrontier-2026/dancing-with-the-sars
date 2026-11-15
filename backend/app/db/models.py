@@ -7,11 +7,13 @@ from sqlalchemy import (
     CheckConstraint,
     DateTime,
     ForeignKey,
+    Index,
     Integer,
     Numeric,
     String,
     Text,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base
@@ -63,6 +65,11 @@ class MetricValue(Base):
     source_id: Mapped[str] = mapped_column(ForeignKey('datasets.id'))
     observed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     safety_tag: Mapped[str] = mapped_column(String(40))
+    # 0002: stable contract id, 72-hour release time and the full contract record.
+    value_id: Mapped[str | None] = mapped_column(String(160), unique=True, nullable=True)
+    release_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True,
+                                                        index=True)
+    record: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
 
 class ShelterCandidate(Base):
     __tablename__ = 'shelter_candidates'
@@ -70,4 +77,49 @@ class ShelterCandidate(Base):
     area_id: Mapped[str] = mapped_column(ForeignKey('areas.area_id'), index=True)
     geom: Mapped[object | None] = mapped_column(Geometry('POINT', srid=4326, spatial_index=True), nullable=True)
     safety_tag: Mapped[str] = mapped_column(String(40), default='coordinator_shelter')
+    release_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class RadarArtifact(Base):
+    __tablename__ = 'radar_artifacts'
+    __table_args__ = (
+        CheckConstraint('track > 0 AND frame > 0'),
+        CheckConstraint('char_length(sha256) = 64'),
+        CheckConstraint('before_acquired_at < after_acquired_at'),
+        Index('ix_radar_artifacts_area_id_run_id', 'area_id', 'run_id'),
+    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    area_id: Mapped[str] = mapped_column(ForeignKey('areas.area_id'))
+    run_id: Mapped[str] = mapped_column(ForeignKey('processing_runs.id'))
+    source_id: Mapped[str] = mapped_column(ForeignKey('datasets.id'))
+    schema_version: Mapped[str] = mapped_column(String(20))
+    artifact_version: Mapped[str] = mapped_column(String(80))
+    sha256: Mapped[str] = mapped_column(String(64))
+    private_uri: Mapped[str] = mapped_column(Text)
+    track: Mapped[int] = mapped_column(Integer)
+    frame: Mapped[int] = mapped_column(Integer)
+    polarizations: Mapped[list] = mapped_column(JSONB)
+    before_acquired_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    after_acquired_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    processing_version: Mapped[str] = mapped_column(String(100))
+    qa_status: Mapped[str] = mapped_column(String(40))
+    safety_tag: Mapped[str] = mapped_column(String(40))
+
+
+class RadarAreaResult(Base):
+    __tablename__ = 'radar_area_results'
+    __table_args__ = (
+        CheckConstraint("classification IN ('Unknown', 'candidate_change', 'other_change')"),
+        CheckConstraint("classification <> 'Unknown' OR anomaly_score IS NULL"),
+        Index('ix_radar_area_results_area_id_artifact_id', 'area_id', 'artifact_id'),
+    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    area_id: Mapped[str] = mapped_column(ForeignKey('areas.area_id'))
+    artifact_id: Mapped[str] = mapped_column(ForeignKey('radar_artifacts.id'))
+    classification: Mapped[str] = mapped_column(String(30))
+    anomaly_score: Mapped[float | None] = mapped_column(Numeric, nullable=True)
+    evidence_label: Mapped[str] = mapped_column(String(20))
+    reason_codes: Mapped[list] = mapped_column(JSONB)
+    qa_status: Mapped[str] = mapped_column(String(40))
+    safety_tag: Mapped[str] = mapped_column(String(40))
     release_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

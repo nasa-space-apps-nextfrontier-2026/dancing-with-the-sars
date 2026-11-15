@@ -15,16 +15,14 @@ def test_registry_calls_registered_handler(monkeypatch):
     async def test_handler(request, path_params):
         return {"custom": "ok", "synthetic": True}
 
-    HANDLERS[("GET", "/status")] = test_handler
-    try:
-        with TestClient(app) as client:
-            response = client.post('/api/v1/session', json={'username': 'test-analyst', 'password': 'test-only-password'})
-            assert response.status_code == 200
-            response = client.get('/api/v1/status')
-            assert response.status_code == 200
-            assert response.json() == {"custom": "ok", "synthetic": True}
-    finally:
-        del HANDLERS[("GET", "/status")]
+    # setitem restores the real /status handler afterwards (del would remove it for later tests)
+    monkeypatch.setitem(HANDLERS, ("GET", "/status"), test_handler)
+    with TestClient(app) as client:
+        response = client.post('/api/v1/session', json={'username': 'test-analyst', 'password': 'test-only-password'})
+        assert response.status_code == 200
+        response = client.get('/api/v1/status')
+        assert response.status_code == 200
+        assert response.json() == {"custom": "ok", "synthetic": True}
     get_settings.cache_clear()
 
 def test_unregistered_path_returns_501(monkeypatch):
@@ -35,7 +33,9 @@ def test_unregistered_path_returns_501(monkeypatch):
     with TestClient(app) as client:
         response = client.post('/api/v1/session', json={'username': 'test-analyst', 'password': 'test-only-password'})
         assert response.status_code == 200
-        response = client.get('/api/v1/areas/demo-area-01/summary')
+        # A path with no registry handler and no synthetic scaffold answer (summary has a scaffold
+        # answer since the backend merge, so it no longer fits this test).
+        response = client.get('/api/v1/areas/demo-area-01/validation')
         assert response.status_code == 501
         assert response.json()["error"]["code"] == "NOT_IMPLEMENTED"
 
