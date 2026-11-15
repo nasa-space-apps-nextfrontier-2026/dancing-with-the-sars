@@ -29,6 +29,7 @@ Start with the source audit, scope, architecture and your member task file. Free
 - [24_3D_BIRD_VIEW_AND_DECISION_SUPPORT_PLAN.md](24_3D_BIRD_VIEW_AND_DECISION_SUPPORT_PLAN.md) (new direction: 3D bird view, 360 scene, ranking, decision assistant)
 - [25_NEW_PLAN_TASKS.md](25_NEW_PLAN_TASKS.md) (tasks for Udula, Chames and the team under the new plan; keys; fixing the conflicting PRs)
 - [26_3D_MAP_UI_AND_FRONTEND.md](26_3D_MAP_UI_AND_FRONTEND.md) (**UI source of truth now**: the dark 3D map mockup, layers, agent outputs, Cesium frontend and sign-in)
+- [33_HOW_RESCUEFORCE_WORKS_AND_JUDGE_QA.md](33_HOW_RESCUEFORCE_WORKS_AND_JUDGE_QA.md) (**presentation prep**: every data source, real vs sample vs live, damage, power loss at night, ranking, budget, buildings, routes, shelters, judge Q&A)
 - [20_KISARA_AND_CHAMES_TASKS.md](20_KISARA_AND_CHAMES_TASKS.md) (small backend and data tasks, step by step)
 - [Thanoban progress log](progress/THANOBAN_PROGRESS.md)
 
