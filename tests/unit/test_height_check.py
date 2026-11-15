@@ -3,6 +3,7 @@
 import pytest
 
 pytest.importorskip("pandas")
+pytest.importorskip("pyarrow")  # pipelines/buildings import pyarrow; CI does not install it
 
 import numpy as np
 import pandas as pd

@@ -8,6 +8,7 @@ import pytest
 shapely = pytest.importorskip("shapely")
 pyproj = pytest.importorskip("pyproj")
 pytest.importorskip("h3")
+pytest.importorskip("pyarrow")  # pipelines/buildings import pyarrow; CI does not install it
 
 import pandas as pd
 
