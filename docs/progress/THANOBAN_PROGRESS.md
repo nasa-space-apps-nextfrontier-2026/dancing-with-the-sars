@@ -1,6 +1,6 @@
 # Thanoban: ongoing work log (M1-04)
 
-Read this to see where Thanoban's ML work stands. Udula: this is what you need to know about how it is done and what it hands to you. Plan: [18](../18_THANOBAN_ML_PLAN_AND_COLAB.md). Task: [Thanoban tasks](../tasks/MEMBER_2_THANOBAN_SMALL_DATA_ML.md). Last updated 14 November 2026.
+Read this to see where Thanoban's ML work stands. Udula: this is what you need to know about how it is done and what it hands to you. Plan: [18](../18_THANOBAN_ML_PLAN_AND_COLAB.md). Task: [Thanoban tasks](../tasks/MEMBER_2_THANOBAN_SMALL_DATA_ML.md). Last updated 15 November 2026.
 
 ## Status
 
@@ -110,3 +110,22 @@ Built the per-cell history on Colab (230 nightly tiles, NOAA-20 and NOAA-21, las
 4. Download recent FIRMS points for the demo box, run the fire model from PR #5, and tune the permanent-spot rule.
 5. Run the strike tests from PR #6 on Udula's damage table when the first version arrives (by H16); confirm column names at H2.
 6. Hand callable functions to Rashiru (H12) and the test numbers for the Sources page (H32).
+
+## 15 November 2026: 3D map UI, new frontend and PR housekeeping
+
+**UI direction (doc [26](../26_3D_MAP_UI_AND_FRONTEND.md), PR [#33](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/33), merged):**
+- New UI source of truth: the dark 3D map mockup `docs/design/civisar-3d-map-mockup.html` with sample data `docs/design/civisar-3d-sample.json`. The old light prototype is archived in `docs/design/archive/`.
+- Map-first layout with glass panels: incident Summary / Impacts / Shelters / Power / Insights tabs, incident ranking, decision assistant, rebuild budget, layers, a 6-item legend, building detail and shelter detail (coordinates, OSM link, road distance).
+- Realism with free sources: CesiumJS globe, Cesium ion terrain and OSM 3D buildings (free token), Esri imagery plus a streets overlay or an OpenStreetMap street map, building colours from OSM material tags.
+- Effects at real points only: hatched pulsing damage volumes with dust (overlays, building colours untouched); fire with core, flames, embers and smoke moving with wind gusts, labelled "illustrative effect".
+- Routes and shelter routes follow real OSM roads (free OSRM demo server); parts near damage candidates turn red, "possibly blocked (candidate)". Every layer shows in 2D, 3D and split view.
+- Camera: starts on the whole Earth on black space with stars, flies to the South Lebanon bird view, then a cinematic fly-to with a 360° turn around the incident on arrival and an anchored orbit. Reduced-motion users get instant cuts. If Cesium ever stops on a render error, the view resets itself.
+
+**Frontend (`frontend/`):** MapLibre replaced by CesiumJS 1.121 (sub-packages pinned). Dark sign-in on the existing `/api/v1/session`, with a labelled demo session when no backend runs. Map data from the sample JSON until the incident endpoints exist. Lint, type check and 7 tests pass.
+
+**Decisions agreed:** only a coordinator (or admin) can mark an incident resolved; alerts are in the app only (no SMS or email). The affected-area response flow (detect, group and score, assess, suggest, officer acts, verify, monitor, close) is in doc 26 section 10.
+
+**PR housekeeping (15 Nov):**
+- Merged into `dev`: #18 (C-01 registry), #24 (U-06 contract), #30 (Udula progress log), #32 (reply to Udula), #33 (this work).
+- Kisara #25 to #29: brought up to date with `dev`. Their CI failed because a contract test needed scikit-learn once their numpy was installed; fixed in #33 by skipping that test when scikit-learn is missing.
+- Chames #19, #22, #23, #31: brought up to date with `dev`; no conflicts left after #18 merged; `dev`'s published-data handlers kept as doc 25 says.
