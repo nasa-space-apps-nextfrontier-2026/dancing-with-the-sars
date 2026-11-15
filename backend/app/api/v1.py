@@ -12,6 +12,7 @@ from backend.app.core.security import (
     note_login_failure,
     read_session,
     revoke_session,
+    session_expires_at,
 )
 from backend.app.handlers import HANDLERS
 from backend.app.services.radar_catalog import layer_catalog, observation_series
@@ -96,7 +97,8 @@ def attach_routes(app: FastAPI) -> None:
                     audit(request, identity.user_id, 'login', 'session', 'success')
                     token, csrf = issue_session(identity)
                     response = JSONResponse({'synthetic': get_settings().demo_synthetic, 'user_id': identity.user_id,
-                        'role': identity.role, 'area_scopes': list(identity.area_scopes), 'csrf_token': csrf})
+                        'role': identity.role, 'area_scopes': list(identity.area_scopes),
+                        'expires_at': session_expires_at(token), 'csrf_token': csrf})
                     response.set_cookie('civisar_session', token, httponly=True,
                         secure=get_settings().cookie_secure, samesite='lax', max_age=28800)
                     response.headers['Cache-Control'] = 'private, no-store'
@@ -134,7 +136,9 @@ def attach_routes(app: FastAPI) -> None:
                 if _path == '/session' and _method == 'GET':
                     identity, csrf = current(request)
                     return {'synthetic': get_settings().demo_synthetic, 'user_id': identity.user_id,
-                            'role': identity.role, 'area_scopes': list(identity.area_scopes), 'csrf_token': csrf}
+                            'role': identity.role, 'area_scopes': list(identity.area_scopes),
+                            'expires_at': session_expires_at(request.cookies.get('civisar_session')),
+                            'csrf_token': csrf}
                 if _path == '/roles':
                     identity, _ = current(request)
                     return {'synthetic': get_settings().demo_synthetic, 'role': identity.role,

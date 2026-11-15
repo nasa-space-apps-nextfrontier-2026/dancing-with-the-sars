@@ -66,6 +66,13 @@ def read_session(token: str | None) -> tuple[Identity, str] | None:
         return None
     return identity, csrf
 
+def session_expires_at(token: str | None) -> str | None:
+    """When the session ends, as ISO 8601 UTC (contract Session.expires_at)."""
+    item = _sessions.get(hashlib.sha256(token.encode()).hexdigest()) if token else None
+    if not item:
+        return None
+    return time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime(item[1]))
+
 def revoke_session(token: str | None) -> None:
     if token:
         _sessions.pop(hashlib.sha256(token.encode()).hexdigest(), None)
