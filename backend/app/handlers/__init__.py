@@ -10,6 +10,7 @@ def handler(method: str, path: str):
 
 # Import handler modules to register them
 from . import (
+    alerts,  # noqa: F401
     areas,  # noqa: F401
     people_facilities,  # noqa: F401
     sources,  # noqa: F401
