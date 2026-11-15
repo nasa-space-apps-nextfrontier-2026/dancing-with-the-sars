@@ -86,6 +86,26 @@ CIVISAR_DEMO_USERS_JSON=...   # from python -m scripts.create_demo_user (default
 - Briefs never include records still on the 72-hour hold. Route and shelter sections are removed again at read time for roles below officer / coordinator. Out-of-scope or expired briefs answer 404.
 - The WorldPop source record is not in `sources.json` yet, so brief footnotes list only the radar sources.
 
+## 4b. Agent outputs: incidents, budgets, buildings (U-06)
+
+Migration `0006_agent_outputs` adds `agent_runs`, `agent_incidents`, `agent_recommendations`, `agent_insights`, `agent_budgets` and `agent_buildings` (GiST index on the footprint). Load them after the building table and the publish step:
+
+```powershell
+.\.venv\Scripts\python.exe -m worker.main --agents --table data/local/building_table.parquet --out data/published
+.\.venv\Scripts\python.exe -m scripts.load_agent_outputs
+```
+
+One transaction; a reload replaces the previous one; a building with residents is refused.
+
+| Route | Role | Returns |
+|---|---|---|
+| `GET /incidents?area_id&cursor&limit` | analyst+ | Ranked incidents the user may see (in scope, released), ranked 1..n within that view |
+| `GET /incidents/{incident_id}` | analyst+ | Incident, insights (only for users scoped to the whole demo box) and the recommendation for the caller's role (admin reads the coordinator version) |
+| `GET /areas/{area_id}/budget` | analyst+ | Budget ranges, "Planning indication only"; `south-lebanon-demo` gives the whole box |
+| `GET /buildings?bbox&limit` | analyst+ | GeoJSON buildings for the 3D view; bbox at most 0.05 square degrees, limit 1-5000, `truncated` when cut; cell damage result; no residents |
+
+All four answer 503 until the agent outputs are loaded, and 404 for anything held or outside the user's scope.
+
 ## 5. Safety rules in the server
 
 - **Sign-in**: 5 failed attempts per username and client in 15 minutes -> 429 with `Retry-After`. Roles set by an admin are read from the database at sign-in; if the database is down, sign-in fails (503) rather than falling back to an old role. `/roles` lists the role's capabilities (doc 07 matrix).
