@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 
 from backend.app.handlers import handler
@@ -8,10 +7,11 @@ from fastapi import Request
 MANIFESTS_DIR = Path(__file__).resolve().parents[3] / "data" / "manifests"
 SOURCES_MANIFEST = MANIFESTS_DIR / "sources.json"
 
-# may have to apply offset and limit to the sources list if it is large
+# Registry handlers serve synthetic mode only (v1.py). They must never relabel real records as
+# synthetic, so they always use the sample SourceRecord. The real source register
+# (data/manifests/sources.json, K-05) is not served here; real mode serves verified source
+# records from the PostGIS backend instead.
 def _load_sources_list() -> list[dict]:
-    if SOURCES_MANIFEST.exists():
-        return json.loads(SOURCES_MANIFEST.read_text(encoding="utf-8"))
     return [load_fixture("SourceRecord")]
 
 
