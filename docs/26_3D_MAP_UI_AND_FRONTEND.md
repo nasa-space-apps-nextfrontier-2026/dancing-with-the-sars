@@ -57,10 +57,24 @@ Every layer must show in **2D, 3D and split**.
 5. **Summary card:** People, Facilities, Roads, Power as ranges, each with "Show on map", plus "Check before acting".
 6. **Impacts, Shelters, Power** tabs as in the mockup. Shelter detail gives coordinates (decimal and DMS, copy), OSM link, road distance and route warning.
 
+## 5a. Modes: Change over time | Responder
+
+A switch in the top bar picks one of two equal modes. Full plan: [doc 34](34_CHANGE_OVER_TIME_VIEW.md).
+
+- **Responder:** the panels in section 5 (ranking, impacts, shelters, power, assistant, budget).
+- **Change over time:** a right-hand panel for the selected incident:
+  - **Chart, pass by pass:** candidate cells (bars) and backscatter change vs the pre-war baseline (line). Missed passes are **gaps**, never joined. The suspect pass is hollow.
+  - **HH / HV / HH−HV switch:** which polarization the line shows.
+  - **Cost over time:** rebuild budget range at each pass, "Planning indication only".
+  - **Pass slider and Play:** steps through acquired passes, skips missed ones, moves the chart cursor.
+  - **Drivers:** a "what changed" sentence and the likely cause with alternatives (never "confirmed").
+
+The map, layers, camera and engine are **unchanged**; only the right-hand panel changes. Radar is "per satellite pass", never "live detection".
+
 ## 6. Frontend build (`frontend/`)
 
 - React + Vite + TypeScript, **CesiumJS** (replaces MapLibre).
-- Sign-in is required. The sign-in screen uses the same dark glass design and calls `POST /api/v1/session` (cookie session + CSRF, roles analyst/officer/coordinator/admin). When no backend is running, "Continue with demo session" gives a clearly labelled demo officer session.
+- **No sign-in (decided 15 Nov 2026, PR #47).** `/` is the RescueForce landing page and `/map` the dashboard, both public with labelled sample data. The sign-in screen was removed. See doc 33 for what is real, sample and live.
 - Data comes from `src/services/api.ts`. Real sessions load the authenticated, released and area-scoped `/api/v1/map/context` bundle. Explicitly synthetic sessions load the sample JSON copied to `frontend/public/sample/civisar-3d-sample.json` and show the "Sample data" badge; real failures never silently become fixture success.
 - Cesium token: `VITE_CESIUM_ION_TOKEN` in `frontend/.env.local` (git-ignored).
 
@@ -70,7 +84,7 @@ Real library behaviour: globe, terrain, OSM buildings, camera flights, particles
 
 ## 8. Rules (unchanged)
 
-Evidence labels Observed / Reported / Corroborated / Unknown. Ranges, not single numbers. Never "safe". No live vehicle or phone tracking. Login required. Damage and routes are always "candidate" / "not verified".
+Evidence labels Observed / Reported / Corroborated / Unknown. Ranges, not single numbers. Never "safe". No live vehicle or phone tracking. No sign-in in the public app (15 Nov 2026). Damage and routes are always "candidate" / "not verified".
 
 ## 9. Camera motion (agreed 15 Nov 2026)
 
@@ -88,7 +102,7 @@ Proposed 15 Nov 2026, agreed in chat. Every step keeps the rules: candidates, no
 2. **Group and score.** Candidates within about 1.5 km merge into one incident. The ranking agent gives a score range with its "why ranked here" factors. A pin and an alert appear.
 3. **Assess impact (automatic).** As the Summary tab: people (WorldPop range), facilities inside or near damage / fire / dark cells, roads possibly blocked, possible power loss, rebuild budget range.
 4. **Suggest, never decide.** The decision assistant lists next checks, route options on real roads and the nearest candidate shelters (location, capacity range, route warnings). All tagged Unverified.
-5. **Officer acts.** Mark checks done, dismiss suggestions, choose a route and a shelter. Every action is logged with who and when. Login required; no vehicle or phone tracking.
+5. **Officer acts.** Mark checks done, dismiss suggestions, choose a route and a shelter. Every action is logged with who and when (in the backend). No vehicle or phone tracking.
 6. **Verify and update.** A field report or a second satellite agreeing upgrades evidence to Corroborated; a contradiction drops it to Unknown. The 72 h building-change delay and missed passes are shown, never hidden.
 7. **Monitor.** On the next pass the incident updates (grows, shrinks or settles), routes are recomputed, and new blocked roads or dark cells raise a new alert.
 8. **Close and hand over.** A coordinator marks the incident resolved and can be printed as an area brief with sources. Rebuild planning uses the budget range, labelled "indicative, not a quote".
