@@ -17,6 +17,8 @@ if __name__ == '__main__':
     parser.add_argument('--agents', action='store_true',
                         help='publish the agents (ranking, insights, assistant, budget, buildings)')
     parser.add_argument('--table', default='data/local/building_table.parquet', help='U-04 building table')
+    parser.add_argument('--population', default='data/local/population.csv.gz',
+                        help='K-04 population per H3 r9 cell (people stay unknown without it)')
     parser.add_argument('--out', default='data/published')
     args = parser.parse_args()
     if args.publish:
@@ -24,7 +26,7 @@ if __name__ == '__main__':
         print(json.dumps(publish(args.out, args.damage, args.history, args.fires), default=str))
     elif args.agents:
         from worker.agents.publish_agents import publish_agents
-        print(json.dumps(publish_agents(args.out, args.table), default=str))
+        print(json.dumps(publish_agents(args.out, args.table, population_path=args.population), default=str))
     elif args.once:
         print(json.dumps(run_once(), default=str))
     else:

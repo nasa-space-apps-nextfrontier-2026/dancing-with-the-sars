@@ -21,7 +21,7 @@ FACILITY_USES = ("hospital", "clinic", "water", "power", "school")
 class AreaFacts:
     area_id: str
     buildings: int
-    residents_low: int | None          # None: population not loaded
+    residents_low: int | None          # area total from the population file; None: not loaded
     residents_high: int | None
     candidate_cells: dict[str, int]    # class -> number of r9 cells
     corroborated_cells: int
@@ -35,12 +35,27 @@ class AreaFacts:
     run_id: str | None = None
 
 
-def _int_or_none(series: pd.Series) -> int | None:
-    return None if series.isna().all() else int(series.fillna(0).sum())
+def area_people(population: pd.DataFrame | None) -> dict[str, tuple[int, int]]:
+    """People per H3 r8 area from the population file (K-04: cell_id r9, pop_low, pop_high).
+
+    Uses every r9 cell of the area, including cells with no OSM building, so area totals are not
+    reduced to the people that could be placed in buildings."""
+    if population is None:
+        return {}
+    import h3
+
+    pop = population.dropna(subset=["pop_low", "pop_high"])
+    parents = pop["cell_id"].map(lambda c: h3.cell_to_parent(c, 8))
+    sums = pop.groupby(parents)[["pop_low", "pop_high"]].sum()
+    return {a: (round(float(r.pop_low)), round(float(r.pop_high))) for a, r in sums.iterrows()}
 
 
-def area_facts(table: pd.DataFrame) -> dict[str, AreaFacts]:
-    """One AreaFacts per r8 area of the building table (pipelines/buildings/table.py)."""
+def area_facts(table: pd.DataFrame, population: pd.DataFrame | None = None) -> dict[str, AreaFacts]:
+    """One AreaFacts per r8 area of the building table (pipelines/buildings/table.py).
+
+    People come from the population file (area totals), never from summing building rows; without
+    the file they are None (unknown)."""
+    people = area_people(population)
     out: dict[str, AreaFacts] = {}
     cells = table.drop_duplicates("h3_r9")[["h3_r9", "h3_r8", "damage_class", "evidence_label"]]
     for area, g in table.groupby("h3_r8"):
@@ -50,7 +65,7 @@ def area_facts(table: pd.DataFrame) -> dict[str, AreaFacts]:
         fl_high = cand["footprint_m2"] * cand["floors_high"]
         out[area] = AreaFacts(
             area_id=area, buildings=len(g),
-            residents_low=_int_or_none(g["residents_low"]), residents_high=_int_or_none(g["residents_high"]),
+            residents_low=people.get(area, (None, None))[0], residents_high=people.get(area, (None, None))[1],
             candidate_cells={k: int((c["damage_class"] == k).sum()) for k in CANDIDATES},
             corroborated_cells=int(((c["evidence_label"] == "corroborated") & c["damage_class"].isin(CANDIDATES)).sum()),
             assessed_cells=int(c["damage_class"].isin(ASSESSED).sum()),
@@ -82,6 +97,11 @@ def source_ok(sources: dict[str, dict], name: str) -> bool:
 
 def parse_time(value: str | None) -> datetime | None:
     return datetime.fromisoformat(value) if value else None
+
+
+def load_population(path: Path | None) -> pd.DataFrame | None:
+    """K-04 population file, or None when it is not there (people then stay unknown)."""
+    return pd.read_csv(path) if path is not None and Path(path).exists() else None
 
 
 def load_table(path: Path) -> pd.DataFrame:

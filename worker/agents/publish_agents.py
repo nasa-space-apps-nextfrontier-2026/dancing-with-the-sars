@@ -25,7 +25,7 @@ from typing import Any
 
 from worker.agents.assistant import advise
 from worker.agents.budget import area_budget, load_assumptions
-from worker.agents.inputs import area_facts, load_published, load_table
+from worker.agents.inputs import area_facts, load_population, load_published, load_table
 from worker.agents.insights import insights
 from worker.agents.ranking import rank
 
@@ -75,12 +75,13 @@ def building_features(table: Any, base_path: Path) -> dict[str, list[dict]]:
 
 def publish_agents(out_dir: str | Path, table_path: str | Path,
                    base_path: str | Path = "data/local/buildings_base.parquet",
-                   now: datetime | None = None) -> dict:
+                   now: datetime | None = None,
+                   population_path: str | Path | None = "data/local/population.csv.gz") -> dict:
     out, table_path, base_path = Path(out_dir), Path(table_path), Path(base_path)
     now = now or datetime.now(UTC)
     stamp = now.strftime("%Y-%m-%dT%H:%M:%SZ")
     table = load_table(table_path)
-    facts = area_facts(table)
+    facts = area_facts(table, load_population(Path(population_path) if population_path else None))
     alerts, sources = load_published(out)
     released = radar_release(out)
     alert_release = {a["alert_id"]: a.get("release_at") for a in alerts}
