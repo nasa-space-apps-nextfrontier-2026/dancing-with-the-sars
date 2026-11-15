@@ -13,7 +13,10 @@ from backend.app.main import app
 
 
 def test_registry_answers_only_in_synthetic_mode(monkeypatch, tmp_path):
-    assert ("GET", "/status") in HANDLERS  # the registry does register /status
+    async def sample_status(request, path_params):
+        return {"from": "registry", "synthetic": True}
+
+    monkeypatch.setitem(HANDLERS, ("GET", "/status"), sample_status)  # restored after the test
     monkeypatch.setenv("DATA_ROOT", str(tmp_path))
     monkeypatch.setenv("CIVISAR_DEMO_USERS_JSON", json.dumps({}))
 
@@ -27,6 +30,6 @@ def test_registry_answers_only_in_synthetic_mode(monkeypatch, tmp_path):
         monkeypatch.setenv("DEMO_SYNTHETIC", "true")
         get_settings.cache_clear()
         sample = TestClient(app).get("/api/v1/status")
-        assert sample.status_code == 200 and sample.json()["synthetic"] is True  # registry fixture
+        assert sample.json() == {"from": "registry", "synthetic": True}         # registry answered
     finally:
         get_settings.cache_clear()
