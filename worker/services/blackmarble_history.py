@@ -6,6 +6,11 @@ tile (about 20 MB), crops it to the demo box, keeps only the small per-cell numb
 tile. Output: a gzip CSV with one row per satellite, night and H3 res-8 cell:
     date, satellite, cell, mean_radiance, n_pixels, n_clear
 
+Also runs locally: set BM_TOKEN_FILE (a file holding only your Earthdata token, never in Git),
+BM_WORK (temporary tile folder) and BM_OUT (output file), for example
+    BM_TOKEN_FILE=~/.earthdata_token BM_WORK=data/raw/blackmarble_tmp     BM_OUT=data/local/bm_history.csv.gz python -m worker.services.blackmarble_history 90
+then set NIGHTLIGHT_HISTORY=data/local/bm_history.csv.gz for the worker.
+
 A pixel is "clear" when Mandatory_Quality_Flag is 0, cloud detection (QF_Cloud_Mask bits 6-7) is 0
 (confident clear) and the radiance is valid. Usage on Colab:  python bm_history.py [days]
 """
@@ -26,9 +31,9 @@ from datetime import date, timedelta
 BBOX = (35.0, 33.0, 36.0, 33.6)           # west, south, east, north
 PRODUCTS = {"NOAA-20": ("VJ146A2", "VJ146A2_NRT"), "NOAA-21": ("VJ246A2", "VJ246A2_NRT")}
 H3_RES = 8
-TOKEN_FILE = "/content/.earthdata_token"
-WORK = "/content/bm"
-OUT = "/content/out/bm_history.csv.gz"
+TOKEN_FILE = os.path.expanduser(os.environ.get("BM_TOKEN_FILE", "/content/.earthdata_token"))
+WORK = os.environ.get("BM_WORK", "/content/bm")
+OUT = os.environ.get("BM_OUT", "/content/out/bm_history.csv.gz")
 
 
 def cmr_granules(short_name: str, start: str) -> list[dict]:
@@ -123,6 +128,7 @@ def main(days: int = 120) -> None:
         for j, lo in enumerate(lon[c]):
             index[i, j] = cells.setdefault(h3.latlng_to_cell(float(la), float(lo), H3_RES), len(cells))
     names = {v: k for k, v in cells.items()}
+    os.remove(first)                                  # keep only the small per-cell numbers
     print("pixels", index.size, "cells", len(cells), flush=True)
 
     def work(job):
