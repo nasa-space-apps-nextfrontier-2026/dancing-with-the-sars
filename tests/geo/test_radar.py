@@ -5,6 +5,7 @@ import pytest
 pytest.importorskip("rasterio")
 pytest.importorskip("pyproj")
 pytest.importorskip("h3")
+pytest.importorskip("pandas")  # pipelines/radar/nisar/features.py needs it; CI does not install it
 
 import numpy as np
 import rasterio
