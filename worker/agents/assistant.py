@@ -19,6 +19,7 @@ from worker.agents.inputs import (
     AreaFacts,
     area_facts,
     as_json,
+    load_population,
     load_published,
     load_table,
     parse_time,
@@ -144,11 +145,12 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--published", type=Path, default=Path("data/published"))
     ap.add_argument("--table", type=Path, default=Path("data/local/building_table.parquet"))
+    ap.add_argument("--population", type=Path, default=Path("data/local/population.csv.gz"))
     ap.add_argument("--incident", help="incident id; default: the top-ranked one")
     ap.add_argument("--role", default="officer", choices=list(ROLE_LEVEL))
     args = ap.parse_args(argv)
     alerts, sources = load_published(args.published)
-    facts = area_facts(load_table(args.table))
+    facts = area_facts(load_table(args.table), load_population(args.population))
     ranked = rank(alerts, facts, sources)
     item = next((i for i in ranked["items"] if i["incident_id"] == args.incident), ranked["items"][0])
     print(as_json(advise(item, facts.get(item["area_id"]), alerts, sources, args.role)))
