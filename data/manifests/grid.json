@@ -1,0 +1,23 @@
+{
+  "kind": "grid_manifest",
+  "aoi": "south-lebanon-demo",
+  "bbox_wgs84": {
+    "west": 35.0,
+    "south": 33.0,
+    "east": 36.0,
+    "north": 33.6
+  },
+  "resolution": 9,
+  "cell_count": 52053,
+  "h3_version": "4.5.0",
+  "columns": [
+    "cell_id",
+    "parent_r8",
+    "lat",
+    "lon",
+    "district_id",
+    "governorate_id"
+  ],
+  "generated_date": "2026-11-14",
+  "output": "C:\\Users\\USER\\Desktop\\dancing-with-the-sars\\data\\manifests\\grid.json"
+}
