@@ -33,3 +33,20 @@ def test_registry_answers_only_in_synthetic_mode(monkeypatch, tmp_path):
         assert sample.json() == {"from": "registry", "synthetic": True}         # registry answered
     finally:
         get_settings.cache_clear()
+
+
+def test_synthetic_sources_never_relabel_real_records(monkeypatch, tmp_path):
+    """A real source register on disk must not be served stamped synthetic (labelling rule)."""
+    from backend.app.handlers import sources
+
+    register = tmp_path / "sources.json"
+    register.write_text(json.dumps([{"source_id": "ds-real", "dataset_id": "x", "name": "Real", "synthetic": False}]))
+    monkeypatch.setattr(sources, "SOURCES_MANIFEST", register, raising=False)
+    monkeypatch.setenv("DEMO_SYNTHETIC", "true")
+    get_settings.cache_clear()
+    try:
+        items = TestClient(app).get("/api/v1/sources").json()["items"]
+        assert [i["source_id"] for i in items] == ["demo-source-01"]
+        assert TestClient(app).get("/api/v1/sources/ds-real").status_code == 404
+    finally:
+        get_settings.cache_clear()
