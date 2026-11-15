@@ -1,0 +1,1023 @@
+{
+ "_note": "SAMPLE DATA for the 3D map mockup. Not real observations. Shaped like the future API so each top-level key can be swapped for an endpoint.",
+ "meta": {
+  "run_id": "run-2026-11-14-s1-demo",
+  "generated_at": "2026-11-14T21:40:00Z",
+  "region": "South Lebanon",
+  "change_delay_hours": 72,
+  "officer": "Duty officer (demo login)"
+ },
+ "imagery": {
+  "with_token": "Bing Maps Aerial via Cesium ion · capture date varies by tile, not the incident date",
+  "without_token": "Esri World Imagery · capture date varies by tile, not the incident date"
+ },
+ "passes": [
+  {
+   "id": "p1",
+   "date": "2026-10-21",
+   "sensor": "NISAR L-band",
+   "status": "ok"
+  },
+  {
+   "id": "p2",
+   "date": "2026-10-27",
+   "sensor": "Sentinel-1 C-band",
+   "status": "ok"
+  },
+  {
+   "id": "p3",
+   "date": "2026-11-02",
+   "sensor": "NISAR L-band",
+   "status": "missed"
+  },
+  {
+   "id": "p4",
+   "date": "2026-11-08",
+   "sensor": "Sentinel-1 C-band",
+   "status": "ok"
+  },
+  {
+   "id": "p5",
+   "date": "2026-11-14",
+   "sensor": "NISAR L-band",
+   "status": "ok"
+  }
+ ],
+ "incidents": [
+  {
+   "id": "inc-khiam",
+   "name": "Khiam east",
+   "area": "Marjayoun district",
+   "lon": 35.6195,
+   "lat": 33.3305,
+   "rank": 1,
+   "score": {
+    "low": 0.74,
+    "high": 0.86
+   },
+   "damage_class": "severe",
+   "evidence": "Corroborated",
+   "second_sensor_agrees": true,
+   "first_pass": "p4",
+   "buildings_candidate": {
+    "low": 14,
+    "high": 22
+   },
+   "people_nearby": {
+    "low": 1800,
+    "high": 2900
+   },
+   "why": [
+    {
+     "factor": "Damage candidates",
+     "value": "14–22 buildings",
+     "weight": 0.3
+    },
+    {
+     "factor": "Second-satellite agreement",
+     "value": "Sentinel-1 agrees",
+     "weight": 0.2
+    },
+    {
+     "factor": "Fires",
+     "value": "2 active detections",
+     "weight": 0.15
+    },
+    {
+     "factor": "Power loss",
+     "value": "3 cells dimmed",
+     "weight": 0.1
+    },
+    {
+     "factor": "Population at risk",
+     "value": "1,800–2,900",
+     "weight": 0.12
+    },
+    {
+     "factor": "Facilities nearby",
+     "value": "1 clinic, 1 school",
+     "weight": 0.08
+    },
+    {
+     "factor": "Data age",
+     "value": "18 h since pass",
+     "weight": 0.05
+    }
+   ],
+   "insights": [
+    {
+     "text": "Radar change is concentrated in a 400 m strip along the eastern ridge road.",
+     "evidence": "Observed",
+     "source": "NISAR L-band",
+     "source_date": "2026-11-14"
+    },
+    {
+     "text": "Sentinel-1 shows the same change pattern in the same cells.",
+     "evidence": "Corroborated",
+     "source": "Sentinel-1 C-band",
+     "source_date": "2026-11-08"
+    },
+    {
+     "text": "Two thermal detections sit inside the candidate area.",
+     "evidence": "Observed",
+     "source": "VIIRS 375 m",
+     "source_date": "2026-11-14"
+    },
+    {
+     "text": "Night lights dimmed in three cells compared to the October baseline: possible power loss.",
+     "evidence": "Observed",
+     "source": "VIIRS Black Marble",
+     "source_date": "2026-11-13"
+    },
+    {
+     "text": "Local media mention access problems on the ridge road.",
+     "evidence": "Reported",
+     "source": "Media monitor",
+     "source_date": "2026-11-14"
+    }
+   ],
+   "suggestions": [
+    {
+     "id": "s1",
+     "kind": "check",
+     "text": "Ask a field team to confirm the ridge road status before routing vehicles.",
+     "reason": "Two candidate buildings lie next to the road."
+    },
+    {
+     "id": "s2",
+     "kind": "route",
+     "text": "Consider route A via the western valley road.",
+     "reason": "No damage candidates within 50 m of it in this run. Not verified on the ground."
+    },
+    {
+     "id": "s3",
+     "kind": "check",
+     "text": "Contact the clinic to check if it is operating.",
+     "reason": "Facility sits 300 m from the nearest candidate cell."
+    }
+   ]
+  },
+  {
+   "id": "inc-bintjbeil",
+   "name": "Bint Jbeil centre",
+   "area": "Bint Jbeil district",
+   "lon": 35.4335,
+   "lat": 33.1205,
+   "rank": 2,
+   "score": {
+    "low": 0.62,
+    "high": 0.79
+   },
+   "damage_class": "destroyed",
+   "evidence": "Observed",
+   "second_sensor_agrees": false,
+   "first_pass": "p5",
+   "buildings_candidate": {
+    "low": 8,
+    "high": 15
+   },
+   "people_nearby": {
+    "low": 2400,
+    "high": 4100
+   },
+   "why": [
+    {
+     "factor": "Damage candidates",
+     "value": "8–15 buildings",
+     "weight": 0.32
+    },
+    {
+     "factor": "Second-satellite agreement",
+     "value": "No second pass yet",
+     "weight": 0.0
+    },
+    {
+     "factor": "Fires",
+     "value": "1 active detection",
+     "weight": 0.1
+    },
+    {
+     "factor": "Power loss",
+     "value": "2 cells dimmed",
+     "weight": 0.08
+    },
+    {
+     "factor": "Population at risk",
+     "value": "2,400–4,100",
+     "weight": 0.18
+    },
+    {
+     "factor": "Facilities nearby",
+     "value": "1 hospital",
+     "weight": 0.1
+    },
+    {
+     "factor": "Data age",
+     "value": "18 h since pass",
+     "weight": 0.05
+    }
+   ],
+   "insights": [
+    {
+     "text": "Strong radar change in the old market blocks.",
+     "evidence": "Observed",
+     "source": "NISAR L-band",
+     "source_date": "2026-11-14"
+    },
+    {
+     "text": "No second satellite has passed since; agreement is not known yet.",
+     "evidence": "Unknown",
+     "source": "Sentinel-1 schedule",
+     "source_date": "2026-11-14"
+    },
+    {
+     "text": "One thermal detection near the market.",
+     "evidence": "Observed",
+     "source": "VIIRS 375 m",
+     "source_date": "2026-11-14"
+    }
+   ],
+   "suggestions": [
+    {
+     "id": "s4",
+     "kind": "check",
+     "text": "Wait for the next Sentinel-1 pass before upgrading the evidence label.",
+     "reason": "Only one sensor has seen this change."
+    },
+    {
+     "id": "s5",
+     "kind": "route",
+     "text": "Approach from the north road (route B).",
+     "reason": "The southern market street is possibly blocked (candidate)."
+    }
+   ]
+  },
+  {
+   "id": "inc-aitaroun",
+   "name": "Aitaroun south",
+   "area": "Bint Jbeil district",
+   "lon": 35.4705,
+   "lat": 33.1135,
+   "rank": 3,
+   "score": {
+    "low": 0.48,
+    "high": 0.66
+   },
+   "damage_class": "moderate",
+   "evidence": "Reported",
+   "second_sensor_agrees": false,
+   "first_pass": "p4",
+   "buildings_candidate": {
+    "low": 3,
+    "high": 7
+   },
+   "people_nearby": {
+    "low": 600,
+    "high": 1200
+   },
+   "why": [
+    {
+     "factor": "Damage candidates",
+     "value": "3–7 buildings",
+     "weight": 0.18
+    },
+    {
+     "factor": "Second-satellite agreement",
+     "value": "Disagrees",
+     "weight": 0.0
+    },
+    {
+     "factor": "Fires",
+     "value": "None",
+     "weight": 0.0
+    },
+    {
+     "factor": "Power loss",
+     "value": "1 cell dimmed",
+     "weight": 0.06
+    },
+    {
+     "factor": "Population at risk",
+     "value": "600–1,200",
+     "weight": 0.1
+    },
+    {
+     "factor": "Facilities nearby",
+     "value": "1 school",
+     "weight": 0.06
+    },
+    {
+     "factor": "Data age",
+     "value": "6 days since pass",
+     "weight": 0.02
+    }
+   ],
+   "insights": [
+    {
+     "text": "Residents report damage on the southern edge; radar change is weak here.",
+     "evidence": "Reported",
+     "source": "Municipal contact",
+     "source_date": "2026-11-09"
+    },
+    {
+     "text": "Sentinel-1 does not show matching change.",
+     "evidence": "Unknown",
+     "source": "Sentinel-1 C-band",
+     "source_date": "2026-11-08"
+    }
+   ],
+   "suggestions": [
+    {
+     "id": "s6",
+     "kind": "check",
+     "text": "Request a ground photo from the municipality.",
+     "reason": "Sensors and the report disagree."
+    }
+   ]
+  },
+  {
+   "id": "inc-nabatieh",
+   "name": "Nabatieh al-Fawqa",
+   "area": "Nabatieh district",
+   "lon": 35.4985,
+   "lat": 33.3775,
+   "rank": 4,
+   "score": {
+    "low": 0.4,
+    "high": 0.58
+   },
+   "damage_class": "possible",
+   "evidence": "Observed",
+   "second_sensor_agrees": true,
+   "first_pass": "p2",
+   "buildings_candidate": {
+    "low": 2,
+    "high": 5
+   },
+   "people_nearby": {
+    "low": 900,
+    "high": 1600
+   },
+   "why": [
+    {
+     "factor": "Damage candidates",
+     "value": "2–5 buildings",
+     "weight": 0.14
+    },
+    {
+     "factor": "Second-satellite agreement",
+     "value": "Sentinel-1 agrees",
+     "weight": 0.12
+    },
+    {
+     "factor": "Fires",
+     "value": "None",
+     "weight": 0.0
+    },
+    {
+     "factor": "Power loss",
+     "value": "None",
+     "weight": 0.0
+    },
+    {
+     "factor": "Population at risk",
+     "value": "900–1,600",
+     "weight": 0.1
+    },
+    {
+     "factor": "Facilities nearby",
+     "value": "None",
+     "weight": 0.0
+    },
+    {
+     "factor": "Data age",
+     "value": "18 days since pass",
+     "weight": 0.01
+    }
+   ],
+   "insights": [
+    {
+     "text": "Small change cluster seen on two sensors; class is only possible damage.",
+     "evidence": "Corroborated",
+     "source": "NISAR + Sentinel-1",
+     "source_date": "2026-10-27"
+    }
+   ],
+   "suggestions": []
+  }
+ ],
+ "damage_cells": [
+  {
+   "id": "d1",
+   "incident_id": "inc-khiam",
+   "lon": 35.6188,
+   "lat": 33.3311,
+   "size_m": 45,
+   "damage_class": "severe",
+   "evidence": "Corroborated",
+   "second_sensor": true,
+   "pass_id": "p4"
+  },
+  {
+   "id": "d2",
+   "incident_id": "inc-khiam",
+   "lon": 35.6201,
+   "lat": 33.3302,
+   "size_m": 40,
+   "damage_class": "destroyed",
+   "evidence": "Corroborated",
+   "second_sensor": true,
+   "pass_id": "p4"
+  },
+  {
+   "id": "d3",
+   "incident_id": "inc-khiam",
+   "lon": 35.6212,
+   "lat": 33.3296,
+   "size_m": 50,
+   "damage_class": "moderate",
+   "evidence": "Observed",
+   "second_sensor": false,
+   "pass_id": "p5"
+  },
+  {
+   "id": "d4",
+   "incident_id": "inc-khiam",
+   "lon": 35.6179,
+   "lat": 33.3292,
+   "size_m": 35,
+   "damage_class": "possible",
+   "evidence": "Observed",
+   "second_sensor": false,
+   "pass_id": "p5"
+  },
+  {
+   "id": "d5",
+   "incident_id": "inc-bintjbeil",
+   "lon": 35.4331,
+   "lat": 33.1209,
+   "size_m": 50,
+   "damage_class": "destroyed",
+   "evidence": "Observed",
+   "second_sensor": false,
+   "pass_id": "p5"
+  },
+  {
+   "id": "d6",
+   "incident_id": "inc-bintjbeil",
+   "lon": 35.4344,
+   "lat": 33.1201,
+   "size_m": 40,
+   "damage_class": "severe",
+   "evidence": "Observed",
+   "second_sensor": false,
+   "pass_id": "p5"
+  },
+  {
+   "id": "d7",
+   "incident_id": "inc-bintjbeil",
+   "lon": 35.4322,
+   "lat": 33.1198,
+   "size_m": 35,
+   "damage_class": "moderate",
+   "evidence": "Observed",
+   "second_sensor": false,
+   "pass_id": "p5"
+  },
+  {
+   "id": "d8",
+   "incident_id": "inc-aitaroun",
+   "lon": 35.4709,
+   "lat": 33.1131,
+   "size_m": 40,
+   "damage_class": "moderate",
+   "evidence": "Reported",
+   "second_sensor": false,
+   "pass_id": "p4"
+  },
+  {
+   "id": "d9",
+   "incident_id": "inc-nabatieh",
+   "lon": 35.4989,
+   "lat": 33.3772,
+   "size_m": 40,
+   "damage_class": "possible",
+   "evidence": "Corroborated",
+   "second_sensor": true,
+   "pass_id": "p2"
+  }
+ ],
+ "change_cells": [
+  {
+   "id": "c1",
+   "lon": 35.6195,
+   "lat": 33.3303,
+   "size_m": 120,
+   "pass_id": "p4"
+  },
+  {
+   "id": "c2",
+   "lon": 35.6208,
+   "lat": 33.3292,
+   "size_m": 120,
+   "pass_id": "p5"
+  },
+  {
+   "id": "c3",
+   "lon": 35.4335,
+   "lat": 33.1204,
+   "size_m": 120,
+   "pass_id": "p5"
+  },
+  {
+   "id": "c4",
+   "lon": 35.4707,
+   "lat": 33.1133,
+   "size_m": 120,
+   "pass_id": "p4"
+  },
+  {
+   "id": "c5",
+   "lon": 35.4987,
+   "lat": 33.3774,
+   "size_m": 120,
+   "pass_id": "p2"
+  }
+ ],
+ "fires": [
+  {
+   "id": "f1",
+   "lon": 35.6199,
+   "lat": 33.3306,
+   "detected_at": "2026-11-14T23:10:00Z",
+   "source": "VIIRS 375 m",
+   "evidence": "Observed",
+   "uncertainty_m": 375,
+   "pass_id": "p5"
+  },
+  {
+   "id": "f2",
+   "lon": 35.6213,
+   "lat": 33.3294,
+   "detected_at": "2026-11-14T23:10:00Z",
+   "source": "VIIRS 375 m",
+   "evidence": "Observed",
+   "uncertainty_m": 375,
+   "pass_id": "p5"
+  },
+  {
+   "id": "f3",
+   "lon": 35.4339,
+   "lat": 33.1207,
+   "detected_at": "2026-11-14T23:10:00Z",
+   "source": "VIIRS 375 m",
+   "evidence": "Observed",
+   "uncertainty_m": 375,
+   "pass_id": "p5"
+  }
+ ],
+ "nightlights": [
+  {
+   "id": "n1",
+   "lon": 35.615,
+   "lat": 33.333,
+   "size_m": 500,
+   "state": "dark",
+   "pass_id": "p4",
+   "last_lit": "2026-10-28",
+   "sensors_agree": true,
+   "people": {
+    "low": 300,
+    "high": 700
+   }
+  },
+  {
+   "id": "n2",
+   "lon": 35.621,
+   "lat": 33.328,
+   "size_m": 500,
+   "state": "dark",
+   "pass_id": "p4",
+   "last_lit": "2026-10-28",
+   "sensors_agree": true,
+   "people": {
+    "low": 300,
+    "high": 700
+   }
+  },
+  {
+   "id": "n3",
+   "lon": 35.626,
+   "lat": 33.333,
+   "size_m": 500,
+   "state": "dark",
+   "pass_id": "p5",
+   "last_lit": "2026-10-28",
+   "sensors_agree": false,
+   "people": {
+    "low": 300,
+    "high": 700
+   }
+  },
+  {
+   "id": "n4",
+   "lon": 35.61,
+   "lat": 33.328,
+   "size_m": 500,
+   "state": "lit",
+   "pass_id": "p1",
+   "last_lit": "2026-10-31",
+   "sensors_agree": false,
+   "people": {
+    "low": 0,
+    "high": 0
+   }
+  },
+  {
+   "id": "n5",
+   "lon": 35.433,
+   "lat": 33.121,
+   "size_m": 500,
+   "state": "dark",
+   "pass_id": "p5",
+   "last_lit": "2026-10-28",
+   "sensors_agree": true,
+   "people": {
+    "low": 300,
+    "high": 700
+   }
+  },
+  {
+   "id": "n6",
+   "lon": 35.438,
+   "lat": 33.117,
+   "size_m": 500,
+   "state": "dark",
+   "pass_id": "p5",
+   "last_lit": "2026-10-28",
+   "sensors_agree": false,
+   "people": {
+    "low": 300,
+    "high": 700
+   }
+  },
+  {
+   "id": "n7",
+   "lon": 35.471,
+   "lat": 33.113,
+   "size_m": 500,
+   "state": "dark",
+   "pass_id": "p4",
+   "last_lit": "2026-10-28",
+   "sensors_agree": false,
+   "people": {
+    "low": 300,
+    "high": 700
+   }
+  }
+ ],
+ "population": [
+  {
+   "id": "w1",
+   "lon": 35.617,
+   "lat": 33.332,
+   "size_m": 900,
+   "people": {
+    "low": 900,
+    "high": 1400
+   }
+  },
+  {
+   "id": "w2",
+   "lon": 35.624,
+   "lat": 33.328,
+   "size_m": 900,
+   "people": {
+    "low": 600,
+    "high": 1000
+   }
+  },
+  {
+   "id": "w3",
+   "lon": 35.433,
+   "lat": 33.121,
+   "size_m": 900,
+   "people": {
+    "low": 1500,
+    "high": 2600
+   }
+  },
+  {
+   "id": "w4",
+   "lon": 35.47,
+   "lat": 33.113,
+   "size_m": 900,
+   "people": {
+    "low": 400,
+    "high": 800
+   }
+  },
+  {
+   "id": "w5",
+   "lon": 35.499,
+   "lat": 33.377,
+   "size_m": 900,
+   "people": {
+    "low": 700,
+    "high": 1200
+   }
+  }
+ ],
+ "facilities": [
+  {
+   "id": "fac1",
+   "kind": "clinic",
+   "name": "Khiam clinic (sample)",
+   "lon": 35.616,
+   "lat": 33.333
+  },
+  {
+   "id": "fac2",
+   "kind": "school",
+   "name": "Khiam school (sample)",
+   "lon": 35.623,
+   "lat": 33.3325
+  },
+  {
+   "id": "fac3",
+   "kind": "hospital",
+   "name": "Bint Jbeil hospital (sample)",
+   "lon": 35.4295,
+   "lat": 33.123
+  },
+  {
+   "id": "fac4",
+   "kind": "school",
+   "name": "Aitaroun school (sample)",
+   "lon": 35.468,
+   "lat": 33.115
+  },
+  {
+   "id": "fac5",
+   "kind": "water",
+   "name": "Khiam water tower (sample)",
+   "lon": 35.6205,
+   "lat": 33.3318
+  },
+  {
+   "id": "fac6",
+   "kind": "fuel",
+   "name": "Ridge fuel station (sample)",
+   "lon": 35.6226,
+   "lat": 33.3289
+  },
+  {
+   "id": "fac7",
+   "kind": "water",
+   "name": "Bint Jbeil reservoir (sample)",
+   "lon": 35.4352,
+   "lat": 33.1188
+  },
+  {
+   "id": "fac8",
+   "kind": "fuel",
+   "name": "Market fuel station (sample)",
+   "lon": 35.4318,
+   "lat": 33.1215
+  }
+ ],
+ "routes": [
+  {
+   "id": "rA",
+   "incident_id": "inc-khiam",
+   "label": "Route A",
+   "status": "available_not_verified",
+   "coords": [
+    [
+     35.602,
+     33.342
+    ],
+    [
+     35.606,
+     33.339
+    ],
+    [
+     35.61,
+     33.336
+    ],
+    [
+     35.614,
+     33.3335
+    ],
+    [
+     35.617,
+     33.3318
+    ],
+    [
+     35.619,
+     33.3308
+    ]
+   ]
+  },
+  {
+   "id": "rK",
+   "incident_id": "inc-khiam",
+   "label": "Ridge road",
+   "status": "possibly_blocked_candidate",
+   "coords": [
+    [
+     35.617,
+     33.329
+    ],
+    [
+     35.619,
+     33.33
+    ],
+    [
+     35.6205,
+     33.33
+    ],
+    [
+     35.622,
+     33.3292
+    ],
+    [
+     35.624,
+     33.3285
+    ]
+   ]
+  },
+  {
+   "id": "rB",
+   "incident_id": "inc-bintjbeil",
+   "label": "Route B",
+   "status": "available_not_verified",
+   "coords": [
+    [
+     35.43,
+     33.133
+    ],
+    [
+     35.431,
+     33.129
+    ],
+    [
+     35.4322,
+     33.125
+    ],
+    [
+     35.433,
+     33.122
+    ],
+    [
+     35.4334,
+     33.1208
+    ]
+   ]
+  },
+  {
+   "id": "rM",
+   "incident_id": "inc-bintjbeil",
+   "label": "Market street",
+   "status": "possibly_blocked_candidate",
+   "coords": [
+    [
+     35.4315,
+     33.1196
+    ],
+    [
+     35.4328,
+     33.1202
+    ],
+    [
+     35.4342,
+     33.12
+    ],
+    [
+     35.4356,
+     33.1192
+    ]
+   ]
+  }
+ ],
+ "budget": [
+  {
+   "area": "Khiam east",
+   "low": 4.2,
+   "high": 9.8,
+   "unit": "USD million",
+   "assumptions": [
+    "14–22 buildings, mostly concrete frame",
+    "Repair cost per m² from regional 2024 reference",
+    "Excludes roads, power and water networks"
+   ]
+  },
+  {
+   "area": "Bint Jbeil centre",
+   "low": 3.1,
+   "high": 8.5,
+   "unit": "USD million",
+   "assumptions": [
+    "8–15 buildings, mixed stone and concrete",
+    "Older stone buildings priced at heritage rate",
+    "Excludes market contents"
+   ]
+  },
+  {
+   "area": "Aitaroun south",
+   "low": 0.6,
+   "high": 2.0,
+   "unit": "USD million",
+   "assumptions": [
+    "3–7 buildings, moderate damage only",
+    "Based on a report, not yet sensor-agreed"
+   ]
+  }
+ ],
+ "shelters": [
+  {
+   "id": "sh1",
+   "incident_id": "inc-khiam",
+   "kind": "school",
+   "name": "Khiam public school (OSM)",
+   "lon": 35.6105,
+   "lat": 33.3372,
+   "capacity": {
+    "low": 250,
+    "high": 400
+   }
+  },
+  {
+   "id": "sh2",
+   "incident_id": "inc-khiam",
+   "kind": "community hall",
+   "name": "Khiam municipal hall (OSM)",
+   "lon": 35.6065,
+   "lat": 33.3405,
+   "capacity": {
+    "low": 120,
+    "high": 200
+   }
+  },
+  {
+   "id": "sh3",
+   "incident_id": "inc-khiam",
+   "kind": "mosque",
+   "name": "Western quarter mosque (OSM)",
+   "lon": 35.615,
+   "lat": 33.3345,
+   "capacity": {
+    "low": 80,
+    "high": 150
+   }
+  },
+  {
+   "id": "sh4",
+   "incident_id": "inc-bintjbeil",
+   "kind": "school",
+   "name": "Bint Jbeil secondary school (OSM)",
+   "lon": 35.429,
+   "lat": 33.129,
+   "capacity": {
+    "low": 300,
+    "high": 500
+   }
+  },
+  {
+   "id": "sh5",
+   "incident_id": "inc-bintjbeil",
+   "kind": "public building",
+   "name": "Sports hall (OSM)",
+   "lon": 35.4265,
+   "lat": 33.1255,
+   "capacity": {
+    "low": 200,
+    "high": 350
+   }
+  },
+  {
+   "id": "sh6",
+   "incident_id": "inc-aitaroun",
+   "kind": "church",
+   "name": "Aitaroun hall (OSM)",
+   "lon": 35.466,
+   "lat": 33.1175,
+   "capacity": {
+    "low": 60,
+    "high": 120
+   }
+  },
+  {
+   "id": "sh7",
+   "incident_id": "inc-nabatieh",
+   "kind": "school",
+   "name": "Nabatieh school (OSM)",
+   "lon": 35.495,
+   "lat": 33.381,
+   "capacity": {
+    "low": 200,
+    "high": 320
+   }
+  }
+ ]
+}

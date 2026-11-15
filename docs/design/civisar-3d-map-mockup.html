@@ -1,0 +1,1322 @@
+<!doctype html>
+<!--
+  CIVISAR · 3D incident map — clickable MOCKUP (sample data only, no backend).
+  Serve this folder (python -m http.server 8765) and open civisar-3d-map-mockup.html.
+  Cesium ion token (free): put  window.CESIUM_ION_TOKEN = "…";  in docs/design/.env.cesium.js
+  (git-ignored by the .env.* rule) or paste it in the start box (kept in this browser only).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CIVISAR 3D Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cesium@1.121.0/Build/Cesium/Widgets/widgets.css">
+<script src="https://cdn.jsdelivr.net/npm/cesium@1.121.0/Build/Cesium/Cesium.js"></script>
+<script src=".env.cesium.js"></script>
+<style>
+:root{
+  /* neutral glass console — colour only for evidence, damage, route status, fire, power */
+  --bg:#07090b;
+  --glass:rgba(16,20,24,.78); --glass-strong:rgba(14,18,21,.92); --glass-hi:rgba(255,255,255,.045);
+  --stroke:rgba(255,255,255,.08); --stroke-2:rgba(255,255,255,.14); --stroke-3:rgba(255,255,255,.24);
+  --ink:#f1f4f3; --ink-2:#b6bfbd; --ink-3:#86908e; --ink-4:#5d6765;
+  --ev-observed:#5bb3ea; --ev-reported:#e391c3; --ev-corroborated:#45c79c; --ev-unknown:#94a29f;
+  --dmg-destroyed:#ff7a93; --dmg-severe:#f5904f; --dmg-moderate:#f2b84b; --dmg-possible:#eadf73;
+  --route-open:#f1f4f3; --route-blocked:#ff5a5f; --fire:#ff8a4d; --radar:#c39be8; --power:#9d93e6;
+  --r-sm:8px; --r-md:12px; --r-lg:18px; --r-pill:999px;
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --gap:12px; --top:60px; --dock:80px; --rail:56px; --drawer:340px; --panel:368px;
+  --shadow:0 1px 0 rgba(255,255,255,.04) inset,0 10px 30px rgba(0,0,0,.45),0 2px 6px rgba(0,0,0,.3);
+  --blur:saturate(140%) blur(18px);
+  --ease:cubic-bezier(.22,.8,.26,1);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:400 13.5px/19px var(--sans);overflow:hidden;-webkit-font-smoothing:antialiased;font-feature-settings:"cv11","ss01"}
+button{font:inherit;color:inherit}
+.mono{font-family:var(--mono)}
+:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.glass{background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--stroke);box-shadow:var(--shadow)}
+
+/* ---------- scene ---------- */
+#scene{position:fixed;inset:0;display:flex}
+#scene>div{position:relative;flex:1;min-width:0;height:100%}
+#v2wrap{display:none;border-left:1px solid var(--stroke-2)}
+body.mode-2d #v3wrap{display:none} body.mode-2d #v2wrap{display:block;border:0}
+body.mode-split #v2wrap{display:block}
+.viewlabel{position:absolute;top:calc(var(--top) + 8px);left:50%;transform:translateX(-50%);z-index:5;font:600 11px/14px var(--mono);letter-spacing:.12em;color:var(--ink-2);padding:4px 10px;border-radius:var(--r-pill);display:none}
+body.mode-split .viewlabel{display:block}
+.cesium-widget-credits{display:none!important}
+/* vignette keeps chrome legible without boxing the scene */
+#vig{position:fixed;inset:0;pointer-events:none;z-index:2;background:
+  linear-gradient(180deg,rgba(7,9,11,.55) 0,rgba(7,9,11,0) 130px),
+  linear-gradient(0deg,rgba(7,9,11,.6) 0,rgba(7,9,11,0) 160px)}
+
+/* ---------- top ---------- */
+#top{position:fixed;left:var(--gap);right:var(--gap);top:var(--gap);height:48px;z-index:30;display:flex;align-items:center;gap:10px;pointer-events:none}
+#top>*{pointer-events:auto}
+.pill{display:flex;align-items:center;height:48px;border-radius:var(--r-pill);padding:0 6px}
+.brand{gap:10px;padding:0 16px 0 10px}
+.logo{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#2a3238,#0d1114);border:1px solid var(--stroke-2)}
+.brand b{font:700 15px/1 var(--sans);letter-spacing:.14em}
+.brand small{font:500 12px/1 var(--sans);color:var(--ink-3);margin-left:2px}
+.tabs{gap:2px}
+.tab{height:36px;background:none;border:0;padding:0 14px;border-radius:var(--r-pill);color:var(--ink-3);cursor:pointer;font-weight:500;font-size:14px;transition:background .2s,color .2s}
+.tab:hover{color:var(--ink)}
+.tab[aria-current="page"]{color:var(--ink);background:rgba(255,255,255,.09)}
+.spacer{flex:1}
+.seg{gap:2px}
+.seg button{height:36px;background:none;border:0;padding:0 14px;border-radius:var(--r-pill);cursor:pointer;color:var(--ink-3);font-weight:600;font-size:13px;display:flex;align-items:center;gap:6px;transition:background .2s,color .2s}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:rgba(255,255,255,.12);color:var(--ink)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;background:rgba(255,255,255,.06);border:1px solid var(--stroke-2);padding:0 16px;border-radius:var(--r-pill);cursor:pointer;font-weight:600;font-size:14px;white-space:nowrap;transition:background .2s,border-color .2s,transform .1s}
+.btn:hover{background:rgba(255,255,255,.11);border-color:var(--stroke-3)}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--ink);color:#0b0e10;border-color:var(--ink)}
+.btn.primary:hover{background:#fff}
+.btn[aria-pressed="true"]{background:rgba(255,255,255,.16);border-color:var(--stroke-3)}
+.btn.ghost{background:none;border-color:transparent}
+.btn.sm{height:26px;padding:0 9px;font-size:11.5px;gap:5px}
+.btn svg{flex:none}
+.top-btn{height:48px;padding:0 18px}
+.avatar{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font:600 13px/1 var(--sans);background:linear-gradient(135deg,#2c353b,#161b1f);border:1px solid var(--stroke-2);cursor:default}
+
+/* ---------- rail ---------- */
+#rail{position:fixed;left:var(--gap);top:calc(var(--top) + var(--gap) + 8px);z-index:25;width:var(--rail);border-radius:22px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0}
+.rb{width:44px;height:44px;border-radius:14px;border:0;background:none;display:grid;place-items:center;cursor:pointer;color:var(--ink-3);position:relative;transition:background .2s,color .2s}
+.rb:hover{background:rgba(255,255,255,.07);color:var(--ink)}
+.rb[aria-pressed="true"]{background:rgba(255,255,255,.13);color:var(--ink)}
+.rb[aria-pressed="true"]::before{content:"";position:absolute;left:-8px;top:12px;bottom:12px;width:3px;border-radius:3px;background:var(--ink)}
+.rb .tip{position:absolute;left:56px;white-space:nowrap;background:var(--glass-strong);border:1px solid var(--stroke-2);padding:6px 10px;border-radius:10px;font-size:13px;font-weight:500;color:var(--ink);opacity:0;transform:translateX(-4px);pointer-events:none;transition:opacity .15s,transform .15s}
+.rb:hover .tip,.rb:focus-visible .tip{opacity:1;transform:none}
+.rail-sep{width:24px;height:1px;background:var(--stroke-2);margin:6px 0}
+
+/* ---------- drawers ---------- */
+.drawer{position:fixed;top:calc(var(--top) + var(--gap) + 8px);bottom:calc(var(--dock) + var(--gap) * 2);z-index:24;border-radius:var(--r-lg);display:flex;flex-direction:column;transition:transform .35s var(--ease),opacity .25s;overflow:hidden}
+#left{left:calc(var(--gap) + var(--rail) + 10px);width:var(--drawer)}
+#right{right:var(--gap);width:var(--panel)}
+.drawer.hidden{opacity:0;pointer-events:none}
+#left.hidden{transform:translateX(-16px)} #right.hidden{transform:translateX(16px)}
+@media (prefers-reduced-motion:reduce){.drawer,.tab,.btn,.rb{transition:none!important}}
+.dh{display:flex;align-items:flex-start;gap:8px;padding:14px 10px 10px 16px}
+.dh h2{margin:0;font:650 16px/21px var(--sans);letter-spacing:-.01em}
+.kicker{display:block;font:600 10px/13px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:3px}
+.x{flex:none;width:28px;height:28px;border:0;border-radius:10px;background:none;color:var(--ink-3);cursor:pointer;display:grid;place-items:center}
+.x:hover{background:rgba(255,255,255,.08);color:var(--ink)}
+.db{flex:1;overflow:auto;padding:2px 16px 14px}
+.df{padding:8px 16px;border-top:1px solid var(--stroke);font-size:11.5px;line-height:16px;color:var(--ink-3);display:flex;gap:8px;align-items:center}
+.db::-webkit-scrollbar{width:10px}.db::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:10px;border:3px solid transparent;background-clip:padding-box}
+.ptabs{display:flex;gap:2px;padding:0 10px 0 12px;border-bottom:1px solid var(--stroke);overflow-x:auto;scrollbar-width:none}
+.ptab{position:relative;background:none;border:0;padding:6px 6px 8px;color:var(--ink-3);font-weight:600;font-size:12.5px;cursor:pointer;white-space:nowrap}
+.ptab:hover{color:var(--ink)}
+.ptab[aria-selected="true"]{color:var(--ink)}
+.ptab[aria-selected="true"]::after{content:"";position:absolute;left:8px;right:8px;bottom:-1px;height:2px;border-radius:2px;background:var(--ink)}
+.ptab .n{display:inline-block;margin-left:4px;font:600 10px/14px var(--mono);padding:0 5px;border-radius:var(--r-pill);background:rgba(255,255,255,.08);color:var(--ink-2)}
+
+/* ---------- atoms ---------- */
+.chip{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 8px;border-radius:var(--r-pill);font:600 11px/1 var(--sans);background:color-mix(in srgb,currentColor 12%,transparent);border:1px solid color-mix(in srgb,currentColor 40%,transparent);white-space:nowrap}
+.chip::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.ev-Observed{color:var(--ev-observed)} .ev-Reported{color:var(--ev-reported)} .ev-Corroborated{color:var(--ev-corroborated)} .ev-Unknown{color:var(--ev-unknown)}
+.dchip{display:inline-flex;align-items:center;gap:7px;font:600 12.5px/17px var(--sans)}
+.hatch{width:18px;height:14px;border-radius:4px;border:1.5px solid var(--c);background:repeating-linear-gradient(45deg,var(--c) 0 2px,transparent 2px 5px);flex:none}
+.d-destroyed{--c:var(--dmg-destroyed)} .d-severe{--c:var(--dmg-severe)} .d-moderate{--c:var(--dmg-moderate)} .d-possible{--c:var(--dmg-possible)}
+.tag{display:inline-flex;align-items:center;height:18px;font:600 9.5px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:0 6px;border-radius:6px;border:1px dashed var(--stroke-3);color:var(--ink-2);white-space:nowrap}
+.tag.warn{border-color:color-mix(in srgb,var(--route-blocked) 60%,transparent);color:#ff9a9d}
+.tag.fire{border-color:color-mix(in srgb,var(--fire) 60%,transparent);color:var(--fire)}
+.tag.pw{border-color:color-mix(in srgb,var(--power) 60%,transparent);color:#bdb6f0}
+.row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.muted{color:var(--ink-3)} .small{font-size:12px;line-height:17px}
+.sect{display:flex;align-items:center;gap:8px;font:600 10px/13px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin:14px 0 8px}
+.sect::after{content:"";flex:1;height:1px;background:var(--stroke)}
+.note{display:flex;gap:8px;background:rgba(255,255,255,.035);border:1px solid var(--stroke);border-radius:var(--r-sm);padding:8px 10px;font-size:11.5px;line-height:16px;color:var(--ink-2)}
+.note svg{flex:none;margin-top:1px;color:var(--ink-3)}
+.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.card{background:var(--glass-hi);border:1px solid var(--stroke);border-radius:var(--r-sm);padding:9px 11px;transition:border-color .2s,background .2s}
+.card:hover{border-color:var(--stroke-2)}
+.card.sel{border-color:var(--stroke-3);background:rgba(255,255,255,.07)}
+.card h3{margin:0;font:600 13.5px/18px var(--sans)}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.kpi{background:var(--glass-hi);border:1px solid var(--stroke);border-radius:var(--r-sm);padding:8px 10px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.kpi .k{display:flex;align-items:center;gap:6px;font:600 9.5px/13px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.kpi b{font:600 16px/21px var(--mono);letter-spacing:-.02em}
+.kpi .s{font-size:11px;line-height:15px;color:var(--ink-3);min-height:30px}
+.kpi .btn{align-self:flex-start;margin-top:2px}
+.irow{display:grid;grid-template-columns:24px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid var(--stroke)}
+.irow:last-child{border-bottom:0}
+.ico{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;background:rgba(255,255,255,.06);color:var(--ink-2)}
+.irow .t{font-weight:500}
+.irow .m{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-top:4px;font-size:11.5px;color:var(--ink-3)}
+.rankrow{display:flex;gap:12px;align-items:flex-start;cursor:pointer}
+.rk{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:600 12px/1 var(--mono);background:rgba(0,0,0,.35);border:2px solid var(--c)}
+.scorebar{position:relative;height:4px;border-radius:4px;background:rgba(255,255,255,.08);margin:8px 0 6px}
+.scorebar i{position:absolute;top:0;bottom:0;border-radius:6px;background:linear-gradient(90deg,var(--ink-3),var(--ink))}
+.why{margin-top:12px;border-top:1px solid var(--stroke);padding-top:10px;display:none}
+.card.open .why{display:block}
+.why div{display:grid;grid-template-columns:1fr 34px 50px;gap:8px;align-items:center;font-size:12px;line-height:16px;padding:3px 0}
+.why .w{height:4px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden}.why .w i{display:block;height:100%;background:var(--ink-2)}
+.linkbtn{display:inline-flex;align-items:center;gap:4px;background:none;border:0;color:var(--ink-2);cursor:pointer;padding:0;font-size:12px;font-weight:500}
+.linkbtn:hover{color:var(--ink)}
+.toggle{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--stroke)}
+.toggle .sw{width:28px;height:20px;flex:none;display:grid;place-items:center}
+.toggle label{flex:1;cursor:pointer;font-weight:500}
+.toggle small{display:block;color:var(--ink-3);font-size:11px;line-height:15px;font-weight:400}
+.switch{position:relative;width:36px;height:22px;flex:none}
+.switch input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer;z-index:1}
+.switch i{position:absolute;inset:0;border-radius:22px;background:rgba(255,255,255,.12);transition:background .2s}
+.switch i::after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:var(--ink-2);transition:transform .2s var(--ease),background .2s}
+.switch input:checked+i{background:var(--ink)} .switch input:checked+i::after{transform:translateX(14px);background:#0b0e10}
+.switch input:focus-visible+i{outline:2px solid #fff;outline-offset:2px}
+dl.kv{display:grid;grid-template-columns:auto 1fr;gap:5px 14px;margin:0;font-size:12.5px}
+dl.kv dt{color:var(--ink-3)} dl.kv dd{margin:0;font-family:var(--mono);font-size:11.5px}
+.budget-bar{position:relative;height:5px;background:rgba(255,255,255,.08);border-radius:5px;margin:8px 0 6px}
+.budget-bar i{position:absolute;top:0;bottom:0;border-radius:8px;background:repeating-linear-gradient(90deg,var(--ink-3) 0 6px,var(--ink-2) 6px 12px)}
+.sug{padding:8px 8px 8px 11px}
+.sug-top{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:start}
+.sug-top .tag{margin-top:1px}
+.sug-t{font-weight:500;font-size:12.5px;line-height:17px}
+.x.sm{width:22px;height:22px;border-radius:6px;margin:-2px 0 0}
+.sug-why{margin:4px 0 0;font-size:11.5px;line-height:15px;color:var(--ink-3)}
+.sug-why::before{content:"Why: ";color:var(--ink-4)}
+.rt{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--stroke);font-size:12.5px}
+.rt:last-child{border-bottom:0}
+.rt b{flex:1;font-weight:600}
+.kbtn{margin-left:auto;display:inline-grid;place-items:center;width:22px;height:22px;border-radius:6px;border:1px solid var(--stroke-2);background:none;color:var(--ink-2);cursor:pointer}
+.kbtn:hover{background:rgba(255,255,255,.1);color:var(--ink)}
+.dsum{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:6px}
+.dsum div{background:var(--glass-hi);border:1px solid var(--stroke);border-radius:var(--r-sm);padding:7px 6px;text-align:center}
+.dsum b{display:block;font:600 17px/21px var(--mono)}
+.dsum span{display:block;font-size:10.5px;line-height:13px;color:var(--ink-3)}
+.sico{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;background:rgba(255,255,255,.06);color:var(--ink-2);flex:none}
+.sug-act{display:flex;gap:2px}
+.sug .sug-why{padding-left:30px}
+.sug.done{opacity:.6}.sug.done .sug-t{text-decoration:line-through;text-decoration-color:var(--ink-4)}
+.rcard{padding:8px 11px}
+.rcard.bl{border-color:color-mix(in srgb,var(--route-blocked) 30%,transparent)}
+.rmeta{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px;font:500 11.5px/15px var(--mono)}
+.rmeta i{display:block;font:400 10px/13px var(--sans);font-style:normal;color:var(--ink-3)}
+.gaps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:12px;line-height:16px;color:var(--ink-2)}
+.gaps li{display:flex;gap:8px;align-items:flex-start}
+.gdot{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none;margin-top:5px}
+.locbox{background:var(--glass-hi);border:1px solid var(--stroke);border-radius:var(--r-sm);padding:8px 10px}
+.locrow{display:grid;grid-template-columns:56px 1fr auto;gap:8px;align-items:center;padding:3px 0;font-size:12px}
+.locrow b{font-weight:500;font-size:12px;overflow-wrap:anywhere}
+a.btn{text-decoration:none;color:inherit}
+.empty{color:var(--ink-3);font-size:12.5px;padding:8px 0}
+
+/* ---------- legend ---------- */
+#legend{position:fixed;left:calc(var(--gap) + var(--rail) + 10px);bottom:calc(var(--dock) + var(--gap) * 2);z-index:26;width:310px;border-radius:var(--r-lg);padding:16px 18px 18px}
+#legend.hidden{display:none}
+#legend ul{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:11px;font-size:13.5px}
+#legend li{display:flex;align-items:center;gap:12px}
+.lg{width:28px;height:16px;flex:none}
+
+/* ---------- dock ---------- */
+#dock{position:fixed;left:var(--gap);right:var(--gap);bottom:var(--gap);height:var(--dock);z-index:30;border-radius:22px;display:grid;grid-template-columns:250px 1fr auto;gap:28px;align-items:center;padding:0 22px}
+.phases{display:flex;flex-direction:column;gap:8px}
+.phases .lab{font:600 10.5px/14px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.steps{display:flex;gap:6px}
+.step{flex:1;font-size:12px;line-height:16px;color:var(--ink-4);padding-top:9px;position:relative;transition:color .3s}
+.step::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;border-radius:3px;background:rgba(255,255,255,.1);transition:background .3s}
+.step.on{color:var(--ink)} .step.on::before{background:var(--ink)}
+.step.done{color:var(--ink-2)} .step.done::before{background:var(--ink-3)}
+.timeline{display:flex;flex-direction:column;gap:4px;min-width:0}
+.tl-head{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:var(--ink-3)}
+.tl-head b{color:var(--ink);font-family:var(--mono);font-weight:600;font-size:12.5px}
+.track{position:relative;height:30px}
+.track input{position:absolute;inset:0;width:100%;margin:0;opacity:0;cursor:pointer;z-index:2}
+.track .rl{position:absolute;left:0;right:0;top:13px;height:4px;background:rgba(255,255,255,.1);border-radius:4px}
+.track .fill{position:absolute;left:0;top:13px;height:4px;background:linear-gradient(90deg,rgba(255,255,255,.25),var(--ink));border-radius:4px}
+.tick{position:absolute;top:8px;width:2px;height:14px;transform:translateX(-1px);background:var(--stroke-3);border-radius:2px}
+.tick.missed{width:14px;transform:translateX(-7px);background:repeating-linear-gradient(45deg,var(--ink-3) 0 2px,transparent 2px 5px);border:1px dashed var(--ink-3)}
+.tick.cur::after{content:"";position:absolute;left:50%;top:-1px;width:16px;height:16px;transform:translateX(-50%);border-radius:50%;background:var(--ink);box-shadow:0 0 0 5px rgba(255,255,255,.12),0 2px 8px rgba(0,0,0,.5)}
+.tick.missed.cur::after{background:#0b0e10;border:2px solid var(--ink)}
+.track input:focus-visible~.tick.cur::after{outline:2px solid #fff;outline-offset:3px}
+.ticklabels{position:relative;height:16px;font:500 11px/16px var(--mono);color:var(--ink-3)}
+.ticklabels span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+.ticklabels span:first-child{transform:none} .ticklabels span:last-child{transform:translateX(-100%)}
+.camctl{display:flex;gap:8px;align-items:center}
+.hint{font-size:12px;color:var(--ink-3);margin-right:6px;white-space:nowrap;text-align:right;line-height:16px}
+#credit{position:fixed;left:calc(var(--gap) + 6px);bottom:calc(var(--dock) + var(--gap) + 8px);z-index:20;font:400 10.5px/14px var(--mono);color:rgba(255,255,255,.55);max-width:46vw;text-shadow:0 1px 2px #000}
+#credit a{color:inherit}
+#credit img{height:11px;vertical-align:middle;filter:grayscale(1) brightness(1.6);opacity:.7}
+#ccx,#ccx *{display:inline!important;font-size:10.5px!important}
+body:has(#legend:not(.hidden)) #credit{opacity:0}
+
+/* ---------- focus ---------- */
+body.focus #rail,body.focus .drawer,body.focus #legend,body.focus .hide-in-focus{display:none!important}
+#exitFocus{display:none;position:fixed;top:calc(var(--top) + var(--gap) + 8px);left:var(--gap);z-index:31}
+body.focus #exitFocus{display:inline-flex}
+
+/* ---------- banner / modal ---------- */
+#banner{position:fixed;top:calc(var(--top) + var(--gap) + 8px);left:50%;transform:translateX(-50%);z-index:29;border-radius:var(--r-pill);padding:8px 16px;font-size:13px;color:var(--ink-2);display:none;max-width:min(560px,60vw);text-align:center}
+#modal{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,rgba(7,9,11,.55),rgba(7,9,11,.92))}
+#modal.hidden{display:none}
+.mbox{width:min(520px,calc(100vw - 32px));border-radius:22px;padding:30px}
+.mbox h1{margin:0 0 8px;font:650 22px/28px var(--sans);letter-spacing:-.01em}
+.mbox input{width:100%;margin:18px 0;height:46px;padding:0 14px;background:rgba(0,0,0,.4);border:1px solid var(--stroke-2);border-radius:var(--r-md);color:var(--ink);font:400 13px/18px var(--mono)}
+.mbox ol{margin:12px 0 0;padding-left:20px;color:var(--ink-2);font-size:14px;line-height:22px}
+.placeholder{display:grid;place-items:center;text-align:center;min-height:50%;color:var(--ink-3)}
+
+@media (max-width:1100px){ .tabs,.hint{display:none} :root{--panel:360px;--drawer:340px} }
+@media (max-width:820px){
+  :root{--drawer:calc(100vw - var(--rail) - var(--gap)*2 - 10px);--panel:calc(100vw - var(--rail) - var(--gap)*2 - 10px)}
+  .brand small,.avatar,#flyTop span{display:none}
+  #dock{grid-template-columns:1fr auto;gap:14px;padding:0 14px} .phases{display:none}
+  #left:not(.hidden) ~ #right{opacity:0;pointer-events:none}
+}
+</style>
+</head>
+<body class="mode-3d">
+
+<div id="scene">
+  <div id="v3wrap"><div id="v3" style="position:absolute;inset:0"></div><div class="viewlabel glass">3D</div></div>
+  <div id="v2wrap"><div id="v2" style="position:absolute;inset:0"></div><div class="viewlabel glass">2D</div></div>
+</div>
+<div id="vig"></div>
+
+<header id="top">
+  <div class="pill glass brand"><span class="logo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f1f4f3" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4c2.5 3 2.5 13 0 16M12 4c-2.5 3-2.5 13 0 16"/></svg></span><b>CIVISAR</b><small>South Lebanon</small></div>
+  <nav class="pill glass tabs" aria-label="Pages">
+    <button class="tab" aria-current="page" data-page="map">Map</button>
+    <button class="tab" data-page="alerts">Alerts</button>
+    <button class="tab" data-page="areas">Areas</button>
+    <button class="tab" data-page="sources">Sources</button>
+  </nav>
+  <div class="spacer"></div>
+  <div class="pill glass seg" role="group" aria-label="Base map">
+    <button data-base="sat" aria-pressed="true">Satellite</button>
+    <button data-base="streets" aria-pressed="false">Streets</button>
+  </div>
+  <div class="pill glass seg" role="group" aria-label="View mode">
+    <button data-mode="2d" aria-pressed="false">2D</button>
+    <button data-mode="3d" aria-pressed="true">3D</button>
+    <button data-mode="split" aria-pressed="false">Split</button>
+  </div>
+  <button class="btn glass top-btn" id="focusBtn" aria-pressed="false">Focus</button>
+  <button class="btn primary top-btn" id="flyTop"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 20l8-4 8 4z"/></svg><span>Fly to top incident</span></button>
+  <div class="avatar" title="Signed in · duty officer (demo)">DO</div>
+</header>
+
+<nav id="rail" class="glass" aria-label="Panels"></nav>
+<aside id="left" class="drawer glass hidden" aria-label="Panel"></aside>
+<aside id="right" class="drawer glass" aria-label="Incident"></aside>
+<div id="legend" class="glass hidden" role="dialog" aria-label="Legend"></div>
+<div id="banner" class="glass"></div>
+<button class="btn glass" id="exitFocus">Exit focus</button>
+<div id="credit"><span id="credtext"></span> · <span id="ccx"></span></div>
+
+<footer id="dock" class="glass">
+  <div class="phases hide-in-focus" aria-live="polite">
+    <div class="lab">Camera flight</div>
+    <div class="steps"><div class="step" data-p="1">Regional</div><div class="step" data-p="2">Descent</div><div class="step" data-p="3">Arrival</div><div class="step" data-p="4">360° view</div></div>
+  </div>
+  <div class="timeline">
+    <div class="tl-head"><span>Satellite pass&nbsp; <b id="passName"></b></span><span id="passNote"></span></div>
+    <div class="track" id="track">
+      <div class="rl"></div><div class="fill" id="tfill"></div>
+      <input type="range" id="date" min="0" max="4" step="1" value="4" aria-label="Satellite pass date">
+    </div>
+    <div class="ticklabels" id="ticklabels"></div>
+  </div>
+  <div class="camctl">
+    <span class="hint">Drag to orbit<br>Scroll to zoom</span>
+    <button class="btn" id="orbitBtn" aria-pressed="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg>Orbit 360</button>
+    <button class="btn" id="resetBtn">Reset</button>
+  </div>
+</footer>
+
+<div id="modal" class="hidden">
+  <div class="mbox glass">
+    <span class="kicker">3D setup</span>
+    <h1>Add a free Cesium ion token</h1>
+    <p class="muted small" style="margin:0">Terrain and OSM 3D buildings come from Cesium ion (free account). The token stays in this browser only.</p>
+    <ol><li>Sign up free at ion.cesium.com</li><li>Open <b>Access Tokens</b> and copy the Default token</li><li>Paste it below</li></ol>
+    <input id="tokIn" placeholder="eyJhbGciOi…" autocomplete="off" spellcheck="false" aria-label="Cesium ion token">
+    <div class="row" style="justify-content:flex-end">
+      <button class="btn ghost" id="tokSkip">Continue without 3D buildings</button>
+      <button class="btn primary" id="tokGo">Use token</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+"use strict";
+const C = window.Cesium;
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt = n => n.toLocaleString("en-US");
+const rng = r => r.low === r.high ? fmt(r.low) : `${fmt(r.low)}–${fmt(r.high)}`;
+const reduceMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const col = v => C.Color.fromCssColorString(css(v));
+const DMG = {destroyed:"--dmg-destroyed",severe:"--dmg-severe",moderate:"--dmg-moderate",possible:"--dmg-possible"};
+const DMG_LABEL = {destroyed:"Destroyed (candidate)",severe:"Severe (candidate)",moderate:"Moderate (candidate)",possible:"Possible damage (candidate)"};
+const NEAR_M = 300, AREA_M = 1500;
+const dist = (a,b) => Math.hypot((a.lon-b.lon)*111320*Math.cos(a.lat*Math.PI/180), (a.lat-b.lat)*111320);
+
+/* ================= state ================= */
+const S = {
+  data:null, token:null, passIdx:4, selected:null, mode:"3d", base:"sat", leftPanel:null, rightView:"incident", tab:"summary",
+  layers:{damage:true, second:true, change:false, fires:true, night:false, pop:false, facilities:true, shelters:true, routes:true, streets:true, buildings:true},
+  dismissed:new Set(), checked:new Set(), orbit:false, phase:0, heightsReady:Promise.resolve(), v3:null, v2:null, tileset:null, fx:[], building:null
+};
+const LAYERS = [
+  ["damage","Damage candidates","Hatched volumes; never final damage"],
+  ["second","Second-sensor ring","Dashed ring where a second satellite agrees"],
+  ["change","NISAR change cells","Radar change, 120 m cells"],
+  ["fires","Fires","Thermal points, 375 m uncertainty ring"],
+  ["night","Night lights","Dark cells: possible power loss"],
+  ["pop","Population (WorldPop)","People per cell, as a range"],
+  ["facilities","Facilities","Hospitals, clinics, schools, water, fuel"],
+  ["shelters","Candidate shelters","OSM sites, not verified"],
+  ["routes","Routes","Not verified / possibly blocked (candidate)"],
+  ["streets","Streets & labels","Road and place-name overlay"],
+  ["buildings","3D buildings (OSM)","Natural colours from material tags; 3D only"]
+];
+
+/* ================= icons ================= */
+const I = {
+  incident:'<path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+  rank:'<path d="M5 20V10M12 20V4M19 20v-7"/>',
+  decide:'<path d="M4 6h10M4 12h16M4 18h7"/><circle cx="17" cy="6" r="2"/><circle cx="14" cy="18" r="2"/>',
+  budget:'<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  layers:'<path d="M12 3 3 8l9 5 9-5-9-5z"/><path d="m3 13 9 5 9-5"/>',
+  legend:'<path d="M5 6h.01M5 12h.01M5 18h.01M9 6h10M9 12h10M9 18h10"/>',
+  close:'<path d="M6 6l12 12M18 6 6 18"/>',
+  people:'<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.3"/><path d="M16 14.2c2.8.2 5 2.6 5 5.8"/>',
+  facility:'<path d="M4 21V8l8-5 8 5v13"/><path d="M10 21v-6h4v6M12 8v4M10 10h4"/>',
+  road:'<path d="M8 3 5 21M16 3l3 18M12 4v3M12 10v4M12 17v3"/>',
+  power:'<path d="M13 2 5 14h6l-1 8 8-12h-6z"/>',
+  fire:'<path d="M12 22c4 0 7-2.8 7-6.8 0-3.6-2.6-5.7-4-8.2-.6 2-1.6 3-3 3.6.4-3.2-1-6.4-3.6-8.6C8.3 6 5 8.6 5 14.6 5 19 8 22 12 22z"/>',
+  shelter:'<path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+  pin:'<path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/>',
+  budget2:'<path d="M12 3v18M17 7.5c0-1.9-2.2-3-5-3s-5 1.1-5 3 2.2 2.6 5 3.2 5 1.4 5 3.3-2.2 3-5 3-5-1.1-5-3"/>',
+  chev:'<path d="m9 6 6 6-6 6"/>'
+};
+const svg = (n, w=20) => `<svg viewBox="0 0 24 24" width="${w}" height="${w}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[n]}</svg>`;
+
+/* ================= boot ================= */
+async function boot(){
+  try { S.data = await (await fetch("civisar-3d-sample.json", {cache:"no-store"})).json(); }
+  catch(e){ document.body.innerHTML = '<div class="placeholder" style="height:100vh"><div><h2>Serve this folder over http</h2><p>Run <span class="mono">python -m http.server 8765</span> in docs/design and open the page from localhost.</p></div></div>'; return; }
+  let tok = window.CESIUM_ION_TOKEN; try { tok = tok || localStorage.getItem("civisar.ionToken"); } catch(e){}
+  if (tok) return start(tok);
+  $("#modal").classList.remove("hidden"); $("#tokIn").focus();
+  $("#tokGo").onclick = () => { const t = $("#tokIn").value.trim(); if(!t) return; try{localStorage.setItem("civisar.ionToken", t);}catch(e){} $("#modal").classList.add("hidden"); start(t); };
+  $("#tokIn").onkeydown = e => { if (e.key==="Enter") $("#tokGo").click(); };
+  $("#tokSkip").onclick = () => { $("#modal").classList.add("hidden"); start(null); };
+}
+
+/* ================= imagery ================= */
+const ESRI = p => `https://server.arcgisonline.com/ArcGIS/rest/services/${p}/MapServer/tile/{z}/{y}/{x}`;
+function baseProvider(){
+  if (S.base === "streets") return new C.UrlTemplateImageryProvider({url:"https://tile.openstreetmap.org/{z}/{x}/{y}.png", maximumLevel:19, credit:"© OpenStreetMap contributors"});
+  return new C.UrlTemplateImageryProvider({url:ESRI("World_Imagery"), maximumLevel:19, credit:"Esri, Maxar, Earthstar Geographics"});
+}
+function overlayProviders(){
+  return [new C.UrlTemplateImageryProvider({url:ESRI("Reference/World_Transportation"), maximumLevel:19, credit:"Esri"}),
+          new C.UrlTemplateImageryProvider({url:ESRI("Reference/World_Boundaries_and_Places"), maximumLevel:19, credit:"Esri"})];
+}
+function setupImagery(v){
+  const L = v.imageryLayers; L.removeAll(true);
+  const base = L.addImageryProvider(baseProvider());
+  if (S.base === "sat") { base.saturation = 0.85; base.brightness = 0.95; base.gamma = 1.05; }
+  else { base.brightness = 0.55; base.contrast = 1.15; base.saturation = 0.25; base.gamma = 1.1; } // dim the street map so overlays stay readable
+  v._overlays = S.base === "sat" ? overlayProviders().map(p => { const l = L.addImageryProvider(p); l.alpha = 0.9; return l; }) : [];
+  v._overlays.forEach(l => l.show = S.layers.streets);
+}
+function updateCredit(){
+  $("#credtext").textContent = S.base === "streets" ? "Map: © OpenStreetMap contributors"
+    : "Imagery: Esri World Imagery · capture date varies by tile, not the incident date" + (S.layers.streets ? " · Streets: Esri" : "") + (S.roadsLoaded ? " · Routing: OSRM, © OpenStreetMap" : "");
+}
+
+function makeViewer(el, mode){
+  const opts = {baseLayer:false, sceneMode:mode, animation:false, timeline:false, baseLayerPicker:false, geocoder:false,
+    homeButton:false, sceneModePicker:false, navigationHelpButton:false, fullscreenButton:false, infoBox:false,
+    selectionIndicator:false, showRenderLoopErrors:false, creditContainer: mode===C.SceneMode.SCENE3D ? $("#ccx") : document.createElement("div"), msaaSamples:4};
+  if (S.token && mode===C.SceneMode.SCENE3D) opts.terrain = C.Terrain.fromWorldTerrain({requestVertexNormals:true, requestWaterMask:true});
+  const v = new C.Viewer(el, opts);
+  setupImagery(v);
+  const sc = v.scene;
+  // Google-Earth-style space: black with the star field, no sun/moon sprites; the atmosphere rim stays
+  sc.backgroundColor = C.Color.BLACK;
+  if (sc.skyBox) sc.skyBox.show = true; if (sc.sun) sc.sun.show = false; if (sc.moon) sc.moon.show = false;
+  sc.globe.baseColor = C.Color.fromCssColorString("#0f2433"); // dark ocean blue until imagery tiles arrive
+  sc.globe.depthTestAgainstTerrain = true;
+  sc.globe.enableLighting = !!S.token;
+  sc.fog.enabled = true; sc.fog.density = 1.4e-4; sc.fog.minimumBrightness = 0.08;
+  if (sc.skyAtmosphere) { sc.skyAtmosphere.saturationShift = -0.3; sc.skyAtmosphere.brightnessShift = -0.15; }
+  v.clock.shouldAnimate = true;
+  v.clock.currentTime = C.JulianDate.fromIso8601("2026-11-14T11:00:00Z"); // early-afternoon sun: soft shadows, readable scene
+  sc.light = new C.SunLight({intensity:2.2});
+  if (S.token && mode===C.SceneMode.SCENE3D) { v.shadows = true; v.shadowMap.softShadows = true; v.shadowMap.darkness = 0.45; v.shadowMap.size = 2048; }
+  sc.postProcessStages.fxaa.enabled = true;
+  sc.screenSpaceCameraController.minimumZoomDistance = 25; // never reach the anchored point itself
+  // self-heal: if Cesium ever hits a render error, reset the camera and restart rendering instead of freezing
+  const recover = (err) => {
+    console.warn("Render error, recovering", err);
+    S.orbit = false; S.orbitT = null; S.anchorT = null; S.flying = false;
+    try { v.camera.cancelFlight(); v.camera.lookAtTransform(C.Matrix4.IDENTITY); } catch (e) {}
+    v.camera.setView({destination:C.Cartesian3.fromDegrees(BIRD.lon,BIRD.lat,BIRD.h), orientation:{heading:C.Math.toRadians(BIRD.heading), pitch:C.Math.toRadians(BIRD.pitch), roll:0}});
+    setTimeout(() => { v.useDefaultRenderLoop = true; }, 0);
+    if (typeof banner === "function") banner("The 3D view hit a rendering error and was reset to the regional view.");
+  };
+  sc.renderError.addEventListener((scene, err) => recover(err));
+  // watchdog: errors thrown outside Cesium's own guard also stop the loop; restart it the same way
+  const dog = setInterval(() => { if (v.isDestroyed()) return clearInterval(dog); if (!v.useDefaultRenderLoop) recover("render loop stopped"); }, 1000);
+  return v;
+}
+
+async function start(token){
+  S.token = token;
+  if (token) C.Ion.defaultAccessToken = token;
+  S.paths = rawPaths(); updateCredit(); buildChrome();
+  loadRoads();
+  let v;
+  try { v = S.v3 = makeViewer($("#v3"), C.SceneMode.SCENE3D); }
+  catch(e){ console.warn(e); setMode("2d"); banner("3D could not start on this device. Showing the 2D map."); return; }
+  if (!token) banner("Running without a Cesium token: flat ground, no 3D buildings. Effects and panels still work.");
+  if (token) S.heightsReady = new Promise(res => {
+    const go = () => sampleHeights(v).then(res, () => res());
+    const t = v.scene.terrainProvider;
+    if (t && !(t instanceof C.EllipsoidTerrainProvider)) go();
+    else v.scene.globe.terrainProviderChanged.addEventListener(function once(){ v.scene.globe.terrainProviderChanged.removeEventListener(once); go(); });
+  });
+  buildEntities(v, true);
+  if (token) loadBuildings(v);
+  pickHandler(v);
+  v.scene.preRender.addEventListener(() => tick(v));
+  S.heightsReady.then(() => { build3DExtras(v); refresh(); });
+  // START: whole Earth on black, turned slightly west of Lebanon; the flight rotates it into place
+  v.camera.setView({destination: C.Cartesian3.fromDegrees(8, 22, 2.6e7)});
+  refresh(); renderAll();
+  // hold the full-Earth view until its imagery has loaded (max 6 s), pause, then fly in
+  if (reduceMotion()) flyBird(0);
+  else { const t0=performance.now(); const off=v.scene.postRender.addEventListener(() => {
+    if (v.scene.globe.tilesLoaded || performance.now()-t0 > 6000) { off(); setTimeout(() => flyBird(7), 1600); } }); }
+}
+
+/* ================= helpers ================= */
+const passIndex = id => S.data.passes.findIndex(p => p.id === id);
+const visPass = x => !x.pass_id || passIndex(x.pass_id) <= S.passIdx;
+function square(lon, lat, m){
+  const dLat = m/2/111320, dLon = m/2/(111320*Math.cos(lat*Math.PI/180));
+  return [lon-dLon,lat-dLat, lon+dLon,lat-dLat, lon+dLon,lat+dLat, lon-dLon,lat+dLat];
+}
+const ring = a => [...a, a[0], a[1]];
+function circle(lon, lat, r, n=72){
+  const out=[]; for(let i=0;i<=n;i++){ const a=i/n*2*Math.PI;
+    out.push(lon + r*Math.cos(a)/(111320*Math.cos(lat*Math.PI/180)), lat + r*Math.sin(a)/111320); }
+  return C.Cartesian3.fromDegreesArray(out);
+}
+function canvasPin(rank, color){
+  const c=document.createElement("canvas"); c.width=96; c.height=112; const g=c.getContext("2d");
+  g.fillStyle="rgba(0,0,0,.35)"; g.beginPath(); g.ellipse(48,104,14,5,0,0,7); g.fill();
+  g.beginPath(); g.moveTo(48,102); g.lineTo(36,70); g.lineTo(60,70); g.closePath(); g.fillStyle=color; g.fill();
+  g.beginPath(); g.arc(48,44,34,0,7); g.fillStyle=color; g.fill();
+  g.beginPath(); g.arc(48,44,27,0,7); g.fillStyle="#0e1215"; g.fill();
+  g.fillStyle="#f1f4f3"; g.font="600 28px 'JetBrains Mono',monospace"; g.textAlign="center"; g.textBaseline="middle"; g.fillText(rank,48,46);
+  return c;
+}
+function canvasBadge(letter, kind){
+  const c=document.createElement("canvas"); c.width=c.height=56; const g=c.getContext("2d");
+  if (kind==="shelter") { g.setLineDash([5,4]); g.strokeStyle="#f1f4f3"; g.lineWidth=3; g.beginPath(); g.roundRect(5,5,46,46,14); g.stroke();
+    g.setLineDash([]); g.fillStyle="rgba(14,18,21,.92)"; g.beginPath(); g.roundRect(9,9,38,38,10); g.fill();
+    g.strokeStyle="#f1f4f3"; g.lineWidth=2.6; g.lineJoin="round"; g.beginPath(); g.moveTo(18,29); g.lineTo(28,20); g.lineTo(38,29); g.moveTo(21,27); g.lineTo(21,38); g.lineTo(35,38); g.lineTo(35,27); g.stroke(); return c; }
+  g.fillStyle="#f1f4f3"; g.beginPath(); g.roundRect(8,8,40,40,11); g.fill();
+  g.fillStyle="#0e1215"; g.font="700 20px Inter,sans-serif"; g.textAlign="center"; g.textBaseline="middle"; g.fillText(letter,28,29); return c;
+}
+function radial(stops, size=128){
+  const c=document.createElement("canvas"); c.width=c.height=size; const g=c.getContext("2d");
+  const gr=g.createRadialGradient(size/2,size/2,0,size/2,size/2,size/2); stops.forEach(([o,cl])=>gr.addColorStop(o,cl));
+  g.fillStyle=gr; g.fillRect(0,0,size,size); return c;
+}
+function ringImg(){
+  const c=document.createElement("canvas"); c.width=c.height=256; const g=c.getContext("2d");
+  const gr=g.createRadialGradient(128,128,90,128,128,128); gr.addColorStop(0,"rgba(255,255,255,0)"); gr.addColorStop(.75,"rgba(255,255,255,.9)"); gr.addColorStop(1,"rgba(255,255,255,0)");
+  g.fillStyle=gr; g.fillRect(0,0,256,256); return c;
+}
+const FONT = w => `${w} 13px Inter, sans-serif`;
+const labelStyle = (text, opts={}) => Object.assign({text, font:FONT(600), fillColor:C.Color.fromCssColorString("#f1f4f3"),
+  showBackground:true, backgroundColor:C.Color.fromCssColorString("rgba(10,13,15,0.86)"), backgroundPadding:new C.Cartesian2(9,6),
+  horizontalOrigin:C.HorizontalOrigin.LEFT, verticalOrigin:C.VerticalOrigin.CENTER, pixelOffset:new C.Cartesian2(28,-26),
+  disableDepthTestDistance:Number.POSITIVE_INFINITY, heightReference:C.HeightReference.CLAMP_TO_GROUND}, opts);
+
+/* ================= data → entities ================= */
+function buildEntities(v, is3D){
+  const D=S.data, E=v.entities, add=(layer, pass, e, extra={})=>{ const en=E.add(e); en._layer=layer; en._pass=pass; Object.assign(en, extra); return en; };
+  const near = new C.DistanceDisplayCondition(0, 7000);
+  D.incidents.forEach(inc => {
+    add("incident", passIndex(inc.first_pass), {position:C.Cartesian3.fromDegrees(inc.lon, inc.lat),
+      billboard:{image:canvasPin(inc.rank, css(DMG[inc.damage_class])), scale:0.5, verticalOrigin:C.VerticalOrigin.BOTTOM, heightReference:C.HeightReference.CLAMP_TO_GROUND,
+        disableDepthTestDistance:Number.POSITIVE_INFINITY},
+      label:labelStyle(inc.name, {pixelOffset:new C.Cartesian2(22,-34), distanceDisplayCondition:new C.DistanceDisplayCondition(1800, 4e5)})}, {_incident:inc.id});
+  });
+  D.damage_cells.forEach(d => {
+    const c = col(DMG[d.damage_class]), p=passIndex(d.pass_id), sq=square(d.lon,d.lat,d.size_m);
+    add("damage", p, {polygon:{hierarchy:C.Cartesian3.fromDegreesArray(sq),
+      material:new C.StripeMaterialProperty({evenColor:c.withAlpha(0.7), oddColor:c.withAlpha(0.06), repeat:7, orientation:C.StripeOrientation.VERTICAL}),
+      stRotation:C.Math.toRadians(45), classificationType:C.ClassificationType.TERRAIN}});
+    add("damage", p, {polyline:{positions:C.Cartesian3.fromDegreesArray(ring(sq)), clampToGround:true, width:2, material:c}});
+    if (d.second_sensor) add("second", p, {polyline:{positions:circle(d.lon,d.lat,d.size_m*0.95), clampToGround:true, width:2.5,
+      material:new C.PolylineDashMaterialProperty({color:col("--ev-corroborated"), dashLength:14})}});
+  });
+  D.change_cells.forEach(c => add("change", passIndex(c.pass_id), {polyline:{positions:C.Cartesian3.fromDegreesArray(ring(square(c.lon,c.lat,c.size_m))),
+    clampToGround:true, width:2, material:col("--radar").withAlpha(0.9)}}));
+  D.fires.forEach(f => {
+    const p=passIndex(f.pass_id);
+    add("fires", p, {polyline:{positions:circle(f.lon,f.lat,f.uncertainty_m), clampToGround:true, width:2,
+      material:new C.PolylineDashMaterialProperty({color:col("--fire").withAlpha(0.9), dashLength:18})}});
+    add("fires", p, {position:C.Cartesian3.fromDegrees(f.lon,f.lat),
+      point:is3D?undefined:{pixelSize:11, color:col("--fire"), outlineColor:C.Color.BLACK, outlineWidth:2, heightReference:C.HeightReference.CLAMP_TO_GROUND},
+      label:labelStyle(is3D ? "Fire · illustrative effect" : "Fire · 375 m ring", {font:"500 12px 'JetBrains Mono', monospace", pixelOffset:new C.Cartesian2(16,-44),
+        fillColor:C.Color.fromCssColorString("#ffc7a8"), distanceDisplayCondition:new C.DistanceDisplayCondition(0, is3D?3500:12000)})});
+  });
+  D.nightlights.forEach(n => {
+    const p=passIndex(n.pass_id), dark=n.state==="dark", sq=square(n.lon,n.lat,n.size_m);
+    add("night", p, {polygon:{hierarchy:C.Cartesian3.fromDegreesArray(sq),
+      material: dark ? new C.StripeMaterialProperty({evenColor:col("--power").withAlpha(0.38), oddColor:C.Color.fromCssColorString("#04050a").withAlpha(0.42), repeat:16, orientation:C.StripeOrientation.HORIZONTAL})
+        : C.Color.fromCssColorString("#f3e3a1").withAlpha(0.12), classificationType:C.ClassificationType.TERRAIN}});
+    if (dark) add("night", p, {polyline:{positions:C.Cartesian3.fromDegreesArray(ring(sq)), clampToGround:true, width:1.5,
+      material:new C.PolylineDashMaterialProperty({color:col("--power"), dashLength:10})}});
+  });
+  D.population.forEach(p => add("pop", 0, {polygon:{hierarchy:C.Cartesian3.fromDegreesArray(square(p.lon,p.lat,p.size_m)),
+    material:C.Color.fromCssColorString("#cfd8d5").withAlpha(0.06 + p.people.high/2600*0.2), classificationType:C.ClassificationType.TERRAIN},
+    position:C.Cartesian3.fromDegrees(p.lon,p.lat), label:labelStyle(`${rng(p.people)} people`, {font:"500 12px 'JetBrains Mono', monospace", horizontalOrigin:C.HorizontalOrigin.CENTER, pixelOffset:C.Cartesian2.ZERO, distanceDisplayCondition:new C.DistanceDisplayCondition(0,6000)})}));
+  const L = {school:"S", hospital:"H", clinic:"+", water:"W", fuel:"F"};
+  D.facilities.forEach(f => add("facilities", 0, {position:C.Cartesian3.fromDegrees(f.lon,f.lat),
+    billboard:{image:canvasBadge(L[f.kind]||"•"), scale:0.5, heightReference:C.HeightReference.CLAMP_TO_GROUND, disableDepthTestDistance:Number.POSITIVE_INFINITY},
+    label:labelStyle(f.name, {font:FONT(500), pixelOffset:new C.Cartesian2(18,0), distanceDisplayCondition:near})}, {_facility:f.id}));
+  D.shelters.forEach(s => add("shelters", 0, {position:C.Cartesian3.fromDegrees(s.lon,s.lat),
+    billboard:{image:canvasBadge("", "shelter"), scale:0.62, heightReference:C.HeightReference.CLAMP_TO_GROUND, disableDepthTestDistance:Number.POSITIVE_INFINITY},
+    label:labelStyle(`${s.name} · candidate shelter, not verified`, {font:FONT(500), pixelOffset:new C.Cartesian2(20,0), distanceDisplayCondition:near})}, {_shelter:s.id}));
+  drawPaths(v);
+}
+
+/* ================= routes on real roads (OSRM, free) ================= */
+// every path = a road route; "route" paths come from the data, "shelter" paths go incident -> candidate shelter
+function rawPaths(){
+  const D=S.data;
+  return [
+    ...D.routes.map(r => ({id:r.id, kind:"route", incident_id:r.incident_id, label:r.label, status:r.status, coords:r.coords, source:"sample"})),
+    ...D.shelters.map(sh => { const inc=D.incidents.find(i=>i.id===sh.incident_id);
+      return {id:"to-"+sh.id, kind:"shelter", shelter_id:sh.id, incident_id:sh.incident_id, label:"To "+sh.name.replace(/ \(OSM\)$/,""),
+        status:"available_not_verified", coords:[[inc.lon,inc.lat],[sh.lon,sh.lat]], source:"direct"}; })
+  ];
+}
+async function osrm(coords){
+  const a=coords[0], b=coords[coords.length-1];
+  const url=`https://router.project-osrm.org/route/v1/driving/${a[0].toFixed(5)},${a[1].toFixed(5)};${b[0].toFixed(5)},${b[1].toFixed(5)}?overview=full&geometries=geojson`;
+  const ctl=new AbortController(), t=setTimeout(()=>ctl.abort(), 8000);
+  try { const j=await (await fetch(url, {signal:ctl.signal})).json(); return j.code==="Ok" && j.routes[0].geometry.coordinates.length>1 ? j.routes[0].geometry.coordinates : null; }
+  catch(e){ return null; } finally { clearTimeout(t); }
+}
+async function loadRoads(){
+  let ok=0;
+  for (const pth of S.paths) {             // one at a time: polite to the free demo server
+    const g = await osrm(pth.coords);
+    if (g) { pth.coords = g; pth.source = "osm"; ok++; }
+  }
+  S.roadsLoaded = true;
+  [S.v3, S.v2].forEach(v => v && drawPaths(v)); refresh(); renderAll();
+  if (!ok) banner("Road routing could not be reached. Showing sample route lines instead.");
+}
+// mark the parts of a path that pass close to a visible damage candidate
+function pathStats(pth){
+  const cells = S.data.damage_cells.filter(visPass);
+  const pts = pth.coords.map(c => ({lon:c[0], lat:c[1]}));
+  const near = pts.map(q => cells.some(d => dist(d,q) <= d.size_m/2 + 35));
+  const len = pts.slice(1).reduce((a,q,i)=>a+dist(pts[i],q), 0);
+  const blocked = pth.status === "possibly_blocked_candidate";
+  return {pts, near, len, blocked, touches: blocked || near.some(Boolean)};
+}
+function runs(pts, near){
+  const out=[]; let cur=null;
+  for (let i=0;i<pts.length-1;i++){
+    const f = near[i] || near[i+1];
+    if (!cur || cur.f!==f) { cur={f, pts:[pts[i]]}; out.push(cur); }
+    cur.pts.push(pts[i+1]);
+  }
+  return out;
+}
+function drawPaths(v){
+  v.entities.values.filter(e => e._path).forEach(e => v.entities.remove(e));
+  const near = new C.DistanceDisplayCondition(0, 7000);
+  const add = (pth, e) => { const en=v.entities.add(e); en._path=true; en._layer = pth.kind==="shelter" ? "shelters" : "routes";
+    en._pass = 0; if (pth.kind==="shelter") en._forIncident = pth.incident_id; return en; };
+  const red = () => new C.PolylineDashMaterialProperty({color:col("--route-blocked"), gapColor:C.Color.fromCssColorString("#3a0b0d").withAlpha(0.85), dashLength:18});
+  S.paths.forEach(pth => {
+    const st = pathStats(pth); pth.stats = st;
+    const segs = st.blocked ? [{f:true, pts:st.pts}] : runs(st.pts, st.near);
+    segs.forEach(sg => {
+      const pos = C.Cartesian3.fromDegreesArray(sg.pts.flatMap(q => [q.lon, q.lat]));
+      if (sg.f) add(pth, {polyline:{positions:pos, clampToGround:true, width:7, material:red()}});
+      else {
+        add(pth, {polyline:{positions:pos, clampToGround:true, width:pth.kind==="shelter"?9:12, material:C.Color.fromCssColorString("#0a0d0f").withAlpha(0.55)}});
+        add(pth, {polyline:{positions:pos, clampToGround:true, width:pth.kind==="shelter"?4:6,
+          material: pth.kind==="shelter" ? new C.PolylineDashMaterialProperty({color:col("--route-open"), gapColor:C.Color.fromCssColorString("#0a0d0f").withAlpha(0.6), dashLength:14}) : col("--route-open")}});
+      }
+    });
+    const m = st.pts[Math.floor(st.pts.length/2)];
+    const txt = st.blocked ? `${pth.label} · possibly blocked (candidate)`
+      : `${pth.label} · ${fmtM(Math.round(st.len))} · not verified`;
+    add(pth, {position:C.Cartesian3.fromDegrees(m.lon, m.lat), label:labelStyle(txt, {font:FONT(600),
+      fillColor: st.blocked ? C.Color.fromCssColorString("#ff9a9d") : C.Color.fromCssColorString("#f1f4f3"), pixelOffset:new C.Cartesian2(14,18), distanceDisplayCondition:near})});
+    if (!st.blocked) runs(st.pts, st.near).filter(sg => sg.f).forEach(sg => { const q = sg.pts[Math.floor(sg.pts.length/2)];
+      add(pth, {position:C.Cartesian3.fromDegrees(q.lon, q.lat), label:labelStyle("possibly blocked (candidate)", {font:"600 12px Inter, sans-serif",
+        fillColor:C.Color.fromCssColorString("#ff9a9d"), pixelOffset:new C.Cartesian2(12,-16), distanceDisplayCondition:new C.DistanceDisplayCondition(0, 4000)})}); });
+  });
+}
+
+async function sampleHeights(v){
+  const D=S.data, pts=[...D.incidents, ...D.damage_cells, ...D.fires];
+  const out = await C.sampleTerrainMostDetailed(v.scene.terrainProvider, pts.map(p => C.Cartographic.fromDegrees(p.lon, p.lat)));
+  out.forEach((c,i) => pts[i].h = c.height || 0);
+}
+
+/* ================= 3D-only effects ================= */
+const IMG = {};
+function fxImages(){
+  if (IMG.flame) return IMG;
+  IMG.core  = radial([[0,"rgba(255,255,240,1)"],[0.3,"rgba(255,236,170,.95)"],[0.7,"rgba(255,170,60,.4)"],[1,"rgba(255,120,30,0)"]], 64);
+  IMG.flame = radial([[0,"rgba(255,230,160,1)"],[0.25,"rgba(255,170,60,.9)"],[0.6,"rgba(240,80,20,.5)"],[1,"rgba(200,40,10,0)"]]);
+  IMG.ember = radial([[0,"rgba(255,245,210,1)"],[0.35,"rgba(255,170,70,.95)"],[1,"rgba(255,90,20,0)"]], 32);
+  IMG.smoke = radial([[0,"rgba(58,54,50,.85)"],[0.45,"rgba(52,50,48,.5)"],[1,"rgba(45,45,45,0)"]]);
+  IMG.dust  = radial([[0,"rgba(170,150,120,.6)"],[0.5,"rgba(150,135,110,.3)"],[1,"rgba(140,125,100,0)"]]);
+  IMG.glow  = radial([[0,"rgba(255,160,70,.95)"],[0.3,"rgba(255,110,40,.5)"],[1,"rgba(255,80,20,0)"]], 256);
+  IMG.ring  = ringImg();
+  return IMG;
+}
+function frameAt(lon, lat, h){ return C.Transforms.eastNorthUpToFixedFrame(C.Cartesian3.fromDegrees(lon, lat, h)); }
+function addFx(v, sys, layer, pass){ v.scene.primitives.add(sys); sys._layer=layer; sys._pass=pass; S.fx.push(sys); return sys; }
+
+function build3DExtras(v){
+  const D=S.data, im=fxImages(), t0=performance.now(), now=()=> (performance.now()-t0)/1000;
+  D.damage_cells.forEach((d, idx) => {
+    const c = col(DMG[d.damage_class]), h=d.h||0, p=passIndex(d.pass_id), tall = d.damage_class==="destroyed"||d.damage_class==="severe" ? 24 : 16;
+    // hatched candidate volume around the building footprint (overlay; building colour untouched)
+    const vol = v.entities.add({polygon:{hierarchy:C.Cartesian3.fromDegreesArray(square(d.lon,d.lat,d.size_m)), height:h-2, extrudedHeight:h+tall,
+      material:new C.StripeMaterialProperty({evenColor:c.withAlpha(0.38), oddColor:c.withAlpha(0.03), repeat:10, orientation:C.StripeOrientation.HORIZONTAL}),
+      outline:true, outlineColor:new C.CallbackProperty(() => c.withAlpha(reduceMotion() ? 0.9 : 0.55 + 0.4*Math.abs(Math.sin(now()*1.6 + idx))), false),
+      closeTop:false, closeBottom:false}});
+    vol._layer="damage"; vol._pass=p;
+    const lab = v.entities.add({position:C.Cartesian3.fromDegrees(d.lon, d.lat, h+tall+4),
+      label:{text:`${DMG_LABEL[d.damage_class]} · ${d.evidence}`, font:"600 12px Inter, sans-serif", fillColor:c, showBackground:true,
+        backgroundColor:C.Color.fromCssColorString("rgba(10,13,15,0.85)"), backgroundPadding:new C.Cartesian2(8,5),
+        horizontalOrigin:C.HorizontalOrigin.CENTER, verticalOrigin:C.VerticalOrigin.BOTTOM, disableDepthTestDistance:Number.POSITIVE_INFINITY,
+        distanceDisplayCondition:new C.DistanceDisplayCondition(0, 1400)}});
+    lab._layer="damage"; lab._pass=p;
+    // expanding ground pulse ring
+    const r0 = d.size_m*0.6;
+    const pulse = v.entities.add({position:C.Cartesian3.fromDegrees(d.lon,d.lat),
+      // both radii read the same frame time so they are always equal (Cesium rejects minor > major)
+      ellipse:(() => { const ep=v.clock.startTime, ph=t=> reduceMotion()?0.4:((C.JulianDate.secondsDifference(t,ep)*0.45+idx*0.3)%1);
+        const rad=new C.CallbackProperty(t=> r0 + ph(t)*d.size_m*1.6, false);
+        return {semiMajorAxis:rad, semiMinorAxis:rad, classificationType:C.ClassificationType.BOTH,
+          material:new C.ImageMaterialProperty({image:im.ring, transparent:true, color:new C.CallbackProperty(t=> c.withAlpha(reduceMotion()?0.35:0.75*(1-ph(t))), false)})}; })()});
+    pulse._layer="damage"; pulse._pass=p;
+    // low dust haze over destroyed / severe candidates
+    if (tall > 16) addFx(v, new C.ParticleSystem({image:im.dust, modelMatrix:frameAt(d.lon,d.lat,h+1), emitter:new C.BoxEmitter(new C.Cartesian3(d.size_m*0.8, d.size_m*0.8, 4)),
+      emissionRate:5, startColor:C.Color.fromBytes(175,155,125,70), endColor:C.Color.fromBytes(160,145,120,0), startScale:1, endScale:2.6,
+      minimumParticleLife:5, maximumParticleLife:9, minimumSpeed:0.3, maximumSpeed:1.1, minimumImageSize:new C.Cartesian2(10,10), maximumImageSize:new C.Cartesian2(20,20), sizeInMeters:true}), "damage", p);
+  });
+  D.fires.forEach(f => makeFire(v, f, now));
+}
+
+/* fire: white core + flame body + embers + smoke column + ground glow (illustrative) */
+function makeFire(v, f, now){
+  const im = fxImages(), h=f.h||0, p=passIndex(f.pass_id);
+  const enu = frameAt(f.lon, f.lat, h + 0.5);
+  const wind = C.Matrix4.multiplyByPointAsVector(enu, new C.Cartesian3(3.2, 1.2, 0), new C.Cartesian3());
+  const up = C.Matrix4.multiplyByPointAsVector(enu, new C.Cartesian3(0, 0, 1), new C.Cartesian3());
+  const tmp = new C.Cartesian3(), tmp2 = new C.Cartesian3(), sw = new C.Cartesian3();
+  const off = f.lon * 37 % 6.28;
+  // slow wind gusts: the plume visibly leans and straightens
+  const gust = () => reduceMotion() ? 1 : 1 + 0.9 * Math.sin(now()*0.55 + off) * (0.6 + 0.4*Math.sin(now()*0.21 + off));
+  // swirling turbulence so smoke rolls instead of sliding
+  const swirl = (pt, dt, k) => { const a = now()*1.3 + (pt._age||0)*0.9 + off;
+    C.Cartesian3.add(pt.velocity, C.Cartesian3.multiplyByScalar(C.Matrix4.multiplyByPointAsVector(enu, new C.Cartesian3(Math.cos(a), Math.sin(a), 0.15), sw), k*dt, sw), pt.velocity); };
+  let seed = Math.abs(Math.sin(f.lon*1e3))%1;
+  const rnd = () => (seed = (seed*9301+49297)%233280/233280) - 0.5;
+  const sway = (k) => (pt,dt) => {
+    C.Cartesian3.add(pt.velocity, C.Cartesian3.multiplyByScalar(up, dt*k, tmp), pt.velocity);
+    C.Cartesian3.add(pt.velocity, C.Matrix4.multiplyByPointAsVector(enu, new C.Cartesian3(rnd()*dt*5, rnd()*dt*5, 0), tmp2), pt.velocity);
+  };
+  // white-hot core
+  addFx(v, new C.ParticleSystem({ image:im.core, modelMatrix:enu, emitter:new C.CircleEmitter(4), emissionRate:90,
+    startColor:C.Color.fromBytes(255,250,225,255), endColor:C.Color.fromBytes(255,170,60,0), startScale:1, endScale:0.35,
+    minimumParticleLife:0.4, maximumParticleLife:0.9, minimumSpeed:4, maximumSpeed:8, minimumImageSize:new C.Cartesian2(6,8), maximumImageSize:new C.Cartesian2(10,13), sizeInMeters:true,
+    updateCallback:sway(6)}), "fires", p);
+  // main flame body
+  const body = addFx(v, new C.ParticleSystem({ image:im.flame, modelMatrix:enu, emitter:new C.CircleEmitter(8), emissionRate:140,
+    startColor:C.Color.fromBytes(255,195,95,240), endColor:C.Color.fromBytes(210,45,12,0), startScale:1.15, endScale:0.25,
+    minimumParticleLife:0.8, maximumParticleLife:1.9, minimumSpeed:5, maximumSpeed:11, minimumImageSize:new C.Cartesian2(12,16), maximumImageSize:new C.Cartesian2(20,28), sizeInMeters:true,
+    updateCallback:sway(5)}), "fires", p);
+  // tall flame tongues
+  const tongues = addFx(v, new C.ParticleSystem({ image:im.flame, modelMatrix:enu, emitter:new C.CircleEmitter(5), emissionRate:28,
+    startColor:C.Color.fromBytes(255,150,50,220), endColor:C.Color.fromBytes(160,30,10,0), startScale:0.9, endScale:0.15,
+    minimumParticleLife:1.4, maximumParticleLife:2.4, minimumSpeed:9, maximumSpeed:15, minimumImageSize:new C.Cartesian2(8,18), maximumImageSize:new C.Cartesian2(12,26), sizeInMeters:true,
+    updateCallback:sway(4)}), "fires", p);
+  // embers
+  addFx(v, new C.ParticleSystem({ image:im.ember, modelMatrix:enu, emitter:new C.ConeEmitter(C.Math.toRadians(35)), emissionRate:55,
+    startColor:C.Color.fromBytes(255,225,160,255), endColor:C.Color.fromBytes(255,90,30,0), startScale:1, endScale:0.3,
+    minimumParticleLife:2.5, maximumParticleLife:6, minimumSpeed:8, maximumSpeed:18, minimumImageSize:new C.Cartesian2(0.9,0.9), maximumImageSize:new C.Cartesian2(1.8,1.8), sizeInMeters:true,
+    updateCallback:(pt,dt)=>{ C.Cartesian3.add(pt.velocity, C.Cartesian3.multiplyByScalar(wind, dt*0.9*gust(), tmp), pt.velocity);
+      C.Cartesian3.add(pt.velocity, C.Matrix4.multiplyByPointAsVector(enu, new C.Cartesian3(rnd()*dt*14, rnd()*dt*14, rnd()*dt*5), tmp2), pt.velocity); }}), "fires", p);
+  // dense dark smoke at the base, rising and bending with the wind
+  addFx(v, new C.ParticleSystem({ image:im.smoke, modelMatrix:enu, emitterModelMatrix:C.Matrix4.fromTranslation(new C.Cartesian3(0,0,18)),
+    emitter:new C.CircleEmitter(8), emissionRate:12, startColor:C.Color.fromBytes(42,39,36,150), endColor:C.Color.fromBytes(90,86,82,0),
+    startScale:1, endScale:3.6, minimumParticleLife:9, maximumParticleLife:14, minimumSpeed:9, maximumSpeed:14,
+    minimumImageSize:new C.Cartesian2(14,14), maximumImageSize:new C.Cartesian2(22,22), sizeInMeters:true,
+    updateCallback:(pt,dt)=>{ C.Cartesian3.add(pt.velocity, C.Cartesian3.multiplyByScalar(wind, dt*1.1*gust(), tmp), pt.velocity);
+      swirl(pt, dt, 7); C.Cartesian3.multiplyByScalar(pt.velocity, 1 - dt*0.06, pt.velocity); }}), "fires", p);
+  // lighter, wider plume higher up
+  addFx(v, new C.ParticleSystem({ image:im.smoke, modelMatrix:enu, emitterModelMatrix:C.Matrix4.fromTranslation(new C.Cartesian3(0,0,40)),
+    emitter:new C.CircleEmitter(12), emissionRate:4, startColor:C.Color.fromBytes(100,95,90,70), endColor:C.Color.fromBytes(150,146,140,0),
+    startScale:1.5, endScale:7, minimumParticleLife:16, maximumParticleLife:26, minimumSpeed:4, maximumSpeed:7,
+    minimumImageSize:new C.Cartesian2(20,20), maximumImageSize:new C.Cartesian2(32,32), sizeInMeters:true,
+    updateCallback:(pt,dt)=>{ C.Cartesian3.add(pt.velocity, C.Cartesian3.multiplyByScalar(wind, dt*1.6*gust(), tmp), pt.velocity); swirl(pt, dt, 5); }}), "fires", p);
+  // flames breathe: emission pulses irregularly so the fire flares and dies back
+  v.scene.preRender.addEventListener(() => { if (!body.show || reduceMotion()) return; const t = now() + off;
+    const k = 0.75 + 0.3*Math.sin(t*3.1) + 0.2*Math.sin(t*7.7) + 0.12*Math.sin(t*13.3);
+    body.emissionRate = 140*k; tongues.emissionRate = 28*Math.max(0.2, k*k); });
+  const flick = () => reduceMotion() ? 0.5 : 0.45 + 0.13*Math.sin(now()*7.3) + 0.09*Math.sin(now()*12.9+1.3) + 0.05*Math.sin(now()*23.1);
+  const glow = v.entities.add({position:C.Cartesian3.fromDegrees(f.lon, f.lat),
+    ellipse:{semiMajorAxis:110, semiMinorAxis:110, classificationType:C.ClassificationType.BOTH,
+      material:new C.ImageMaterialProperty({image:im.glow, transparent:true, color:new C.CallbackProperty(()=>C.Color.WHITE.withAlpha(flick()), false)})}});
+  glow._layer="fires"; glow._pass=p;
+  const halo = v.entities.add({position:C.Cartesian3.fromDegrees(f.lon, f.lat, h+12),
+    billboard:{image:im.glow, sizeInMeters:true, width:80, height:80, color:new C.CallbackProperty(()=>C.Color.WHITE.withAlpha(flick()*0.55), false)}});
+  halo._layer="fires"; halo._pass=p;
+}
+
+/* ================= OSM buildings, natural colours ================= */
+const MAT = [["stone","#c9b99a"],["brick","#b5684c"],["concrete","#b9b6ae"],["plaster","#e4dac4"],["cement_block","#b3afa6"],
+  ["wood","#a07f5c"],["metal","#a4a8aa"],["glass","#9fb0b6"],["limestone","#d8ccb0"],["sandstone","#cdb38a"]];
+const USE = [["house","#dccfb4"],["residential","#d8ccb2"],["apartments","#d3c8b1"],["commercial","#c4bfb5"],["retail","#c6bfb2"],
+  ["industrial","#a9aaa6"],["warehouse","#aeaca5"],["mosque","#e6dfcd"],["church","#ddd3bd"],["school","#cfc3a8"],["hospital","#d9d6cf"]];
+function buildingStyle(alpha){
+  const conds = [];
+  MAT.forEach(([m,c]) => conds.push([`\${feature['building:material']} === '${m}'`, `color('${c}', ${alpha})`]));
+  conds.push([`\${feature['roof:material']} === 'roof_tiles' || \${feature['roof:material']} === 'tile'`, `color('#b8714f', ${alpha})`]);
+  USE.forEach(([u,c]) => conds.push([`\${feature['building']} === '${u}'`, `color('${c}', ${alpha})`]));
+  conds.push(["true", `color('#cfc6b4', ${alpha})`]);
+  return new C.Cesium3DTileStyle({color:{conditions:conds}, show: alpha > 0.02 ? "true" : "false"});
+}
+async function loadBuildings(v){
+  try {
+    const ts = S.tileset = await C.createOsmBuildingsAsync({style:buildingStyle(0)});
+    ts.maximumScreenSpaceError = 24; ts._alpha = 0;
+    v.scene.primitives.add(ts);
+    if (C.PostProcessStageLibrary.isSilhouetteSupported(v.scene)) {
+      const edge = C.PostProcessStageLibrary.createEdgeDetectionStage();
+      edge.uniforms.color = C.Color.fromCssColorString("#ffffff"); edge.uniforms.length = 0.01; edge.selected = [];
+      v.scene.postProcessStages.add(C.PostProcessStageLibrary.createSilhouetteStage([edge])); S.edge = edge;
+    }
+  } catch(e){ console.warn("OSM buildings failed", e); banner("3D buildings could not load. Terrain and imagery still shown."); }
+}
+
+/* ================= per-frame ================= */
+const camHeight = v => v.camera.positionCartographic.height;
+function tick(v){
+  const h = camHeight(v);
+  if (S.tileset && S.layers.buildings) {
+    const a = h > 14000 ? 0 : h < 3500 ? 1 : Math.round((1 - (h-3500)/10500) * 4) / 4;
+    if (a !== S.tileset._alpha) { S.tileset._alpha = a; S.tileset.style = buildingStyle(a); }
+    S.tileset.maximumScreenSpaceError = h > 8000 ? 32 : h > 2500 ? 16 : 6;
+  }
+  if (S.flying) setPhase(h > 22000 ? 1 : h > 2600 ? 2 : 3);
+  const o = S.orbitT;
+  if (S.orbit && o && !(isFinite(o.range) && o.range > 10)) { S.orbit = false; S.orbitT = null; }
+  if (S.orbit && o) {
+    // time-based: same angular speed at any frame rate; gentle ease-in at the start
+    const t = performance.now(), dt = Math.min(0.1, (t - o.last)/1000); o.last = t;
+    const ease = isFinite(o.left) ? Math.min(1, 0.25 + (2*Math.PI - o.left)/0.6) : 1;
+    const step = o.speed*dt*ease*(reduceMotion() ? 0.5 : 1);
+    o.heading += step; o.left -= step;
+    v.camera.lookAt(o.target, new C.HeadingPitchRange(o.heading, o.pitch, o.range));
+    if (o.left <= 0) stopOrbit();
+  }
+}
+function setPhase(p){
+  if (p === S.phase) return; S.phase = p;
+  document.querySelectorAll(".step").forEach(s => { const n=+s.dataset.p; s.classList.toggle("on", n===p); s.classList.toggle("done", n<p); });
+}
+
+/* ================= camera =================
+   One flight at a time (a newer flight cancels the older one), no jumps, time-based motion, and after
+   arriving the camera stays anchored on the incident: drag orbits around it, scroll zooms towards it. */
+const BIRD = {lon:35.47, lat:32.80, h:44000, heading:4, pitch:-42};
+const REGION = () => C.Rectangle.fromDegrees(35.15,33.02,35.80,33.45);
+let flightId = 0;
+function anchor(target){
+  const v=S.v3; if(!v) return;
+  const range = C.Cartesian3.distance(v.camera.positionWC, target);
+  v.camera.lookAtTransform(C.Transforms.eastNorthUpToFixedFrame(target), new C.HeadingPitchRange(v.camera.heading, v.camera.pitch, range));
+  S.anchorT = target;
+}
+function release(){
+  if (!S.anchorT && !S.orbit) return;
+  S.orbit = false; S.orbitT = null; S.anchorT = null;
+  S.v3 && S.v3.camera.lookAtTransform(C.Matrix4.IDENTITY);
+  $("#orbitBtn").setAttribute("aria-pressed","false");
+}
+function startFlight(){ S.v3 && S.v3.camera.cancelFlight(); release(); if (S.edge) S.edge.selected=[]; return ++flightId; }
+const flyP = (v, sphere, o) => new Promise(r => v.camera.flyToBoundingSphere(sphere, Object.assign({}, o, {complete:r, cancel:r})));
+function flyBird(duration){
+  const id = startFlight(), v=S.v3; if(!v) return;
+  S.flying = true; setPhase(1);
+  v.camera.flyTo({destination:C.Cartesian3.fromDegrees(BIRD.lon,BIRD.lat,BIRD.h),
+    orientation:{heading:C.Math.toRadians(BIRD.heading), pitch:C.Math.toRadians(BIRD.pitch), roll:0},
+    duration, easingFunction:C.EasingFunction.QUINTIC_IN_OUT, complete:()=>{ if (id===flightId) { S.flying=false; setPhase(1); } }});
+  if (S.v2) S.v2.camera.flyTo({destination:REGION(), duration:reduceMotion()?0:1.5});
+}
+const cinematic = t => { const u = 1 - Math.pow(1 - t, 1.7); return u*u*(3 - 2*u); };
+// Regional → descent → arrival → one slow 360° turn around the incident, then stay anchored
+async function flyToIncident(inc){
+  const id = startFlight(), v=S.v3;
+  if (S.v2) S.v2.camera.flyTo({destination:C.Cartesian3.fromDegrees(inc.lon, inc.lat, 2600), duration:reduceMotion()?0:2});
+  if (!v || S.mode==="2d") return;
+  await S.heightsReady; if (id!==flightId) return;
+  const target = C.Cartesian3.fromDegrees(inc.lon, inc.lat, inc.h||0), sphere = new C.BoundingSphere(target, 1);
+  const heading = C.Math.toRadians(inc.rank % 2 ? 32 : -28), pitch = C.Math.toRadians(-27), range = 820;
+  const off = new C.HeadingPitchRange(heading, pitch, range);
+  if (reduceMotion()) { v.camera.lookAt(target, off); S.anchorT = target; S.flying=false; setPhase(3); return; }
+  S.flying = true;
+  if (camHeight(v) < 9000) {   // rise first so we never skim through terrain
+    setPhase(1);
+    await flyP(v, sphere, {offset:new C.HeadingPitchRange(heading - C.Math.toRadians(30), C.Math.toRadians(-50), 26000), duration:3, easingFunction:C.EasingFunction.SINUSOIDAL_IN_OUT});
+    if (id!==flightId) return;
+  }
+  await flyP(v, sphere, {offset:off, duration:7.5, easingFunction:cinematic, maximumHeight:30000});
+  if (id!==flightId) return;
+  S.flying = false; setPhase(3);
+  anchor(target);
+  S.orbitT = {target, range, pitch, heading, speed:2*Math.PI/30, left:2*Math.PI, last:performance.now(), arrival:true};
+  S.orbit = true; setPhase(4); $("#orbitBtn").setAttribute("aria-pressed","true");
+}
+// "Show on map": frame a set of points and make sure their layer is on
+function showOnMap(points, layerKeys){
+  layerKeys.forEach(k => S.layers[k] = true); refresh(); if (S.leftPanel==="layers") renderLeft();
+  if (!points.length) return;
+  const id = startFlight();
+  S.heightsReady.then(() => {
+    if (id!==flightId) return;
+    const cart = points.map(p => C.Cartesian3.fromDegrees(p.lon, p.lat, p.h||0));
+    const bs = C.BoundingSphere.fromPoints(cart); bs.radius = Math.max(bs.radius, 150);
+    const dur = reduceMotion() ? 0 : 2.2;
+    if (S.v3 && S.mode!=="2d") S.v3.camera.flyToBoundingSphere(bs, {offset:new C.HeadingPitchRange(S.v3.camera.heading, C.Math.toRadians(-48), bs.radius*3.4), duration:dur, easingFunction:C.EasingFunction.QUADRATIC_IN_OUT});
+    if (S.v2) S.v2.camera.flyTo({destination:C.Cartesian3.fromDegrees(C.Math.toDegrees(C.Cartographic.fromCartesian(bs.center).longitude), C.Math.toDegrees(C.Cartographic.fromCartesian(bs.center).latitude), bs.radius*5), duration:dur});
+  });
+}
+function startOrbit(){
+  const v=S.v3; if(!v || S.mode==="2d") return;
+  const inc = S.data.incidents.find(i=>i.id===S.selected);
+  let target = S.anchorT;
+  if (!target && inc) target = C.Cartesian3.fromDegrees(inc.lon, inc.lat, inc.h||0);
+  if (!target) { const ray = v.camera.getPickRay(new C.Cartesian2(v.canvas.clientWidth/2, v.canvas.clientHeight/2)); target = v.scene.globe.pick(ray, v.scene); }
+  if (!target) return;
+  v.camera.cancelFlight(); S.flying = false;
+  const range = C.Cartesian3.distance(v.camera.positionWC, target);
+  anchor(target);
+  S.orbitT = {target, range:Math.max(range, 60), pitch:Math.min(v.camera.pitch, C.Math.toRadians(-12)), heading:v.camera.heading, speed:2*Math.PI/40, left:Infinity, last:performance.now(), arrival:false};
+  S.orbit = true; $("#orbitBtn").setAttribute("aria-pressed","true");
+}
+// stops turning but keeps the camera anchored on the place
+function stopOrbit(){ if (!S.orbit) return; const arr = S.orbitT && S.orbitT.arrival; S.orbit=false; S.orbitT=null; $("#orbitBtn").setAttribute("aria-pressed","false"); if (arr) setPhase(3); }
+
+/* ================= picking ================= */
+function pickHandler(v){
+  const hnd = new C.ScreenSpaceEventHandler(v.scene.canvas);
+  hnd.setInputAction(() => stopOrbit(), C.ScreenSpaceEventType.LEFT_DOWN);
+  hnd.setInputAction(() => stopOrbit(), C.ScreenSpaceEventType.WHEEL);
+  hnd.setInputAction(e => {
+    const p = v.scene.pick(e.position);
+    if (p && p.id && p.id._incident) { selectIncident(p.id._incident, true); return; }
+    if (p && p.id && p.id._shelter) { openShelter(p.id._shelter); return; }
+    if (p instanceof C.Cesium3DTileFeature) { showBuilding(p, v.scene.pickPosition(e.position)); return; }
+  }, C.ScreenSpaceEventType.LEFT_CLICK);
+  hnd.setInputAction(e => { const p=v.scene.pick(e.endPosition); v.canvas.style.cursor = p && p.id && (p.id._incident||p.id._shelter) ? "pointer" : ""; }, C.ScreenSpaceEventType.MOUSE_MOVE);
+}
+function showBuilding(f, pos){
+  const g = k => { try { const x=f.getProperty(k); return x===undefined||x===null||x===""?null:x; } catch(e){ return null; } };
+  const tagH = parseFloat(g("height")), estH = parseFloat(g("cesium#estimatedHeight"));
+  const H = isFinite(tagH) ? tagH : estH, estimated = !isFinite(tagH);
+  const levels = parseFloat(g("building:levels"));
+  let cell=null;
+  if (pos) { const c = C.Cartographic.fromCartesian(pos), pt={lon:C.Math.toDegrees(c.longitude), lat:C.Math.toDegrees(c.latitude)};
+    cell = S.data.damage_cells.find(d => dist(d, pt) < d.size_m*0.7 && visPass(d)); }
+  const fl = isFinite(levels) ? [levels, levels] : isFinite(H) ? [Math.max(1,Math.floor(H/3.4)), Math.max(1,Math.ceil(H/2.9))] : null;
+  S.building = {
+    name: g("name") || "Unnamed building", id: g("elementId") || g("id") || "—",
+    use: g("building") || "unknown", material: g("building:material"),
+    height: isFinite(H) ? `${Math.round(H*0.85)}–${Math.round(H*1.15)} m${estimated ? " (estimated)" : ""}` : "Unknown",
+    floors: fl ? `${fl[0]}–${fl[1]}` : "Unknown",
+    facility: /hospital|clinic|school|university/.test(g("building")||"") || !!g("amenity"),
+    residents: fl && /house|residential|apartments|yes/.test(g("building")||"yes") ? `${fl[0]*2}–${fl[1]*5} (sample model)` : "—",
+    cell
+  };
+  if (S.edge) S.edge.selected = [f];
+  S.rightView = "building"; showRight(true); renderRight();
+}
+
+/* ================= visibility ================= */
+function refresh(){
+  const vis = en => {
+    if (en._incident) return en._pass <= S.passIdx;
+    if (en._layer === "shelters") return S.layers.shelters && (!en._forIncident || en._forIncident === S.selected);
+    const on = S.layers[en._layer]; return on !== false && (en._pass === undefined || en._pass <= S.passIdx);
+  };
+  [S.v3, S.v2].forEach(v => { if (!v) return;
+    v.entities.values.forEach(en => { if (en._layer) en.show = vis(en); });
+    (v._overlays||[]).forEach(l => l.show = S.layers.streets); });
+  S.fx.forEach(p => p.show = S.layers[p._layer] && p._pass <= S.passIdx);
+  if (S.tileset) S.tileset.show = S.layers.buildings;
+  const p = S.data.passes[S.passIdx];
+  $("#passName").textContent = `${p.date} · ${p.sensor}`;
+  $("#passNote").textContent = p.status === "missed" ? "Missed pass · no new data from this date" : "Building changes appear 72 h after the pass";
+  updateCredit();
+}
+
+/* ================= analysis (all from sample data) ================= */
+function analyse(inc){
+  const D=S.data, here = x => dist(x, inc) <= AREA_M;
+  const cells = D.damage_cells.filter(d => d.incident_id===inc.id && visPass(d));
+  const fires = D.fires.filter(f => here(f) && visPass(f));
+  const dark  = D.nightlights.filter(n => n.state==="dark" && here(n) && visPass(n));
+  const hazardsAt = pt => {
+    const out=[];
+    const dmg = cells.map(d => ({d, m:dist(d,pt) - d.size_m/2})).sort((a,b)=>a.m-b.m)[0];
+    if (dmg && dmg.m <= NEAR_M) out.push({kind:"damage", inside:dmg.m<=0, m:Math.max(0,Math.round(dmg.m)), ev:dmg.d.evidence});
+    const fr = fires.map(f => ({f, m:dist(f,pt)})).sort((a,b)=>a.m-b.m)[0];
+    if (fr && fr.m <= fr.f.uncertainty_m) out.push({kind:"fire", inside:true, m:Math.round(fr.m), ev:fr.f.evidence});
+    const dk = dark.map(n => ({n, m:dist(n,pt) - n.size_m/2})).sort((a,b)=>a.m-b.m)[0];
+    if (dk && dk.m <= NEAR_M) out.push({kind:"power", inside:dk.m<=0, m:Math.max(0,Math.round(dk.m)), ev:dk.n.sensors_agree?"Corroborated":"Observed"});
+    return out;
+  };
+  const facilities = D.facilities.filter(here).map(f => ({f, hz:hazardsAt(f)})).filter(x => x.hz.length);
+  const roads = D.routes.filter(r => r.incident_id===inc.id && r.status==="possibly_blocked_candidate");
+  const shelters = D.shelters.filter(s => s.incident_id===inc.id).map(s => ({s, m:Math.round(dist(s, inc)), hz:hazardsAt(s)})).sort((a,b)=>a.m-b.m);
+  const darkPeople = dark.reduce((a,n)=>({low:a.low+n.people.low, high:a.high+n.people.high}), {low:0,high:0});
+  const darkFac = D.facilities.filter(f => dark.some(n => dist(n,f) <= n.size_m/2));
+  const fireNear = fires.map(f => ({f, fac:D.facilities.filter(x => dist(x,f) <= f.uncertainty_m), cells:cells.filter(d => dist(d,f) <= f.uncertainty_m)}));
+  const budget = D.budget.find(b => b.area === inc.name);
+  return {cells, fires, dark, facilities, roads, shelters, darkPeople, darkFac, fireNear, budget, hazardsAt};
+}
+
+/* ================= chrome ================= */
+function banner(t){ const b=$("#banner"); b.textContent=t; b.style.display="block"; clearTimeout(b._t); b._t=setTimeout(()=>b.style.display="none", 9000); }
+function buildChrome(){
+  const rail = [["incident","Incident"],["rank","Incident ranking"],["decide","Decision assistant"],["budget","Rebuild budget"],["layers","Layers"]];
+  $("#rail").innerHTML = rail.map(([k,t]) => `<button class="rb" data-panel="${k}" aria-label="${t}" aria-pressed="false">${svg(k,21)}<span class="tip">${t}</span></button>`).join("")
+    + `<div class="rail-sep"></div><button class="rb" data-panel="legend" aria-label="Legend" aria-pressed="false">${svg("legend",21)}<span class="tip">Legend</span></button>`;
+  $("#rail").onclick = e => { const b=e.target.closest(".rb"); if(!b) return; const k=b.dataset.panel;
+    if (k==="incident") { S.rightView="incident"; showRight($("#right").classList.contains("hidden")); renderRight(); }
+    else if (k==="legend") { $("#legend").classList.toggle("hidden"); }
+    else openLeft(S.leftPanel===k ? null : k);
+    syncRail(); };
+  document.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => setMode(b.dataset.mode));
+  document.querySelectorAll("[data-base]").forEach(b => b.onclick = () => setBase(b.dataset.base));
+  $("#focusBtn").onclick = () => setFocus(!document.body.classList.contains("focus"));
+  $("#exitFocus").onclick = () => setFocus(false);
+  $("#flyTop").onclick = () => { const top=[...S.data.incidents].filter(i=>passIndex(i.first_pass)<=S.passIdx).sort((a,b)=>a.rank-b.rank)[0]; if(top) selectIncident(top.id, true); };
+  $("#orbitBtn").onclick = () => S.orbit ? stopOrbit() : startOrbit();
+  $("#resetBtn").onclick = () => { if (S.edge) S.edge.selected=[]; flyBird(reduceMotion()?0:3.5); };
+  document.querySelectorAll(".tab").forEach(t => t.onclick = () => {
+    document.querySelectorAll(".tab").forEach(x => x === t ? x.setAttribute("aria-current","page") : x.removeAttribute("aria-current"));
+    openLeft(t.dataset.page==="map" ? null : "page:"+t.dataset.page); });
+  const P=S.data.passes, n=P.length-1, dt=$("#date"); dt.max=n; dt.value=S.passIdx;
+  const ticks = () => { $("#track").querySelectorAll(".tick").forEach(x=>x.remove());
+    P.forEach((p,i)=>{ const t=document.createElement("div"); t.className="tick"+(p.status==="missed"?" missed":"")+(i===S.passIdx?" cur":""); t.style.left=(i/n*100)+"%"; t.title=p.status==="missed"?"Missed pass":p.sensor; $("#track").appendChild(t); });
+    $("#tfill").style.width=(S.passIdx/n*100)+"%"; };
+  $("#ticklabels").innerHTML = P.map((p,i)=>`<span style="left:${i/n*100}%">${p.date.slice(5).replace("-","/")}${p.status==="missed"?" · missed":""}</span>`).join("");
+  ticks();
+  dt.oninput = () => { S.passIdx=+dt.value; ticks(); [S.v3, S.v2].forEach(v => v && drawPaths(v)); refresh(); renderAll(); };
+  $("#legend").innerHTML = `<div class="row" style="justify-content:space-between"><span class="kicker" style="margin:0">Legend</span><button class="x" aria-label="Close legend" id="lgx">${svg("close",18)}</button></div>
+    <ul>
+      <li><svg class="lg" viewBox="0 0 28 16"><defs><pattern id="lh" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="2" height="5" fill="#f5904f"/></pattern></defs><rect x="1" y="1" width="26" height="14" rx="3" fill="url(#lh)" stroke="#f5904f" stroke-width="1.5"/></svg>Damage candidate (colour = class)</li>
+      <li><svg class="lg" viewBox="0 0 28 16"><circle cx="14" cy="8" r="6.5" fill="none" stroke="#45c79c" stroke-width="2" stroke-dasharray="3 2.5"/></svg>Second sensor agrees</li>
+      <li><svg class="lg" viewBox="0 0 28 16"><circle cx="14" cy="8" r="6.5" fill="none" stroke="#ff8a4d" stroke-width="1.6" stroke-dasharray="4 2"/><circle cx="14" cy="8" r="2.5" fill="#ff8a4d"/></svg>Fire, 375 m uncertainty ring</li>
+      <li><svg class="lg" viewBox="0 0 28 16"><defs><pattern id="ln" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="2" fill="#9d93e6"/></pattern></defs><rect x="1" y="1" width="26" height="14" rx="3" fill="url(#ln)"/></svg>Possible power loss</li>
+      <li><svg class="lg" viewBox="0 0 28 16"><path d="M2 8h24" stroke="#0a0d0f" stroke-width="8"/><path d="M2 8h24" stroke="#f1f4f3" stroke-width="4"/></svg>Available route, not verified</li>
+      <li><svg class="lg" viewBox="0 0 28 16"><path d="M2 8h24" stroke="#ff5a5f" stroke-width="4" stroke-dasharray="6 3"/></svg>Possibly blocked (candidate)</li>
+    </ul>`;
+  $("#lgx").onclick = () => { $("#legend").classList.add("hidden"); syncRail(); };
+  syncRail();
+}
+function syncRail(){
+  document.querySelectorAll(".rb").forEach(b => { const k=b.dataset.panel;
+    const on = k==="incident" ? !$("#right").classList.contains("hidden") : k==="legend" ? !$("#legend").classList.contains("hidden") : S.leftPanel===k;
+    b.setAttribute("aria-pressed", on); });
+}
+function setBase(b){
+  S.base = b; document.querySelectorAll("[data-base]").forEach(x => x.setAttribute("aria-pressed", x.dataset.base===b));
+  [S.v3, S.v2].forEach(v => v && setupImagery(v)); refresh();
+}
+function setMode(m){
+  S.mode = m; document.body.className = document.body.className.replace(/mode-\S+/, "mode-"+m);
+  document.querySelectorAll("[data-mode]").forEach(b => b.setAttribute("aria-pressed", b.dataset.mode===m));
+  if ((m==="2d"||m==="split") && !S.v2) {
+    try { S.v2 = makeViewer($("#v2"), C.SceneMode.SCENE2D); buildEntities(S.v2, false); pickHandler(S.v2); refresh();
+      const inc=S.data.incidents.find(i=>i.id===S.selected);
+      S.v2.camera.setView({destination: inc ? C.Cartesian3.fromDegrees(inc.lon,inc.lat,2600) : REGION()});
+    } catch(e){ console.warn(e); banner("The 2D map could not start on this device."); }
+  }
+  if (m==="2d") stopOrbit();
+}
+function setFocus(on){ document.body.classList.toggle("focus", on); $("#focusBtn").setAttribute("aria-pressed", on); }
+function showRight(on){ $("#right").classList.toggle("hidden", !on); syncRail(); }
+function openLeft(k){ S.leftPanel = k; $("#left").classList.toggle("hidden", !k); if (k) renderLeft(); syncRail(); }
+function openShelter(id){
+  const sh = S.data.shelters.find(x=>x.id===id); if (!sh) return;
+  if (S.selected !== sh.incident_id) { S.selected = sh.incident_id; refresh(); }
+  S.shelterSel = id; S.rightView = "shelter"; if (S.edge) S.edge.selected = [];
+  showRight(true); renderAll();
+  const inc = S.data.incidents.find(i=>i.id===sh.incident_id), q = S.paths.find(y=>y.shelter_id===id);
+  showOnMap((q && q.stats ? q.stats.pts : []).concat([sh, inc]), ["shelters"]);
+}
+function selectIncident(id, fly){
+  S.selected = id; S.rightView = "incident"; if (S.edge) S.edge.selected = [];
+  showRight(true); refresh(); renderAll();
+  if (fly) flyToIncident(S.data.incidents.find(i=>i.id===id));
+}
+
+/* ================= render ================= */
+const ev = e => `<span class="chip ev-${esc(e)}">${esc(e)}</span>`;
+const dmg = d => `<span class="dchip"><span class="hatch d-${d}"></span>${DMG_LABEL[d]}</span>`;
+const head = (kicker, title, side) => `<div class="dh"><div style="flex:1;min-width:0"><span class="kicker">${kicker}</span><h2>${title}</h2></div><button class="x" aria-label="Close panel" data-close="${side}">${svg("close",20)}</button></div>`;
+const note = t => `<div class="note">${svg("info",16)}<span>${t}</span></div>`;
+const addDays = (d, h) => new Date(Date.parse(d+"T00:00:00Z") + h*3600e3).toISOString().slice(0,10);
+const hzTags = hz => hz.map(h => h.kind==="damage" ? `<span class="tag warn">${h.inside?"Inside":"Near"} damage area${h.inside?"":` · ${h.m} m`}</span>`
+  : h.kind==="fire" ? `<span class="tag fire">Within fire ring · ${h.m} m</span>` : `<span class="tag pw">${h.inside?"Inside":"Near"} possible power loss</span>`).join("");
+const fmtM = m => m >= 1000 ? `${(m/1000).toFixed(1)} km` : `${m} m`;
+function renderAll(){ renderRight(); if (S.leftPanel) renderLeft(); }
+function bindClose(el){ el.querySelectorAll("[data-close]").forEach(b => b.onclick = () => { if (b.dataset.close==="left") openLeft(null); else { showRight(false); if (S.edge) S.edge.selected=[]; } }); }
+
+function renderRight(){
+  const el=$("#right"), D=S.data;
+  if (S.rightView === "shelter" && S.shelterSel) {
+    const sh = D.shelters.find(x=>x.id===S.shelterSel), inc = D.incidents.find(i=>i.id===sh.incident_id);
+    const q = S.paths.find(y=>y.shelter_id===sh.id), st = q && q.stats;
+    const A = analyse(inc), hz = A.hazardsAt(sh);
+    const ll = `${sh.lat.toFixed(5)}, ${sh.lon.toFixed(5)}`;
+    const dms = (v, pos, neg) => { const a=Math.abs(v), d=Math.floor(a), m=Math.floor((a-d)*60), s=((a-d)*60-m)*60; return `${d}°${String(m).padStart(2,"0")}′${s.toFixed(1).padStart(4,"0")}″${v>=0?pos:neg}`; };
+    el.innerHTML = head(`Candidate shelter · ${esc(sh.kind)}`, esc(sh.name), "right") + `<div class="db" style="padding-top:8px">
+      <button class="linkbtn" id="backInc">← Back to ${esc(inc.name)}</button>
+      <div class="row" style="margin:12px 0 4px"><span class="tag">Candidate shelter, not verified</span>${hz.length ? hzTags(hz) : '<span class="tag">No hazard within 300 m on this pass</span>'}</div>
+      <div class="sect">Location</div>
+      <div class="locbox">
+        <div class="locrow"><span class="muted">Decimal</span><b class="mono">${ll}</b><button class="kbtn" data-copy="${ll}" title="Copy coordinates" aria-label="Copy decimal coordinates"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button></div>
+        <div class="locrow"><span class="muted">DMS</span><b class="mono">${dms(sh.lat,"N","S")} ${dms(sh.lon,"E","W")}</b><button class="kbtn" data-copy="${dms(sh.lat,"N","S")} ${dms(sh.lon,"E","W")}" title="Copy" aria-label="Copy DMS coordinates"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button></div>
+        <div class="row" style="margin-top:8px"><a class="btn sm" href="https://www.openstreetmap.org/?mlat=${sh.lat}&mlon=${sh.lon}#map=18/${sh.lat}/${sh.lon}" target="_blank" rel="noopener">Open in OpenStreetMap ↗</a><button class="btn sm" id="shShow">${svg("pin",13)}Show route on map</button></div>
+      </div>
+      <div class="sect">Getting there</div>
+      <dl class="kv">
+        <dt>From</dt><dd>${esc(inc.name)}</dd>
+        <dt>Distance</dt><dd>${st ? `${fmtM(Math.round(st.len))} by ${q.source==="osm"?"road":"straight line"}` : fmtM(Math.round(dist(sh,inc)))} (${fmtM(Math.round(dist(sh,inc)))} direct)</dd>
+        <dt>Route</dt><dd style="color:${st && st.touches ? "#ff9a9d" : "inherit"}">${st && st.touches ? "Passes a possibly blocked road (candidate)" : "Not verified on the ground"}</dd>
+        <dt>Capacity</dt><dd>${rng(sh.capacity)} people (from floor area)</dd>
+        <dt>Source</dt><dd>OSM ${esc(sh.kind)} · capacity is sample</dd>
+      </dl>
+      <div style="margin-top:12px">${note("Check the site is open, intact and reachable before sending anyone. The officer decides.")}</div></div>`;
+    bindClose(el);
+    $("#backInc").onclick = () => { S.rightView="incident"; S.tab="shelters"; renderRight(); };
+    $("#shShow").onclick = () => showOnMap((st ? st.pts : [sh, inc]).concat([sh, inc]), ["shelters"]);
+    el.querySelectorAll("[data-copy]").forEach(b => b.onclick = async () => { try { await navigator.clipboard.writeText(b.dataset.copy); b.title="Copied"; b.style.color="var(--ev-corroborated)"; } catch(e){ banner("Copy blocked by the browser: " + b.dataset.copy); } });
+    return;
+  }
+  if (S.rightView === "building" && S.building) {
+    const b=S.building, c=b.cell;
+    el.innerHTML = head("Building detail · OSM", esc(b.name), "right") + `<div class="db">
+      <button class="linkbtn" id="backInc">← Back to incident</button>
+      <div class="row" style="margin:16px 0 18px">${c ? dmg(c.damage_class)+ev(c.evidence) : '<span class="muted small">No damage candidate on this building in this run</span>'}</div>
+      <dl class="kv">
+        <dt>OSM id</dt><dd>${esc(b.id)}</dd><dt>Footprint</dt><dd>OSM building outline</dd>
+        <dt>Height</dt><dd>${esc(b.height)}</dd><dt>Floors</dt><dd>${esc(b.floors)}</dd>
+        <dt>Use</dt><dd>${esc(b.use)}</dd><dt>Material</dt><dd>${esc(b.material || "not tagged (neutral tone shown)")}</dd>
+        <dt>Facility</dt><dd>${b.facility ? "Yes" : "No"}</dd><dt>Residents</dt><dd>${esc(b.residents)}</dd>
+        <dt>Damage class</dt><dd>${c ? esc(DMG_LABEL[c.damage_class]) : "—"}</dd><dt>Evidence</dt><dd>${c ? esc(c.evidence) : "—"}</dd>
+        <dt>Second sensor</dt><dd>${c ? (c.second_sensor ? "Agrees" : "Not yet / disagrees") : "—"}</dd><dt>Run id</dt><dd>${esc(D.meta.run_id)}</dd>
+      </dl><div style="margin-top:20px">${note("Shapes and heights come from OpenStreetMap. Damage values are sample data for this mockup.")}</div></div>`;
+    bindClose(el); $("#backInc").onclick = () => { S.rightView="incident"; if (S.edge) S.edge.selected=[]; renderRight(); }; return;
+  }
+  const inc = D.incidents.find(i=>i.id===S.selected);
+  if (!inc) {
+    const vis = D.incidents.filter(i=>passIndex(i.first_pass)<=S.passIdx).length;
+    el.innerHTML = head("Incident", "No incident selected", "right") + `<div class="db"><p style="margin-top:0">${vis} candidate incidents on this pass. Pick a pin on the map, or use <b>Fly to top incident</b>.</p>
+      ${note("Every marker is a candidate from satellite data. Nothing on this map is confirmed on the ground.")}</div>`;
+    bindClose(el); return;
+  }
+  const A = analyse(inc), p = D.passes[passIndex(inc.first_pass)];
+  const tabs = [["summary","Summary"],["impacts","Impacts"],["shelters","Shelters",A.shelters.length],["power","Power",A.dark.length],["insights","Insights",inc.insights.length]];
+  let body = "";
+  if (S.tab==="summary") {
+    const kpi = (icon, k, val, sub, act) => `<div class="kpi"><span class="k">${svg(icon,13)}${k}<button class="kbtn" data-show="${act}" aria-label="Show ${k.toLowerCase()} on map" title="Show on map">${svg("pin",12)}</button></span><b>${val}</b><span class="s">${sub}</span></div>`;
+    body = `<div class="kpis">
+      ${kpi("people","People", rng(inc.people_nearby), `In affected area (WorldPop)`, "people")}
+      ${kpi("facility","Facilities", A.facilities.length, `Inside or near damage, fire or dark cells`, "facilities")}
+      ${kpi("road","Roads", A.roads.length, `Possibly blocked (candidate)`, "roads")}
+      ${kpi("power","Power", A.dark.length ? rng(A.darkPeople) : "0", A.dark.length ? `People in ${A.dark.length} dark cell${A.dark.length>1?"s":""}: possible power loss` : "No dark cells on this pass", "power")}
+    </div>
+    <div class="sect">Assessment</div>
+    <div class="row" style="margin-bottom:10px">${dmg(inc.damage_class)}</div>
+    <div class="row">${ev(inc.evidence)}${inc.second_sensor_agrees ? '<span class="chip ev-Corroborated">Second sensor agrees</span>' : '<span class="tag">No second-sensor agreement</span>'}</div>
+    <div class="kpis" style="margin-top:8px">
+      <div class="kpi"><span class="k">Buildings</span><b>${rng(inc.buildings_candidate)}</b><span class="s">Candidate damage</span></div>
+      <div class="kpi"><span class="k">Score</span><b>${inc.score.low.toFixed(2)}–${inc.score.high.toFixed(2)}</b><span class="s">Ranking range</span></div>
+    </div>
+    <div style="margin-top:8px">${note(`<span><b style="color:var(--ink)">Check before acting.</b> Seen ${p.date} (${esc(p.sensor)}), changes from ${addDays(p.date,72)}. Candidates only.</span>`)}</div>`;
+  } else if (S.tab==="impacts") {
+    const row = (icon, t, meta) => `<div class="irow"><span class="ico">${svg(icon,16)}</span><div><div class="t">${t}</div><div class="m">${meta}</div></div></div>`;
+    const kindName = {hospital:"Hospital", clinic:"Clinic", school:"School", water:"Water point", fuel:"Fuel station"};
+    body = row("people", `${rng(inc.people_nearby)} people in the affected area`, `${ev(inc.evidence)} WorldPop 2025 grid`)
+      + (A.facilities.length ? A.facilities.map(x => row("facility", `${kindName[x.f.kind]||x.f.kind}: ${esc(x.f.name)}`, `${ev(x.hz[0].ev)}${hzTags(x.hz)}`)).join("") : row("facility","No facilities inside or near hazard areas", `<span class="muted">Within ${fmtM(AREA_M)}</span>`))
+      + (A.roads.length ? A.roads.map(r => row("road", `${esc(r.label)}: possibly blocked (candidate)`, `${ev("Observed")}<span class="tag warn">Candidate</span> damage candidates next to the road`)).join("") : row("road","No roads flagged","<span class='muted'>On this pass</span>"))
+      + A.fireNear.map(x => row("fire", `Fire within 375 m of ${x.cells.length} candidate building cell${x.cells.length===1?"":"s"} and ${x.fac.length} facilit${x.fac.length===1?"y":"ies"}`, `${ev(x.f.evidence)} ${esc(x.f.source)} · ${x.f.detected_at.slice(0,10)}`)).join("")
+      + (A.budget ? row("budget2", `Rebuild budget ${A.budget.low.toFixed(1)}–${A.budget.high.toFixed(1)} ${esc(A.budget.unit)}`, `<span class="tag">Indicative, not a quote</span> ${A.budget.assumptions.map(esc).join(" · ")}`) : "");
+  } else if (S.tab==="shelters") {
+    body = (A.shelters.length ? `<ul class="list">${A.shelters.map(x => `<li class="card">
+        <div class="row" style="justify-content:space-between;align-items:flex-start;flex-wrap:nowrap"><div><h3>${esc(x.s.name)}</h3><div class="small muted">${esc(x.s.kind)} · ${(() => { const q=S.paths.find(y=>y.shelter_id===x.s.id); return q && q.stats ? `${fmtM(Math.round(q.stats.len))} by ${q.source==="osm"?"road":"straight line"}` : fmtM(x.m); })()}</div></div><button class="btn sm" data-shelter="${x.s.id}">${svg("pin",14)}Show</button></div>
+        <div class="row" style="margin-top:8px"><span class="tag">Candidate shelter, not verified</span>${(() => { const q=S.paths.find(y=>y.shelter_id===x.s.id); return q && q.stats && q.stats.touches ? '<span class="tag warn">Route passes possibly blocked road</span>' : '<span class="tag">Route not verified</span>'; })()}${x.hz.length ? hzTags(x.hz) : '<span class="tag">No hazard within 300 m on this pass</span>'}</div>
+        <dl class="kv" style="margin-top:8px"><dt>Capacity</dt><dd>${rng(x.s.capacity)} people (from floor area)</dd>
+          <dt>Location</dt><dd><span class="loc">${x.s.lat.toFixed(5)}, ${x.s.lon.toFixed(5)}</span> <button class="kbtn" style="display:inline-grid;vertical-align:middle" data-copy="${x.s.lat.toFixed(5)}, ${x.s.lon.toFixed(5)}" title="Copy coordinates" aria-label="Copy coordinates"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button></dd>
+          <dt>Source</dt><dd>OSM ${esc(x.s.kind)} · sample capacity</dd></dl></li>`).join("")}</ul>` : `<p class="empty">No candidate shelters found near this incident.</p>`)
+      + `<div style="margin-top:14px">${note("Routes follow OpenStreetMap roads (OSRM) but are not checked on the ground. Red parts pass damage candidates. Confirm each site and the way there before sending anyone.")}</div>`;
+  } else if (S.tab==="power") {
+    const lit = S.data.nightlights.filter(n => n.state==="lit" && dist(n,inc)<=AREA_M && visPass(n));
+    body = (A.dark.length ? `<ul class="list">${A.dark.map(n => { const fac=S.data.facilities.filter(f=>dist(n,f)<=n.size_m/2); return `<li class="card">
+        <div class="row" style="justify-content:space-between"><h3>Dark cell ${esc(n.id.toUpperCase())}</h3>${ev(n.sensors_agree?"Corroborated":"Observed")}</div>
+        <div class="row" style="margin-top:10px"><span class="tag pw">Possible power loss</span><span class="tag">${n.sensors_agree?"Two satellites agree":"One satellite only"}</span></div>
+        <dl class="kv" style="margin-top:12px"><dt>Last lit night</dt><dd>${esc(n.last_lit)}</dd><dt>People</dt><dd>${rng(n.people)} (WorldPop)</dd><dt>Facilities</dt><dd>${fac.length ? fac.map(f=>esc(f.name)).join(", ") : "None in cell (OSM)"}</dd></dl></li>`; }).join("")}</ul>
+      <div class="row" style="margin-top:12px"><button class="btn sm" data-show="power">${svg("pin",14)}Show dark cells</button></div>`
+      : `<p class="empty">No dark cells near this incident on this pass.</p>`)
+      + (lit.length ? `<p class="small muted" style="margin-top:14px">${lit.length} nearby cell${lit.length>1?"s":""} still lit.</p>` : "")
+      + `<div style="margin-top:14px">${note("Night-light change from VIIRS Black Marble. Dimming can also come from cloud or moonlight; it is not proof of an outage.")}</div>`;
+  } else {
+    body = `<ul class="list">${inc.insights.map(x=>`<li class="card"><p style="margin:0 0 12px">${esc(x.text)}</p><div class="row small">${ev(x.evidence)}<span class="muted">${esc(x.source)} · ${esc(x.source_date)}</span></div></li>`).join("")}</ul>`;
+  }
+  el.innerHTML = head(`Rank ${inc.rank} · ${esc(inc.area)}`, esc(inc.name), "right")
+    + `<div class="ptabs" role="tablist">${tabs.map(([k,t,n])=>`<button class="ptab" role="tab" aria-selected="${S.tab===k}" data-tab="${k}">${t}${n!==undefined?`<span class="n">${n}</span>`:""}</button>`).join("")}</div>`
+    + `<div class="db" style="padding-top:18px">${body}</div>`
+    + `<div class="df"><span style="flex:1">Run ${esc(D.meta.run_id)}</span><button class="linkbtn" id="reFly">Fly here again ${svg("chev",14)}</button></div>`;
+  bindClose(el);
+  el.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => { S.tab=b.dataset.tab; renderRight(); });
+  el.querySelectorAll("[data-show]").forEach(b => b.onclick = () => {
+    const k=b.dataset.show;
+    if (k==="people") showOnMap(D.population.filter(p=>dist(p,inc)<=AREA_M).concat([inc]), ["pop"]);
+    if (k==="facilities") showOnMap(A.facilities.map(x=>x.f).concat([inc]), ["facilities"]);
+    if (k==="roads") showOnMap(A.roads.flatMap(r=>r.coords.map(c=>({lon:c[0],lat:c[1]}))), ["routes"]);
+    if (k==="power") showOnMap(A.dark.concat([inc]), ["night"]);
+  });
+  el.querySelectorAll("[data-shelter]").forEach(b => b.onclick = () => openShelter(b.dataset.shelter));
+  el.querySelectorAll("[data-copy]").forEach(b => b.onclick = async () => { try { await navigator.clipboard.writeText(b.dataset.copy); b.title="Copied"; b.style.color="var(--ev-corroborated)"; } catch(e){ banner("Copy blocked by the browser: " + b.dataset.copy); } });
+  $("#reFly").onclick = () => flyToIncident(inc);
+}
+
+function renderLeft(){
+  const el=$("#left"), D=S.data, k=S.leftPanel;
+  const inc = D.incidents.find(i=>i.id===S.selected);
+  const needInc = `<div class="db"><p class="empty">Select an incident first.</p></div>`;
+  if (k && k.startsWith("page:")) {
+    const t = k[5].toUpperCase()+k.slice(6);
+    el.innerHTML = head("Placeholder", t, "left") + `<div class="db"><div class="placeholder"><div><p style="font-size:16px;color:var(--ink-2)">${t} page</p><p>Placeholder. This page may be redesigned.</p></div></div></div>`;
+  } else if (k==="rank") {
+    const list = D.incidents.filter(i=>passIndex(i.first_pass)<=S.passIdx).sort((a,b)=>a.rank-b.rank);
+    el.innerHTML = head("Agent output · suggests only", "Incident ranking", "left") + `<div class="db"><ol class="list">${list.map(i=>`
+      <li class="card ${i.id===S.selected?"sel":""}">
+        <div class="rankrow" data-sel="${i.id}"><span class="rk" style="--c:var(${DMG[i.damage_class]})">${i.rank}</span>
+          <div style="flex:1;min-width:0"><h3>${esc(i.name)}</h3><div class="small muted">${esc(i.area)}</div>
+            <div class="scorebar"><i style="left:${i.score.low*100}%;width:${(i.score.high-i.score.low)*100}%"></i></div>
+            <div class="row small"><span class="mono">${i.score.low.toFixed(2)}–${i.score.high.toFixed(2)}</span><span class="muted">score</span><span style="flex:1"></span>${ev(i.evidence)}</div></div></div>
+        <div style="margin-top:12px;padding-left:44px"><button class="linkbtn" data-why>Why ranked here ${svg("chev",14)}</button></div>
+        <div class="why">${i.why.map(w=>`<div><span>${esc(w.factor)}<br><span class="muted">${esc(w.value)}</span></span><span class="mono muted">${Math.round(w.weight*100)}%</span><span class="w"><i style="width:${Math.min(100,w.weight/0.35*100)}%"></i></span></div>`).join("")}</div>
+      </li>`).join("")}</ol></div><div class="df">Ranking is a suggestion. The officer decides what to act on.</div>`;
+    el.querySelectorAll("[data-sel]").forEach(r => r.onclick = () => selectIncident(r.dataset.sel, true));
+    el.querySelectorAll("[data-why]").forEach(b => b.onclick = () => b.closest(".card").classList.toggle("open"));
+  } else if (k==="decide") {
+    if (!inc) { el.innerHTML = head("Agent output · suggests only", "Decision assistant", "left") + needInc; bindClose(el); return; }
+    const A = analyse(inc);
+    const all = inc.suggestions.filter(s=>!S.dismissed.has(s.id));
+    const open = all.filter(s=>!S.checked.has(s.id)), done = all.filter(s=>S.checked.has(s.id));
+    const routes = D.routes.filter(r=>r.incident_id===inc.id).map(r => {
+      const pth = S.paths.find(q=>q.id===r.id); const pts = (pth ? pth.coords : r.coords).map(c=>({lon:c[0],lat:c[1]}));
+      const len = pts.slice(1).reduce((a,q,i)=>a+dist(pts[i],q),0);
+      const nearDmg = A.cells.length ? Math.round(Math.min(...A.cells.map(d => Math.min(...pts.map(q => Math.max(0, dist(d,q) - d.size_m/2)))))) : NaN;
+      const nearFire = A.fires.length ? Math.round(Math.min(...A.fires.map(f => Math.min(...pts.map(q => dist(f,q)))))) : NaN;
+      return {r, pts, len, nearDmg, nearFire, bl:r.status==="possibly_blocked_candidate"};
+    });
+    const pass = D.passes[S.passIdx], firstP = D.passes[passIndex(inc.first_pass)];
+    const missed = D.passes.slice(0, S.passIdx+1).filter(x=>x.status==="missed");
+    const gaps = [
+      !inc.second_sensor_agrees && ["A second satellite has not confirmed this change yet.", "Unknown"],
+      missed.length && [`Missed pass on ${missed.map(x=>x.date).join(", ")}: changes in between may be missing.`, "Unknown"],
+      ["No field report from the ground yet for this incident.", "Unknown"],
+      [`Building changes from the ${firstP.date} pass appear from ${addDays(firstP.date,72)}.`, "Observed"]
+    ].filter(Boolean);
+    const okRoutes = routes.filter(x=>!x.bl).length, blRoutes = routes.filter(x=>x.bl).length;
+    const sugCard = (s, isDone) => `<li class="card sug ${isDone?"done":""}"><div class="sug-top"><span class="sico">${svg(s.kind==="route"?"road":"info",14)}</span><span class="sug-t">${esc(s.text)}</span>
+        <span class="sug-act">${isDone?"":`<button class="x sm" title="Mark as checked" aria-label="Mark as checked" data-check="${s.id}"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4 10-10"/></svg></button>`}<button class="x sm" aria-label="Dismiss suggestion" title="Dismiss" data-dismiss="${s.id}">${svg("close",14)}</button></span></div>
+        <div class="sug-why">${esc(s.reason)}</div><div class="row" style="margin-top:6px;padding-left:30px"><span class="tag">${isDone?"Checked by officer":"Unverified"}</span><span class="tag">${s.kind==="route"?"Route idea":"Field check"}</span></div></li>`;
+    el.innerHTML = head("Agent output · suggests only", "Decision assistant", "left") + `<div class="db">
+      <div class="dsum">
+        <div><b>${open.length}</b><span>open checks</span></div>
+        <div><b>${okRoutes}</b><span>route${okRoutes===1?"":"s"} to check</span></div>
+        <div><b style="color:#ff9a9d">${blRoutes}</b><span>possibly blocked</span></div>
+        <div><b>${A.shelters.length}</b><span>shelter sites</span></div>
+      </div>
+      <div class="row small muted" style="margin-top:8px">For <b style="color:var(--ink)">${esc(inc.name)}</b> · pass ${pass.date} ${ev(inc.evidence)}</div>
+
+      <div class="sect">Suggested next checks</div>
+      ${open.length ? `<ul class="list">${open.map(s=>sugCard(s,false)).join("")}</ul>` : '<p class="empty">No open suggestions.</p>'}
+      ${done.length ? `<ul class="list" style="margin-top:6px">${done.map(s=>sugCard(s,true)).join("")}</ul>` : ""}
+
+      <div class="sect">Route options</div>
+      <ul class="list">${routes.map(x=>`<li class="card rcard ${x.bl?"bl":""}">
+        <div class="rt" style="border:0;padding:0"><svg width="22" height="10"><path d="M1 5h20" stroke="${x.bl?"#ff5a5f":"#f1f4f3"}" stroke-width="3.5" ${x.bl?'stroke-dasharray="5 3"':""}/></svg><b>${esc(x.r.label)}</b><button class="kbtn" data-route="${x.r.id}" title="Show on map" aria-label="Show ${esc(x.r.label)} on map">${svg("pin",12)}</button></div>
+        <div class="rmeta"><span><i>Length</i>${fmtM(Math.round(x.len))}</span><span><i>Nearest damage</i>${isFinite(x.nearDmg)?fmtM(x.nearDmg):"—"}</span><span><i>Nearest fire</i>${isFinite(x.nearFire)?fmtM(x.nearFire):"—"}</span></div>
+        <div class="row" style="margin-top:6px"><span class="tag ${x.bl?"warn":""}">${x.bl?"Possibly blocked (candidate)":"Available · not verified"}</span>${x.nearFire<=375?'<span class="tag fire">Inside fire ring</span>':""}</div></li>`).join("")}</ul>
+
+      <div class="sect">Shelters to consider</div>
+      ${A.shelters.length ? `<div class="card" style="padding:2px 11px">${A.shelters.slice(0,3).map(x=>`<div class="rt"><span class="sico">${svg("shelter",14)}</span><span style="flex:1;min-width:0"><b style="display:block">${esc(x.s.name)}</b><span class="muted" style="font-size:11.5px">${fmtM(x.m)} · ${rng(x.s.capacity)} people${x.hz.length?" · near hazard":""}</span></span><button class="kbtn" data-shelter="${x.s.id}" title="Show on map" aria-label="Show shelter on map">${svg("pin",12)}</button></div>`).join("")}</div>
+        <p class="small muted" style="margin:6px 0 0">Candidate shelters, not verified.</p>` : '<p class="empty">No candidate shelters nearby.</p>'}
+
+      <div class="sect">Data gaps</div>
+      <ul class="gaps">${gaps.map(([t,e])=>`<li><span class="gdot ev-${e}"></span>${esc(t)}</li>`).join("")}</ul>
+      </div><div class="df">Suggestions only. The officer chooses the route.</div>`;
+    el.querySelectorAll("[data-dismiss]").forEach(b => b.onclick = () => { S.dismissed.add(b.dataset.dismiss); renderLeft(); });
+    el.querySelectorAll("[data-check]").forEach(b => b.onclick = () => { S.checked.add(b.dataset.check); renderLeft(); });
+    el.querySelectorAll("[data-route]").forEach(b => b.onclick = () => { const x=routes.find(y=>y.r.id===b.dataset.route); showOnMap(x.pts, ["routes"]); });
+    el.querySelectorAll("[data-shelter]").forEach(b => b.onclick = () => openShelter(b.dataset.shelter));
+  } else if (k==="budget") {
+    const max = Math.max(...D.budget.map(b=>b.high));
+    el.innerHTML = head("Agent output · indicative", "Rebuild budget", "left") + `<div class="db"><ul class="list">${D.budget.map(b=>`
+      <li class="card"><h3>${esc(b.area)}</h3><div class="budget-bar"><i style="left:${b.low/max*100}%;width:${(b.high-b.low)/max*100}%"></i></div>
+        <div class="mono" style="font-size:17px;font-weight:600">${b.low.toFixed(1)}–${b.high.toFixed(1)} <span class="muted" style="font-size:13px;font-weight:400">${esc(b.unit)}</span></div>
+        <div class="sect" style="margin:14px 0 8px">Assumptions</div><ul class="small" style="margin:0;padding-left:18px;color:var(--ink-2)">${b.assumptions.map(a=>`<li>${esc(a)}</li>`).join("")}</ul></li>`).join("")}</ul></div>
+      <div class="df"><b style="color:var(--ink-2)">Indicative, not a quote.</b> Ranges from sample data.</div>`;
+  } else if (k==="layers") {
+    const sw = {damage:'<span class="hatch d-severe"></span>', second:'<svg width="22" height="22"><circle cx="11" cy="11" r="8" fill="none" stroke="#45c79c" stroke-width="2" stroke-dasharray="3 2.5"/></svg>',
+      change:'<svg width="22" height="18"><rect x="2" y="2" width="18" height="14" fill="none" stroke="#c39be8" stroke-width="2"/></svg>', fires:'<svg width="22" height="22"><circle cx="11" cy="11" r="8" fill="none" stroke="#ff8a4d" stroke-width="1.6" stroke-dasharray="4 2"/><circle cx="11" cy="11" r="3" fill="#ff8a4d"/></svg>',
+      night:'<span class="hatch" style="--c:#9d93e6;background:repeating-linear-gradient(0deg,#9d93e6 0 2px,#05070c 2px 4px)"></span>', pop:'<span class="hatch" style="--c:#86908e;background:rgba(207,216,213,.25)"></span>',
+      facilities:'<svg width="20" height="20"><rect x="2" y="2" width="16" height="16" rx="5" fill="#f1f4f3"/><text x="10" y="14.5" font-size="11" font-weight="700" text-anchor="middle" fill="#0e1215">H</text></svg>',
+      shelters:'<svg width="20" height="20"><rect x="2" y="2" width="16" height="16" rx="5" fill="none" stroke="#f1f4f3" stroke-width="1.6" stroke-dasharray="3 2"/></svg>',
+      routes:'<svg width="26" height="14"><path d="M1 4h24" stroke="#f1f4f3" stroke-width="3"/><path d="M1 11h24" stroke="#ff5a5f" stroke-width="3" stroke-dasharray="5 3"/></svg>',
+      streets:'<svg width="22" height="20"><path d="M3 17 9 3M19 17 13 3M2 10h18" stroke="#b6bfbd" stroke-width="1.6" fill="none"/></svg>',
+      buildings:'<svg width="22" height="20"><path d="M3 18V8l6-4v14M9 18V6h10v12" fill="#cfc6b4" stroke="#86908e"/></svg>'};
+    el.innerHTML = head("Map", "Layers", "left") + `<div class="db">${LAYERS.map(([k,t,d])=>`<div class="toggle"><span class="sw">${sw[k]}</span><label for="ly-${k}">${t}<small>${d}</small></label><span class="switch"><input type="checkbox" id="ly-${k}" data-ly="${k}" ${S.layers[k]?"checked":""}><i></i></span></div>`).join("")}
+      <div style="margin-top:18px">${note("Layers are shared by the 2D and 3D views. Damage overlays sit on top of buildings and never change their material colours.")}</div></div>`;
+    el.querySelectorAll("[data-ly]").forEach(c => c.onchange = () => { S.layers[c.dataset.ly] = c.checked; refresh(); });
+  }
+  bindClose(el);
+}
+
+window.__civisar = S; // debug handle for the mockup
+boot();
+})();
+</script>
+</body>
+</html>

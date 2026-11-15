@@ -13,6 +13,7 @@ from backend.app.core.security import (
     read_session,
     revoke_session,
 )
+from backend.app.handlers import HANDLERS
 from backend.app.services.radar_catalog import layer_catalog, observation_series
 from backend.app.services.synthetic_area import area_summary, enabled, source_record
 from fastapi import FastAPI, Request
@@ -107,6 +108,11 @@ def attach_routes(app: FastAPI) -> None:
                         audit(request, session[0].user_id if session else 'anonymous', 'access_denied',
                               _path.strip('/').split('/')[0] or 'root', 'denied')
                     return denial
+                # Registry handlers serve sample (fixture) data: only in synthetic mode, so they never hide
+                # the real-data routes when DEMO_SYNTHETIC=false.
+                handler_fn = HANDLERS.get((_method, _path)) if enabled() else None
+                if handler_fn:
+                    return await handler_fn(request, request.path_params)
                 if _path == '/session' and _method == 'DELETE':
                     audit(request, current(request)[0].user_id, 'logout', 'session', 'success')
                     revoke_session(request.cookies.get('civisar_session'))
