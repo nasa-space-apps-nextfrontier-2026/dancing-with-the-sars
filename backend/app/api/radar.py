@@ -357,7 +357,18 @@ def handle_areas(
             "next_cursor": str(offset + limit) if offset + limit < len(records) else None,
         }
     if path == "/areas/{area_id}/facilities":
-        return error("UNAVAILABLE", "Facility data is not loaded yet.", 503, request)
+        from backend.app.services import facilities_real
+
+        page = _page(q, 100, 100)
+        if page is None:
+            return error("INVALID_REQUEST", "limit must be 1-100 and cursor not negative.", 422, request)
+        try:
+            found = facilities_real.list_facilities(
+                engine(), identity, p["area_id"], q.get("type"), *page
+            )
+        except facilities_real.NotLoaded:
+            return error("UNAVAILABLE", "Facility data is not loaded yet.", 503, request)
+        return found if found is not None else error("NOT_FOUND", "Area not found.", 404, request)
     if path == "/areas":
         page = _page(q, 100, 500)
         if page is None:

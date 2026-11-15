@@ -91,10 +91,15 @@ def test_bundle_uses_h3_centres_and_reports_missing_domains(monkeypatch):
         "synthetic": False, "items": [], "next_cursor": None,
     })
     monkeypatch.setattr(map_context_real.areas_real, "people", lambda *_args: (_ for _ in ()).throw(map_context_real.summary_real.Unavailable()))
+    monkeypatch.setattr(map_context_real.facilities_real, "loaded", lambda *_args: False)
 
     result = map_context_real.build(object(), Identity("u", "analyst", (AREA,)), None, 10)
 
     assert set(result["centroids"]) == {AREA, CELL}
     assert result["unavailable"]["routes"].startswith("Validated")
+    assert result["unavailable"]["facilities"].startswith("Validated")
+    monkeypatch.setattr(map_context_real.facilities_real, "loaded", lambda *_args: True)
+    loaded = map_context_real.build(object(), Identity("u", "analyst", (AREA,)), None, 10)
+    assert "facilities" not in loaded["unavailable"]
     assert result["unavailable"][f"people:{AREA}"] == "Population evidence is not loaded."
     assert result["synthetic"] is False
