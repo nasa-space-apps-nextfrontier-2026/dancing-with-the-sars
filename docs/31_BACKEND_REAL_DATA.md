@@ -2,6 +2,15 @@
 
 Owner: Udula (backend handover from Rashiru, 14 Nov 2026). With `DEMO_SYNTHETIC=true` (the default) nothing below changes: the API keeps serving Rashiru's synthetic fixtures. With `DEMO_SYNTHETIC=false` the radar routes serve the real M1 results.
 
+## 0. One command
+
+```powershell
+$env:CIVISAR_DB_PORT=5433   # only if PostgreSQL already uses 5432
+.\.venv\Scripts\python.exe -m scripts.demo_setup              # --no-docker, --offline, --dry-run
+```
+
+Runs sections 1 to 4c in order: PostGIS, migrations, radar results, building table, publish (damage and live fires), agents, agent outputs, facilities, one worker run. A step whose private input files are not on the machine is skipped with the reason; loads are replaceable, so it can be run again. Checked on 15 Nov 2026: all eight steps done, building table identical on re-run. It then prints how to make a sign-in user and start the API and the frontend.
+
 ## 1. Database (PostGIS in Docker)
 
 ```powershell

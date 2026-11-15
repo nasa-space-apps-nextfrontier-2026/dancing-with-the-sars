@@ -488,7 +488,7 @@ export class MapEngine {
       name: g('name') || 'Unnamed building', id: g('elementId') || g('id') || '—', use, material: g('building:material'),
       height: isFinite(H) ? `${Math.round(H * 0.85)}–${Math.round(H * 1.15)} m${estimated ? ' (estimated)' : ''}` : 'Unknown',
       floors: fl ? `${fl[0]}–${fl[1]}` : 'Unknown', facility: /hospital|clinic|school|university/.test(use) || !!g('amenity'),
-      residents: fl && /house|residential|apartments|yes/.test(use === 'unknown' ? 'yes' : use) ? `${fl[0] * 2}–${fl[1] * 5} (sample model)` : '—', cell,
+      residents: '—', cell, // doc 07: no residents per building; people are counted per area
     }
   }
   clearBuildingHighlight() { if (this.edge) this.edge.selected = [] }

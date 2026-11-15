@@ -51,6 +51,25 @@ Source disagreements are retained in [source audit](00_SOURCE_AUDIT.md); proposa
 | R14 | Feature freeze violated | Medium | Member 4 | Optional work proposed after H38 | Fixes only, move enhancement to after hackathon |
 
 
+## Decisions taken at finalisation (15 November 2026)
+
+Recorded by Udula, who was asked by the team to merge everything and finalise it. Each one is enforced in code or tests on `dev`.
+
+| ID | Topic | Decision | Status | Where it is enforced |
+|---|---|---|---|---|
+| D19 | Public map | Kept off. `PUBLIC_RELEASE_APPROVED` cannot turn it on; any future release needs artifact-bound approval and a humanitarian protection review (doc 07). | APPROVED | `public_map_real.py`; `tests/security/test_public_map.py` |
+| D20 | Sign-in | The landing page and the dashboard with labelled sample data are public. Real data always needs sign-in, then role and area scope (supersedes the "no sign-in" note of PR #47). | APPROVED | `frontend/src/services/api.ts`, `/signin`; backend 401 on every real route |
+| D21 | Routes and shelters (F06, F07) | Demo-only (sample data). Real mode answers "unavailable"; no real route or shelter site is published. No public routing server is called; sample shelters use generic names, never real sites. | APPROVED | `radar.py` UNAVAILABLE_PATHS; frontend engine and landing scene |
+| D22 | Building heights | Accept 57% within one storey (target 70% not met): heights are shown as a range, with the warning that towers are underestimated by about 18 m and that heights describe the pre-war stock (~2018). | APPROVED | `ds-ghs-obat` source record limits; `docs/progress/BUILDING_HEIGHT_CHECK.md` |
+| D23 | Fire alert delay | `FIRE_RELEASE_DELAY_HOURS=0`: FIRMS points are already public worldwide within hours, so a delay of our copy adds no protection. Alerts keep only the H3 r8 cell and go to signed-in users in scope. | APPROVED | `worker/jobs.py`; `.env.example` |
+| D24 | Rebuild scope | Only the rebuild **budget** (cost and duration ranges, labelled "Planning indication only") is in scope; no rebuild planning or contractor features. | APPROVED | `worker/agents/budget.py`; `/areas/{id}/budget` |
+| D25 | Radar image downloads | Users scoped to the whole demo box may download the released radar image files; users scoped to smaller areas cannot (fail closed). | APPROVED | `radar_real.py` file allowlist and scope checks |
+| D26 | Facilities | Only sites inside the Lebanon boundary (383 of 543). Analysts get type and status without location; officer and above get the point. Operating status is always Unknown. | APPROVED | `scripts/load_facilities.py`, `facilities_real.py`; `tests/security/test_facilities.py` |
+| D27 | People per building | Never shown or served: the API never returns residents per building and the dashboard says "Not shown per building (people are counted per area)". | APPROVED | `load_agent_outputs.py` refusal; building detail panel |
+| D28 | Missing inputs | A missing input reads Unknown with its reason, never 0 (facilities on the map, roads, night lights, damage, people). | APPROVED | `map_context_real.py` `unavailable`; incident panel tests |
+| D29 | Source list | `/sources` lists only the sources the served data comes from (radar export plus `data/manifests/sources.json`); every record matches `SourceRecord`. | APPROVED | `worker/loaders/sources.py`; `test_source_register.py` |
+
+
 ## Proposed ADRs
 
 [ADR 001](adr/001_MODULAR_MONOLITH_AND_CONTRACTS.md) fixes implementation boundaries; [ADR 002](adr/002_PUBLICATION_AND_LOCAL_ROUTING.md) covers privacy; [ADR 003](adr/003_RADAR_VALIDITY_AND_DATA_BASELINE.md) resolves scientific/data proposal boundaries. All retain PROPOSED status unless an explicit existing requirement is stated separately. No undocumented alternative stack or paid service is chosen.
