@@ -5,7 +5,7 @@ services:
       POSTGRES_DB: civisar
       POSTGRES_USER: civisar
       POSTGRES_PASSWORD: civisar_local_only
-    ports: ["127.0.0.1:5432:5432"]
+    ports: ["127.0.0.1:${CIVISAR_DB_PORT:-5432}:5432"]
     volumes: ["civisar_db:/var/lib/postgresql/data"]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U civisar -d civisar"]

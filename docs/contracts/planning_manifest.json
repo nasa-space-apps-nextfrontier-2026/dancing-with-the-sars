@@ -1,7 +1,7 @@
 {
   "reference_sha256": {
     "ARCHITECTURE.md": "f083a8c32974802f289e073d67074fa2f77f6d715f3d375cbe75ab617e6f6045",
-    "DATASETS.md": "777531d0a620ae13a341bd49cd105c1fea31886324db360fec9a9454ef5146d6",
+    "DATASETS.md": "0c0d3131d2a08b6eaf9a945589b8baab4ac15ad6f8f0aceea978b24822269d48",
     "DATA_AND_API_PLAN.md": "5396661c0a7dcf7bffd57d9f97fda45fc620b15996f75beaf2ceeea27d415257",
     "NASA_DATASET_ANALYSIS.md": "1048c7cdf5b6f653c054179abb31932a88b6e919724ef1f85bc40da80b833879",
     "NASA_Open_Data_Links_Earth_Impact_Intelligence.pdf": "1dc3fe32ce33771e7eb7c6ba63a6a0a9ba945ed6f53751a1c20b104976152ba9",
@@ -90,7 +90,7 @@
     "Report",
     "Safety"
   ],
-  "endpoint_count": 40,
+  "endpoint_count": 44,
   "trace_ids": [
     "F01",
     "F02",
