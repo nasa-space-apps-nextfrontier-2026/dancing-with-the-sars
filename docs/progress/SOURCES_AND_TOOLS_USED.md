@@ -33,7 +33,7 @@ NASA datasets reached through tools 1 and 2 (they are not listed on the tab by n
 | FIRMS VIIRS 375 m | **Used** | Live fire points from the public CSV feed, no map key needed |
 | NASADEM | **Planned** | Slope check for open-land shelter sites |
 
-**Wording fix needed:** `DATASETS.md` marks NISAR as "named directly on the tab". The tab does not name the NISAR dataset; it links ASF Vertex, Earthdata Search and the NISAR user guide. Reword the mark when the docs are next edited, and do not repeat the earlier "five or six" count.
+**Wording fixed (15 November 2026):** `DATASETS.md` no longer says NISAR is "named directly on the tab". The tab does not name the NISAR dataset; it links ASF Vertex, Earthdata Search and the NISAR user guide. Do not repeat the earlier "five or six" count.
 
 ## 2. Other data (not from the Resources tab)
 
