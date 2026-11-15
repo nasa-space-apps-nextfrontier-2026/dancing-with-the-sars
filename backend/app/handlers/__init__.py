@@ -7,3 +7,6 @@ def handler(method: str, path: str):
         HANDLERS[(method.upper(), path)] = fn
         return fn
     return decorator
+
+# Import handler modules to register them
+from . import sources  # noqa: F401
