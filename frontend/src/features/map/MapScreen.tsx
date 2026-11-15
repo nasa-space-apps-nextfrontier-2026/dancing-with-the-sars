@@ -9,14 +9,12 @@ import { Icon, Logo, type IconName } from '../../components/Icons'
 import { MapEngine, type BuildingInfo } from './engine'
 import { passIndex } from './analysis'
 import { LeftPanel, Legend, RightPanel, type LeftKey, type RightView } from './panels'
-import { ChangeOverTime } from './ChangeOverTime'
 import type { SourceCatalogueState } from './SourcesPanel'
 import { useTimelinePlayback } from './timeline'
 
 const DEFAULT_LAYERS: Layers = { damage: true, second: true, change: false, fires: true, night: false, pop: false, facilities: true, shelters: true, routes: true, streets: true, buildings: true }
 const EMPTY_PASSES: Pass[] = []
 const TOKEN_KEY = 'civisar.ionToken'
-type PanelMode = 'change' | 'responder'
 function storedToken(): string | null {
   const env = import.meta.env.VITE_CESIUM_ION_TOKEN as string | undefined
   if (env) return env
@@ -54,13 +52,12 @@ export function MapScreen() {
   const [banner, setBanner] = useState('')
   const [roadsVersion, setRoadsVersion] = useState(0)
   const [menu, setMenu] = useState(false)
-  const [panelMode, setPanelMode] = useState<PanelMode>('change')
   const engineRef = useRef<MapEngine | null>(null)
   const v3Ref = useRef<HTMLDivElement>(null), v2Ref = useRef<HTMLDivElement>(null), creditRef = useRef<HTMLSpanElement>(null)
   const [, force] = useState(0)
   const playback = useTimelinePlayback(data?.passes ?? EMPTY_PASSES, passIdx, setPassIdx)
 
-  useEffect(() => { document.title = 'ConflictPulse · Map' }, [])
+  useEffect(() => { document.title = 'RescueForce · Map' }, [])
   useEffect(() => {
     api.mapData().then(result => {
       setData(result.data)
@@ -161,28 +158,25 @@ export function MapScreen() {
     <div id="vig" />
 
     <header id="top">
-      <Link to="/" className="pill glass brand" title="Back to the ConflictPulse home page"><span className="logo"><Logo /></span><b>ConflictPulse</b></Link>
+      <Link to="/" className="pill glass brand" title="Back to the RescueForce home page"><span className="logo"><Logo /></span><b>RescueForce</b></Link>
       <nav className="pill glass tabs" aria-label="Pages">
         {(['map', 'alerts', 'areas', 'sources'] as const).map(p => <button key={p} className="tab" aria-current={(p === 'map' && (!left || !left.startsWith('page:'))) || left === `page:${p}` ? 'page' : undefined}
           onClick={() => setLeft(p === 'map' ? null : (`page:${p}` as LeftKey))}>{p[0].toUpperCase() + p.slice(1)}</button>)}
       </nav>
-      <div className="pill glass seg modeseg" role="group" aria-label="Dashboard mode">
-        {([['change', 'Change over time', 'Change'], ['responder', 'Responder', 'Respond']] as const).map(([k, t, short]) => <button key={k} aria-pressed={panelMode === k} aria-label={t} title={t} onClick={() => { setPanelMode(k); setRightView({ kind: 'incident' }); setRightOpen(true) }}><span className="long">{t}</span><span className="short">{short}</span></button>)}
-      </div>
       <div className="spacer" />
       {sample && <span className="badge-sample" title="All incidents and values are sample data">Sample data</span>}
-      <div className="pill glass seg baseseg" role="group" aria-label="Base map">
-        {([['sat', 'Satellite', 'Sat'], ['streets', 'Streets', 'Streets']] as const).map(([k, t, short]) => <button key={k} aria-pressed={base === k} aria-label={t} onClick={() => setBase(k)}><span className="long">{t}</span><span className="short">{short}</span></button>)}
+      <div className="pill glass seg" role="group" aria-label="Base map">
+        {([['sat', 'Satellite'], ['streets', 'Streets']] as const).map(([k, t]) => <button key={k} aria-pressed={base === k} onClick={() => setBase(k)}>{t}</button>)}
       </div>
-      <div className="pill glass seg viewseg" role="group" aria-label="View mode">
+      <div className="pill glass seg" role="group" aria-label="View mode">
         {([['2d', '2D'], ['3d', '3D'], ['split', 'Split']] as const).map(([k, t]) => <button key={k} aria-pressed={mode === k} onClick={() => setMode(k)}>{t}</button>)}
       </div>
-      <button className="btn glass top-btn" id="focusBtn" aria-pressed={focus} onClick={() => setFocus(f => !f)}>Focus</button>
-      <button className="btn primary top-btn" id="flyTop" onClick={flyTop} title="Fly to biggest change" aria-label="Fly to biggest change"><Icon name="plane" size={16} /><span>Fly to biggest change</span></button>
+      <button className="btn glass top-btn" aria-pressed={focus} onClick={() => setFocus(f => !f)}>Focus</button>
+      <button className="btn primary top-btn" id="flyTop" onClick={flyTop}><Icon name="plane" size={16} /><span>Fly to top incident</span></button>
       <div className="usermenu">
         <button className="avatar" aria-haspopup="menu" aria-expanded={menu} aria-label="Menu" onClick={() => setMenu(m => !m)} title="Menu">⋯</button>
         {menu && <div className="menu glass" role="menu">
-          <div className="who"><b>ConflictPulse demo</b>Sample data · open access</div>
+          <div className="who"><b>RescueForce demo</b>Sample data · open access</div>
           <Link className="btn ghost sm" role="menuitem" to="/">Home page</Link>
           {token
             ? <button className="btn ghost sm" role="menuitem" onClick={() => { setMenu(false); try { localStorage.removeItem(TOKEN_KEY) } catch { /* ignore */ } setToken(null) }}>Forget Cesium token</button>
@@ -202,8 +196,7 @@ export function MapScreen() {
     </nav>
 
     <LeftPanel ctx={ctx} k={left} onClose={() => setLeft(null)} />
-    <RightPanel ctx={ctx} open={rightOpen} view={rightView} setView={setRightView} onClose={() => { setRightOpen(false); engineRef.current?.clearBuildingHighlight() }}
-      change={panelMode === 'change' ? <ChangeOverTime data={data} incident={selected} sample={sample} onPick={id => selectIncident(id, true)} onClose={() => setRightOpen(false)} /> : undefined} />
+    <RightPanel ctx={ctx} open={rightOpen} view={rightView} setView={setRightView} onClose={() => { setRightOpen(false); engineRef.current?.clearBuildingHighlight() }} />
     {legend && <Legend onClose={() => setLegend(false)} />}
     {banner && <div id="banner" className="glass" style={{ display: 'block' }} role="status">{banner}</div>}
     <button className="btn glass" id="exitFocus" onClick={() => setFocus(false)}>Exit focus</button>
@@ -215,11 +208,11 @@ export function MapScreen() {
         <div className="steps">{['Regional', 'Descent', 'Arrival', '360° view'].map((t, i) => <div key={t} className={`step${phase === i + 1 ? ' on' : phase > i + 1 ? ' done' : ''}`}>{t}</div>)}</div>
       </div>
       <div className="timeline">
-        <div className="tl-head"><span>NISAR pass&nbsp; <b>{pass.date} · {pass.sensor}</b></span><span>{pass.status === 'missed' ? 'Missed pass · no new data from this date' : 'Changes appear about 72 h after each pass'}</span>
+        <div className="tl-head"><span>Satellite pass&nbsp; <b>{pass.date} · {pass.sensor}</b></span><span>{pass.status === 'missed' ? 'Missed pass · no new data from this date' : 'Building changes appear 72 h after the pass'}</span>
           <button className="btn sm" aria-label={playback.playing ? 'Pause acquisition playback' : 'Play acquisition timeline'} aria-pressed={playback.playing} disabled={!playback.canPlay} onClick={playback.toggle}>{playback.playing ? 'Pause' : 'Play'}</button></div>
         <div className="track">
           <div className="rl" /><div className="fill" style={{ width: `${(passIdx / n) * 100}%` }} />
-          <input type="range" min={0} max={maxPass} step={1} value={passIdx} onChange={e => playback.select(+e.target.value)} aria-label="NISAR pass date" />
+          <input type="range" min={0} max={maxPass} step={1} value={passIdx} onChange={e => playback.select(+e.target.value)} aria-label="Satellite pass date" />
           {data.passes.map((p, i) => <div key={p.id} className={`tick${p.status === 'missed' ? ' missed' : ''}${i === passIdx ? ' cur' : ''}`} style={{ left: `${(i / n) * 100}%` }} title={p.status === 'missed' ? 'Missed pass' : p.sensor} />)}
         </div>
         <div className="ticklabels">{data.passes.map((p, i) => <span key={p.id} style={{ left: `${(i / n) * 100}%` }}>{p.date.slice(5).replace('-', '/')}{p.status === 'missed' ? ' · missed' : ''}</span>)}</div>

@@ -1,3 +1,5 @@
+> **NOT ACTIVE — do not use this plan.** This describes the ConflictPulse change-over-time plan, which is on hold. The app code follows the previous plan (RescueForce, see doc 33). Agents and teammates: ignore this doc unless the team decides to switch back. The full code for this plan is saved in commit `1f5edd3` on branch `feature/m4-time-series-view` (restore with `git checkout 1f5edd3 -- frontend docs/design`).
+
 # 34 · Change over time: the NISAR time-series view
 
 Status: 15 Nov 2026 (Thanoban). Agreed in chat before building. Branch `feature/m4-time-series-view` (from PR #47).

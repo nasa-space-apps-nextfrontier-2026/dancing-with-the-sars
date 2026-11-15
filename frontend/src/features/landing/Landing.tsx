@@ -12,7 +12,7 @@ export function Landing() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    document.title = 'ConflictPulse'
+    document.title = 'RescueForce'
     if (!root.current) return
     let stop: (() => void) | undefined
     try { stop = initLanding(root.current, path => navigate(path)) }

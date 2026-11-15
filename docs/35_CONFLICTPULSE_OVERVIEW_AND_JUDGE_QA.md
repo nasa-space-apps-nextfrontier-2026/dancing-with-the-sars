@@ -1,3 +1,5 @@
+> **NOT ACTIVE — do not use this plan.** This describes the ConflictPulse change-over-time plan, which is on hold. The app code follows the previous plan (RescueForce, see doc 33). Agents and teammates: ignore this doc unless the team decides to switch back. The full code for this plan is saved in commit `1f5edd3` on branch `feature/m4-time-series-view` (restore with `git checkout 1f5edd3 -- frontend docs/design`).
+
 # 35 · ConflictPulse: overview, methods and judge Q&A
 
 Status: 15 Nov 2026 (Thanoban). New doc. It sums up the product under its new name. It does not replace doc 33 (methods, sources, file paths) or doc 34 (the plan for the time-series view). Where this doc and doc 33 differ in wording about "live", this doc is the current position.

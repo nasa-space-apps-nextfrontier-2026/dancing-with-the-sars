@@ -1,3 +1,5 @@
+> **NOT ACTIVE — do not use this plan.** This describes the ConflictPulse change-over-time plan, which is on hold. The app code follows the previous plan (RescueForce, see doc 33). Agents and teammates: ignore this doc unless the team decides to switch back. The full code for this plan is saved in commit `1f5edd3` on branch `feature/m4-time-series-view` (restore with `git checkout 1f5edd3 -- frontend docs/design`).
+
 # 36 · ConflictPulse: final report and presentation pack
 
 Status: 15 Nov 2026. New doc. Final report for NASA Space Apps 2026, challenge "Dancing with the SARs", plus the slides, video script, demo path and judge Q&A. Facts come from the files cited in each section. Where a number is not in a cited file, it is not in this doc.

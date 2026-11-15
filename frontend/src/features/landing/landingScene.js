@@ -1,4 +1,4 @@
-// ConflictPulse landing scene: three.js Earth, scroll-driven dive to Khiam, fire and smoke, cards and reveals.
+// RescueForce landing scene: three.js Earth, scroll-driven dive to Khiam, fire and smoke, cards and reveals.
 // Ported from docs/design/rescueforce-landing-mockup.html. Plain JS on purpose (DOM-heavy scene code);
 // typed entry point in landingScene.d.ts.
 import * as THREE from 'three'
@@ -12,7 +12,7 @@ gsap.registerPlugin(ScrollTrigger)
 export function initLanding(root, navigate) {
   const cleanups = []
   let alive = true, rafId = 0
-  // in-app links (Try ConflictPulse, Open ConflictPulse) go to the dashboard without a page reload
+  // in-app links (Try RescueForce, Open RescueForce) go to the dashboard without a page reload
   root.querySelectorAll('a[data-link]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); navigate(a.getAttribute('href')) }))
   const ctx = gsap.context(() => {
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';   // the story always starts on the globe
@@ -104,8 +104,8 @@ export function initLanding(root, navigate) {
     });
 
     /* routes: sample lines between the endpoints (no public routing server is called; doc 03/07);
-           parts near damage turn red ("may be blocked") */
-        const routeEls = [];
+       parts near damage turn red ("may be blocked") */
+    const routeEls = [];
     function drawRoute(r, coords){
       const pts = coords.map(([lon, lat]) => ({lon, lat}));
       const near = pts.map(q => DMG.some(d => distM(d, q) <= d.m/2 + 40));
