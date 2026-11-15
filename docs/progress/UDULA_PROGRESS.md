@@ -4,7 +4,9 @@ Read this to see what Udula has finished, what is waiting, and what needs a team
 
 ## 1. Summary
 
-**Everything is merged into `dev`.** The team asked Udula to merge everything and finalise it; the open items and decisions were then finished the same day (PRs #47 to #50, section 6b). Only the night-light history is still being built (it needs the Earthdata token).
+**Everything is merged into `dev`.** The team asked Udula to merge everything and finalise it; the open items and decisions were then finished the same day (PRs #47 to #51, section 6b). The night-light history is still being built (it needs the Earthdata token).
+
+**Check against the plan (section 7b):** the four agents compute what docs 24 and 25 ask for (24 of 25 plan rules pass on real data; all 29 agent tests pass). The gaps are mostly in how the dashboard shows the agents' output; they are listed in section 9 and can be fixed without anyone else's data.
 
 | Area | State | PR |
 |---|---|---|
@@ -21,6 +23,7 @@ Read this to see what Udula has finished, what is waiting, and what needs a team
 | Source register (contract-valid, sources used) | Merged | [#49](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/49) |
 | Landing page with sign-in kept for real data (Thanoban's #47, fixed) | Merged | [#47](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/47) |
 | Decision log, one-command demo setup, no residents per building | Merged | [#50](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/50) |
+| Night-light script runs locally; progress log and team update | Merged | [#51](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/51) |
 
 Udula also fixed and merged the team pull requests that had to land with the backend (section 6). All recorded commits are under Udula's name with no AI co-author line.
 
@@ -95,7 +98,7 @@ Tests that need packages CI does not install (pandas, pyarrow) skip cleanly inst
 
 | Check | Result |
 |---|---|
-| GitHub CI (python-and-contracts, frontend) | Passed on #43 and #44 |
+| GitHub CI (python-and-contracts, frontend) | Passed on every PR, #43 to #51 |
 | Tests, CI-like environment | 238 passed, 12 skipped |
 | Tests, full environment | 285 passed, 1 skipped; frontend 30 tests, lint, type check, build |
 | Ruff, contract validator (45 operations), scaffold, secrets | Pass |
@@ -104,6 +107,31 @@ Tests that need packages CI does not install (pandas, pyarrow) skip cleanly inst
 | PostGIS 16 in Docker: migration 0006 upgrade, downgrade, upgrade | Pass |
 | Agent output load | 131 incidents, 393 recommendations, 6 insights, 131 budgets, 268,536 buildings; all geometries valid, EPSG:4326; a reload replaces the previous run |
 | API smoke test, real-data mode, temporary local users | 50 of 50 calls pass and match the contract schemas (including Rashiru's `/map/context`): logged-out 401; officer 403 on admin audit; narrow-scope officer sees only their area (also in `/map/context`) and gets 403 elsewhere; oversized `/buildings` bbox refused; no resident fields; printed brief has the RESTRICTED banner. Test rows (brief, review, audit) deleted afterwards. |
+
+## 7b. Check against the plan (docs 24 and 25, 15 November 2026)
+
+Each rule in doc 24 sections 6, 7, 9 and 13 and doc 25 U-05 and section 8 was checked against the real agent output in `data/published`, the code and the dashboard. Agent tests: 29 passed.
+
+| Agent | Plan rule | Result |
+|---|---|---|
+| Ranking | Seven named parts with the plan weights (30/20/15/15/10/5/5) in a config file; score 0-100 shown as a range | Pass |
+| Ranking | Top two reasons, unknowns and data age per incident | Pass (data age shows the processing time, not the satellite time: gap 6) |
+| Ranking | A part with no data is unknown, not zero; the range widens when data is missing | Pass |
+| Ranking | Never hides an incident; ties by people | Pass: all 131 incidents ranked (130 damage areas, 1 fire) |
+| Ranking | Officer can see and change the weights | See: yes. Change: not built (gap 7) |
+| Insights | Template sentences, each with a source and a date; every number from computed values | Pass: 6 insights; the "power unknown" one has no date because no night-light data exists |
+| Assistant | Situation, options with trade-offs, what we do not know, checklist, next review; named "CIVISAR assistant"; options, not orders | Pass in the agent output; the dashboard shows only the checklist (gap 2) |
+| Assistant | 2 or 3 options from fixed playbooks | **Fail:** 96 of 131 incidents get 1 option (verification only, when evidence is weak) (gap 1) |
+| Assistant | Role limits; evacuation only for a current fire; never a number the data did not provide | Pass |
+| Assistant | Every suggestion and the officer's choice is logged | **Not built**, although the text says "choices are logged by the API" (gap 3) |
+| Assistant | Fixed "Ask" questions | Not built (gap 7) |
+| Budget | Floor area x damage share x cost per m2; cost and duration ranges; assumptions with sources; "Planning indication only" | Pass in the agent output (US$0.40-4.27 billion, 6.6-165 months); the dashboard screen is wrong on real data (gap 4) |
+| Budget | Analyst and coordinator roles only (doc 24 section 9) | Officers can see it too (gap 8) |
+| All | No "safe", no "confirmed damage" | Pass |
+| 3D view | Label "Reconstruction from satellite data, not footage" | Missing (gap 5) |
+| 3D view | Real passes only with gaps; fire 375 m ring; reduced motion; OSM credit; no Google or Chinese services | Pass |
+
+`backend/tests/test_ml_wiring.py`, named in doc 25 section 8, was replaced by the PostGIS security tests when the backend changed; those pass.
 
 ## 8. Decisions
 
@@ -115,7 +143,20 @@ Points kept in the product: no residents per building are exposed; people stay a
 
 | Item | State |
 |---|---|
-| Night-light history (`NIGHTLIGHT_HISTORY`) | `worker/services/blackmarble_history.py` now runs locally; needs the Earthdata token file, then power-loss alerts turn on |
+| Night-light history (`NIGHTLIGHT_HISTORY`) | `worker/services/blackmarble_history.py` now runs locally; needs the Earthdata token file and about 3.6 GB of temporary downloads (90 days), then power-loss alerts turn on |
 | Routes and shelters | Demo-only by decision D21 |
+
+Gaps from the plan check (section 7b), most serious first. None needs another member's data.
+
+| # | Gap | Fix |
+|---|---|---|
+| 4 | Budget screen on real data shows raw numbers, "[object Object]" for assumptions and "Ranges from sample data"; no "Planning indication only" label and no duration | Format the ranges, list the assumptions as text, show duration, correct the labels |
+| 3 | The assistant says "choices are logged by the API", but nothing logs them | Add a logged choice endpoint (contract first, audit table), or correct the text |
+| 2 | Assistant panel shows only the checklist | Show the situation line, options with trade-offs, what we do not know and next review |
+| 1 | 1 option instead of 2 or 3 when evidence is weak | Add a "monitor until the next radar pass" playbook (contract change first) |
+| 5 | 3D label "Reconstruction from satellite data, not footage" missing | Add the fidelity badge to the 3D view |
+| 6 | Data age is the processing time | Use the satellite acquisition time |
+| 7 | Editable ranking weights and fixed "Ask" questions not built | Build, or record as stretch items |
+| 8 | Officers can see the budget | Restrict to analyst and coordinator, or record a decision |
 
 Known limits: sessions, revocation and the sign-in limit are kept in process memory, so a multi-worker deployment needs shared storage first; a database outage during the final job-status write still needs stale-run recovery; there is no independent damage validation for Lebanon. This backend is a demo, not production-ready. The real `/map/context` bundle takes about 15-20 s for 100 incidents.
