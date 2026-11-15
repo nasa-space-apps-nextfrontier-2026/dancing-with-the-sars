@@ -70,14 +70,16 @@ function IncidentPanel({ ctx, tab, setTab, onClose }: { ctx: MapCtx; tab: Tab; s
   const show = ctx.showOnMap
   let body: ReactNode
   if (tab === 'summary') {
+    // Real data names missing inputs in meta.availability: show Unknown with the reason, never a zero.
+    const missing = D.meta.availability ?? {}
     const Kpi = ({ icon, k, val, sub, onShow }: { icon: IconName; k: string; val: string | number; sub: string; onShow: () => void }) =>
       <div className="kpi"><span className="k"><Icon name={icon} size={13} />{k}<KBtn label={`Show ${k.toLowerCase()} on map`} onClick={onShow} /></span><b>{val}</b><span className="s">{sub}</span></div>
     body = <>
       <div className="kpis">
         <Kpi icon="people" k="People" val={inc.people_available === false ? 'Unknown' : rng(inc.people_nearby)} sub={inc.people_available === false ? 'Population evidence unavailable' : 'In affected area (WorldPop)'} onShow={() => show([...D.population.filter(c => dist(c, inc) <= AREA_M), inc], ['pop'])} />
-        <Kpi icon="facility" k="Facilities" val={A.facilities.length} sub="Inside or near damage, fire or dark cells" onShow={() => show([...A.facilities.map(x => x.f), inc], ['facilities'])} />
-        <Kpi icon="road" k="Roads" val={A.roads.length} sub="Possibly blocked (candidate)" onShow={() => show(A.roads.flatMap(r => r.coords.map(([lon, lat]) => ({ lon, lat }))), ['routes'])} />
-        <Kpi icon="power" k="Power" val={A.dark.length ? (A.dark.some(cell => cell.people_available === false) ? 'Unknown' : rng(A.darkPeople)) : '0'} sub={A.dark.length ? `People in ${A.dark.length} dark cell${A.dark.length > 1 ? 's' : ''}: possible power loss` : 'No dark cells on this pass'} onShow={() => show([...A.dark, inc], ['night'])} />
+        <Kpi icon="facility" k="Facilities" val={missing.facilities ? 'Unknown' : A.facilities.length} sub={missing.facilities ?? 'Inside or near damage, fire or dark cells'} onShow={() => show([...A.facilities.map(x => x.f), inc], ['facilities'])} />
+        <Kpi icon="road" k="Roads" val={missing.routes ? 'Unknown' : A.roads.length} sub={missing.routes ? 'Road data is not loaded' : 'Possibly blocked (candidate)'} onShow={() => show(A.roads.flatMap(r => r.coords.map(([lon, lat]) => ({ lon, lat }))), ['routes'])} />
+        <Kpi icon="power" k="Power" val={A.dark.length ? (A.dark.some(cell => cell.people_available === false) ? 'Unknown' : rng(A.darkPeople)) : (missing.night_lights ? 'Unknown' : '0')} sub={A.dark.length ? `People in ${A.dark.length} dark cell${A.dark.length > 1 ? 's' : ''}: possible power loss` : (missing.night_lights ?? 'No dark cells on this pass')} onShow={() => show([...A.dark, inc], ['night'])} />
       </div>
       <div className="sect">Assessment</div>
       <div className="row" style={{ marginBottom: 8 }}><Dmg d={inc.damage_class} /></div>
@@ -114,7 +116,7 @@ function IncidentPanel({ ctx, tab, setTab, onClose }: { ctx: MapCtx; tab: Tab; s
             <dt>Location</dt><dd>{x.s.lat.toFixed(5)}, {x.s.lon.toFixed(5)} <Copy text={`${x.s.lat.toFixed(5)}, ${x.s.lon.toFixed(5)}`} /></dd></dl>
         </li>
       })}</ul> : <p className="empty">No candidate shelters found near this incident.</p>}
-      <div style={{ marginTop: 10 }}><Note>Routes follow OpenStreetMap roads (OSRM) but are not checked on the ground. Red parts pass damage candidates. Confirm each site and the way there before sending anyone.</Note></div>
+      <div style={{ marginTop: 10 }}><Note>Route lines are sample drawings for the demo, not checked roads. Red parts pass damage candidates. Confirm each site and the way there before sending anyone.</Note></div>
     </>
   } else if (tab === 'power') {
     body = <>

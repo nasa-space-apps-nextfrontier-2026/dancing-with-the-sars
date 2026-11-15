@@ -33,6 +33,20 @@ def _centroids(cell_ids: set[str]) -> dict[str, list[float]]:
     return centers
 
 
+NIGHT_LIGHT_SOURCE = "blackmarble-nrt"  # worker/jobs.py LIGHTS_SOURCE
+
+
+def _night_lights_loaded(engine: Any) -> bool:
+    """True once the worker has run the power-loss rule on a night-light history at least once."""
+    from sqlalchemy import text
+
+    with engine.connect() as conn:
+        row = conn.execute(
+            text("SELECT last_success_at FROM source_status WHERE id = :s"), {"s": NIGHT_LIGHT_SOURCE}
+        ).first()
+    return row is not None and row.last_success_at is not None
+
+
 def build(
     engine: Any,
     identity: Identity,
@@ -43,9 +57,18 @@ def build(
     unavailable: dict[str, str] = {
         "shelters": "Validated shelter data is not loaded.",
         "routes": "Validated road and closure data is not loaded.",
+        # Facility points are not part of this bundle (doc 07: analysts never get locations), so the
+        # map must show facilities as Unknown, never as "0 affected".
+        "facilities": (
+            "Facilities are listed per area, not on this map."
+            if facilities_real.loaded(engine)
+            else "Validated facility data is not loaded."
+        ),
     }
-    if not facilities_real.loaded(engine):
-        unavailable["facilities"] = "Validated facility data is not loaded."
+    if not _night_lights_loaded(engine):
+        unavailable["night_lights"] = (
+            "Night-light history is not loaded: possible power loss is Unknown, not zero."
+        )
 
     try:
         incidents = agents_real.list_incidents(engine, identity, area_id, limit, 0)

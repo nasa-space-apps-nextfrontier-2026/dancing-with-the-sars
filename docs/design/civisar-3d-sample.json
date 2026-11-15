@@ -939,7 +939,7 @@
    "id": "sh1",
    "incident_id": "inc-khiam",
    "kind": "school",
-   "name": "Khiam public school (OSM)",
+   "name": "Sample shelter 1 (school building)",
    "lon": 35.6105,
    "lat": 33.3372,
    "capacity": {
@@ -951,7 +951,7 @@
    "id": "sh2",
    "incident_id": "inc-khiam",
    "kind": "community hall",
-   "name": "Khiam municipal hall (OSM)",
+   "name": "Sample shelter 2 (public hall)",
    "lon": 35.6065,
    "lat": 33.3405,
    "capacity": {
@@ -963,7 +963,7 @@
    "id": "sh3",
    "incident_id": "inc-khiam",
    "kind": "mosque",
-   "name": "Western quarter mosque (OSM)",
+   "name": "Sample shelter 3 (large building)",
    "lon": 35.615,
    "lat": 33.3345,
    "capacity": {
@@ -975,7 +975,7 @@
    "id": "sh4",
    "incident_id": "inc-bintjbeil",
    "kind": "school",
-   "name": "Bint Jbeil secondary school (OSM)",
+   "name": "Sample shelter 4 (school building)",
    "lon": 35.429,
    "lat": 33.129,
    "capacity": {
@@ -987,7 +987,7 @@
    "id": "sh5",
    "incident_id": "inc-bintjbeil",
    "kind": "public building",
-   "name": "Sports hall (OSM)",
+   "name": "Sample shelter 5 (sports hall)",
    "lon": 35.4265,
    "lat": 33.1255,
    "capacity": {
@@ -999,7 +999,7 @@
    "id": "sh6",
    "incident_id": "inc-aitaroun",
    "kind": "church",
-   "name": "Aitaroun hall (OSM)",
+   "name": "Sample shelter 6 (public hall)",
    "lon": 35.466,
    "lat": 33.1175,
    "capacity": {
@@ -1011,7 +1011,7 @@
    "id": "sh7",
    "incident_id": "inc-nabatieh",
    "kind": "school",
-   "name": "Nabatieh school (OSM)",
+   "name": "Sample shelter 7 (school building)",
    "lon": 35.495,
    "lat": 33.381,
    "capacity": {
