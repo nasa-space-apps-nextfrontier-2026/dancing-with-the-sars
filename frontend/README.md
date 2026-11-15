@@ -6,12 +6,14 @@
 
 ```bash
 npm install
-npm run dev        # http://127.0.0.1:5173
+npm run dev        # login-free, labelled synthetic preview at http://127.0.0.1:5173
+npm run dev:auth   # normal cookie-session authentication
 ```
 
 - **Routes:** `/` is the RescueForce landing page (3D Earth story), `/map` is the dashboard. Every "Try" / "Open RescueForce" link goes to `/map`.
 - **No sign-in (decided 15 Nov 2026).** Both pages are public; the sign-in screen was removed. The backend session endpoints still exist but the frontend no longer calls them.
 - **Cesium token (free):** put `VITE_CESIUM_ION_TOKEN=...` in `frontend/.env.local` (git-ignored); set the same variable in the deploy build. Visitors are never asked for it. Without it the map works on flat ground; developers can add one from the dashboard's ⋯ menu.
+- **Data:** the dashboard loads released data from `/api/v1/map/context` when the backend serves it, otherwise the labelled sample file. The Sources panel reads `/api/v1/sources`.
 - Checks: `npm run lint`, `npx tsc -b`, `npm test`.
 
 ## Layout of the code
@@ -25,7 +27,7 @@ npm run dev        # http://127.0.0.1:5173
 | `src/features/map/panels.tsx` | Incident panel (Summary, Impacts, Shelters, Power, Insights), building and shelter detail, ranking, decision assistant, budget, layers, legend. |
 | `src/features/map/engine.ts` | All CesiumJS code: globe, terrain, OSM buildings, overlays, fire/damage effects, OSRM road routes, camera flights, 2D/3D/split. |
 | `src/features/map/analysis.ts` | Pure helpers (distances, ranges, impacts, route stats). Unit-tested. |
-| `src/services/api.ts` | Session API and map data. Loads `public/sample/civisar-3d-sample.json` until the incident endpoints exist. |
+| `src/services/api.ts` | Session API and map data. Real sessions load the released/scoped `/map/context` bundle; explicitly synthetic sessions load `public/sample/civisar-3d-sample.json`. |
 | `src/styles.css` | Tokens and components copied from the mockup. |
 
 ## Build rules

@@ -126,6 +126,7 @@ def test_radar_catalogue_exposes_dates_but_no_renderable_pixels(monkeypatch):
 
 
 def test_session_restoration_logout_and_expiry(monkeypatch):
+    from backend.app.api.v1 import SPEC
     from backend.app.core import security
 
     monkeypatch.setenv('CIVISAR_DEMO_USERS_JSON', json.dumps({
@@ -137,7 +138,12 @@ def test_session_restoration_logout_and_expiry(monkeypatch):
             login = visitor.post('/api/v1/session', json={
                 'username': 'analyst', 'password': 'local-test-password'})
             assert login.status_code == 200
-            assert visitor.get('/api/v1/session').json()['role'] == 'analyst'
+            restored = visitor.get('/api/v1/session').json()
+            assert restored['role'] == 'analyst'
+            root = {'components': SPEC['components'], '$ref': '#/components/schemas/Session'}
+            for payload in (login.json(), restored):
+                Draft202012Validator(root).validate(payload)
+            assert restored['expires_at'] == login.json()['expires_at']
             assert visitor.delete('/api/v1/session').status_code == 403
             logout = visitor.delete('/api/v1/session', headers={
                 'X-CSRF-Token': login.json()['csrf_token']})

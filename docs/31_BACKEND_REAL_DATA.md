@@ -9,7 +9,7 @@ docker compose up -d db                      # or: $env:CIVISAR_DB_PORT=5433 if 
 .\.venv\Scripts\python.exe -m alembic -c backend/alembic.ini upgrade head
 ```
 
-Migrations: `0001_initial_postgis` (Rashiru), `0002_metric_value_records` (contract value id, release time and full record), `0003_alerts_and_source_status` (worker alerts and per-source fetch status) `0004_briefs` (stored briefs) and `0005_audit_reviews_access_jobs` (audit log, alert reviews, admin role changes, manual job runs). Every upgrade and downgrade were tested on `postgis/postgis:16-3.4`.
+Migrations: `0001_initial_postgis` (Rashiru), `0002_metric_value_records` (contract value id, release time and full record), `0003_alerts_and_source_status` (worker alerts and per-source fetch status), `0004_briefs` (stored briefs), `0005_audit_reviews_access_jobs` (audit log, alert reviews, admin role changes, manual job runs), and `0006_agent_outputs` (restricted incident ranking, recommendation, insight, budget and building-context outputs loaded by `scripts/load_agent_outputs.py`). Revisions through `0005` were previously exercised on disposable `postgis/postgis:16-3.4`; `0006` has not been live-PostGIS verified in the M4 integration and no migration or loader was run during that work.
 
 ## 2. Load the radar results
 
@@ -85,6 +85,26 @@ CIVISAR_DEMO_USERS_JSON=...   # from python -m scripts.create_demo_user (default
 - Historical cutoff: summary, values, people and services accept optional `as_of=<ISO date or datetime>`; without it they use current visibility. Brief creation requires the same `as_of` value in its JSON body and rejects future values. Observations, detections and records after the cutoff, including records whose `release_at` is later than the cutoff, are excluded.
 - Briefs never include records still on the 72-hour hold. Route and shelter sections are removed again at read time for roles below officer / coordinator. Out-of-scope or expired briefs answer 404.
 - The WorldPop source record is not in `sources.json` yet, so brief footnotes list only the radar sources.
+
+## 4b. Agent outputs: incidents, budgets, buildings (U-06)
+
+Migration `0006_agent_outputs` adds `agent_runs`, `agent_incidents`, `agent_recommendations`, `agent_insights`, `agent_budgets` and `agent_buildings` (GiST index on the footprint). Load them after the building table and the publish step:
+
+```powershell
+.\.venv\Scripts\python.exe -m worker.main --agents --table data/local/building_table.parquet --out data/published
+.\.venv\Scripts\python.exe -m scripts.load_agent_outputs
+```
+
+One transaction; a reload replaces the previous one; a building with residents is refused.
+
+| Route | Role | Returns |
+|---|---|---|
+| `GET /incidents?area_id&cursor&limit` | analyst+ | Ranked incidents the user may see (in scope, released), ranked 1..n within that view |
+| `GET /incidents/{incident_id}` | analyst+ | Incident, insights (only for users scoped to the whole demo box) and the recommendation for the caller's role (admin reads the coordinator version) |
+| `GET /areas/{area_id}/budget` | analyst+ | Budget ranges, "Planning indication only"; `south-lebanon-demo` gives the whole box |
+| `GET /buildings?bbox&limit` | analyst+ | GeoJSON buildings for the 3D view; bbox at most 0.05 square degrees, limit 1-5000, `truncated` when cut; cell damage result; no residents |
+
+All four answer 503 until the agent outputs are loaded, and 404 for anything held or outside the user's scope.
 
 ## 5. Safety rules in the server
 

@@ -4,17 +4,21 @@ Read this to see what Udula has finished, what is waiting, and what needs a team
 
 ## 1. Summary
 
-| Area | State |
-|---|---|
-| Radar ML (M1-01 to M1-03) | **Merged** (#15, #16, #17) |
-| Backend (M3-01 to M3-04) | Built; `origin/dev` merged locally; **no backend PR yet** |
-| U-01 to U-05 (buildings, heights, height check, building table, four agents) | Built, tested, pushed; PRs not opened yet |
-| U-06 contract | **PR #24 open**, CI green, waiting for Rashiru's review |
-| U-06 publish step | Built, tested, pushed |
-| U-06 API endpoints | **Not started**: waits for PR #24 |
-| U-07 key names | Built and pushed |
+**Everything is merged into `dev`.** No pull request is open (15 November 2026, `dev` at `7b1eec2`, which also includes Rashiru's `bc5b122`: `/map/context` and the frontend map bundle built on the U-06 tables).
 
-All recorded commits are under Udula's name with no AI co-author line.
+| Area | State | PR |
+|---|---|---|
+| Radar ML (M1-01 to M1-03) | Merged | [#15](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/15), [#16](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/16), [#17](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/17) |
+| Backend on PostGIS (M3-01 to M3-04) | Merged | [#38](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/38) |
+| U-01 to U-04 (buildings, heights, height check, building table) | Merged | [#37](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/37) |
+| U-05 (ranking, budget, insights, assistant) | Merged | [#41](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/41) |
+| U-06 contract | Merged | [#24](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/24) |
+| U-06 publish step (`worker.main --agents`) | Merged | [#42](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/42) |
+| U-06 API endpoints on PostGIS | Merged | [#43](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/43) |
+| U-07 key names | Merged | [#36](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/36) |
+| Session `expires_at` fix (found in the end-to-end check) | Merged | [#44](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/44) |
+
+Udula also fixed and merged the team pull requests that had to land with the backend (section 6). All recorded commits are under Udula's name with no AI co-author line.
 
 ## 2. Radar ML (M1-01 to M1-03): merged
 
@@ -27,93 +31,87 @@ All recorded commits are under Udula's name with no AI co-author line.
 
 Radar results are **candidates, not confirmed damage**. There is no independent damage assessment for Lebanon (no UNOSAT release), so validation is unavailable. Radar could not assess 46% of cells: no result there does not mean no damage. Private tables and contract rows were shared privately and never committed to this public repository.
 
-## 3. Backend (M3-01 to M3-04): `feature/m3-01-backend-foundation`
+## 3. Backend (M3-01 to M3-04): merged in #38
 
-With `DEMO_SYNTHETIC=true` the synthetic scaffold remains active. With `false`, implemented real-data routes use PostGIS.
+With `DEMO_SYNTHETIC=true` the synthetic scaffold stays active. With `false`, the real-data routes use PostGIS.
 
 | Task | Done |
 |---|---|
-| M3-01 database and loaders | Migrations 0002-0005 (contract values, alerts/source status, briefs, audit/reviews/roles/jobs); upgrades and downgrades were previously checked on PostGIS 16. Transactional loader record: 13,669 areas, 9 runs, 52,786 cell results, 41,508 values. |
-| M3-02 sign-in and safety | Area scopes; 72-hour hold for every role; exact private-file allowlist; 5 failed sign-ins per 15 minutes; role changes end sessions; sign-in fails closed without the database; coordinate/password-free audit records. |
-| M3-03 API | Layers, tiles, manifest-allowlisted files with Range requests, time series, damage, trace, alerts, status, areas, values, people, services, validation, summaries, briefs, reviews, sources, admin audit, roles and job retry. |
-| M3-04 worker | FIRMS every 30 minutes; night lights and cleanup daily; audit retained 30 days; expired briefs removed; local PostGIS port configurable with `CIVISAR_DB_PORT`. |
+| M3-01 database and loaders | Migrations 0002-0006 (contract values, alerts/source status, briefs, audit/reviews/roles/jobs, agent outputs). Transactional loaders: 13,669 areas, 9 runs, 52,786 cell results, 41,508 values; agent outputs (section 5). |
+| M3-02 sign-in and access rules | Area scopes; 72-hour hold for every role (admin is not a bypass); exact private-file allowlist; 5 failed sign-ins per 15 minutes; role changes end sessions; sign-in fails closed without the database; audit records without coordinates or passwords. |
+| M3-03 API | Layers, tiles, manifest-allowlisted files with Range requests, time series, damage, trace, alerts, status, areas, values, people, services, validation, summaries, briefs, reviews, sources, admin audit, roles, job retry, and the U-06 routes (incidents, incident detail, area budget, buildings). |
+| M3-04 worker | FIRMS every 30 minutes; night lights and clean-up daily; audit kept 30 days; expired briefs removed; local PostGIS port set with `CIVISAR_DB_PORT`. |
 
-Historical verification before the completion and synchronization passes was 128 passing tests with 1 skipped. Later pre-merge results are recorded in section 9; they are not a substitute for post-merge validation.
+Work done while merging with `dev`: `v1.py` no longer imports the removed PR #21 JSON store (the API would not start); the C-01 handler registry answers only in synthetic mode, so its sample `/status` and `/sources` cannot hide the real routes; the registry test no longer deletes the real `/status` handler.
 
 ## 4. PR #21 overlap resolution
 
-Resolved locally on 14 November 2026 and synchronized with `origin/dev` in merge commit `c6b89f2`. PostGIS remains the sole authoritative real-data API path for `/areas`, `/areas/{id}/damage`, `/areas/{id}/values`, `/alerts`, `/status` and `/public/map`, consistent with [doc 21](../21_ML_BACKEND_FRONTEND_INTEGRATION.md). PR #21's JSON-backed API `Store`, `PUBLISHED_DIR` fallback, authenticated JSON route dispatch and `*` scope semantics were not retained.
+PostGIS is the single real-data store for `/areas`, `/areas/{id}/damage`, `/areas/{id}/values`, `/alerts`, `/status` and `/public/map`, consistent with [doc 21](../21_ML_BACKEND_FRONTEND_INTEGRATION.md). PR #21's JSON-backed API `Store`, `PUBLISHED_DIR` fallback, authenticated JSON route dispatch and `*` scope semantics were not kept. `PUBLISHED_DIR` is now only where `worker.main --publish/--agents` write files before `scripts.load_agent_outputs` loads them.
 
-The retained safe behavior from PR #21 is suppression of the public map. Publication is now permanently hard-disabled in this implementation: `PUBLIC_RELEASE_APPROVED=true` cannot enable it, and a suppressed request does not construct a database engine or query PostGIS. This PR does not publish H3 identifiers, counts, scores, geometries, artifacts or private files.
-
-Artifact-bound approval and humanitarian protection review are future requirements. A later design must review licence/QA state, small, unique and high-risk concentrations, spatial cohorts, snapshot differencing/re-identification risk and the active-conflict context under [doc 07](../07_SECURITY_PRIVACY_AND_RBAC.md). H3 r8 aggregation or a three-cell threshold is not sufficient protection.
+The behaviour kept from PR #21 is suppression of the public map. The team decided on 15 November 2026 to keep the public map off: `PUBLIC_RELEASE_APPROVED=true` cannot enable it, and a suppressed request never queries PostGIS. Any future publication needs artifact-bound approval and a humanitarian protection review under [doc 07](../07_SECURITY_PRIVACY_AND_RBAC.md) (licence/QA state, small and high-risk concentrations, spatial cohorts, snapshot differencing). H3 r8 aggregation or a three-cell threshold is not sufficient protection.
 
 ## 5. New plan (doc 25)
 
-| Task | Branch | Result |
+| Task | PR | Result (real data, 15 Nov 2026) |
 |---|---|---|
-| U-01 buildings | `feature/u-01-buildings-base` | 268,536 OSM buildings; 97% untyped remains `unknown`; 421 ruin/destroyed/construction tags retained as information only |
-| U-02 heights | `feature/u-02-building-heights` | OSM levels, then GHSL/GHS-OBAT, then type default; 90% GHSL, 9.8% default, 0.16% OSM; 3D-GloBFP not used |
-| U-03 height check | `feature/u-03-height-check` | 57% within one storey (70% target not met); 83% range coverage; towers about 18 m too low |
-| U-04 building table | `feature/u-04-building-table` | Heights, floors, use, cell result and second-sensor flag; 12,414 buildings in candidate cells; residents empty until population loads |
-| U-05 ranking | `feature/u-05-agent-ranking` | 131 incidents; seven named score parts; missing data never pushes an incident upward |
-| U-05 budget | `feature/u-05-agent-budget` | US$0.4-4.3 billion and 0.5-14 years, explicitly a planning indication with assumptions |
-| U-05 insights | `feature/u-05-agent-insights` | Template statements; every number comes from computed values |
-| U-05 assistant | `feature/u-05-agent-assistant` | Options, not orders; role limits; evacuation only for a current fire |
-| U-06 contract | `feature/u-06-contract-incidents`, [PR #24](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/24) | `/incidents`, `/incidents/{id}`, `/areas/{id}/budget`, `/buildings`; existing endpoints unchanged; CI green |
-| U-06 publish | `feature/u-06-publish-agents` | Agent incidents, insights, role recommendations, budgets and 2,201 building files validated against PR #24 |
-| U-07 keys | `feature/u-07-keys` | Key names only in `.env.example`; ownership and expiry documented without values |
+| U-01 buildings | #37 | 268,536 OSM buildings; 97% untyped stays `unknown`; 421 ruin/destroyed/construction tags kept as information only |
+| U-02 heights | #37 | OSM levels, then GHSL/GHS-OBAT, then type default: 241,770 GHSL, 26,343 default, 423 OSM; 3D-GloBFP not used |
+| U-03 height check | #37 | 57% within one storey (70% target not met); 83% range coverage; towers about 18 m too low ([report](BUILDING_HEIGHT_CHECK.md)) |
+| U-04 building table | #37 | Heights, floors, use, cell result and second-sensor flag; 12,414 buildings in candidate cells. Built with Kisara's population file (K-04): residents 1,305,218-1,863,142; with people not allocated and people in cells without buildings this adds up exactly to the population totals (1,635,592-2,298,561). High is never below low. |
+| U-05 ranking | #41 | 131 incidents; seven named score parts; ordered by the low score, with a "could rank higher" flag where data is missing (missing data never pushes an incident up) |
+| U-05 budget | #41 | US$0.4-4.3 billion and 0.5-14 years for the whole demo box; labelled a planning indication, with sourced assumptions |
+| U-05 insights | #41 | 6 template statements; every number comes from computed values |
+| U-05 assistant | #41 | Options, not orders; role limits; evacuation suggested only for a current fire |
+| U-06 contract | #24 | `/incidents`, `/incidents/{id}`, `/areas/{id}/budget`, `/buildings`; existing endpoints unchanged |
+| U-06 publish | #42 | Incidents, insights, recommendations per role, budgets and 2,201 building files (no residents per building) |
+| U-06 endpoints | #43 | Migration 0006 and `scripts.load_agent_outputs`; hold, scope, role and bbox limits on every call; 503 until outputs are loaded |
+| U-07 keys | #36 | Key names only in `.env.example`; owners and expiry in [KEYS.md](KEYS.md), no values |
 
-## 6. Decisions and safety review still required
+## 6. Team pull requests fixed and merged on 15 November 2026
 
-1. **Public-map humanitarian review and artifact-bound approval:** the endpoint is hard-suppressed. A future implementation must bind approval to an immutable artifact and address unique/high-risk cells, spatial cohorts and snapshot differencing before any publication path is added.
-2. **Height target:** 57% within one storey rather than 70%; proposed wording is a satellite-estimated range with a tower underestimation warning.
-3. **People unknown:** AreaSummary requires whole-number ranges and cannot express an unknown people value; contract change may be needed if population remains late.
-4. **Fire delay:** `FIRE_RELEASE_DELAY_HOURS=0` shows fires to signed-in roles immediately; decide whether a delay is required.
-5. **Rebuild scope:** `PROJECT_PLAN.md` says no rebuilding while doc 24 adopted a budget feature; reconcile scope.
-6. **Full-AOI COG access:** decide whether broad `south-lebanon-demo` users should retain downloads; cell-scoped users fail closed.
+The team asked Udula to merge everything together. Fixes made so each PR was correct before merging:
 
-Safety points: no residents per building are exposed; people stay at cell level. The 3D view uses grey for unknown cells, and building damage is always the enclosing cell result. Building heights describe the approximately 2018 stock, before the war.
+| PR | Owner | Fix before merge |
+|---|---|---|
+| #25-#29 (boundaries, H3 grid, facilities, population, source register) | Kisara | Data files (`population.csv.gz`, `grid_r9.csv.gz`, `boundaries.geojson`, `facilities.csv`) removed from Git and the PRs squash-merged, so no data file is in `dev` history; boundaries crash on empty geometry fixed; test module renamed to avoid a name clash; dependency conflicts resolved |
+| #22, #23, #31 (traceability, people/facilities, alerts read) | Chames | Reworked onto the PostGIS backend; registry handlers serve sample data only in synthetic mode; synthetic `/sources` serves the fixture only, never the real register stamped as synthetic |
+| #35 | Udula | Leftover merge-conflict markers removed from `.gitignore` |
+| #44 | Udula | `POST`/`GET /session` now return `expires_at`, as the contract requires |
 
-## 7. Remaining and dependencies
+Tests that need packages CI does not install (pandas, pyarrow) skip cleanly instead of failing.
 
-**Backend:** review the synchronized working tree before a PR; configure Docker Compose for real-data API/worker operation; implement U-06 endpoints only after PR #24; keep the public map hard-suppressed pending section 6. This backend is not production-ready.
+## 7. End-to-end check of merged `dev` (15 November 2026)
+
+| Check | Result |
+|---|---|
+| GitHub CI (python-and-contracts, frontend) | Passed on #43 and #44 |
+| Tests, CI-like environment | 226 passed, 12 skipped |
+| Tests, full environment | 273 passed, 1 skipped |
+| Ruff, contract validator (45 operations), scaffold, secrets | Pass |
+| Building table, worker publish (live FIRMS), agents on real data | Pass (numbers in section 5). One run crashed once while loading pandas; the rerun passed and it did not happen again. |
+| Worker scheduler once against PostGIS | FIRMS ok (1 new fire alert); night lights unavailable (no history file on this machine); clean-up ok |
+| PostGIS 16 in Docker: migration 0006 upgrade, downgrade, upgrade | Pass |
+| Agent output load | 131 incidents, 393 recommendations, 6 insights, 131 budgets, 268,536 buildings; all geometries valid, EPSG:4326; a reload replaces the previous run |
+| API smoke test, real-data mode, temporary local users | 47 of 47 calls pass and match the contract schemas (including Rashiru's `/map/context`): logged-out 401; officer 403 on admin audit; narrow-scope officer sees only their area (also in `/map/context`) and gets 403 elsewhere; oversized `/buildings` bbox refused; no resident fields; printed brief has the RESTRICTED banner. Test rows (brief, review, audit) deleted afterwards. |
+
+## 8. Decisions and reviews still required
+
+1. **Height target:** 57% within one storey rather than 70%; proposed wording is a satellite-estimated range with a warning that towers are underestimated.
+2. **Fire delay:** `FIRE_RELEASE_DELAY_HOURS=0` shows fires to signed-in roles at once; decide whether a delay is needed.
+3. **Rebuild scope:** `PROJECT_PLAN.md` says no rebuilding while doc 24 adopted a budget feature; reconcile scope.
+4. **Full-AOI COG access:** decide whether broad `south-lebanon-demo` users keep downloads; cell-scoped users fail closed.
+5. **Public map:** kept off (decision of 15 November). Only revisit with the review in section 4.
+
+Points kept in the product: no residents per building are exposed; people stay at cell level; unknown cells are grey in the 3D view and never look undamaged; building damage is always the enclosing cell result; building heights describe the stock of about 2018, before the war.
+
+## 9. Remaining and dependencies
 
 | Needs | From | State | Unlocks |
 |---|---|---|---|
-| Population per H3 r9 cell | Kisara (K-04) | PR #28 open | People ranges, summary, briefs, residents and ranking people part |
-| Facilities | Kisara (K-03) | PR #27 open | Facilities route, alert rings and ranking facility part |
-| Night-light history (`NIGHTLIGHT_HISTORY`) | Thanoban | Not sent | Possible power-loss alerts |
-| Contract PR #24 review | Rashiru | Open, CI green | U-06 endpoints |
-| Roads and shelters | M2-04, M2-05 | Not started | Routes, closures and shelters |
-| Frontend real-data switch | Rashiru | Not done | Real data displayed in the frontend |
+| Facilities loaded into the backend (K-03 merged in #27) | Kisara / Udula | Not loaded; `/areas/{id}/facilities` returns 503 | Facilities route, alert rings, ranking facility part. Must respect doc 07 (no public inventory of critical facilities). |
+| Source register passing the `SourceRecord` schema (K-05 merged in #29) | Kisara | Fails the schema (extra `update_frequency`, nulls, 17 "VERIFY" values); not served as real data | Real `/sources` from the register |
+| Night-light history (`NIGHTLIGHT_HISTORY`) | Thanoban | Not on this machine | Possible power-loss alerts |
+| Roads and shelters | M2-04, M2-05 | Not started | Routes, closures and shelters (503 until then) |
+| Frontend real-data switch | Rashiru | Started in `bc5b122` (`/map/context`, map bundle, timeline); API checked, not checked in a browser here | Real data in the frontend |
 
-Housekeeping: the WorldPop source record is absent from `sources.json`; alert rings/facilities/services remain incomplete until their inputs load; `backend/tests/test_api.py` uses an empty data folder for deterministic behavior. The repository Contributors box may still show an old removed co-author and may require a GitHub Support refresh.
-
-## 8. Backend completion pass (14 November 2026)
-
-Completed without changing database integration or schema:
-
-- Added real-mode `GET /layers/{layer_id}/files/{file_id}` dispatch with exact manifest matching, directory containment, role/release/AOI-scope checks, private no-store caching and HTTP Range support.
-- Resolved exported `data/...` paths consistently under configured `DATA_ROOT`; included the root in the catalogue cache key.
-- Applied brief `as_of` to artifact, release, alert and value selection; future snapshots are rejected so they cannot bypass the 72-hour hold.
-- Scoped damage and summary artifact selection to the requested area's artifact parent.
-- Moved bbox filtering to indexed PostGIS `&&` and `ST_Intersects` predicates.
-- Returned explicit 503 unavailable states for missing road, closure and shelter inputs.
-
-Final correctness and safety pass on 15 November 2026:
-
-- Hard-disabled public-map publication. Environment configuration cannot enable it, and suppressed requests never construct an engine or query PostGIS.
-- Made radar-summary missing data explicit: no eligible artifact, held-only evidence or an artifact with no released area evidence returns unavailable instead of a false zero. A numerical zero is returned only when eligible released evidence supports it.
-- Made radar artifact selection area-scoped and release-aware. Newer held artifacts do not hide older eligible artifacts, and results are fetched by `artifact_id`, so duplicate run IDs cannot mix artifacts.
-- Applied historical `as_of` cutoffs to summary, values, people, services and brief creation. Observations or releases after the cutoff are excluded.
-- Made role changes and alert reviews commit their audit event in the same transaction as the privileged mutation. Manual job retries require a durable start audit before execution, and raised job exceptions are persisted as failed rather than left running.
-- Documented that a database outage during final job-status persistence still needs operational stale-run recovery, and that process-local sessions, revocation and login-rate limiting require shared storage before multi-worker deployment.
-
-## 9. Verification history and blockers
-
-The pre-merge completion run recorded **138 passed, 1 skipped**. The first post-merge run recorded **146 passed, 1 skipped**. After the final correctness and safety fixes, the complete suite recorded **153 passed, 1 skipped, 1 warning**. Ruff, planning-contract validation, scaffold validation, secret scanning, the conflict-marker scan, and CRLF-aware staged and unstaged diff checks passed.
-
-The skipped test requires a disposable PostGIS database supplied through `CIVISAR_TEST_DATABASE_URL`; it was not run against Supabase or any production database. No live PostGIS integration verification has been completed. The warning is the existing Starlette TestClient/httpx deprecation warning. No real NISAR ingestion or end-to-end empirical data validation has been completed, so passing mocked/unit/security tests do not establish empirical correctness or production readiness.
-
-No loader, migration, seed, schema operation or live database write was performed during the completion, synchronization or final safety work. Remaining limitations are: humanitarian review and immutable artifact-bound public approval; shared multi-worker session/revocation/rate-limit storage; disposable live-PostGIS integration verification; real NISAR inputs and end-to-end empirical validation; operational stale-job recovery after database outages; population, facilities, roads, shelters and night-light inputs; and the U-06 dependency on PR #24. The public map remains hard-suppressed.
+Known limits: sessions, revocation and the sign-in limit are kept in process memory, so a multi-worker deployment needs shared storage first; a database outage during the final job-status write still needs stale-run recovery; there is no independent damage validation for Lebanon. This backend is a demo, not production-ready. The WorldPop source record is still missing from `sources.json`.

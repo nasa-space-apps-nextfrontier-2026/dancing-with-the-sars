@@ -124,6 +124,7 @@ export class MapEngine {
   private edge: C.PostProcessStage | null = null
   private fx: FxSystem[] = []
   private overlays = new Map<C.Viewer, C.ImageryLayer[]>()
+  private radarOverlays = new Map<C.Viewer, { layer: C.ImageryLayer; date: string }[]>()
   private heightsReady: Promise<void> = Promise.resolve()
   private flying = false
   private phase = 0
@@ -197,7 +198,14 @@ export class MapEngine {
     const ov = this.base === 'sat'
       ? ['Reference/World_Transportation', 'Reference/World_Boundaries_and_Places'].map(p => { const l = L.addImageryProvider(new C.UrlTemplateImageryProvider({ url: ESRI(p), maximumLevel: 19, credit: 'Esri' })); l.alpha = 0.9; return l })
       : []
+    const radar = (this.data.radar_layers ?? []).map(item => {
+      const layer = L.addImageryProvider(new C.UrlTemplateImageryProvider({ url: item.tile_url, credit: item.attribution }))
+      layer.alpha = 0.55
+      layer.show = false
+      return { layer, date: item.date.slice(0, 10) }
+    })
     this.overlays.set(v, ov)
+    this.radarOverlays.set(v, radar)
   }
 
   /** Mounts the 3D viewer, starts the globe → bird view flight and loads roads, buildings and effects. */
@@ -517,6 +525,8 @@ export class MapEngine {
       if (!v) return
       ;(v.entities.values as Tagged[]).forEach(en => { if (en._layer) en.show = vis(en) })
       ;(this.overlays.get(v) ?? []).forEach(l => { l.show = this.layers.streets })
+      const passDate = this.data.passes[this.passIdx]?.date
+      ;(this.radarOverlays.get(v) ?? []).forEach(item => { item.layer.show = this.layers.change && !!passDate && item.date === passDate })
     })
     this.fx.forEach(p => { p.show = this.layers[p._layer] && p._pass <= this.passIdx })
     if (this.tileset) this.tileset.show = this.layers.buildings

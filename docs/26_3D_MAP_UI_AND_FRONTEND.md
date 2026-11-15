@@ -61,7 +61,7 @@ Every layer must show in **2D, 3D and split**.
 
 - React + Vite + TypeScript, **CesiumJS** (replaces MapLibre).
 - Sign-in is required. The sign-in screen uses the same dark glass design and calls `POST /api/v1/session` (cookie session + CSRF, roles analyst/officer/coordinator/admin). When no backend is running, "Continue with demo session" gives a clearly labelled demo officer session.
-- Data comes from `src/services/api.ts`. Until the endpoints exist it loads the sample JSON (copied to `frontend/public/sample/civisar-3d-sample.json`) and shows the "Sample data" badge.
+- Data comes from `src/services/api.ts`. Real sessions load the authenticated, released and area-scoped `/api/v1/map/context` bundle. Explicitly synthetic sessions load the sample JSON copied to `frontend/public/sample/civisar-3d-sample.json` and show the "Sample data" badge; real failures never silently become fixture success.
 - Cesium token: `VITE_CESIUM_ION_TOKEN` in `frontend/.env.local` (git-ignored).
 
 ## 7. Real vs sample

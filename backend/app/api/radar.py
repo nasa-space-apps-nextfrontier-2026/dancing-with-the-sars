@@ -14,6 +14,7 @@ from backend.app.core.security import Identity
 from backend.app.services import radar_real
 from fastapi import Request
 from fastapi.responses import Response
+from sqlalchemy.exc import SQLAlchemyError
 
 DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 RADAR_PATHS = {
@@ -47,6 +48,13 @@ BRIEF_PATHS = {
     "/briefs",
     "/briefs/{report_id}",
     "/briefs/{report_id}/print",
+}
+AGENT_PATHS = {
+    "/map/context",
+    "/incidents",
+    "/incidents/{incident_id}",
+    "/areas/{area_id}/budget",
+    "/buildings",
 }
 UNAVAILABLE_PATHS = {
     "/routes",
@@ -90,6 +98,8 @@ async def handle(
     if path in UNAVAILABLE_PATHS:
         dependency = "road and closure" if path.startswith(("/routes", "/closures")) else "shelter"
         return error("UNAVAILABLE", f"Validated {dependency} data is not loaded.", 503, request)
+    if path in AGENT_PATHS:
+        return handle_agents(request, path, identity, error)
     if path in BRIEF_PATHS:
         return await handle_briefs(request, path, identity, error)
     if path in AREA_PATHS:
@@ -501,3 +511,58 @@ async def handle_admin(
     except admin_real.StoreError:
         return error("UNAVAILABLE", "Job retry could not be recorded safely.", 503, request)
     return job
+
+
+def handle_agents(
+    request: Request,
+    path: str,
+    identity: Identity | None,
+    error: Callable[[str, str, int, Request], Response],
+) -> Any:
+    """Serve released, area-scoped agent outputs from PostGIS."""
+    from backend.app.services import agents_real
+
+    p, q = request.path_params, request.query_params
+    try:
+        if path == "/map/context":
+            from backend.app.services import map_context_real
+
+            page = _page(q, 50, 100)
+            if page is None or page[1] != 0:
+                return error("INVALID_REQUEST", "limit must be 1-100.", 422, request)
+            return map_context_real.build(engine(), identity, q.get("area_id"), page[0])
+        if path == "/incidents":
+            page = _page(q, 50, 100)
+            if page is None:
+                return error(
+                    "INVALID_REQUEST", "limit must be 1-100 and cursor not negative.", 422, request
+                )
+            return agents_real.list_incidents(engine(), identity, q.get("area_id"), *page)
+        if path == "/incidents/{incident_id}":
+            found = agents_real.get_incident(engine(), identity, p["incident_id"])
+            return found if found is not None else error("NOT_FOUND", "Incident not found.", 404, request)
+        if path == "/areas/{area_id}/budget":
+            found = agents_real.area_budget(engine(), p["area_id"])
+            return found if found is not None else error("NOT_FOUND", "No budget for this area.", 404, request)
+        raw = q.get("bbox")
+        try:
+            w, s, e, n = (float(value) for value in (raw or "").split(","))
+        except ValueError:
+            return error("INVALID_REQUEST", "bbox must be minLon,minLat,maxLon,maxLat.", 422, request)
+        if not (-180 <= w < e <= 180 and -90 <= s < n <= 90):
+            return error("INVALID_REQUEST", "bbox must be minLon,minLat,maxLon,maxLat.", 422, request)
+        if (e - w) * (n - s) > agents_real.MAX_BBOX_DEG2:
+            return error("INVALID_REQUEST", "bbox is too large; zoom in.", 422, request)
+        try:
+            limit = int(q.get("limit", "2000"))
+        except ValueError:
+            limit = 0
+        if not 1 <= limit <= agents_real.MAX_BUILDINGS:
+            return error(
+                "INVALID_REQUEST", f"limit must be 1-{agents_real.MAX_BUILDINGS}.", 422, request
+            )
+        return agents_real.buildings(engine(), identity, (w, s, e, n), limit)
+    except agents_real.NotLoaded:
+        return error("UNAVAILABLE", "Agent outputs are not loaded yet.", 503, request)
+    except SQLAlchemyError:
+        return error("UNAVAILABLE", "The map data store is unavailable.", 503, request)
