@@ -23,9 +23,10 @@ export type MapCtx = {
 export function MapScreen({ session, onSignOut }: { session: Session; onSignOut: () => void }) {
   const [data, setData] = useState<MapData | null>(null)
   const [loadError, setLoadError] = useState('')
+  const [sample, setSample] = useState(false)
   const [token, setToken] = useState<string | null | undefined>(() => storedToken() ?? undefined) // undefined = not asked yet
   const [layers, setLayers] = useState<Layers>(DEFAULT_LAYERS)
-  const [passIdx, setPassIdx] = useState(4)
+  const [passIdx, setPassIdx] = useState(0)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [mode, setMode] = useState<ViewMode>('3d')
   const [base, setBase] = useState<BaseMap>('sat')
@@ -43,7 +44,13 @@ export function MapScreen({ session, onSignOut }: { session: Session; onSignOut:
   const v3Ref = useRef<HTMLDivElement>(null), v2Ref = useRef<HTMLDivElement>(null), creditRef = useRef<HTMLSpanElement>(null)
   const [, force] = useState(0)
 
-  useEffect(() => { api.mapData().then(r => setData(r.data)).catch(e => setLoadError(String(e.message || e))) }, [])
+  useEffect(() => {
+    api.mapData(session).then(result => {
+      setData(result.data)
+      setSample(result.sample)
+      setPassIdx(Math.max(0, result.data.passes.length - 1))
+    }).catch(error => setLoadError(String(error.message || error)))
+  }, [session])
   useEffect(() => { document.body.className = `mode-${mode}${focus ? ' focus' : ''}`; return () => { document.body.className = '' } }, [mode, focus])
   useEffect(() => { if (!banner) return; const t = setTimeout(() => setBanner(''), 9000); return () => clearTimeout(t) }, [banner])
 
@@ -81,7 +88,7 @@ export function MapScreen({ session, onSignOut }: { session: Session; onSignOut:
       banner: setBanner,
       roads: () => setRoadsVersion(v => v + 1),
       orbit: setOrbit,
-    }, DEFAULT_LAYERS, 4)
+    }, DEFAULT_LAYERS, Math.max(0, data.passes.length - 1))
     engineRef.current = e
     try { e.mount3d(v3Ref.current, creditRef.current) }
     catch (err) { console.warn(err); setMode('2d'); setBanner('3D could not start on this device. Showing the 2D map.') }
@@ -104,10 +111,16 @@ export function MapScreen({ session, onSignOut }: { session: Session; onSignOut:
 
   if (loadError) return <main className="signin"><div className="signin-card glass"><h1>Map data could not load</h1><p className="muted small">{loadError}</p></div></main>
   if (!data) return <main className="signin"><span className="muted small">Loading map…</span></main>
+  if (!data.passes.length) return <main className="signin"><div className="signin-card glass">
+    <span className="kicker">Evidence unavailable</span><h1>No released observations</h1>
+    <p className="muted small">The backend returned no released satellite acquisitions for your area. Missing data is not evidence of no change.</p>
+    {data.meta.availability && <ul className="small muted">{Object.values(data.meta.availability).map((reason, index) => <li key={index}>{reason}</li>)}</ul>}
+    <button className="btn ghost" onClick={onSignOut}>Sign out</button>
+  </div></main>
 
   const ctx: MapCtx = { data, passIdx, layers, selected, engine: engineRef.current, roadsVersion, selectIncident, openShelter, showOnMap,
     setLayer: (k, on) => setLayers(l => ({ ...l, [k]: on })), openLeft: setLeft }
-  const pass = data.passes[passIdx], n = data.passes.length - 1
+  const pass = data.passes[passIdx], maxPass = data.passes.length - 1, n = Math.max(1, maxPass)
   const flyTop = () => { const top = [...data.incidents].filter(i => passIndex(data, i.first_pass) <= passIdx).sort((a, b) => a.rank - b.rank)[0]; if (top) selectIncident(top.id, true) }
   const rail: [LeftKey | 'incident', string, IconName][] = [['incident', 'Incident', 'incident'], ['rank', 'Incident ranking', 'rank'], ['decide', 'Decision assistant', 'decide'], ['budget', 'Rebuild budget', 'budget'], ['layers', 'Layers', 'layers']]
   const initials = session.user_id.replace(/[^a-z]/gi, '').slice(0, 2).toUpperCase() || 'U'
@@ -128,7 +141,7 @@ export function MapScreen({ session, onSignOut }: { session: Session; onSignOut:
           onClick={() => setLeft(p === 'map' ? null : (`page:${p}` as LeftKey))}>{p[0].toUpperCase() + p.slice(1)}</button>)}
       </nav>
       <div className="spacer" />
-      <span className="badge-sample" title="All incidents and values are sample data">Sample data</span>
+      {sample && <span className="badge-sample" title="All incidents and values are sample data">Sample data</span>}
       <div className="pill glass seg" role="group" aria-label="Base map">
         {([['sat', 'Satellite'], ['streets', 'Streets']] as const).map(([k, t]) => <button key={k} aria-pressed={base === k} onClick={() => setBase(k)}>{t}</button>)}
       </div>
@@ -173,7 +186,7 @@ export function MapScreen({ session, onSignOut }: { session: Session; onSignOut:
         <div className="tl-head"><span>Satellite pass&nbsp; <b>{pass.date} · {pass.sensor}</b></span><span>{pass.status === 'missed' ? 'Missed pass · no new data from this date' : 'Building changes appear 72 h after the pass'}</span></div>
         <div className="track">
           <div className="rl" /><div className="fill" style={{ width: `${(passIdx / n) * 100}%` }} />
-          <input type="range" min={0} max={n} step={1} value={passIdx} onChange={e => setPassIdx(+e.target.value)} aria-label="Satellite pass date" />
+          <input type="range" min={0} max={maxPass} step={1} value={passIdx} onChange={e => setPassIdx(+e.target.value)} aria-label="Satellite pass date" />
           {data.passes.map((p, i) => <div key={p.id} className={`tick${p.status === 'missed' ? ' missed' : ''}${i === passIdx ? ' cur' : ''}`} style={{ left: `${(i / n) * 100}%` }} title={p.status === 'missed' ? 'Missed pass' : p.sensor} />)}
         </div>
         <div className="ticklabels">{data.passes.map((p, i) => <span key={p.id} style={{ left: `${(i / n) * 100}%` }}>{p.date.slice(5).replace('-', '/')}{p.status === 'missed' ? ' · missed' : ''}</span>)}</div>

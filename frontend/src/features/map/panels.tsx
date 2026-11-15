@@ -73,16 +73,16 @@ function IncidentPanel({ ctx, tab, setTab, onClose }: { ctx: MapCtx; tab: Tab; s
       <div className="kpi"><span className="k"><Icon name={icon} size={13} />{k}<KBtn label={`Show ${k.toLowerCase()} on map`} onClick={onShow} /></span><b>{val}</b><span className="s">{sub}</span></div>
     body = <>
       <div className="kpis">
-        <Kpi icon="people" k="People" val={rng(inc.people_nearby)} sub="In affected area (WorldPop)" onShow={() => show([...D.population.filter(c => dist(c, inc) <= AREA_M), inc], ['pop'])} />
+        <Kpi icon="people" k="People" val={inc.people_available === false ? 'Unknown' : rng(inc.people_nearby)} sub={inc.people_available === false ? 'Population evidence unavailable' : 'In affected area (WorldPop)'} onShow={() => show([...D.population.filter(c => dist(c, inc) <= AREA_M), inc], ['pop'])} />
         <Kpi icon="facility" k="Facilities" val={A.facilities.length} sub="Inside or near damage, fire or dark cells" onShow={() => show([...A.facilities.map(x => x.f), inc], ['facilities'])} />
         <Kpi icon="road" k="Roads" val={A.roads.length} sub="Possibly blocked (candidate)" onShow={() => show(A.roads.flatMap(r => r.coords.map(([lon, lat]) => ({ lon, lat }))), ['routes'])} />
-        <Kpi icon="power" k="Power" val={A.dark.length ? rng(A.darkPeople) : '0'} sub={A.dark.length ? `People in ${A.dark.length} dark cell${A.dark.length > 1 ? 's' : ''}: possible power loss` : 'No dark cells on this pass'} onShow={() => show([...A.dark, inc], ['night'])} />
+        <Kpi icon="power" k="Power" val={A.dark.length ? (A.dark.some(cell => cell.people_available === false) ? 'Unknown' : rng(A.darkPeople)) : '0'} sub={A.dark.length ? `People in ${A.dark.length} dark cell${A.dark.length > 1 ? 's' : ''}: possible power loss` : 'No dark cells on this pass'} onShow={() => show([...A.dark, inc], ['night'])} />
       </div>
       <div className="sect">Assessment</div>
       <div className="row" style={{ marginBottom: 8 }}><Dmg d={inc.damage_class} /></div>
       <div className="row"><Ev e={inc.evidence} />{inc.second_sensor_agrees ? <span className="chip ev-Corroborated">Second sensor agrees</span> : <span className="tag">No second-sensor agreement</span>}</div>
       <div className="kpis" style={{ marginTop: 8 }}>
-        <div className="kpi"><span className="k">Buildings</span><b>{rng(inc.buildings_candidate)}</b><span className="s">Candidate damage</span></div>
+        <div className="kpi"><span className="k">Buildings</span><b>{inc.buildings_available === false ? 'Unknown' : rng(inc.buildings_candidate)}</b><span className="s">{inc.buildings_available === false ? 'Radar evidence unavailable' : 'Candidate damage'}</span></div>
         <div className="kpi"><span className="k">Score</span><b>{inc.score.low.toFixed(2)}–{inc.score.high.toFixed(2)}</b><span className="s">Ranking range</span></div>
       </div>
       <div style={{ marginTop: 8 }}><Note><b style={{ color: 'var(--ink)' }}>Check before acting.</b> Seen {p.date} ({p.sensor}), changes from {addHours(p.date, 72)}. Candidates only.</Note></div>
@@ -91,7 +91,7 @@ function IncidentPanel({ ctx, tab, setTab, onClose }: { ctx: MapCtx; tab: Tab; s
     const Row = ({ icon, t, children }: { icon: IconName; t: string; children: ReactNode }) => <div className="irow"><span className="ico"><Icon name={icon} size={16} /></span><div><div className="t">{t}</div><div className="m">{children}</div></div></div>
     const kind: Record<string, string> = { hospital: 'Hospital', clinic: 'Clinic', school: 'School', water: 'Water point', fuel: 'Fuel station' }
     body = <>
-      <Row icon="people" t={`${rng(inc.people_nearby)} people in the affected area`}><Ev e={inc.evidence} /> WorldPop 2025 grid</Row>
+      <Row icon="people" t={inc.people_available === false ? 'People in the affected area: unknown' : `${rng(inc.people_nearby)} people in the affected area`}><Ev e={inc.people_available === false ? 'Unknown' : inc.evidence} /> {inc.people_available === false ? 'Population evidence unavailable' : 'WorldPop 2025 grid'}</Row>
       {A.facilities.length ? A.facilities.map(x => <Row key={x.f.id} icon="facility" t={`${kind[x.f.kind] || x.f.kind}: ${x.f.name}`}><Ev e={x.hz[0].ev} /><HzTags hz={x.hz} /></Row>)
         : <Row icon="facility" t="No facilities inside or near hazard areas"><span className="muted">Within {fmtM(AREA_M)}</span></Row>}
       {A.roads.map(r => <Row key={r.id} icon="road" t={`${r.label}: possibly blocked (candidate)`}><Ev e="Observed" /><span className="tag warn">Candidate</span> damage candidates next to the road</Row>)}
@@ -122,7 +122,7 @@ function IncidentPanel({ ctx, tab, setTab, onClose }: { ctx: MapCtx; tab: Tab; s
         return <li key={n.id} className="card">
           <div className="row" style={{ justifyContent: 'space-between' }}><h3>Dark cell {n.id.toUpperCase()}</h3><Ev e={n.sensors_agree ? 'Corroborated' : 'Observed'} /></div>
           <div className="row" style={{ marginTop: 8 }}><span className="tag pw">Possible power loss</span><span className="tag">{n.sensors_agree ? 'Two satellites agree' : 'One satellite only'}</span></div>
-          <dl className="kv" style={{ marginTop: 8 }}><dt>Last lit night</dt><dd>{n.last_lit}</dd><dt>People</dt><dd>{rng(n.people)} (WorldPop)</dd>
+          <dl className="kv" style={{ marginTop: 8 }}><dt>Last lit night</dt><dd>{n.last_lit ?? 'Unknown'}</dd><dt>People</dt><dd>{n.people_available === false ? 'Unknown' : `${rng(n.people)} (WorldPop)`}</dd>
             <dt>Facilities</dt><dd>{fac.length ? fac.map(f => f.name).join(', ') : 'None in cell (OSM)'}</dd></dl></li>
       })}</ul> : <p className="empty">No dark cells near this incident on this pass.</p>}
       {A.dark.length > 0 && <div className="row" style={{ marginTop: 10 }}><button className="btn sm" onClick={() => show([...A.dark, inc], ['night'])}><Icon name="pin" size={13} />Show dark cells</button></div>}
@@ -204,8 +204,23 @@ function LeftBody({ ctx, k, onClose }: { ctx: MapCtx; k: LeftKey; onClose: () =>
   const [checked, setChecked] = useState<Set<string>>(new Set())
   const [openWhy, setOpenWhy] = useState<string | null>(null)
   if (k.startsWith('page:')) {
-    const t = k[5].toUpperCase() + k.slice(6)
-    return <><Head kicker="Placeholder" title={t} onClose={onClose} /><div className="db"><div className="placeholder"><div><p style={{ fontSize: 16, color: 'var(--ink-2)' }}>{t} page</p><p>Placeholder. This page may be redesigned.</p></div></div></div></>
+    const page = k.slice(5)
+    if (page === 'alerts') {
+      const alerts = [
+        ...D.fires.map(item => ({ id: item.id, title: 'Fire observation', detail: `${item.source} · ${item.detected_at.slice(0, 10)}`, point: item, evidence: item.evidence })),
+        ...D.nightlights.map(item => ({ id: item.id, title: 'Possible power loss', detail: item.last_lit ? `Last lit ${item.last_lit}` : 'Last-lit date unavailable', point: item, evidence: item.sensors_agree ? 'Corroborated' as const : 'Observed' as const })),
+      ]
+      return <><Head kicker="Released observations" title="Alerts" onClose={onClose} /><div className="db">
+        {alerts.length ? <ul className="list">{alerts.map(item => <li key={item.id} className="card"><div className="row"><b style={{ flex: 1 }}>{item.title}</b><Ev e={item.evidence} /></div><p className="small muted">{item.detail}</p><button className="btn sm" onClick={() => ctx.showOnMap([item.point])}><Icon name="pin" size={13} />Show</button></li>)}</ul> : <p className="empty">No released alerts are available for your scope.</p>}
+      </div></>
+    }
+    if (page === 'areas') return <><Head kicker="Scoped incident areas" title="Areas" onClose={onClose} /><div className="db">
+      {D.incidents.length ? <ul className="list">{D.incidents.map(item => <li key={item.id} className="card"><h3>{item.name}</h3><p className="small muted">{item.area} · rank {item.rank}</p><button className="btn sm" onClick={() => ctx.selectIncident(item.id, true)}><Icon name="pin" size={13} />Open incident</button></li>)}</ul> : <p className="empty">No released incident areas are available for your scope.</p>}
+    </div></>
+    const sources = [...new Set([...D.incidents.flatMap(item => item.insights.map(insight => insight.source)), ...D.fires.map(item => item.source)].filter(Boolean))]
+    return <><Head kicker="Evidence provenance" title="Sources" onClose={onClose} /><div className="db">
+      {sources.length ? <ul className="list">{sources.map(source => <li key={source} className="card"><h3>{source}</h3><p className="small muted">Referenced by a released observation. Open its incident for date and evidence context.</p></li>)}</ul> : <p className="empty">No released source records are available for this view.</p>}
+    </div></>
   }
   if (k === 'rank') {
     const list = D.incidents.filter(i => passIndex(D, i.first_pass) <= ctx.passIdx).sort((a, b) => a.rank - b.rank)

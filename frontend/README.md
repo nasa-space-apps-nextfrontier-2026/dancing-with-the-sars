@@ -23,7 +23,7 @@ npm run dev        # http://127.0.0.1:5173
 | `src/features/map/panels.tsx` | Incident panel (Summary, Impacts, Shelters, Power, Insights), building and shelter detail, ranking, decision assistant, budget, layers, legend. |
 | `src/features/map/engine.ts` | All CesiumJS code: globe, terrain, OSM buildings, overlays, fire/damage effects, OSRM road routes, camera flights, 2D/3D/split. |
 | `src/features/map/analysis.ts` | Pure helpers (distances, ranges, impacts, route stats). Unit-tested. |
-| `src/services/api.ts` | Session API and map data. Loads `public/sample/civisar-3d-sample.json` until the incident endpoints exist. |
+| `src/services/api.ts` | Session API and map data. Real sessions load the released/scoped `/map/context` bundle; explicitly synthetic sessions load `public/sample/civisar-3d-sample.json`. |
 | `src/styles.css` | Tokens and components copied from the mockup. |
 
 ## Build rules

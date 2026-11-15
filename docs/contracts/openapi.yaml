@@ -9761,6 +9761,46 @@
           }
         }
       }
+    },
+    "/map/context": {
+      "get": {
+        "operationId": "op_45_get",
+        "summary": "released and scoped data bundle for the authenticated Cesium map",
+        "x-owner-task": "M3-03",
+        "x-domain-task": "M3-03",
+        "x-required-roles": "analyst+",
+        "x-rate-class": "read",
+        "description": "Composes the existing PostGIS-backed incident, radar, alert, population and budget services. Missing domains are reported in unavailable and are never replaced by illustrative values.",
+        "parameters": [
+          {
+            "name": "area_id",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "maxLength": 64 }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 50 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current released data visible to the caller",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/FrontendMapBundle" }
+              }
+            }
+          },
+          "401": { "description": "Missing or expired session" },
+          "403": { "description": "Role or area scope denies access" },
+          "422": { "description": "Invalid limit or area query" },
+          "429": { "description": "Rate limit; Retry-After" },
+          "503": { "description": "PostGIS is unavailable" }
+        }
+      }
     }
   },
   "components": {
@@ -13777,6 +13817,62 @@
           }
         },
         "description": "Buildings in a bounding box for the 3D view (doc 24 section 4). Damage fields are H3 r9 cell results, never building results. No residents per building (doc 07). Signed-in, scoped, withheld before release_at."
+      },
+      "FrontendMapBundle": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "synthetic",
+          "generated_at",
+          "incidents",
+          "incident_details",
+          "layers",
+          "damage",
+          "alerts",
+          "people",
+          "budgets",
+          "centroids",
+          "unavailable"
+        ],
+        "properties": {
+          "synthetic": { "type": "boolean", "const": false },
+          "generated_at": { "type": "string" },
+          "incidents": { "$ref": "#/components/schemas/IncidentList" },
+          "incident_details": {
+            "type": "object",
+            "additionalProperties": { "$ref": "#/components/schemas/IncidentDetail" }
+          },
+          "layers": { "$ref": "#/components/schemas/LayerList" },
+          "damage": {
+            "type": "object",
+            "additionalProperties": { "$ref": "#/components/schemas/DamageList" }
+          },
+          "alerts": { "$ref": "#/components/schemas/AlertList" },
+          "people": {
+            "type": "object",
+            "additionalProperties": { "$ref": "#/components/schemas/MetricList" }
+          },
+          "budgets": {
+            "type": "object",
+            "additionalProperties": { "$ref": "#/components/schemas/Budget" }
+          },
+          "centroids": {
+            "type": "object",
+            "description": "Generalized H3 cell centres as [latitude, longitude], visible only to authenticated scoped users.",
+            "additionalProperties": {
+              "type": "array",
+              "prefixItems": [{ "type": "number" }, { "type": "number" }],
+              "minItems": 2,
+              "maxItems": 2
+            }
+          },
+          "unavailable": {
+            "type": "object",
+            "description": "Per-domain reasons why a validated input is absent.",
+            "additionalProperties": { "type": "string" }
+          }
+        },
+        "description": "Authenticated frontend composition of existing PostGIS services. It never substitutes demonstration values for missing real inputs."
       }
     }
   },

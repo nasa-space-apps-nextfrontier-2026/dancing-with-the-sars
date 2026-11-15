@@ -14,6 +14,7 @@ from backend.app.core.security import Identity
 from backend.app.services import radar_real
 from fastapi import Request
 from fastapi.responses import Response
+from sqlalchemy.exc import SQLAlchemyError
 
 DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 RADAR_PATHS = {
@@ -48,7 +49,13 @@ BRIEF_PATHS = {
     "/briefs/{report_id}",
     "/briefs/{report_id}/print",
 }
-AGENT_PATHS = {"/incidents", "/incidents/{incident_id}", "/areas/{area_id}/budget", "/buildings"}
+AGENT_PATHS = {
+    "/map/context",
+    "/incidents",
+    "/incidents/{incident_id}",
+    "/areas/{area_id}/budget",
+    "/buildings",
+}
 UNAVAILABLE_PATHS = {
     "/routes",
     "/routes/{route_id}",
@@ -513,6 +520,13 @@ def handle_agents(request: Request, path: str, identity: Identity | None,
 
     p, q = request.path_params, request.query_params
     try:
+        if path == "/map/context":
+            from backend.app.services import map_context_real
+
+            page = _page(q, 50, 100)
+            if page is None or page[1] != 0:
+                return error("INVALID_REQUEST", "limit must be 1-100.", 422, request)
+            return map_context_real.build(engine(), identity, q.get("area_id"), page[0])
         if path == "/incidents":
             page = _page(q, 50, 100)
             if page is None:
@@ -543,3 +557,5 @@ def handle_agents(request: Request, path: str, identity: Identity | None,
         return agents_real.buildings(engine(), identity, (w, s, e, n), limit)
     except agents_real.NotLoaded:
         return error("UNAVAILABLE", "Agent outputs are not loaded yet.", 503, request)
+    except SQLAlchemyError:
+        return error("UNAVAILABLE", "The map data store is unavailable.", 503, request)

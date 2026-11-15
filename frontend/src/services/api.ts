@@ -1,4 +1,5 @@
 import type { MapData } from '../types/map'
+import { toMapData, type FrontendMapBundle } from './mapData'
 
 export type ApiError = { error: { code: string; message: string; request_id: string; details: unknown[] }; synthetic: boolean }
 const base = import.meta.env.VITE_API_BASE_URL || '/api/v1'
@@ -22,10 +23,14 @@ export const api = {
   signIn: (username: string, password: string) =>
     request<Session>('/session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) }),
   signOut: (csrf: string) => request<unknown>('/session', { method: 'DELETE', headers: { 'X-CSRF-Token': csrf } }),
-  /** Map data. Until the incident endpoints exist, this loads the sample file shaped like the API. */
-  mapData: async (): Promise<{ data: MapData; sample: boolean }> => {
-    const res = await fetch('/sample/civisar-3d-sample.json', { cache: 'no-store' })
-    if (!res.ok) throw new Error('Sample map data not found')
-    return { data: (await res.json()) as MapData, sample: true }
+  /** Demo sessions use the labelled fixture; real sessions use only released, scoped API data. */
+  mapData: async (session: Session): Promise<{ data: MapData; sample: boolean }> => {
+    if (!session.synthetic) {
+      const bundle = await request<FrontendMapBundle>('/map/context?limit=100')
+      return { data: toMapData(bundle), sample: false }
+    }
+    const response = await fetch('/sample/civisar-3d-sample.json', { cache: 'no-store' })
+    if (!response.ok) throw new Error('Sample map data not found')
+    return { data: (await response.json()) as MapData, sample: true }
   },
 }
