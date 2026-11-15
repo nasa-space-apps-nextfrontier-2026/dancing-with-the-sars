@@ -19,7 +19,7 @@ export async function request<T>(path: string, options: RequestInit = {}): Promi
 }
 
 export type Role = 'analyst' | 'officer' | 'coordinator' | 'admin'
-export type Session = { user_id: string; role: Role | string; area_scopes: string[]; csrf_token: string; synthetic: boolean; demo?: boolean }
+export type Session = { user_id: string; role: Role | string; area_scopes: string[]; csrf_token: string; synthetic: boolean; expires_at?: string }
 export type SourceRecord = {
   synthetic: boolean
   source_id: string
@@ -45,9 +45,6 @@ export type SourceRecord = {
 }
 export type SourceList = { synthetic: boolean; items: SourceRecord[]; next_cursor: string | null }
 
-/** A local demo session, used only when no backend is running. Always labelled as demo in the UI. */
-export const demoSession = (): Session => ({ user_id: 'demo-officer', role: 'officer', area_scopes: ['south-lebanon'], csrf_token: '', synthetic: true, demo: true })
-
 export const api = {
   health: () => request<{ status: string; synthetic: boolean }>('/health'),
   sources: (cursor?: string) => request<SourceList>(`/sources${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''}`),
@@ -62,13 +59,17 @@ export const api = {
     }
     throw new Error('Source catalogue pagination did not terminate.')
   },
-  session: () => request<Session>('/session'),
+  /** The current cookie session, or null when nobody is signed in (or no backend runs). */
+  currentSession: async (): Promise<Session | null> => {
+    try { return await request<Session>('/session') } catch { return null }
+  },
   signIn: (username: string, password: string) =>
     request<Session>('/session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) }),
   signOut: (csrf: string) => request<unknown>('/session', { method: 'DELETE', headers: { 'X-CSRF-Token': csrf } }),
-  /** Demo sessions use the labelled fixture; real sessions use only released, scoped API data. */
-  mapData: async (session: Session): Promise<{ data: MapData; sample: boolean }> => {
-    if (!session.synthetic) {
+  /** Signed in: the released, area-scoped /map/context bundle; its errors are shown, never replaced by sample data.
+   *  Signed out: the labelled sample file (the public demo). Real data always needs sign-in (doc 07). */
+  mapData: async (session: Session | null): Promise<{ data: MapData; sample: boolean }> => {
+    if (session && !session.synthetic) {
       const bundle = await request<FrontendMapBundle>('/map/context?limit=100')
       return { data: toMapData(bundle), sample: false }
     }

@@ -2,23 +2,17 @@ import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest'
 
 vi.mock('cesium', () => ({}))
-vi.mock('../config/runtime', () => ({ localPreview: true }))
-vi.mock('../features/map/MapScreen', () => ({
-  MapScreen: ({ session }: { session: { synthetic: boolean; demo?: boolean } }) => (
-    <main><h1>CIVISAR dashboard</h1><span>{session.synthetic && session.demo ? 'Sample data' : 'Unexpected session'}</span></main>
-  ),
-}))
+vi.mock('../features/map/MapScreen', () => ({ MapScreen: () => <main><h1>RescueForce dashboard</h1></main> }))
 
 import { App } from './App'
 
-afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals() })
+afterEach(() => { cleanup(); vi.unstubAllGlobals(); window.history.pushState({}, '', '/') })
 
-it('opens the dashboard without requesting a session in local preview', () => {
+it('opens the public dashboard at /map without a sign-in wall', async () => {
   const fetchMock = vi.fn()
   vi.stubGlobal('fetch', fetchMock)
+  window.history.pushState({}, '', '/map')
   render(<App />)
-  expect(screen.getByRole('heading', { name: 'CIVISAR dashboard' })).toBeTruthy()
-  expect(screen.getByText('Sample data')).toBeTruthy()
+  expect(await screen.findByRole('heading', { name: 'RescueForce dashboard' })).toBeTruthy()
   expect(screen.queryByRole('heading', { name: 'Sign in' })).toBeNull()
-  expect(fetchMock).not.toHaveBeenCalled()
 })

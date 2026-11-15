@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { BaseMap, Incident, LayerKey, Layers, LonLat, MapData, Pass, ViewMode } from '../../types/map'
+import { Link } from 'react-router-dom'
 import { api, apiErrorMessage, type Session } from '../../services/api'
+import 'cesium/Build/Cesium/Widgets/widgets.css'
+import css from '../../styles.css?inline'
+import { usePageStyle } from '../../app/usePageStyle'
 import { Icon, Logo, type IconName } from '../../components/Icons'
 import { MapEngine, type BuildingInfo } from './engine'
 import { passIndex } from './analysis'
@@ -24,12 +28,15 @@ export type MapCtx = {
   setLayer: (k: LayerKey, on: boolean) => void; openLeft: (k: LeftKey | null) => void
 }
 
-export function MapScreen({ session, onSignOut }: { session: Session; onSignOut: () => void }) {
+/** The dashboard. Public, no sign-in. Without a Cesium token it runs on flat ground; the token box opens only from the menu. */
+export function MapScreen() {
+  usePageStyle(css, 'dashboard')
   const [data, setData] = useState<MapData | null>(null)
   const [loadError, setLoadError] = useState('')
   const [sample, setSample] = useState(false)
   const [sources, setSources] = useState<SourceCatalogueState>({ status: 'loading', items: [], error: '' })
-  const [token, setToken] = useState<string | null | undefined>(() => storedToken() ?? undefined) // undefined = not asked yet
+  const [token, setToken] = useState<string | null>(() => storedToken())
+  const [askToken, setAskToken] = useState(false)
   const [layers, setLayers] = useState<Layers>(DEFAULT_LAYERS)
   const [passIdx, setPassIdx] = useState(0)
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -45,12 +52,21 @@ export function MapScreen({ session, onSignOut }: { session: Session; onSignOut:
   const [banner, setBanner] = useState('')
   const [roadsVersion, setRoadsVersion] = useState(0)
   const [menu, setMenu] = useState(false)
+  const [session, setSession] = useState<Session | null | undefined>(undefined) // undefined = still checking
   const engineRef = useRef<MapEngine | null>(null)
   const v3Ref = useRef<HTMLDivElement>(null), v2Ref = useRef<HTMLDivElement>(null), creditRef = useRef<HTMLSpanElement>(null)
   const [, force] = useState(0)
   const playback = useTimelinePlayback(data?.passes ?? EMPTY_PASSES, passIdx, setPassIdx)
 
+  useEffect(() => { document.title = 'RescueForce · Map' }, [])
   useEffect(() => {
+    let live = true
+    api.currentSession().then(s => { if (live) setSession(s) })
+    return () => { live = false }
+  }, [])
+  useEffect(() => {
+    if (session === undefined) return
+    setData(null); setLoadError('')
     api.mapData(session).then(result => {
       setData(result.data)
       setSample(result.sample)
@@ -66,7 +82,7 @@ export function MapScreen({ session, onSignOut }: { session: Session; onSignOut:
       if (live) setSources({ status: 'error', items: [], error: apiErrorMessage(error, 'The source catalogue is unavailable.') })
     })
     return () => { live = false }
-  }, [session])
+  }, [])
   useEffect(() => { document.body.className = `mode-${mode}${focus ? ' focus' : ''}`; return () => { document.body.className = '' } }, [mode, focus])
   useEffect(() => { if (!banner) return; const t = setTimeout(() => setBanner(''), 9000); return () => clearTimeout(t) }, [banner])
 
@@ -95,7 +111,7 @@ export function MapScreen({ session, onSignOut }: { session: Session; onSignOut:
   const handlers = useRef({ selectIncident, openShelter })
   handlers.current = { selectIncident, openShelter }
   useEffect(() => {
-    if (!data || token === undefined || !v3Ref.current || !creditRef.current) return
+    if (!data || !v3Ref.current || !creditRef.current) return
     const e = new MapEngine(data, token, {
       phase: setPhase,
       pickIncident: id => handlers.current.selectIncident(id, true),
@@ -108,7 +124,7 @@ export function MapScreen({ session, onSignOut }: { session: Session; onSignOut:
     engineRef.current = e
     try { e.mount3d(v3Ref.current, creditRef.current) }
     catch (err) { console.warn(err); setMode('2d'); setBanner('3D could not start on this device. Showing the 2D map.') }
-    if (!token) setBanner('Running without a Cesium token: flat ground, no 3D buildings. Effects and panels still work.')
+    if (!token && import.meta.env.DEV) setBanner('No Cesium token: flat ground, no 3D buildings. Add one from the ⋯ menu.')
     force(x => x + 1)
     return () => { e.destroy(); engineRef.current = null }
   }, [data, token])
@@ -131,7 +147,7 @@ export function MapScreen({ session, onSignOut }: { session: Session; onSignOut:
     <span className="kicker">Evidence unavailable</span><h1>No released observations</h1>
     <p className="muted small">The backend returned no released satellite acquisitions for your area. Missing data is not evidence of no change.</p>
     {data.meta.availability && <ul className="small muted">{Object.values(data.meta.availability).map((reason, index) => <li key={index}>{reason}</li>)}</ul>}
-    <button className="btn ghost" onClick={onSignOut}>Sign out</button>
+    <Link className="btn ghost" to="/">Back to home</Link>
   </div></main>
 
   const ctx: MapCtx = { data, passIdx, layers, selected, engine: engineRef.current, roadsVersion, sources, selectIncident, openShelter, showOnMap,
@@ -139,9 +155,8 @@ export function MapScreen({ session, onSignOut }: { session: Session; onSignOut:
   const pass = data.passes[passIdx], maxPass = data.passes.length - 1, n = Math.max(1, maxPass)
   const flyTop = () => { const top = [...data.incidents].filter(i => passIndex(data, i.first_pass) <= passIdx).sort((a, b) => a.rank - b.rank)[0]; if (top) selectIncident(top.id, true) }
   const rail: [LeftKey | 'incident', string, IconName][] = [['incident', 'Incident', 'incident'], ['rank', 'Incident ranking', 'rank'], ['decide', 'Decision assistant', 'decide'], ['budget', 'Rebuild budget', 'budget'], ['layers', 'Layers', 'layers']]
-  const initials = session.user_id.replace(/[^a-z]/gi, '').slice(0, 2).toUpperCase() || 'U'
   const credit = base === 'streets' ? 'Map: © OpenStreetMap contributors'
-    : `Imagery: Esri World Imagery · capture date varies by tile, not the incident date${layers.streets ? ' · Streets: Esri' : ''}${engineRef.current?.roadsLoaded ? ' · Routing: OSRM, © OpenStreetMap' : ''}`
+    : `Imagery: Esri World Imagery · capture date varies by tile, not the incident date${layers.streets ? ' · Streets: Esri' : ''}`
 
   return <>
     <div id="scene">
@@ -151,7 +166,7 @@ export function MapScreen({ session, onSignOut }: { session: Session; onSignOut:
     <div id="vig" />
 
     <header id="top">
-      <div className="pill glass brand"><span className="logo"><Logo /></span><b>CIVISAR</b><small>South Lebanon</small></div>
+      <Link to="/" className="pill glass brand" title="Back to the RescueForce home page"><span className="logo"><Logo /></span><b>RescueForce</b></Link>
       <nav className="pill glass tabs" aria-label="Pages">
         {(['map', 'alerts', 'areas', 'sources'] as const).map(p => <button key={p} className="tab" aria-current={(p === 'map' && (!left || !left.startsWith('page:'))) || left === `page:${p}` ? 'page' : undefined}
           onClick={() => setLeft(p === 'map' ? null : (`page:${p}` as LeftKey))}>{p[0].toUpperCase() + p.slice(1)}</button>)}
@@ -167,11 +182,18 @@ export function MapScreen({ session, onSignOut }: { session: Session; onSignOut:
       <button className="btn glass top-btn" aria-pressed={focus} onClick={() => setFocus(f => !f)}>Focus</button>
       <button className="btn primary top-btn" id="flyTop" onClick={flyTop}><Icon name="plane" size={16} /><span>Fly to top incident</span></button>
       <div className="usermenu">
-        <button className="avatar" aria-haspopup="menu" aria-expanded={menu} onClick={() => setMenu(m => !m)} title="Account">{initials}</button>
+        <button className="avatar" aria-haspopup="menu" aria-expanded={menu} aria-label="Menu" onClick={() => setMenu(m => !m)} title="Menu">⋯</button>
         {menu && <div className="menu glass" role="menu">
-          <div className="who"><b>{session.user_id}</b>{session.role}{session.demo ? ' · demo session' : ''}</div>
-          <button className="btn ghost sm" role="menuitem" onClick={() => { setMenu(false); try { localStorage.removeItem(TOKEN_KEY) } catch { /* ignore */ } setToken(null) }}>Forget Cesium token</button>
-          <button className="btn ghost sm" role="menuitem" onClick={onSignOut}>Sign out</button>
+          {session && !session.synthetic
+            ? <div className="who"><b>{session.user_id}</b>{session.role} · real data in your area</div>
+            : <div className="who"><b>RescueForce demo</b>Sample data · open access</div>}
+          <Link className="btn ghost sm" role="menuitem" to="/">Home page</Link>
+          {session && !session.synthetic
+            ? <button className="btn ghost sm" role="menuitem" onClick={() => { setMenu(false); api.signOut(session.csrf_token).catch(() => {}).finally(() => setSession(null)) }}>Sign out</button>
+            : <Link className="btn ghost sm" role="menuitem" to="/signin">Sign in for real data</Link>}
+          {token
+            ? <button className="btn ghost sm" role="menuitem" onClick={() => { setMenu(false); try { localStorage.removeItem(TOKEN_KEY) } catch { /* ignore */ } setToken(null) }}>Forget Cesium token</button>
+            : <button className="btn ghost sm" role="menuitem" onClick={() => { setMenu(false); setAskToken(true) }}>Add Cesium token (3D buildings)</button>}
         </div>}
       </div>
     </header>
@@ -215,7 +237,7 @@ export function MapScreen({ session, onSignOut }: { session: Session; onSignOut:
       </div>
     </footer>
 
-    {token === undefined && <TokenBox onDone={t => { if (t) { try { localStorage.setItem(TOKEN_KEY, t) } catch { /* private mode */ } } setToken(t) }} />}
+    {askToken && <TokenBox onDone={t => { setAskToken(false); if (t) { try { localStorage.setItem(TOKEN_KEY, t) } catch { /* private mode */ } setToken(t) } }} />}
   </>
 }
 
@@ -228,7 +250,7 @@ function TokenBox({ onDone }: { onDone: (t: string | null) => void }) {
     <ol><li>Sign up free at ion.cesium.com</li><li>Open <b>Access Tokens</b> and copy the Default token</li><li>Paste it below</li></ol>
     <input value={v} onChange={e => setV(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && v.trim()) onDone(v.trim()) }} placeholder="eyJhbGciOi…" autoComplete="off" spellCheck={false} aria-label="Cesium ion token" autoFocus />
     <div className="row" style={{ justifyContent: 'flex-end' }}>
-      <button className="btn ghost" onClick={() => onDone(null)}>Continue without 3D buildings</button>
+      <button className="btn ghost" onClick={() => onDone(null)}>Cancel</button>
       <button className="btn primary" disabled={!v.trim()} onClick={() => onDone(v.trim())}>Use token</button>
     </div>
   </div></div>

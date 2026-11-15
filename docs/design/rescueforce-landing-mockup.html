@@ -1,0 +1,893 @@
+<!doctype html>
+<!--
+  RescueForce · landing page MOCKUP (design reference, not production code).
+  Serve this folder (python -m http.server 8765) and open rescueforce-landing-mockup.html.
+  Scroll story: three.js Earth → dive to the incident area → regional bird view → close-up of Khiam
+  (real satellite buildings, damage candidates, fire with smoke, open / possibly blocked routes,
+  candidate shelters) → plain-language dashboard cards → story sections → try it.
+  All incident values are sample data.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RescueForce</title>
+<meta name="description" content="RescueForce helps responders see damaged areas, affected communities and available services from satellite data.">
+<meta name="theme-color" content="#05070a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
+<style>
+:root{
+  --bg:#05070a; --glass:rgba(14,18,22,.78); --glass-hi:rgba(255,255,255,.04);
+  --stroke:rgba(255,255,255,.08); --stroke-2:rgba(255,255,255,.14); --stroke-3:rgba(255,255,255,.24);
+  --ink:#f1f4f3; --ink-2:#b6bfbd; --ink-3:#86908e; --ink-4:#5d6765;
+  --ev-observed:#5bb3ea; --ev-reported:#e391c3; --ev-corroborated:#45c79c; --ev-unknown:#94a29f;
+  --dmg-destroyed:#ff7a93; --dmg-severe:#f5904f; --dmg-moderate:#f2b84b; --dmg-possible:#eadf73;
+  --route-blocked:#ff5a5f; --fire:#ff8a4d; --power:#9d93e6; --accent:#ffb48a;
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --serif:"Instrument Serif",Georgia,serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --blur:saturate(140%) blur(18px);
+  --shadow:0 1px 0 rgba(255,255,255,.04) inset,0 18px 50px rgba(0,0,0,.5),0 2px 8px rgba(0,0,0,.35);
+  --ease:cubic-bezier(.22,.8,.26,1);
+  --wrap:min(1180px, calc(100vw - 48px));
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.6 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid #fff;outline-offset:3px;border-radius:6px}
+.mono{font-family:var(--mono)}
+.glass{background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--stroke);box-shadow:var(--shadow)}
+.kicker{font:600 11px/14px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3)}
+.btn{display:inline-flex;align-items:center;gap:10px;height:48px;padding:0 22px;border-radius:999px;border:1px solid var(--stroke-2);background:rgba(255,255,255,.06);font-weight:600;font-size:15px;cursor:pointer;transition:background .25s,border-color .25s,transform .15s;white-space:nowrap}
+.btn:hover{background:rgba(255,255,255,.12);border-color:var(--stroke-3)}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--ink);color:#07090b;border-color:var(--ink)}
+.btn.primary:hover{background:#fff}
+.btn svg{flex:none}
+
+/* ---------- nav ---------- */
+#nav{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:50;width:var(--wrap);height:56px;border-radius:999px;display:flex;align-items:center;gap:8px;padding:0 8px 0 18px;transition:background .4s,border-color .4s}
+#nav.top{background:transparent;border-color:transparent;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+.logo{display:flex;align-items:center;gap:10px;font:700 16px/1 var(--sans);letter-spacing:.02em}
+.logo i{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(140deg,#ff8a4d,#f5904f 40%,#c2410c);box-shadow:0 0 18px rgba(255,138,77,.35);flex:none}
+.navlinks{display:flex;gap:2px;margin-left:auto}
+.navlinks a{padding:8px 13px;border-radius:999px;color:var(--ink-2);font-size:14px;font-weight:500;transition:color .2s,background .2s}
+.navlinks a:hover{color:var(--ink);background:rgba(255,255,255,.07)}
+#nav .btn{height:40px;padding:0 18px;font-size:14px;margin-left:auto}
+.navlinks+.btn{margin-left:6px}
+
+/* ---------- hero (pinned scroll story) ---------- */
+#hero{position:relative;height:820vh}
+.stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
+#globe{position:absolute;inset:0;width:100%;height:100%;display:block}
+.vignette{position:absolute;inset:0;pointer-events:none;z-index:3;background:radial-gradient(120% 90% at 50% 45%,transparent 55%,rgba(5,7,10,.8) 100%)}
+.textfade{position:absolute;inset:0;pointer-events:none;z-index:5;background:linear-gradient(90deg,rgba(3,4,6,.82) 0,rgba(3,4,6,.55) 30%,rgba(3,4,6,0) 55%)}
+@media (max-width:600px){.textfade{background:linear-gradient(0deg,rgba(3,4,6,.9) 0,rgba(3,4,6,.6) 40%,rgba(3,4,6,0) 70%)}}
+.hero-copy{position:absolute;left:max(24px,calc((100vw - 1180px)/2));top:calc(50% + 24px);transform:translateY(-50%);width:min(560px,46vw);z-index:6}
+.hero-copy .kicker{margin-bottom:clamp(12px,2.4vh,22px)}
+.hero-copy .kicker{display:inline-flex;align-items:center;gap:10px;margin-bottom:22px}
+.hero-copy .kicker::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--fire);box-shadow:0 0 0 4px rgba(255,138,77,.18);animation:beat 2.2s infinite}
+@keyframes beat{50%{box-shadow:0 0 0 9px rgba(255,138,77,0)}}
+.hero-copy h1{margin:0;font:400 clamp(38px,min(6.2vw,8.6vh),86px)/.98 var(--serif);letter-spacing:-.01em}
+.hero-copy h1 em{font-style:italic;color:var(--accent)}
+.hero-copy h1 .line{display:block;overflow:hidden;padding-bottom:.04em}
+.hero-copy h1 .line>span{display:inline-block}
+.hero-copy p{margin:clamp(14px,2.6vh,24px) 0 0;max-width:500px;font-size:clamp(15px,min(1.35vw,2.1vh),19px);line-height:1.6;color:var(--ink-2)}
+.hero-cta{display:flex;gap:12px;margin-top:clamp(18px,3.6vh,32px);flex-wrap:wrap}
+.scrollhint{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;color:var(--ink-3);font:500 11px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;z-index:6}
+.scrollhint i{width:22px;height:34px;border:1.5px solid var(--stroke-3);border-radius:12px;position:relative}
+.scrollhint i::after{content:"";position:absolute;left:50%;top:7px;width:3px;height:7px;border-radius:2px;background:var(--ink-2);transform:translateX(-50%);animation:wheel 1.8s infinite}
+@keyframes wheel{0%{opacity:0;transform:translate(-50%,0)}30%{opacity:1}100%{opacity:0;transform:translate(-50%,10px)}}
+.caption{position:absolute;left:50%;bottom:44px;transform:translateX(-50%);z-index:6;text-align:center;width:min(720px,calc(100vw - 40px));opacity:0;text-shadow:0 2px 18px rgba(0,0,0,.7)}
+.caption .kicker{display:block;margin-bottom:10px;color:var(--ink-2)}
+.caption h2{margin:0;font:400 clamp(26px,3.3vw,46px)/1.08 var(--serif)}
+.caption h2 em{font-style:italic;color:var(--accent)}
+
+/* bird view: one tilted plane with a regional image and a sharp close-up tile of Khiam */
+.bird{position:absolute;inset:0;perspective:1300px;perspective-origin:50% 28%;opacity:0;z-index:2}
+.plane{position:absolute;left:50%;top:54%;--W:min(150vw,2000px);width:var(--W);aspect-ratio:1600/1270;
+  margin-left:calc(var(--W) * var(--fx,-.5));margin-top:calc(var(--W) * .79375 * var(--fy,-.5));
+  transform-style:preserve-3d;transform-origin:var(--ox,50%) var(--oy,50%);will-change:transform;
+  background:#0d1a22 center/cover no-repeat;box-shadow:0 60px 160px rgba(0,0,0,.6)}
+.plane>svg,.hires>svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.hires{position:absolute;background:#0d1a22 center/cover no-repeat;opacity:0;box-shadow:0 0 0 1px rgba(0,0,0,.2)}
+.hires::after{content:"";position:absolute;inset:-1px;box-shadow:inset 0 0 18px 10px rgba(13,26,34,.0);pointer-events:none}
+.anchor{position:absolute;width:0;height:0}
+.shade{position:absolute;inset:0;pointer-events:none;z-index:2;background:linear-gradient(180deg,rgba(5,7,10,.85) 0,rgba(5,7,10,.15) 24%,rgba(5,7,10,0) 48%,rgba(5,7,10,.25) 80%,rgba(5,7,10,.7) 100%);opacity:0}
+
+/* screen-space layer: pins and labels stay upright while the ground tilts */
+#fx{position:absolute;inset:0;z-index:4;pointer-events:none}
+#fire{position:absolute;inset:0;width:100%;height:100%;z-index:4;pointer-events:none}
+.mk{position:absolute;left:0;top:0;will-change:transform;opacity:0}
+.mk .in{display:flex;flex-direction:column;align-items:center;gap:6px;transform:translate(-50%,-100%)}
+.mk b.rk{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font:600 12px/1 var(--mono);background:#0e1215;border:3px solid var(--c);box-shadow:0 0 0 6px color-mix(in srgb,var(--c) 24%,transparent),0 6px 18px rgba(0,0,0,.6)}
+.mk .pill{font:600 12px/1.25 var(--sans);padding:6px 9px;border-radius:8px;background:rgba(10,13,15,.88);border:1px solid var(--stroke-2);white-space:nowrap;box-shadow:0 6px 18px rgba(0,0,0,.45)}
+.mk .pill small{display:block;font:500 10.5px/1.3 var(--sans);color:var(--ink-3)}
+.mk .stem{width:2px;height:18px;background:linear-gradient(var(--c),transparent)}
+.mk.shelter .icon{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:rgba(14,18,21,.92);border:2px dashed #f1f4f3;box-shadow:0 6px 18px rgba(0,0,0,.5)}
+.mk.tagmk .in{transform:translate(-50%,-50%)}
+.mk.tagmk .pill{font-size:11px;padding:4px 8px}
+.mk.tagmk.red .pill{color:#ff9a9d;border-color:rgba(255,90,95,.55)}
+.mk.tagmk.fire .pill{color:#ffc7a8;border-color:rgba(255,138,77,.5)}
+.mk.tagmk.dmg .pill{color:#ffc39a;border-color:rgba(245,144,79,.55)}
+
+/* floating dashboard cards: fixed columns so nothing overlaps */
+.cards-layer{position:absolute;z-index:7;inset:92px max(20px,3.2vw) 22px;display:grid;grid-template-columns:minmax(250px,300px) 1fr minmax(250px,300px);gap:20px;pointer-events:none}
+.ccol{display:flex;flex-direction:column;gap:12px;min-height:0}
+.ccol.mid{justify-content:space-between;align-items:center}
+.fcard{border-radius:16px;padding:14px 16px;opacity:0;font-size:13px;line-height:1.45;pointer-events:auto}
+.fcard .k{display:flex;align-items:center;gap:8px;font:600 10px/1.2 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px}
+.fcard .k i{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;background:rgba(255,255,255,.07);color:var(--ink-2);flex:none}
+.fcard h4{margin:0 0 6px;font:600 15px/1.3 var(--sans)}
+.fcard p{margin:0;color:var(--ink-2);font-size:12.5px;line-height:1.5}
+.fcard p b{color:var(--ink);font-weight:600}
+.fcard .row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.fcard .big{font:600 19px/1.2 var(--mono);letter-spacing:-.02em}
+.chip{display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 9px;border-radius:999px;font:600 11px/1 var(--sans);background:color-mix(in srgb,currentColor 12%,transparent);border:1px solid color-mix(in srgb,currentColor 42%,transparent);white-space:nowrap}
+.chip::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.ev-o{color:var(--ev-observed)} .ev-r{color:var(--ev-reported)} .ev-c{color:var(--ev-corroborated)} .ev-u{color:var(--ev-unknown)}
+.tag{display:inline-flex;align-items:center;height:20px;padding:0 7px;border-radius:6px;font:600 9.5px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;border:1px dashed var(--stroke-3);color:var(--ink-2);white-space:nowrap}
+.tag.warn{border-color:rgba(255,90,95,.6);color:#ff9a9d} .tag.pw{border-color:rgba(157,147,230,.6);color:#bdb6f0} .tag.fire{border-color:rgba(255,138,77,.6);color:var(--fire)}
+.hatch{display:inline-block;width:18px;height:14px;border-radius:4px;border:1.5px solid var(--c);background:repeating-linear-gradient(45deg,var(--c) 0 2px,transparent 2px 5px);vertical-align:-2px}
+.prio{display:grid;grid-template-columns:22px 1fr;gap:9px;align-items:center;padding:7px 0;border-top:1px solid var(--stroke)}
+.prio:first-of-type{border-top:0;padding-top:2px}
+.prio .n{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font:600 10.5px/1 var(--mono);border:2px solid var(--c);background:rgba(0,0,0,.35)}
+.prio b{font-size:13px}
+.prio small{display:block;color:var(--ink-3);font-size:11.5px}
+.bar{height:4px;border-radius:4px;background:rgba(255,255,255,.08);position:relative;margin-top:5px}
+.bar i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:linear-gradient(90deg,var(--ink-3),var(--ink))}
+.route-row{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:12.5px}
+.route-row svg{flex:none}
+.route-row span{color:var(--ink-3)}
+.passbar{display:flex;gap:5px;margin-top:8px}.passbar span{flex:1;height:3px;border-radius:3px;background:rgba(255,255,255,.12)}.passbar span.on{background:var(--ink)}
+.cap-mid{position:static;transform:none;width:100%;max-width:640px;opacity:0}
+.fcard.note{text-align:center;width:min(360px,100%)}
+
+/* ---------- sections ---------- */
+section.block{position:relative;padding:140px 0;z-index:3}
+.wrap{width:var(--wrap);margin:0 auto}
+.num-kicker{display:flex;align-items:center;gap:14px;margin-bottom:22px}
+.num-kicker b{font:500 13px/1 var(--mono);color:var(--fire)}
+.num-kicker>span:not(.kicker){height:1px;width:48px;background:var(--stroke-3)}
+h2.title{margin:0;font:400 clamp(36px,5vw,68px)/1.02 var(--serif);letter-spacing:-.01em;max-width:900px}
+h2.title em{font-style:italic;color:var(--accent)}
+.lead{margin:22px 0 0;max-width:640px;font-size:clamp(16px,1.3vw,19px);color:var(--ink-2)}
+.reveal{opacity:0;transform:translateY(40px)}
+#problem{background:radial-gradient(900px 500px at 85% 0%,rgba(255,138,77,.08),transparent 60%)}
+.pains{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:64px}
+.pain{border-radius:20px;padding:26px}
+.pain .ico{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:rgba(255,255,255,.06);margin-bottom:18px;color:var(--ink-2)}
+.pain h3{margin:0 0 8px;font:600 18px/1.3 var(--sans)}
+.pain p{margin:0;color:var(--ink-3);font-size:15px}
+.flow{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:70px}
+.flow::before{content:"";position:absolute;left:8%;right:8%;top:38px;height:1px;background:linear-gradient(90deg,transparent,var(--stroke-3),transparent)}
+.flow .pulse{position:absolute;top:35px;left:8%;width:80px;height:7px;border-radius:7px;background:linear-gradient(90deg,transparent,var(--accent),transparent);filter:blur(1px)}
+.fstep .dot{width:76px;height:76px;border-radius:24px;display:grid;place-items:center;margin-bottom:26px;background:var(--glass);border:1px solid var(--stroke-2);box-shadow:var(--shadow);position:relative;z-index:1}
+.fstep .dot svg{color:#ffd2b8}
+.fstep .n{font:500 12px/1 var(--mono);color:var(--ink-3);margin-bottom:10px;display:block}
+.fstep h3{margin:0 0 8px;font:600 22px/1.25 var(--sans)}
+.fstep p{margin:0;color:var(--ink-3);max-width:320px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:64px}
+.scard{border-radius:20px;overflow:hidden;display:flex;flex-direction:column;transition:transform .4s var(--ease),border-color .3s}
+.scard:hover{transform:translateY(-6px);border-color:var(--stroke-3)}
+.shot{position:relative;aspect-ratio:4/3;background:#0d1a22 center/cover;overflow:hidden}
+.shot svg{position:absolute;inset:0;width:100%;height:100%}
+.shot::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(10,14,18,.85))}
+.shot .lbl{position:absolute;left:12px;bottom:10px;z-index:1}
+.scard .body{padding:18px 20px 22px}
+.scard h3{margin:0 0 6px;font:600 17px/1.3 var(--sans)}
+.scard p{margin:0;color:var(--ink-3);font-size:14.5px}
+/* AI agents */
+.agents{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:64px}
+.agent{border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:12px}
+.agent .ico{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(140deg,rgba(255,180,138,.18),rgba(255,255,255,.03));border:1px solid rgba(255,180,138,.25);color:#ffd2b8}
+.agent h3{margin:0;font:600 18px/1.3 var(--sans)}
+.agent p{margin:0;color:var(--ink-3);font-size:14.5px}
+.agent .eg{margin-top:auto;padding:10px 12px;border-radius:12px;background:rgba(0,0,0,.28);border:1px solid var(--stroke);font-size:12.5px;color:var(--ink-2)}
+.agent .eg b{color:var(--ink)}
+.evgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:64px}
+.ev{border-radius:20px;padding:24px;position:relative;overflow:hidden}
+.ev::before{content:"";position:absolute;inset:-1px;border-radius:20px;padding:1px;background:linear-gradient(160deg,color-mix(in srgb,var(--c) 70%,transparent),transparent 55%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.ev .chip{color:var(--c);height:26px;font-size:12.5px;padding:0 12px;margin-bottom:16px}
+.ev h3{margin:0 0 6px;font:600 18px/1.3 var(--sans)}
+.ev p{margin:0;color:var(--ink-3);font-size:14.5px}
+.banner{margin-top:26px;border-radius:20px;padding:22px 26px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.banner b{font:400 26px/1.15 var(--serif)}
+.banner b em{font-style:italic;color:var(--accent)}
+.banner span{color:var(--ink-3);flex:1;min-width:240px;font-size:15px}
+.data{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:56px}
+.ds{border-radius:16px;padding:20px 20px 18px;display:flex;flex-direction:column;gap:6px;min-height:150px}
+.ds .org{font:600 10.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.ds b{font:600 19px/1.2 var(--sans);margin-top:4px}
+.ds span{color:var(--ink-3);font-size:14px;margin-top:auto}
+.ds.free{justify-content:center;align-items:flex-start;background:linear-gradient(140deg,rgba(255,138,77,.12),rgba(255,255,255,.02))}
+.ds.free b{font:400 30px/1.05 var(--serif)}
+#try{padding:120px 0 140px}
+.tryp{border-radius:32px;padding:56px;display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center;position:relative;overflow:hidden}
+.tryp::before{content:"";position:absolute;width:620px;height:620px;right:-180px;top:-260px;border-radius:50%;background:radial-gradient(circle,rgba(111,180,255,.16),transparent 65%);pointer-events:none}
+.tryp h2{margin:0;font:400 clamp(34px,4.4vw,60px)/1.02 var(--serif)}
+.tryp h2 em{font-style:italic;color:var(--accent)}
+.tryp p{color:var(--ink-2);margin:18px 0 0;max-width:520px}
+.tryp ul{list-style:none;padding:0;margin:24px 0 0;display:flex;flex-direction:column;gap:10px;color:var(--ink-2);font-size:15px}
+.tryp li{display:flex;gap:10px;align-items:center}
+.tryp li::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--ev-corroborated);box-shadow:0 0 0 4px rgba(69,199,156,.15);flex:none}
+.open{border-radius:22px;overflow:hidden;position:relative;z-index:1}
+.open .shot{aspect-ratio:5/3}
+.open-body{padding:22px 24px 24px}
+.checks{list-style:none;padding:0;margin:0 0 18px;display:flex;flex-direction:column;gap:9px;font-size:14.5px;color:var(--ink-2)}
+.checks li{display:flex;gap:10px;align-items:center}
+.checks li::before{content:"";width:16px;height:16px;flex:none;border-radius:50%;background:rgba(69,199,156,.16) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2345c79c' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 12 4 4 8-8'/%3E%3C/svg%3E") center/11px no-repeat}
+.open .btn{width:100%;justify-content:center;height:52px;font-size:16px}
+.hint2{margin:10px 0 0;text-align:center;font-size:12.5px;color:var(--ink-3)}
+
+/* ---------- footer ---------- */
+footer{position:relative;border-top:1px solid var(--stroke);padding:72px 0 34px;color:var(--ink-3);font-size:14px;overflow:hidden}
+footer::before{content:"";position:absolute;left:50%;top:-1px;width:min(900px,90vw);height:1px;transform:translateX(-50%);background:linear-gradient(90deg,transparent,rgba(255,180,138,.6),transparent)}
+.foot-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:40px}
+.foot-brand p{margin:14px 0 20px;max-width:360px;line-height:1.6}
+.foot-brand .logo{color:var(--ink)}
+.foot-col h5{margin:0 0 14px;font:600 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+.foot-col ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
+.foot-col a{transition:color .2s}.foot-col a:hover{color:var(--ink)}
+.principles{display:flex;flex-wrap:wrap;gap:8px;margin-top:40px}
+.principles span{display:inline-flex;align-items:center;gap:8px;height:30px;padding:0 12px;border-radius:999px;border:1px solid var(--stroke-2);font-size:12.5px;color:var(--ink-2)}
+.principles span::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--ev-corroborated)}
+.foot-word{margin:56px 0 0;font:400 clamp(64px,15vw,220px)/.8 var(--serif);letter-spacing:-.03em;background:linear-gradient(180deg,rgba(241,244,243,.16),rgba(241,244,243,0) 85%);-webkit-background-clip:text;background-clip:text;color:transparent;user-select:none;white-space:nowrap}
+.foot-bottom{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:18px;padding-top:22px;border-top:1px solid var(--stroke);font-size:12.5px}
+
+/* ---------- responsive ---------- */
+@media (max-width:1100px){
+  .navlinks{display:none}
+  .cards,.data,.agents,.evgrid{grid-template-columns:1fr 1fr}
+  .cards-layer{grid-template-columns:minmax(220px,260px) 1fr minmax(220px,260px)}
+  .foot-top{grid-template-columns:1fr 1fr}
+}
+@media (max-width:900px){
+  .hero-copy{width:min(560px,calc(100vw - 48px))}
+  .pains,.flow{grid-template-columns:1fr}
+  .flow::before,.flow .pulse{display:none}
+  .tryp{grid-template-columns:1fr;padding:32px;gap:32px}
+  /* cards become a bottom sheet: caption on top, three key cards stacked at the bottom */
+  .cards-layer{inset:84px 14px 14px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:8px}
+  .cards-layer .fcard{width:min(460px,100%)}
+  .ccol{display:contents}
+  .ccol.mid{display:contents}
+  .cap-mid{order:-1;max-width:none;text-align:center;margin-bottom:auto}
+  .fcard{padding:11px 13px;font-size:12px}
+  .fcard.mob-hide{display:none}
+  .fcard .k{margin-bottom:5px}
+  .fcard h4{font-size:14px;margin-bottom:3px}
+  .mk .pill{font-size:11px;padding:5px 7px}
+  .mk .pill small{display:none}
+}
+@media (max-width:600px){
+  :root{--wrap:calc(100vw - 32px)}
+  .cards,.data,.agents,.evgrid{grid-template-columns:1fr}
+  #nav{height:52px;padding-left:14px}
+  #nav .btn span{display:none}
+  #nav .btn{padding:0 14px}
+  .hero-copy{top:auto;bottom:max(84px,11vh);transform:none;width:calc(100vw - 32px)}
+  .hero-copy p{font-size:15.5px}
+  .hero-cta .btn{flex:1;justify-content:center}
+  section.block{padding:96px 0}
+  .tryp{padding:24px;border-radius:24px}
+  .foot-top{grid-template-columns:1fr;gap:28px}
+  .banner b{font-size:22px}
+  .caption{bottom:30px}
+}
+@media (max-height:780px){ .scrollhint{display:none} }
+@media (prefers-reduced-motion:reduce){
+  .scrollhint i::after,.hero-copy .kicker::before{animation:none}
+}
+</style>
+</head>
+<body>
+
+<nav id="nav" class="glass top" aria-label="Main">
+  <a class="logo" href="#top"><i><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 3v6M12 15v6M3 12h6M15 12h6"/><circle cx="12" cy="12" r="2.2" fill="#fff" stroke="none"/></svg></i>RescueForce</a>
+  <div class="navlinks"><a href="#problem">Problem</a><a href="#how">How it works</a><a href="#see">What you see</a><a href="#agents">AI agents</a><a href="#evidence">Evidence</a><a href="#data">Data</a></div>
+  <a class="btn primary" href="#try" aria-label="Try RescueForce"><span>Try RescueForce</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+</nav>
+
+<!-- ================= HERO: scroll story ================= -->
+<header id="hero">
+  <div class="stage" id="top">
+    <canvas id="globe" aria-hidden="true"></canvas>
+
+    <div class="bird" id="bird" aria-hidden="true">
+      <div class="plane" id="plane">
+        <svg viewBox="0 0 1600 1270" id="overlay"></svg>
+        <div class="hires" id="hires"><svg id="hov"></svg></div>
+      </div>
+    </div>
+    <div class="shade" id="shade"></div>
+    <canvas id="fire" aria-hidden="true"></canvas>
+    <div id="fx" aria-hidden="true"></div>
+    <div class="vignette"></div>
+
+    <div class="textfade" id="tfade"></div>
+    <div class="hero-copy" id="copy">
+      <span class="kicker">NASA Space Apps 2026 · Dancing with the SARs challenge</span>
+      <h1><span class="line"><span>War damages more</span></span><span class="line"><span>than buildings.</span></span><span class="line"><span>It disrupts <em>people's lives.</em></span></span></h1>
+      <p>We help identify damaged areas, affected communities and available services to support faster emergency response and recovery.</p>
+      <div class="hero-cta">
+        <a class="btn primary" href="#try">Try RescueForce <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <a class="btn" href="#how">How it works</a>
+      </div>
+    </div>
+    <div class="scrollhint" id="hint"><i></i>Scroll to explore</div>
+
+    <div class="caption" id="cap1"><span class="kicker">From orbit to street level</span><h2>Satellites see change <em>no one has reported yet.</em></h2></div>
+    <div class="caption" id="cap2"><span class="kicker">Sample incidents</span><h2>RescueForce ranks <em>where help is needed first.</em></h2></div>
+    <div class="caption" id="capZ"><span class="kicker">Close-up · sample incident</span><h2>Damaged buildings, a fire, <em>and the ways in.</em></h2></div>
+
+    <!-- plain-language dashboard cards; they arrive by themselves while you scroll -->
+    <div class="cards-layer" id="cards">
+      <div class="ccol">
+        <div class="fcard glass mob-hide" id="fc-rank">
+          <div class="k"><i><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></i>Where to help first</div>
+          <div class="prio"><span class="n" style="--c:var(--dmg-severe)">1</span><div><b>Khiam east</b><small>Most people and damage</small><div class="bar"><i style="width:92%"></i></div></div></div>
+          <div class="prio"><span class="n" style="--c:var(--dmg-destroyed)">2</span><div><b>Bint Jbeil centre</b><small>Heavy damage, one satellite so far</small><div class="bar"><i style="width:76%"></i></div></div></div>
+          <div class="prio"><span class="n" style="--c:var(--dmg-moderate)">3</span><div><b>Aitaroun south</b><small>Reported by residents</small><div class="bar"><i style="width:58%"></i></div></div></div>
+        </div>
+        <div class="fcard glass mob-hide" id="fc-fire">
+          <div class="k"><i><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22c4 0 7-2.8 7-6.8 0-3.6-2.6-5.7-4-8.2-.6 2-1.6 3-3 3.6.4-3.2-1-6.4-3.6-8.6C8.3 6 5 8.6 5 14.6 5 19 8 22 12 22z"/></svg></i>Fire seen from space</div>
+          <p><b>2 hot spots</b> found by NASA satellites tonight, accurate to about 375 m.</p>
+          <div class="row"><span class="chip ev-o">Observed</span></div>
+        </div>
+        <div class="fcard glass mob-hide" id="fc-route">
+          <div class="k"><i><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3 5 21M16 3l3 18M12 4v3M12 10v4M12 17v3"/></svg></i>Ways in</div>
+          <div class="route-row"><svg width="24" height="10"><path d="M1 5h22" stroke="#f1f4f3" stroke-width="3.5"/></svg><b>Western road</b><span>open on the map, not yet checked</span></div>
+          <div class="route-row"><svg width="24" height="10"><path d="M1 5h22" stroke="#ff5a5f" stroke-width="3.5" stroke-dasharray="5 3"/></svg><b>Ridge road</b><span>may be blocked by damage</span></div>
+        </div>
+      </div>
+      <div class="ccol mid">
+        <div class="caption cap-mid" id="cap3"><span class="kicker">One screen for responders</span><h2>Everything in one place. <em>The officer decides.</em></h2></div>
+        <div class="fcard glass note mob-hide" id="fc-pass">
+          <div class="k" style="justify-content:center"><i><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></i>Latest satellite pass · 14 Nov</div>
+          <div class="passbar"><span class="on"></span><span class="on"></span><span></span><span class="on"></span><span class="on"></span></div>
+          <p style="margin-top:7px">New building changes show within 72 hours of each pass.</p>
+        </div>
+      </div>
+      <div class="ccol">
+        <div class="fcard glass" id="fc-inc">
+          <div class="k"><i><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></i>Priority 1 · Khiam east</div>
+          <h4><span class="hatch" style="--c:var(--dmg-severe)"></span>&nbsp; Heavy damage likely</h4>
+          <p>About <b>1,800–2,900 people</b> live nearby. <b>14–22 buildings</b> may be damaged.</p>
+          <div class="row"><span class="chip ev-c">Confirmed by 2 satellites</span></div>
+        </div>
+        <div class="fcard glass mob-hide" id="fc-power">
+          <div class="k"><i><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 2 5 14h6l-1 8 8-12h-6z"/></svg></i>Lights went out</div>
+          <p>Night-time lights dropped here: <b>possible power loss</b> for <b>900–2,100 people</b>.</p>
+          <div class="row"><span class="tag pw">Not yet confirmed on the ground</span></div>
+        </div>
+        <div class="fcard glass" id="fc-shelter">
+          <div class="k"><i><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg></i>Nearest shelter option</div>
+          <h4>Sample shelter 1</h4>
+          <p><b>1.8 km by road</b> · room for about <b>250–400 people</b></p>
+          <div class="row"><span class="tag">Candidate · check before use</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= 01 PROBLEM ================= -->
+<section class="block" id="problem">
+  <div class="wrap">
+    <div class="num-kicker reveal"><b>01</b><span></span><span class="kicker">The problem</span></div>
+    <h2 class="title reveal">In a crisis, the picture arrives <em>late and in pieces.</em></h2>
+    <p class="lead reveal">Damage reports, fire alerts, power cuts and road closures live in different places. RescueForce brings scattered information together so responders can understand the impact and see where support is needed.</p>
+    <div class="pains">
+      <div class="pain glass reveal"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><h3>Slow to see</h3><p>Ground reports can take days, and some areas are too risky to reach at all.</p></div>
+      <div class="pain glass reveal"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="7" height="7" rx="2"/><rect x="14" y="4" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg></div><h3>Scattered data</h3><p>Damage, fires, night lights, population and roads sit in separate tools and files.</p></div>
+      <div class="pain glass reveal"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div><h3>Hard to trust</h3><p>A rumour and a satellite observation often look the same on a map.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 02 HOW IT WORKS ================= -->
+<section class="block" id="how">
+  <div class="wrap">
+    <div class="num-kicker reveal"><b>02</b><span></span><span class="kicker">How it works</span></div>
+    <h2 class="title reveal">From satellite data <em>to better decisions.</em></h2>
+    <div class="flow">
+      <div class="pulse" id="pulse"></div>
+      <div class="fstep reveal"><div class="dot"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 16 16 4l4 4-12 12z"/><path d="m9 11 4 4M3 21l3-3"/><path d="M17 13a6 6 0 0 1-6 6"/></svg></div><span class="n">Step 1</span><h3>Satellites detect</h3><p>Radar, night-light and thermal satellites spot possible changes on the ground, day or night, through cloud.</p></div>
+      <div class="fstep reveal"><div class="dot"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="8" r="2.5"/><circle cx="10" cy="18" r="2.5"/><path d="m8 7.5 7.6 0M7 8.2l2 7.4M16.4 10l-4.8 6.3"/></svg></div><span class="n">Step 2</span><h3>RescueForce analyses</h3><p>Its AI agents connect the evidence, rank the impact on people and services, and suggest next checks and routes.</p></div>
+      <div class="fstep reveal"><div class="dot"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/><path d="m15.5 17.5 2 2 3.5-3.5"/></svg></div><span class="n">Step 3</span><h3>Responders decide</h3><p>Officers review the findings, check them on the ground and make the call. Suggestions never act on their own.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 03 WHAT YOU SEE ================= -->
+<section class="block" id="see">
+  <div class="wrap">
+    <div class="num-kicker reveal"><b>03</b><span></span><span class="kicker">What you can see</span></div>
+    <h2 class="title reveal">Everything important, <em>in one place.</em></h2>
+    <div class="cards">
+      <article class="scard glass reveal"><div class="shot" data-bbox="35.6145,33.3255,35.6255,33.3345"><svg viewBox="0 0 400 300"><defs><pattern id="h1" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="2.5" height="7" fill="#f5904f"/></pattern><pattern id="h2" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="2.5" height="7" fill="#ff7a93"/></pattern></defs><rect x="150" y="105" width="46" height="40" fill="url(#h1)" stroke="#f5904f" stroke-width="2"/><rect x="214" y="132" width="40" height="36" fill="url(#h2)" stroke="#ff7a93" stroke-width="2"/><rect x="120" y="170" width="34" height="30" fill="url(#h1)" stroke="#eadf73" stroke-width="2"/><circle cx="173" cy="125" r="34" fill="none" stroke="#45c79c" stroke-width="2" stroke-dasharray="5 4"/></svg><span class="lbl chip ev-c">Corroborated</span></div>
+        <div class="body"><h3>Damage candidates</h3><p>Potentially damaged buildings and areas, hatched by class and never shown as confirmed.</p></div></article>
+      <article class="scard glass reveal"><div class="shot" data-bbox="35.6165,33.3265,35.6255,33.334"><svg viewBox="0 0 400 300"><defs><radialGradient id="fg"><stop offset="0" stop-color="#fff2c8"/><stop offset=".3" stop-color="#ffa050" stop-opacity=".9"/><stop offset="1" stop-color="#ff5a1e" stop-opacity="0"/></radialGradient></defs><circle cx="210" cy="150" r="118" fill="none" stroke="#ff8a4d" stroke-width="2" stroke-dasharray="8 5"/><circle cx="210" cy="150" r="40" fill="url(#fg)"><animate attributeName="r" values="36;44;38;42;36" dur="1.6s" repeatCount="indefinite"/></circle><circle cx="262" cy="118" r="26" fill="url(#fg)"><animate attributeName="r" values="24;30;25;28;24" dur="1.3s" repeatCount="indefinite"/></circle></svg><span class="lbl chip ev-o">Observed</span></div>
+        <div class="body"><h3>Fire detections</h3><p>Satellite-detected fires with their 375 m uncertainty ring, updated through the day.</p></div></article>
+      <article class="scard glass reveal"><div class="shot" data-bbox="35.595,33.315,35.645,33.345"><svg viewBox="0 0 400 300"><defs><pattern id="pw" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="3" fill="#9d93e6" fill-opacity=".55"/><rect y="3" width="8" height="5" fill="#04050a" fill-opacity=".5"/></pattern></defs><rect x="60" y="60" width="120" height="110" fill="url(#pw)" stroke="#9d93e6" stroke-dasharray="6 4" stroke-width="1.6"/><rect x="190" y="120" width="120" height="110" fill="url(#pw)" stroke="#9d93e6" stroke-dasharray="6 4" stroke-width="1.6"/><rect x="250" y="20" width="110" height="90" fill="#f3e3a1" fill-opacity=".14"/></svg><span class="lbl chip ev-c">2 satellites agree</span></div>
+        <div class="body"><h3>Possible power loss</h3><p>Unusual drops in night-time lights, with the people and facilities inside each dark area.</p></div></article>
+      <article class="scard glass reveal"><div class="shot" data-bbox="35.600,33.322,35.630,33.344"><svg viewBox="0 0 400 300"><path d="M30 40 C90 70 120 110 170 140 S 250 190 300 210" fill="none" stroke="#0a0d0f" stroke-opacity=".6" stroke-width="11" stroke-linecap="round"/><path d="M30 40 C90 70 120 110 170 140 S 250 190 300 210" fill="none" stroke="#f1f4f3" stroke-width="5" stroke-linecap="round" class="draw"/><path d="M170 140 C 210 130 250 110 330 100" fill="none" stroke="#ff5a5f" stroke-width="5" stroke-dasharray="12 7" stroke-linecap="round"/><g transform="translate(300 210)"><rect x="-16" y="-16" width="32" height="32" rx="9" fill="rgba(14,18,21,.92)" stroke="#f1f4f3" stroke-width="2" stroke-dasharray="4 3"/><path d="M-8 2 0-6 8 2M-6 0v8h12V0" fill="none" stroke="#f1f4f3" stroke-width="2"/></g></svg><span class="lbl tag" style="background:rgba(10,13,15,.8)">Not verified</span></div>
+        <div class="body"><h3>Routes &amp; candidate shelters</h3><p>Routes on real roads and mapped shelter sites, with roads near damage flagged as possibly blocked.</p></div></article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 04 AI AGENTS ================= -->
+<section class="block" id="agents">
+  <div class="wrap">
+    <div class="num-kicker reveal"><b>04</b><span></span><span class="kicker">AI agents</span></div>
+    <h2 class="title reveal">AI that suggests. <em>People decide.</em></h2>
+    <p class="lead reveal">Four small agents read the satellite evidence and turn it into plain answers. They explain their reasons, show what is still unknown, and never act on their own.</p>
+    <div class="agents">
+      <div class="agent glass reveal"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></div>
+        <h3>Ranking agent</h3><p>Orders incidents by people affected, damage, fires, power loss and how fresh the data is.</p>
+        <div class="eg">“<b>Khiam east first</b>: most people nearby and two satellites agree.”</div></div>
+      <div class="agent glass reveal"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg></div>
+        <h3>Insights agent</h3><p>Writes 3–5 short findings for each incident, each with its evidence label and source date.</p>
+        <div class="eg">“Radar change runs along the eastern ridge road.” <b>Observed</b></div></div>
+      <div class="agent glass reveal"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h10M4 12h16M4 18h7"/><circle cx="17" cy="6" r="2"/><circle cx="14" cy="18" r="2"/></svg></div>
+        <h3>Decision assistant</h3><p>Suggests next checks, route options and nearby shelter sites. Every idea is marked unverified.</p>
+        <div class="eg">“Ask a field team to check the ridge road <b>before routing vehicles</b>.”</div></div>
+      <div class="agent glass reveal"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v18M17 7.5c0-1.9-2.2-3-5-3s-5 1.1-5 3 2.2 2.6 5 3.2 5 1.4 5 3.3-2.2 3-5 3-5-1.1-5-3"/></svg></div>
+        <h3>Rebuild budget</h3><p>Gives an indicative cost range for each area, with the assumptions listed.</p>
+        <div class="eg">“<b>4.2–9.8 million USD</b> · indicative, not a quote.”</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 04 EVIDENCE ================= -->
+<section class="block" id="evidence">
+  <div class="wrap">
+    <div class="num-kicker reveal"><b>05</b><span></span><span class="kicker">Evidence you can trust</span></div>
+    <h2 class="title reveal">Know what is observed, reported <em>and still uncertain.</em></h2>
+    <div class="evgrid">
+      <div class="ev glass reveal" style="--c:var(--ev-observed)"><span class="chip">Observed</span><h3>Seen by a sensor</h3><p>Detected through available satellite observations.</p></div>
+      <div class="ev glass reveal" style="--c:var(--ev-reported)"><span class="chip">Reported</span><h3>Told by a source</h3><p>Shared by a field team, a municipality or the media.</p></div>
+      <div class="ev glass reveal" style="--c:var(--ev-corroborated)"><span class="chip">Corroborated</span><h3>Backed twice</h3><p>Supported by more than one independent source.</p></div>
+      <div class="ev glass reveal" style="--c:var(--ev-unknown)"><span class="chip">Unknown</span><h3>Not enough yet</h3><p>Too little evidence to say. RescueForce shows the gap instead of guessing.</p></div>
+    </div>
+    <div class="banner glass reveal"><b>Candidates, <em>not facts.</em></b><span>Every damage area, route and shelter is a candidate until someone checks it on the ground. Numbers are shown as ranges, and nothing is ever labelled safe.</span></div>
+  </div>
+</section>
+
+<!-- ================= 05 DATA ================= -->
+<section class="block" id="data">
+  <div class="wrap">
+    <div class="num-kicker reveal"><b>06</b><span></span><span class="kicker">Built on open data</span></div>
+    <h2 class="title reveal">Trusted sources, <em>free and open.</em></h2>
+    <div class="data">
+      <div class="ds glass reveal"><span class="org">NASA · ISRO</span><b>NISAR</b><span>L-band radar change for damage candidates</span></div>
+      <div class="ds glass reveal"><span class="org">ESA · NASA JPL</span><b>Sentinel-1 (OPERA RTC)</b><span>Second radar check on each candidate</span></div>
+      <div class="ds glass reveal"><span class="org">NASA</span><b>Black Marble</b><span>Night lights for possible power loss</span></div>
+      <div class="ds glass reveal"><span class="org">NASA</span><b>FIRMS (VIIRS)</b><span>Near-real-time fire detections</span></div>
+      <div class="ds glass reveal"><span class="org">University of Southampton</span><b>WorldPop</b><span>People living in each area, as a range</span></div>
+      <div class="ds glass reveal"><span class="org">OSM community</span><b>OpenStreetMap</b><span>Buildings, roads and facilities</span></div>
+      <div class="ds glass reveal"><span class="org">EU JRC</span><b>GHSL</b><span>Building heights and floors</span></div>
+      <div class="ds glass free reveal"><b>All free, <em style="font-style:italic;color:#ffb48a">all open.</em></b><span>No paid data, no private feeds.</span></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ================= TRY ================= -->
+<section id="try">
+  <div class="wrap">
+    <div class="tryp glass reveal">
+      <div>
+        <span class="kicker">Try RescueForce</span>
+        <h2 style="margin-top:16px">See the impact <em>the way responders will.</em></h2>
+        <p>Open the interactive map with sample incidents: real terrain, 3D buildings, fires, routes and shelters. No account and no setup needed.</p>
+        <ul><li>Cinematic 3D, 2D and split view</li><li>Ranking, insights and a decision assistant</li><li>Routes on real roads and candidate shelters</li></ul>
+      </div>
+      <div class="open glass">
+        <div class="shot" data-bbox="35.6105,33.3255,35.6285,33.3365"><svg viewBox="0 0 400 240"><defs><pattern id="oh" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="2.5" height="7" fill="#f5904f"/></pattern><radialGradient id="og"><stop offset="0" stop-color="#fff2c8"/><stop offset=".3" stop-color="#ffa050" stop-opacity=".9"/><stop offset="1" stop-color="#ff5a1e" stop-opacity="0"/></radialGradient></defs>
+          <path d="M20 40 C90 70 140 100 190 120" fill="none" stroke="#f1f4f3" stroke-width="4" stroke-linecap="round"/><path d="M190 140 C 240 135 290 120 370 112" fill="none" stroke="#ff5a5f" stroke-width="4" stroke-dasharray="10 6" stroke-linecap="round"/>
+          <rect x="176" y="106" width="30" height="26" fill="url(#oh)" stroke="#f5904f" stroke-width="2"/><circle cx="214" cy="122" r="22" fill="url(#og)"><animate attributeName="r" values="20;26;21;24;20" dur="1.5s" repeatCount="indefinite"/></circle>
+          <g transform="translate(60 60)"><rect x="-13" y="-13" width="26" height="26" rx="7" fill="rgba(14,18,21,.92)" stroke="#f1f4f3" stroke-width="2" stroke-dasharray="4 3"/><path d="M-7 2 0-5 7 2M-5 0v7h10V0" fill="none" stroke="#f1f4f3" stroke-width="2"/></g></svg>
+          <span class="lbl chip ev-c">Live demo · sample data</span></div>
+        <div class="open-body">
+          <ul class="checks"><li>No account needed</li><li>Realistic sample incidents</li><li>Works on desktop and phone</li></ul>
+          <a class="btn primary" href="civisar-3d-map-mockup.html">Open RescueForce <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <p class="hint2">Opens the interactive 3D map in this tab.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<footer>
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-brand">
+        <a class="logo" href="#top"><i><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 3v6M12 15v6M3 12h6M15 12h6"/><circle cx="12" cy="12" r="2.2" fill="#fff" stroke="none"/></svg></i>RescueForce</a>
+        <p>Satellite-based insight for emergency responders: damaged areas, affected communities and available services, in one place.</p>
+      </div>
+      <div class="foot-col"><h5>Product</h5><ul><li><a href="#how">How it works</a></li><li><a href="#see">What you can see</a></li><li><a href="#agents">AI agents</a></li><li><a href="#evidence">Evidence labels</a></li><li><a href="civisar-3d-map-mockup.html">Live demo</a></li></ul></div>
+      <div class="foot-col"><h5>Open data</h5><ul><li>NASA NISAR · Black Marble · FIRMS</li><li>ESA Sentinel-1 (OPERA RTC)</li><li>WorldPop · GHSL</li><li>© OpenStreetMap contributors</li><li>Imagery: Esri World Imagery</li></ul></div>
+      <div class="foot-col"><h5>Project</h5><ul><li>NASA Space Apps Challenge 2026</li><li>Challenge: Dancing with the SARs</li><li><a href="https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars" target="_blank" rel="noopener">GitHub repository ↗</a></li><li><a href="#data">Data sources</a></li></ul></div>
+    </div>
+    <div class="principles"><span>Open data</span><span>No vehicle or phone tracking</span><span>Candidates, not facts</span><span>Ranges, never single numbers</span><span>People decide, AI suggests</span></div>
+    <div class="foot-word" aria-hidden="true">RescueForce</div>
+    <div class="foot-bottom"><span>© 2026 RescueForce team · Built for NASA Space Apps 2026</span><span>All incidents shown are sample data. Fire and smoke are illustrative effects.</span></div>
+  </div>
+</footer>
+
+<script type="module">
+import * as THREE from 'three';
+
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';   // the story always starts on the globe
+if (!location.hash) window.scrollTo(0, 0);
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $ = s => document.querySelector(s);
+const clamp = (v, a=0, b=1) => Math.min(b, Math.max(a, v));
+const ease = t => t<.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
+const range = (p, a, b) => clamp((p - a) / (b - a));
+const esri = (bbox, w, h) => `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=${bbox}&bboxSR=4326&imageSR=4326&size=${w},${h}&format=jpg&f=image`;
+const distM = (a, b) => Math.hypot((a.lon-b.lon)*111320*Math.cos(a.lat*Math.PI/180), (a.lat-b.lat)*111320);
+
+/* =================== geography (sample data from the dashboard) =================== */
+const BB = {w:35.15, e:35.75, s:33.02, n:33.42};                 // regional image (56 x 44 km)
+const HB = {w:35.600, e:35.640, s:33.318, n:33.342};              // close-up tile over Khiam (3.7 x 2.7 km)
+const HW = 2048, HH = 1465;
+const KHIAM = {lon:35.6195, lat:33.3305};
+const INC = [
+  {name:'Khiam east', rank:1, lon:35.6195, lat:33.3305, c:'var(--dmg-severe)'},
+  {name:'Bint Jbeil centre', rank:2, lon:35.4335, lat:33.1205, c:'var(--dmg-destroyed)'},
+  {name:'Aitaroun south', rank:3, lon:35.4705, lat:33.1135, c:'var(--dmg-moderate)'},
+  {name:'Nabatieh al-Fawqa', rank:4, lon:35.4985, lat:33.3775, c:'var(--dmg-possible)'},
+];
+const DMG = [ // candidate damaged buildings around Khiam (size in metres)
+  {lon:35.6188, lat:33.3311, m:45, c:'#f5904f'}, {lon:35.6201, lat:33.3302, m:40, c:'#ff7a93'},
+  {lon:35.6212, lat:33.3296, m:50, c:'#f2b84b'}, {lon:35.6179, lat:33.3292, m:35, c:'#eadf73'},
+];
+const FIRES = [{lon:35.6199, lat:33.3306, big:1}, {lon:35.6213, lat:33.3294, big:.7}];
+const SHELTERS = [
+  {name:'Sample shelter 1', lon:35.6105, lat:33.3372},
+  {name:'Sample shelter 3', lon:35.6150, lat:33.3345},
+];
+const ROUTES = [ // available road and the ridge road near damage (endpoints; drawn as sample straight lines)
+  {id:'west', a:[35.6060,33.3390], b:[35.6190,33.3308], label:'Western road', blocked:false},
+  {id:'ridge', a:[35.6168,33.3289], b:[35.6245,33.3283], label:'Ridge road', blocked:true},
+  {id:'sh1', a:[35.6195,33.3305], b:[35.6105,33.3372], label:'To shelter', blocked:false, shelter:true},
+];
+
+/* =================== bird view plane =================== */
+const plane = $('#plane'), hires = $('#hires');
+plane.style.backgroundImage = `url("${esri(`${BB.w},${BB.s},${BB.e},${BB.n}`, 1600, 1270)}")`;
+const toPlane = (lon, lat) => ({x:(lon-BB.w)/(BB.e-BB.w), y:(BB.n-lat)/(BB.n-BB.s)});   // 0..1
+const toTile  = (lon, lat) => ({x:(lon-HB.w)/(HB.e-HB.w), y:(HB.n-lat)/(HB.n-HB.s)});
+const kp = toPlane(KHIAM.lon, KHIAM.lat);
+plane.style.setProperty('--ox', (kp.x*100)+'%'); plane.style.setProperty('--oy', (kp.y*100)+'%');
+plane.style.setProperty('--fx', (-kp.x).toFixed(4)); plane.style.setProperty('--fy', (-kp.y).toFixed(4));
+// sharp close-up tile, placed exactly over its lon/lat box on the regional image
+const t0 = toPlane(HB.w, HB.n), t1 = toPlane(HB.e, HB.s);
+Object.assign(hires.style, {left:(t0.x*100)+'%', top:(t0.y*100)+'%', width:((t1.x-t0.x)*100)+'%', height:((t1.y-t0.y)*100)+'%',
+  backgroundImage:`url("${esri(`${HB.w},${HB.s},${HB.e},${HB.n}`, HW, HH)}")`});
+
+// anchors: zero-size points on the ground; screen-space markers follow them every frame
+function anchor(lon, lat){
+  const inTile = lon>=HB.w && lon<=HB.e && lat>=HB.s && lat<=HB.n, host = inTile ? hires : plane;
+  const p = inTile ? toTile(lon, lat) : toPlane(lon, lat), a = document.createElement('i');
+  a.className = 'anchor'; a.style.left = (p.x*100)+'%'; a.style.top = (p.y*100)+'%'; host.appendChild(a); return a;
+}
+
+// regional overlay: small hatched areas at each incident
+const NS = 'http://www.w3.org/2000/svg';
+const svgAdd = (root, tag, attrs) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); root.appendChild(e); return e; };
+const ov = $('#overlay');
+INC.forEach(i => { const p = toPlane(i.lon, i.lat); svgAdd(ov, 'circle', {cx:p.x*1600, cy:p.y*1270, r:9, fill:'none', stroke:'#fff', 'stroke-opacity':.5, 'stroke-width':.8, class:'regdot'}); });
+
+// close-up overlay (tile coordinates): damage footprints, pulse rings, fire rings, routes
+const hov = $('#hov'); hov.setAttribute('viewBox', `0 0 ${HW} ${HH}`);
+const tpx = (lon, lat) => { const p = toTile(lon, lat); return {x:p.x*HW, y:p.y*HH}; };
+const mPerPx = distM({lon:HB.w, lat:33.33}, {lon:HB.e, lat:33.33}) / HW;      // ≈ 1.8 m per tile pixel
+hov.innerHTML = `<defs>
+  <pattern id="hz" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="3.2" height="9" fill="#fff"/></pattern>
+  <filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+  <g id="g-routes"></g><g id="g-rings"></g><g id="g-dmg"></g>`;
+const gR = hov.querySelector('#g-routes'), gRing = hov.querySelector('#g-rings'), gD = hov.querySelector('#g-dmg');
+FIRES.forEach(f => { const p = tpx(f.lon, f.lat); svgAdd(gRing, 'circle', {cx:p.x, cy:p.y, r:375/mPerPx, fill:'rgba(255,138,77,.05)', stroke:'#ff8a4d', 'stroke-width':3, 'stroke-dasharray':'14 9', class:'z-ring'}); });
+DMG.forEach((d, i) => {
+  const p = tpx(d.lon, d.lat), s = d.m/mPerPx, g = svgAdd(gD, 'g', {class:'z-dmg'});
+  svgAdd(g, 'rect', {x:p.x-s/2, y:p.y-s/2, width:s, height:s, rx:3, fill:d.c, 'fill-opacity':.32});
+  const out = svgAdd(g, 'rect', {x:p.x-s/2, y:p.y-s/2, width:s, height:s, rx:3, fill:'none', stroke:d.c, 'stroke-width':5, filter:'url(#glow)'});
+  out.innerHTML = `<animate attributeName="stroke-opacity" values="1;.35;1" dur="${1.6+i*.2}s" repeatCount="indefinite"/>`;
+  const pr = svgAdd(g, 'circle', {cx:p.x, cy:p.y, r:s*.7, fill:'none', stroke:d.c, 'stroke-width':2.5});
+  pr.innerHTML = `<animate attributeName="r" values="${s*.6};${s*2.2}" dur="2.4s" begin="${i*.5}s" repeatCount="indefinite"/><animate attributeName="stroke-opacity" values=".9;0" dur="2.4s" begin="${i*.5}s" repeatCount="indefinite"/>`;
+});
+// proper diagonal hatching per footprint (pattern clipped to each square, in its own colour)
+DMG.forEach((d, i) => {
+  const p = tpx(d.lon, d.lat), s = d.m/mPerPx;
+  const pat = svgAdd(hov.querySelector('defs'), 'pattern', {id:'hp'+i, width:8, height:8, patternUnits:'userSpaceOnUse', patternTransform:'rotate(45)'});
+  svgAdd(pat, 'rect', {width:3, height:8, fill:d.c});
+  svgAdd(gD, 'rect', {x:p.x-s/2, y:p.y-s/2, width:s, height:s, rx:3, fill:`url(#hp${i})`, 'fill-opacity':.85, class:'z-dmg'});
+});
+
+/* routes: sample lines between the endpoints (no public routing server is called; doc 03/07);
+       parts near damage turn red ("may be blocked") */
+    const routeEls = [];
+function drawRoute(r, coords){
+  const pts = coords.map(([lon, lat]) => ({lon, lat}));
+  const near = pts.map(q => DMG.some(d => distM(d, q) <= d.m/2 + 40));
+  const toD = arr => arr.map((q, i) => { const p = tpx(q.lon, q.lat); return (i?'L':'M')+p.x.toFixed(1)+' '+p.y.toFixed(1); }).join(' ');
+  const all = toD(pts);
+  svgAdd(gR, 'path', {d:all, fill:'none', stroke:'#05070a', 'stroke-opacity':.65, 'stroke-width':r.shelter?13:17, 'stroke-linecap':'round', 'stroke-linejoin':'round', class:'z-route'});
+  // split into clear / near-damage runs
+  let run = [pts[0]], f = near[0] || near[1];
+  const flush = (arr, red) => { if (arr.length < 2) return;
+    const el = svgAdd(gR, 'path', {d:toD(arr), fill:'none', 'stroke-linecap':'round', 'stroke-linejoin':'round', class:'z-route',
+      stroke: red || r.blocked ? '#ff5a5f' : '#f1f4f3', 'stroke-width': r.shelter ? 6 : 8, 'stroke-dasharray': red || r.blocked ? '18 11' : (r.shelter ? '14 9' : 'none')});
+    routeEls.push(el); };
+  for (let i = 1; i < pts.length; i++) { const nf = near[i-1] || near[i]; if (nf !== f) { flush(run, f); run = [pts[i-1]]; f = nf; } run.push(pts[i]); }
+  flush(run, f);
+  const mid = pts[Math.floor(pts.length * (r.blocked ? .5 : .35))];
+  return {mid, touches: r.blocked || near.some(Boolean)};
+}
+const routeInfo = {};
+ROUTES.forEach(r => { routeInfo[r.id] = drawRoute(r, [r.a, r.b]); });                      // sample straight lines
+
+/* =================== screen-space markers =================== */
+const fx = $('#fx'), markers = [];
+function marker(lon, lat, cls, html, group){
+  const el = document.createElement('div'); el.className = 'mk ' + cls; el.innerHTML = `<div class="in">${html}</div>`;
+  fx.appendChild(el); const m = {el, a:anchor(lon, lat), group}; markers.push(m); return m;
+}
+// regional: four ranked incidents
+INC.forEach(i => marker(i.lon, i.lat, '', `<span class="pill">${i.name}</span><b class="rk" style="--c:${i.c}">${i.rank}</b><span class="stem" style="--c:${i.c}"></span>`, 'reg'));
+// close-up: incident, shelters, damage and fire labels
+marker(KHIAM.lon, KHIAM.lat + .0011, '', `<span class="pill">Khiam east<small>Heavy damage likely · candidate</small></span><b class="rk" style="--c:var(--dmg-severe)">1</b><span class="stem" style="--c:var(--dmg-severe)"></span>`, 'zoom');
+SHELTERS.forEach(s => marker(s.lon, s.lat, 'shelter', `<span class="pill">${s.name}<small>Shelter option · not verified</small></span><span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f1f4f3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg></span><span class="stem" style="--c:#f1f4f3"></span>`, 'zoom'));
+marker(35.6176, 33.3286, 'tagmk dmg', `<span class="pill">Damaged buildings · candidate</span>`, 'zoom');
+marker(FIRES[0].lon + .0016, FIRES[0].lat + .0009, 'tagmk fire', `<span class="pill">Fire · illustrative effect</span>`, 'zoom');
+const routeTags = [];
+function placeRouteTags(){
+  routeTags.forEach(m => { m.el.remove(); m.a.remove(); markers.splice(markers.indexOf(m), 1); }); routeTags.length = 0;
+  const w = routeInfo.west, rd = routeInfo.ridge;
+  if (w) routeTags.push(marker(w.mid.lon, w.mid.lat, 'tagmk', `<span class="pill">Open route · not checked</span>`, 'zoom'));
+  if (rd) routeTags.push(marker(rd.mid.lon, rd.mid.lat - .0006, 'tagmk red', `<span class="pill">May be blocked · candidate</span>`, 'zoom'));
+  routeTags.forEach(m => { m.el.style.opacity = groupOpacity.zoom; });
+}
+const groupOpacity = {reg:0, zoom:0};
+placeRouteTags();
+
+/* =================== fire and smoke (canvas particles, illustrative) =================== */
+const fc = $('#fire'), fctx = fc.getContext('2d');
+const fireAnchors = FIRES.map(f => ({a:anchor(f.lon, f.lat), big:f.big}));
+function sprite(stops, size=128){ const c = document.createElement('canvas'); c.width = c.height = size; const g = c.getContext('2d');
+  const gr = g.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2); stops.forEach(([o, col]) => gr.addColorStop(o, col)); g.fillStyle = gr; g.fillRect(0, 0, size, size); return c; }
+const SP = {
+  core:  sprite([[0,'rgba(255,255,235,1)'],[.25,'rgba(255,236,170,.95)'],[.6,'rgba(255,170,60,.35)'],[1,'rgba(255,120,30,0)']], 64),
+  flame: sprite([[0,'rgba(255,214,130,1)'],[.3,'rgba(255,150,50,.85)'],[.65,'rgba(230,70,18,.4)'],[1,'rgba(200,40,10,0)']]),
+  red:   sprite([[0,'rgba(255,120,50,.9)'],[.5,'rgba(200,50,15,.45)'],[1,'rgba(150,20,5,0)']]),
+  ember: sprite([[0,'rgba(255,250,215,1)'],[.35,'rgba(255,170,70,.95)'],[1,'rgba(255,90,20,0)']], 32),
+  smoke: sprite([[0,'rgba(48,45,42,.9)'],[.45,'rgba(52,49,46,.55)'],[1,'rgba(50,50,50,0)']]),
+  glow:  sprite([[0,'rgba(255,150,60,.65)'],[.35,'rgba(255,110,40,.28)'],[1,'rgba(255,80,20,0)']], 256),
+};
+const parts = [];
+let fireAmt = 0, emitAcc = new Map();
+function emit(src, kind, n){
+  for (let i = 0; i < n; i++){
+    const r = Math.random;
+    if (kind === 'flame') parts.push({src, k:'flame', x:(r()-.5)*14*src.big, h:r()*3, vx:(r()-.5)*2, vh:7+r()*9, age:0, life:.55+r()*.7, s:(9+r()*10)*src.big});
+    else if (kind === 'core') parts.push({src, k:'core', x:(r()-.5)*7*src.big, h:0, vx:0, vh:5+r()*6, age:0, life:.35+r()*.4, s:(5+r()*4)*src.big});
+    else if (kind === 'ember') parts.push({src, k:'ember', x:(r()-.5)*10, h:4+r()*6, vx:(r()-.5)*6, vh:9+r()*12, age:0, life:1.6+r()*2.4, s:.9+r()*1.2});
+    else parts.push({src, k:'smoke', x:(r()-.5)*12*src.big, h:12+r()*8, vx:(r()-.5)*2, vh:6+r()*4, age:0, life:7+r()*5, s:(18+r()*10)*src.big, rot:r()*6.28});
+  }
+}
+let windT = 0;
+function fireFrame(dt, t){
+  const w = fc.clientWidth, h = fc.clientHeight, dpr = Math.min(devicePixelRatio, 2);
+  if (fc.width !== Math.round(w*dpr)) { fc.width = Math.round(w*dpr); fc.height = Math.round(h*dpr); }
+  fctx.setTransform(dpr, 0, 0, dpr, 0, 0); fctx.clearRect(0, 0, w, h);
+  if (fireAmt <= .01 && !parts.length) return;
+  // pixels per metre on screen, from the close-up tile's on-screen size (exaggerated so the effect reads at this scale)
+  const tr = hires.getBoundingClientRect(), ppm = Math.max(.32, tr.width / 3720 * 2.4);
+  windT += dt; const gust = 1 + .8*Math.sin(windT*.55) * (.6 + .4*Math.sin(windT*.21)), wind = 5.5*gust;
+  fireAnchors.forEach(src => {
+    const b = src.a.getBoundingClientRect(); src.sx = b.left; src.sy = b.top;
+    if (fireAmt > .01 && !reduce) {
+      const flare = .75 + .3*Math.sin(t*3.1 + src.big*5) + .2*Math.sin(t*7.7) + .1*Math.sin(t*13.3);
+      const acc = (emitAcc.get(src) || 0) + dt * fireAmt;
+      emitAcc.set(src, acc % (1/60));
+      const steps = Math.floor(acc * 60);
+      for (let i = 0; i < steps; i++){ emit(src, 'flame', Math.random() < .9*flare ? 2 : 1); emit(src, 'core', 1); if (Math.random() < .35) emit(src, 'ember', 1); if (Math.random() < .42) emit(src, 'smoke', 1); }
+    }
+  });
+  // ground glow under each fire
+  fctx.globalCompositeOperation = 'lighter';
+  fireAnchors.forEach(src => { const fl = .55 + .2*Math.sin(t*7.3 + src.big) + .12*Math.sin(t*12.9); const R = 70*ppm*src.big;
+    fctx.globalAlpha = fl * fireAmt; fctx.drawImage(SP.glow, src.sx - R, src.sy - R*.55, R*2, R*1.1); });
+  // update
+  for (let i = parts.length - 1; i >= 0; i--){
+    const p = parts[i]; p.age += dt; if (p.age >= p.life) { parts.splice(i, 1); continue; }
+    if (p.k === 'smoke') { p.vx += (wind - p.vx) * dt * .35 + Math.sin(t*1.3 + p.rot + p.age*.9) * 1.6 * dt * 6; p.vh *= (1 - dt*.04); }
+    else if (p.k === 'ember') { p.vx += (wind*1.2 - p.vx) * dt * .8 + (Math.random()-.5) * 30 * dt; p.vh -= 1.5*dt; }
+    else { p.vx += (wind*.25 - p.vx) * dt * 2 + (Math.random()-.5) * 18 * dt; p.vh += 6*dt; }
+    p.x += p.vx * dt; p.h += p.vh * dt;
+  }
+  // draw smoke first (normal blend), then fire (additive)
+  fctx.globalCompositeOperation = 'source-over';
+  for (const p of parts) if (p.k === 'smoke') {
+    const u = p.age / p.life, s = p.s * (1 + u*3.6) * ppm, a = (u < .1 ? u/.1 : 1 - (u-.1)/.9) * .78;
+    fctx.globalAlpha = a * Math.max(fireAmt, .001 + (fireAmt>0?0:1)) ; fctx.drawImage(SP.smoke, p.src.sx + p.x*ppm - s/2, p.src.sy - p.h*ppm - s/2, s, s);
+  }
+  fctx.globalCompositeOperation = 'lighter';
+  for (const p of parts) if (p.k !== 'smoke') {
+    const u = p.age / p.life; let img = SP.flame, s = p.s * ppm, a = 1;
+    if (p.k === 'core') { img = SP.core; s *= (1 - u*.6); a = (1 - u); }
+    else if (p.k === 'flame') { img = u < .45 ? SP.flame : SP.red; s *= (1.1 - u*.75); a = u < .15 ? u/.15 : (1 - u); }
+    else { img = SP.ember; s = Math.max(2.2, p.s * ppm * 1.6); a = (1 - u) * (.6 + .4*Math.sin(p.age*30)); }
+    fctx.globalAlpha = clamp(a, 0, 1) * clamp(fireAmt * 1.4); fctx.drawImage(img, p.src.sx + p.x*ppm - s/2, p.src.sy - p.h*ppm - s/2, s, s);
+  }
+  fctx.globalAlpha = 1; fctx.globalCompositeOperation = 'source-over';
+}
+
+/* =================== three.js Earth =================== */
+const canvas = $('#globe');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true, powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.setClearColor(0x020305, 1);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(35, 1, 0.01, 400);
+const TEX = 'https://cdn.jsdelivr.net/gh/mrdoob/three.js@r160/examples/textures/planets/';
+const loader = new THREE.TextureLoader(); loader.setCrossOrigin('anonymous');
+const tex = (f, srgb=true) => { const t = loader.load(TEX + f); if (srgb) t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = renderer.capabilities.getMaxAnisotropy(); return t; };
+const sunDir = new THREE.Vector3(-0.85, 0.22, 0.48).normalize();
+const earthMat = new THREE.ShaderMaterial({
+  uniforms:{ dayMap:{value:tex('earth_atmos_2048.jpg')}, nightMap:{value:tex('earth_lights_2048.png')}, specMap:{value:tex('earth_specular_2048.jpg', false)}, sunDir:{value:sunDir} },
+  vertexShader:`varying vec2 vUv; varying vec3 vN; varying vec3 vP;
+    void main(){ vUv=uv; vN=normalize(mat3(modelMatrix)*normal); vec4 wp=modelMatrix*vec4(position,1.); vP=wp.xyz; gl_Position=projectionMatrix*viewMatrix*wp; }`,
+  fragmentShader:`uniform sampler2D dayMap,nightMap,specMap; uniform vec3 sunDir; varying vec2 vUv; varying vec3 vN; varying vec3 vP;
+    void main(){
+      vec3 n=normalize(vN); float d=dot(n,sunDir); float dayAmt=smoothstep(-.12,.28,d);
+      vec3 day=texture2D(dayMap,vUv).rgb; vec3 night=texture2D(nightMap,vUv).rgb;
+      vec3 V=normalize(cameraPosition-vP); vec3 H=normalize(sunDir+V);
+      float spec=pow(max(dot(n,H),0.),90.)*texture2D(specMap,vUv).r*.28*dayAmt;
+      vec3 lit=day*(.08+1.05*max(d,0.))+spec*vec3(1.,.95,.85);
+      vec3 col=mix(night*vec3(1.,.78,.5)*1.9+day*.015, lit, dayAmt);
+      float fr=pow(1.-max(dot(V,n),0.),3.);
+      col+=vec3(.25,.5,1.)*fr*.55*smoothstep(-.35,.55,d);
+      gl_FragColor=vec4(col,1.);
+      #include <colorspace_fragment>
+    }`
+});
+const earth = new THREE.Mesh(new THREE.SphereGeometry(1, 160, 160), earthMat);
+const clouds = new THREE.Mesh(new THREE.SphereGeometry(1.008, 128, 128), new THREE.MeshLambertMaterial({map:tex('earth_clouds_1024.png'), transparent:true, opacity:.55, depthWrite:false}));
+const atmo = new THREE.Mesh(new THREE.SphereGeometry(1.055, 96, 96), new THREE.ShaderMaterial({
+  uniforms:{sunDir:{value:sunDir}}, side:THREE.BackSide, transparent:true, blending:THREE.AdditiveBlending, depthWrite:false,
+  vertexShader:`varying vec3 vN; varying vec3 vW; void main(){ vN=normalize(normalMatrix*normal); vW=normalize(mat3(modelMatrix)*normal); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
+  fragmentShader:`uniform vec3 sunDir; varying vec3 vN; varying vec3 vW;
+    void main(){ float i=pow(.72-dot(vN,vec3(0.,0.,1.)),3.2); float lit=smoothstep(-.4,.6,dot(vW,sunDir)); gl_FragColor=vec4(vec3(.32,.6,1.)*i*(.25+.95*lit),1.); }`
+}));
+const globe = new THREE.Group(); globe.add(earth, clouds); scene.add(globe, atmo);
+const sun = new THREE.DirectionalLight(0xffffff, 2.2); sun.position.copy(sunDir).multiplyScalar(10); scene.add(sun, new THREE.AmbientLight(0x223344, .25));
+const starMat = new THREE.ShaderMaterial({ uniforms:{t:{value:0}, px:{value:renderer.getPixelRatio()}}, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
+  vertexShader:`attribute float size; attribute float phase; attribute vec3 tint; uniform float t,px; varying float vA; varying vec3 vT;
+    void main(){ vT=tint; vA=.55+.45*sin(t*(.6+phase*1.7)+phase*30.); vec4 mv=modelViewMatrix*vec4(position,1.); gl_PointSize=size*px*(1.+.25*vA); gl_Position=projectionMatrix*mv; }`,
+  fragmentShader:`varying float vA; varying vec3 vT; void main(){ vec2 c=gl_PointCoord-.5; float d=length(c); float a=smoothstep(.5,0.,d); a*=a; gl_FragColor=vec4(vT,a*vA); }` });
+{
+  const N = 9000, pos = new Float32Array(N*3), size = new Float32Array(N), phase = new Float32Array(N), tint = new Float32Array(N*3);
+  for (let i=0;i<N;i++){ const u=Math.random()*2-1, th=Math.random()*Math.PI*2, r=120+Math.random()*120, s=Math.sqrt(1-u*u);
+    pos.set([r*s*Math.cos(th), r*u, r*s*Math.sin(th)], i*3); const big = Math.random()<.04; size[i] = big ? 2.4+Math.random()*2.2 : .7+Math.random()*1.4; phase[i]=Math.random();
+    const w=Math.random(); tint.set(w<.15?[.75,.85,1]:w<.25?[1,.88,.72]:[1,1,1], i*3); }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos,3)); g.setAttribute('size', new THREE.BufferAttribute(size,1));
+  g.setAttribute('phase', new THREE.BufferAttribute(phase,1)); g.setAttribute('tint', new THREE.BufferAttribute(tint,3));
+  scene.add(new THREE.Points(g, starMat));
+}
+function faceAngles(lon, lat){ const th = (lon+180)/360*Math.PI*2, ph = lat*Math.PI/180; const x = -Math.cos(th)*Math.cos(ph), z = Math.sin(th)*Math.cos(ph); return {y:-Math.atan2(x, z), x:ph}; }
+const face = faceAngles(35.55, 33.25);
+const wrapPi = a => Math.atan2(Math.sin(a), Math.cos(a));
+function resize(){ const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); camera.aspect = w/h; camera.updateProjectionMatrix(); }
+addEventListener('resize', resize); resize();
+
+/* =================== main loop =================== */
+let p = 0, ps = 0, spin = face.y - 1.9;
+const clock = new THREE.Clock();
+function frame(){
+  const dt = Math.min(.05, clock.getDelta()), t = clock.elapsedTime;
+  ps += (p - ps) * (reduce ? 1 : Math.min(1, dt*4.5));
+  // globe (hidden once the bird view has taken over)
+  if (ps < .45) {
+    starMat.uniforms.t.value = t;
+    const dive = ease(range(ps, .07, .30));
+    if (!reduce) spin += dt * .06 * (1 - dive);
+    globe.rotation.set(face.x * (.35 + .65*dive), spin + wrapPi(face.y - spin) * dive, 0);
+    clouds.rotation.y += dt * .008;
+    const mob = innerWidth <= 600, z0 = mob ? 6.2 : (innerHeight < 760 ? 4.5 : 4.15);
+    // globe centre at ~72% of the width on any desktop aspect: x_ndc = -c / (z0 * tan(fov/2) * aspect)
+    const wide = innerWidth > 900 ? -0.44 * Math.tan(THREE.MathUtils.degToRad(camera.fov/2)) * camera.aspect * z0 : 0;
+    camera.position.set(wide * (1-dive), (mob ? -0.55 : 0) * (1-dive), z0 - (z0 - 1.18) * dive);
+    camera.lookAt(wide * (1-dive), (mob ? -0.2 : 0) * (1-dive), 0);
+    canvas.style.opacity = 1 - ease(range(ps, .25, .33));
+    canvas.style.filter = `blur(${(range(ps, .18, .31) * 7).toFixed(2)}px)`;
+    renderer.render(scene, camera);
+  } else canvas.style.opacity = 0;
+  // screen-space markers follow their ground anchors
+  const birdOn = ps > .24 && ps < .99;
+  groupOpacity.reg = range(ps, .36, .40) * (1 - range(ps, .50, .54));
+  groupOpacity.zoom = range(ps, .60, .64) * (1 - range(ps, .93, .97));
+  fireAmt = range(ps, .56, .62) * (1 - range(ps, .93, .98));
+  for (const m of markers) {
+    const o = groupOpacity[m.group];
+    if (!birdOn || o <= .001) { if (m.el.style.opacity !== '0') m.el.style.opacity = 0; continue; }
+    const r = m.a.getBoundingClientRect();
+    m.el.style.transform = `translate3d(${r.left.toFixed(1)}px, ${r.top.toFixed(1)}px, 0)`;
+    m.el.style.opacity = o;
+  }
+  fireFrame(dt, t);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* =================== GSAP: smooth scroll + story =================== */
+gsap.registerPlugin(ScrollTrigger);
+if (!reduce && window.Lenis) {
+  const lenis = window.__lenis = new Lenis({lerp:.085, smoothWheel:true});
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add(time => lenis.raf(time * 1000)); gsap.ticker.lagSmoothing(0);
+  document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click', e => { const el = document.querySelector(a.getAttribute('href')); if (el){ e.preventDefault(); lenis.scrollTo(el, {offset:-20, duration:1.8}); } }));
+}
+ScrollTrigger.create({ trigger:'#hero', start:'top top', end:'bottom bottom', onUpdate:s => { p = s.progress; } });
+ScrollTrigger.create({ start:80, onToggle:s => $('#nav').classList.toggle('top', !s.isActive) });
+
+gsap.from('.hero-copy h1 .line>span', {yPercent:110, duration:1.3, ease:'expo.out', stagger:.12, delay:.25});
+gsap.from(['.hero-copy .kicker','.hero-copy p','.hero-cta','#hint'], {opacity:0, y:24, duration:1.1, ease:'power3.out', stagger:.12, delay:.7});
+
+const tl = gsap.timeline({ defaults:{ease:'none'}, scrollTrigger:{ trigger:'#hero', start:'top top', end:'bottom bottom', scrub:reduce ? true : 1.1 } });
+tl.set({}, {}, 1);
+// 1) headline leaves, the globe dives
+tl.to('#copy', {opacity:0, y:-60, filter:'blur(6px)', duration:.07}, .04)
+  .to('#tfade', {opacity:0, duration:.07}, .05)
+  .to('#hint', {opacity:0, duration:.03}, .02)
+  .fromTo('#cap1', {opacity:0, y:20}, {opacity:1, y:0, duration:.04}, .12)
+  .to('#cap1', {opacity:0, y:-20, duration:.04}, .24);
+// 2) regional bird view: straight down, then tilt — four ranked incidents
+tl.fromTo('#bird', {opacity:0, filter:'blur(10px)'}, {opacity:1, filter:'blur(0px)', duration:.08}, .25)
+  .fromTo('#shade', {opacity:0}, {opacity:1, duration:.08}, .27)
+  .fromTo('#plane', {scale:.85, rotateX:0, rotateZ:-10}, {scale:3.2, rotateX:38, rotateZ:-4, duration:.25, ease:'power2.inOut'}, .27)
+  .fromTo('.regdot', {opacity:0}, {opacity:1, duration:.03}, .36)
+  .to('.regdot', {opacity:0, duration:.03}, .50)
+  .fromTo('#cap2', {opacity:0, y:20}, {opacity:1, y:0, duration:.04}, .37)
+  .to('#cap2', {opacity:0, y:-20, duration:.04}, .49);
+// 3) close-up of Khiam: sharp tile fades in, camera drops and tilts; damage, fire, routes, shelters appear
+tl.to('#plane', {scale:15, rotateX:56, rotateZ:-8, duration:.16, ease:'power2.inOut'}, .50)
+  .fromTo('#hires', {opacity:0}, {opacity:1, duration:.05}, .52)
+  .fromTo('.z-ring', {opacity:0}, {opacity:1, duration:.03}, .58)
+  .fromTo('.z-dmg', {opacity:0}, {opacity:1, duration:.04, stagger:.004}, .58)
+  .fromTo('#g-routes', {opacity:0}, {opacity:1, duration:.04}, .61)
+  .fromTo('#capZ', {opacity:0, y:20}, {opacity:1, y:0, duration:.04}, .62)
+  .to('#capZ', {opacity:0, y:-20, duration:.04}, .71)
+  // a slow orbit while the cards arrive
+  .to('#plane', {scale:16.5, rotateZ:6, duration:.27, ease:'sine.inOut'}, .66);
+// 4) plain-language dashboard cards float in (no clicks), then everything clears
+const cardIds = ['#fc-rank','#fc-inc','#fc-fire','#fc-power','#fc-route','#fc-shelter','#fc-pass'];
+tl.fromTo('#cap3', {opacity:0, y:16}, {opacity:1, y:0, duration:.04}, .74)
+  .fromTo(cardIds, {opacity:0, y:40, scale:.94, filter:'blur(8px)'}, {opacity:1, y:0, scale:1, filter:'blur(0px)', duration:.05, stagger:.018, ease:'power3.out'}, .73)
+  .to(cardIds, {opacity:0, y:-24, duration:.04, stagger:.006}, .93)
+  .to(['#cap3','#bird','#shade'], {opacity:0, duration:.05}, .94);
+if (!reduce) cardIds.forEach((c, i) => gsap.to(c, {yPercent:'+=3', duration:2.8 + i*.3, ease:'sine.inOut', yoyo:true, repeat:-1}));
+
+/* =================== sections =================== */
+gsap.utils.toArray('.reveal').forEach(el => gsap.to(el, {opacity:1, y:0, duration:1.1, ease:'power3.out', scrollTrigger:{trigger:el, start:'top 88%'}}));
+if ($('#pulse')) gsap.to('#pulse', {left:'86%', duration:3.2, ease:'power1.inOut', repeat:-1, scrollTrigger:{trigger:'#how', start:'top 70%', toggleActions:'play pause resume pause'}});
+document.querySelectorAll('.shot[data-bbox]').forEach(s => { s.style.backgroundImage = `url("${esri(s.dataset.bbox, 800, 600)}")`; });
+</script>
+</body>
+</html>

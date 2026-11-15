@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from 'vitest'
-import { api, type Session } from './api'
+import { api } from './api'
 import { toMapData, type FrontendMapBundle } from './mapData'
 
 const bundle: FrontendMapBundle = {
@@ -48,21 +48,34 @@ it('preserves missing acquisitions and unavailable raster layers', () => {
   expect(data.radar_layers).toEqual([])
 })
 
-it('uses the backend bundle for a non-synthetic session', async () => {
+const signedIn = { user_id: 'analyst', role: 'analyst', area_scopes: ['south-lebanon-demo'], csrf_token: 'c', synthetic: false }
+
+it('signed in: uses the released backend bundle', async () => {
   const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => bundle })
   vi.stubGlobal('fetch', fetchMock)
-  const session: Session = { user_id: 'a', role: 'analyst', area_scopes: ['area-1'], csrf_token: 'c', synthetic: false }
-  const result = await api.mapData(session)
+  const result = await api.mapData(signedIn)
   expect(result.sample).toBe(false)
   expect(fetchMock).toHaveBeenCalledWith('/api/v1/map/context?limit=100', expect.objectContaining({ credentials: 'include' }))
 })
 
-it('keeps the bundled fixture only for explicitly synthetic sessions', async () => {
+it('signed in: a backend error is shown, never replaced by sample data', async () => {
+  const fetchMock = vi.fn().mockResolvedValue({ ok: false, json: async () => ({ error: { code: 'UNAVAILABLE', message: 'no evidence', request_id: 't', details: [] }, synthetic: false }) })
+  vi.stubGlobal('fetch', fetchMock)
+  await expect(api.mapData(signedIn)).rejects.toMatchObject({ error: { code: 'UNAVAILABLE' } })
+  expect(fetchMock).toHaveBeenCalledTimes(1)
+})
+
+it('signed out: loads only the labelled sample file and never asks for real data', async () => {
   const sample = toMapData(bundle)
   const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => sample })
   vi.stubGlobal('fetch', fetchMock)
-  const session: Session = { user_id: 'demo', role: 'officer', area_scopes: ['demo'], csrf_token: '', synthetic: true, demo: true }
-  const result = await api.mapData(session)
+  const result = await api.mapData(null)
   expect(result.sample).toBe(true)
+  expect(fetchMock).toHaveBeenCalledTimes(1)
   expect(fetchMock).toHaveBeenCalledWith('/sample/civisar-3d-sample.json', { cache: 'no-store' })
+})
+
+it('no session when the backend answers 401', async () => {
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, json: async () => ({ error: { code: 'UNAUTHENTICATED' } }) }))
+  expect(await api.currentSession()).toBeNull()
 })

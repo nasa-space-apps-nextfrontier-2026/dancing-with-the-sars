@@ -8,5 +8,7 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   { files: ['**/*.{ts,tsx}'], plugins: { 'react-hooks': reactHooks },
     languageOptions: { globals: globals.browser },
-    rules: reactHooks.configs.recommended.rules }
+    rules: reactHooks.configs.recommended.rules },
+  // landing scene is plain browser JS (src/features/landing/landingScene.js)
+  { files: ['src/**/*.js'], languageOptions: { globals: globals.browser, sourceType: 'module' } }
 )

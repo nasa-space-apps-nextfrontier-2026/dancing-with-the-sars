@@ -232,7 +232,6 @@ export class MapEngine {
         if (v.scene.globe.tilesLoaded || performance.now() - t0 > 6000) { off(); setTimeout(() => { if (!this.destroyed) this.flyBird(7) }, 1600) }
       })
     }
-    this.loadRoads()
   }
   mount2d(el: HTMLElement) {
     if (this.v2) return
@@ -298,27 +297,8 @@ export class MapEngine {
     this.drawPaths(v)
   }
 
-  /* ---------- routes on real roads (free OSRM demo server) ---------- */
-  private async osrm(coords: [number, number][]) {
-    const a = coords[0], b = coords[coords.length - 1]
-    const url = `https://router.project-osrm.org/route/v1/driving/${a[0].toFixed(5)},${a[1].toFixed(5)};${b[0].toFixed(5)},${b[1].toFixed(5)}?overview=full&geometries=geojson`
-    const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 8000)
-    try {
-      const j = await (await fetch(url, { signal: ctl.signal })).json()
-      return j.code === 'Ok' && j.routes[0].geometry.coordinates.length > 1 ? (j.routes[0].geometry.coordinates as [number, number][]) : null
-    } catch { return null } finally { clearTimeout(t) }
-  }
-  private async loadRoads() {
-    let ok = 0
-    for (const p of this.paths) { // one at a time: polite to the free demo server
-      if (this.destroyed) return
-      const g = await this.osrm(p.coords)
-      if (g) { p.coords = g; p.source = 'osm'; ok++ }
-    }
-    this.roadsLoaded = true
-    ;[this.v3, this.v2].forEach(v => v && this.drawPaths(v)); this.refresh(); this.ev.roads()
-    if (!ok) this.ev.banner('Road routing could not be reached. Showing sample route lines instead.')
-  }
+  /* Routes and shelters are demo-only (doc 07): sample lines are drawn as they are. No public routing
+     server is called, so no coordinates leave the browser for routing (doc 03: no external routing). */
   private drawPaths(v: C.Viewer) {
     (v.entities.values as Tagged[]).filter(e => e._path).forEach(e => v.entities.remove(e))
     const near = new C.DistanceDisplayCondition(0, 7000)

@@ -1,6 +1,6 @@
 <!doctype html>
 <!--
-  CIVISAR · 3D incident map — clickable MOCKUP (sample data only, no backend).
+  RescueForce · 3D incident map (dashboard) — clickable MOCKUP (sample data only, no backend).
   Serve this folder (python -m http.server 8765) and open civisar-3d-map-mockup.html.
   Cesium ion token (free): put  window.CESIUM_ION_TOKEN = "…";  in docs/design/.env.cesium.js
   (git-ignored by the .env.* rule) or paste it in the start box (kept in this browser only).
@@ -9,7 +9,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CIVISAR 3D Map</title>
+<title>RescueForce Map</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cesium@1.121.0/Build/Cesium/Widgets/widgets.css">
@@ -59,8 +59,8 @@ body.mode-split .viewlabel{display:block}
 #top>*{pointer-events:auto}
 .pill{display:flex;align-items:center;height:48px;border-radius:var(--r-pill);padding:0 6px}
 .brand{gap:10px;padding:0 16px 0 10px}
-.logo{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#2a3238,#0d1114);border:1px solid var(--stroke-2)}
-.brand b{font:700 15px/1 var(--sans);letter-spacing:.14em}
+.logo{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(140deg,#ff8a4d,#f5904f 40%,#c2410c);box-shadow:0 0 16px rgba(255,138,77,.3)}
+.brand b{font:700 15px/1 var(--sans);letter-spacing:.02em}
 .brand small{font:500 12px/1 var(--sans);color:var(--ink-3);margin-left:2px}
 .tabs{gap:2px}
 .tab{height:36px;background:none;border:0;padding:0 14px;border-radius:var(--r-pill);color:var(--ink-3);cursor:pointer;font-weight:500;font-size:14px;transition:background .2s,color .2s}
@@ -277,7 +277,7 @@ body.focus #exitFocus{display:inline-flex}
 <div id="vig"></div>
 
 <header id="top">
-  <div class="pill glass brand"><span class="logo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f1f4f3" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4c2.5 3 2.5 13 0 16M12 4c-2.5 3-2.5 13 0 16"/></svg></span><b>CIVISAR</b><small>South Lebanon</small></div>
+  <a class="pill glass brand" href="rescueforce-landing-mockup.html" title="RescueForce home"><span class="logo"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 3v6M12 15v6M3 12h6M15 12h6"/><circle cx="12" cy="12" r="2.2" fill="#fff" stroke="none"/></svg></span><b>RescueForce</b></a>
   <nav class="pill glass tabs" aria-label="Pages">
     <button class="tab" aria-current="page" data-page="map">Map</button>
     <button class="tab" data-page="alerts">Alerts</button>
