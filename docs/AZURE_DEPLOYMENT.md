@@ -1,19 +1,20 @@
 # Azure public demo deployment
 
-Deploy the public, labelled sample-data frontend to Azure Static Web Apps using the Free plan. This does not deploy the FastAPI backend, PostGIS database, scheduler or radar processing. The Sources catalogue API remains unavailable until a backend is separately configured. Do not publish local datasets or server environment files.
+The public, labelled sample-data frontend uses Azure App Service, Linux Free F1, in Central India. This does not deploy FastAPI, PostGIS, the scheduler or radar processing. The Sources catalogue API remains unavailable until a backend is separately configured. Do not publish local datasets or server environment files.
 
-Use these deployment settings:
+## Hosting
 
-- Repository: `nasa-space-apps-nextfrontier-2026/dancing-with-the-sars`
-- Branch: the reviewed branch containing the Azure configuration; merge via a PR into `dev`, never push to `main`.
-- App location: `frontend`
-- API location: leave empty
-- Output location: `dist`
-- Build: `npm ci` followed by `npm run build`, using Node 24.
-- Plan: Free.
+- Subscription: Azure for Students.
+- App: `rescueforce-demo`.
+- Resource group: `rescueforce-demo_group-bf42`.
+- Domain: `https://rescueforce-demo-f7dpg9fzfaashefk.centralindia-01.azurewebsites.net`.
+- Plan: Free F1, Linux, Node 22 LTS; paid monitoring add-ons are not enabled.
+- Deployment branch: `feature/m4-azure-deployment`, reviewed through a PR into `dev`. Never push to `main`.
 
-`frontend/public/staticwebapp.config.json` is copied by Vite to the deployment output. Its fallback supports opening and refreshing `/map` directly, while missing APIs and static assets keep their error responses.
+Build with Node 24: `npm ci` and `npm run build` in `frontend/`. The deployment artifact contains only `frontend/dist/`, `frontend/server.mjs`, and the runtime manifest `infrastructure/azure/package.json`. Start with `npm start`. The dependency-free Node host serves `/` and `/map`, keeps missing APIs/assets as errors, and does not expose repository files. GitHub deployment uses a federated Azure identity rather than a stored Azure password.
 
-An optional `VITE_CESIUM_ION_TOKEN` is a browser-visible build setting. Use only a Cesium token intended for public clients, restricted to the deployed domain. Never place NASA, database or server credentials in Vite variables. Without a Cesium token, the documented flat-ground map mode remains available.
+Azure Static Web Apps cannot currently be created in this student subscription: its allowed regions are Korea Central, UAE North, Central India, India South Central and Malaysia West, with no overlap with Static Web Apps regional options. `frontend/public/staticwebapp.config.json` remains available for a future Static Web Apps deployment if region eligibility changes; it has no effect on the Node host.
 
-After deployment, check `/`, direct navigation and refresh at `/map`, sample-data loading, the Sample data badge and the Sources panel's unavailable state. Verify the actual subscription offer and credit balance separately; a generic Azure subscription name does not establish student-credit eligibility. Keep the student spending limit and do not upgrade to a paid plan as part of this demo deployment.
+An optional `VITE_CESIUM_ION_TOKEN` is browser-visible. Use only a Cesium token intended for public clients, restricted to the deployed domain. Never put NASA, database or server credentials in Vite variables. Without a token, the documented flat-ground map mode remains available.
+
+After deployment, check `/`, direct navigation and refresh at `/map`, sample-data loading, the Sample data badge and the Sources panel's unavailable state. Free F1 has daily compute limits and cold starts. Review the runtime version before support expires. Keep the student spending limit; do not upgrade to a paid plan as part of this demo deployment.
