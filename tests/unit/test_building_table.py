@@ -67,6 +67,21 @@ def test_damage_is_the_cell_result():
     assert pd.isna(r.loc["d", "second_sensor_agrees"])  # not a candidate cell: does not apply
 
 
+def test_high_never_below_low_and_uncounted_people_reported():
+    base, heights, damage, pop = frames()
+    # a cell whose low and high are close: separate rounding used to give low > high for a building
+    pop.loc[pop["cell_id"] == "c1", ["pop_low", "pop_high"]] = [100.4, 100.6]
+    pop = pd.concat([pop, pd.DataFrame({"cell_id": ["c9"], "pop_low": [40.0], "pop_high": [55.0],
+                                        "pop_year": [2020]})])          # people, no building at all
+    rows, people = table.build(base, heights, damage, pop)
+    known = rows.dropna(subset=["residents_low"])
+    assert (known["residents_low"] <= known["residents_high"]).all()
+    c1 = rows[rows["h3_r9"] == "c1"]
+    assert int(c1["residents_low"].sum()) == 100 and int(c1["residents_high"].sum()) == 101
+    assert people["cells_with_people_but_no_building"] == 1
+    assert (people["people_in_cells_without_buildings_low"], people["people_in_cells_without_buildings_high"]) == (40, 55)
+
+
 def test_spread_is_exact_and_proportional():
     out = table.spread(10, np.array([1.0, 1.0, 1.0]))
     assert out.sum() == 10 and sorted(out.tolist()) == [3, 3, 4]
