@@ -28,5 +28,6 @@ export function Icon({ name, size = 20 }: { name: IconName; size?: number }) {
     aria-hidden="true" dangerouslySetInnerHTML={{ __html: P[name] }} />
 }
 export function Logo() {
-  return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f1f4f3" strokeWidth="1.8" aria-hidden="true"><circle cx="12" cy="12" r="8" /><path d="M4 12h16M12 4c2.5 3 2.5 13 0 16M12 4c-2.5 3-2.5 13 0 16" /></svg>
+  return <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M12 3v6M12 15v6M3 12h6M15 12h6" /><circle cx="12" cy="12" r="2.2" fill="#fff" stroke="none" /></svg>
 }
+

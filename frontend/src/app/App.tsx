@@ -1,25 +1,21 @@
-import { useEffect, useState } from 'react'
-import { api, type Session } from '../services/api'
-import { SignIn } from '../features/signin/SignIn'
-import { MapScreen } from '../features/map/MapScreen'
+import { lazy, Suspense } from 'react'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
-/** Login is required: the map only renders for a signed-in session. */
+// Each page loads its own code: the landing page never downloads Cesium, the dashboard never downloads three.js.
+const Landing = lazy(() => import('../features/landing/Landing').then(m => ({ default: m.Landing })))
+const MapScreen = lazy(() => import('../features/map/MapScreen').then(m => ({ default: m.MapScreen })))
+
+/** Two public routes: the landing page and the dashboard. No sign-in. */
 export function App() {
-  const [session, setSession] = useState<Session | null>(null)
-  const [checking, setChecking] = useState(true)
-
-  useEffect(() => {
-    let live = true
-    api.session().then(s => { if (live) setSession(s) }).catch(() => {}).finally(() => { if (live) setChecking(false) })
-    return () => { live = false }
-  }, [])
-
-  async function signOut() {
-    if (session && !session.demo) await api.signOut(session.csrf_token).catch(() => {})
-    setSession(null)
-  }
-
-  if (checking) return <main className="signin"><span className="muted small">Checking session…</span></main>
-  if (!session) return <SignIn onSignIn={setSession} />
-  return <MapScreen session={session} onSignOut={signOut} />
+  return (
+    <BrowserRouter>
+      <Suspense fallback={<div style={{ position: 'fixed', inset: 0, background: '#05070a' }} />}>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/map" element={<MapScreen />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
+    </BrowserRouter>
+  )
 }

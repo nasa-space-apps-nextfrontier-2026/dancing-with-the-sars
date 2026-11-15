@@ -1,6 +1,6 @@
 # CIVISAR frontend
 
-> **UI changed (15 Nov 2026, Thanoban):** the UI source of truth is now the dark 3D map mockup `docs/design/civisar-3d-map-mockup.html` (spec: `docs/26_3D_MAP_UI_AND_FRONTEND.md`). The old light prototype is archived in `docs/design/archive/`. MapLibre was replaced by CesiumJS.
+> **UI changed (15 Nov 2026, Thanoban):** the product is now called **RescueForce**. The UI sources of truth are the landing mockup `docs/design/rescueforce-landing-mockup.html` and the dark 3D map mockup `docs/design/civisar-3d-map-mockup.html` (spec: `docs/26_3D_MAP_UI_AND_FRONTEND.md`). The old light prototype is archived in `docs/design/archive/`. MapLibre was replaced by CesiumJS.
 
 ## Run
 
@@ -9,16 +9,18 @@ npm install
 npm run dev        # http://127.0.0.1:5173
 ```
 
-- **Sign-in is required.** The app calls `POST /api/v1/session` (proxied to the backend on :8000). With no backend running, the sign-in screen offers "Continue with demo session (sample data)".
-- **Cesium token (free):** put `VITE_CESIUM_ION_TOKEN=...` in `frontend/.env.local` (git-ignored), or paste it in the box the app shows. Without it the map still works: flat ground, no 3D buildings.
+- **Routes:** `/` is the RescueForce landing page (3D Earth story), `/map` is the dashboard. Every "Try" / "Open RescueForce" link goes to `/map`.
+- **No sign-in (decided 15 Nov 2026).** Both pages are public; the sign-in screen was removed. The backend session endpoints still exist but the frontend no longer calls them.
+- **Cesium token (free):** put `VITE_CESIUM_ION_TOKEN=...` in `frontend/.env.local` (git-ignored); set the same variable in the deploy build. Visitors are never asked for it. Without it the map works on flat ground; developers can add one from the dashboard's ⋯ menu.
 - Checks: `npm run lint`, `npx tsc -b`, `npm test`.
 
 ## Layout of the code
 
 | Path | What |
 | --- | --- |
-| `src/app/App.tsx` | Session check and the sign-in gate. |
-| `src/features/signin/SignIn.tsx` | Sign-in screen (same dark glass design). |
+| `src/app/App.tsx` | Routes: `/` landing, `/map` dashboard. |
+| `src/app/usePageStyle.ts` | Loads each page's own stylesheet only while it is mounted (the two designs share class names). |
+| `src/features/landing/` | Landing page: `Landing.tsx`, markup, `landing.css`, and `landingScene.js` (three.js Earth, GSAP scroll story, Lenis smooth scroll, fire and smoke). Ported from `docs/design/rescueforce-landing-mockup.html`. |
 | `src/features/map/MapScreen.tsx` | Top bar, rail, dock, token box; owns UI state and drives the engine. |
 | `src/features/map/panels.tsx` | Incident panel (Summary, Impacts, Shelters, Power, Insights), building and shelter detail, ranking, decision assistant, budget, layers, legend. |
 | `src/features/map/engine.ts` | All CesiumJS code: globe, terrain, OSM buildings, overlays, fire/damage effects, OSRM road routes, camera flights, 2D/3D/split. |
