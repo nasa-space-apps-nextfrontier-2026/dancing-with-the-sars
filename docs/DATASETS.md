@@ -16,7 +16,7 @@ Demo area search box: south Lebanon, 35.0–36.0 E, 33.0–33.6 N.
 
 | Mark | Meaning |
 |---|---|
-| 🟢 **Tab** | Named and linked directly on our challenge's Resources tab |
+| 🟢 **Tab** | Reached through the links on our challenge's Resources tab (the tab does not list the dataset by name) |
 | 🔵 **Tab tool** | Found and downloaded through a tool linked on the Resources tab (NASA Earthdata Search or ASF Vertex) and their APIs |
 | ⚪ **Other** | From another source (other challenge pages, team PDF, humanitarian data) |
 
