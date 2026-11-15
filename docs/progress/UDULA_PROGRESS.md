@@ -4,7 +4,7 @@ Read this to see what Udula has finished, what is waiting, and what needs a team
 
 ## 1. Summary
 
-**Everything is merged into `dev`.** No pull request is open (15 November 2026, `dev` at `7b1eec2`, which also includes Rashiru's `bc5b122`: `/map/context` and the frontend map bundle built on the U-06 tables).
+**Everything is merged into `dev`.** The team asked Udula to merge everything and finalise it; the open items and decisions were then finished the same day (PRs #47 to #50, section 6b). Only the night-light history is still being built (it needs the Earthdata token).
 
 | Area | State | PR |
 |---|---|---|
@@ -17,6 +17,10 @@ Read this to see what Udula has finished, what is waiting, and what needs a team
 | U-06 API endpoints on PostGIS | Merged | [#43](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/43) |
 | U-07 key names | Merged | [#36](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/36) |
 | Session `expires_at` fix (found in the end-to-end check) | Merged | [#44](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/44) |
+| Facilities on PostGIS (migration 0007) | Merged | [#48](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/48) |
+| Source register (contract-valid, sources used) | Merged | [#49](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/49) |
+| Landing page with sign-in kept for real data (Thanoban's #47, fixed) | Merged | [#47](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/47) |
+| Decision log, one-command demo setup, no residents per building | Merged | [#50](https://github.com/nasa-space-apps-nextfrontier-2026/dancing-with-the-sars/pull/50) |
 
 Udula also fixed and merged the team pull requests that had to land with the backend (section 6). All recorded commits are under Udula's name with no AI co-author line.
 
@@ -80,38 +84,38 @@ The team asked Udula to merge everything together. Fixes made so each PR was cor
 
 Tests that need packages CI does not install (pandas, pyarrow) skip cleanly instead of failing.
 
+## 6b. Finalisation (15 November 2026, PRs #47 to #50)
+
+- **Facilities (#48):** migration 0007 and `scripts/load_facilities.py`; only sites inside the Lebanon boundary (383 of 543: the demo box also covers northern Israel); analysts get no location, officer and above get the point; operating status Unknown; damage status from the cell's radar result. Demo mode no longer reads real files from `data/local`.
+- **Source register (#49):** 6 non-radar sources actually used, every record contract-valid (CMR concept IDs checked); `/sources` serves the radar export plus the register (13 records).
+- **Landing page and sign-in (#47):** Thanoban's landing page and open sample dashboard kept; sign-in brought back for real data; no public OSRM routing calls; sample shelters no longer name real buildings; missing inputs read Unknown instead of 0. Checked in the browser with real data.
+- **Decisions and demo setup (#50):** D19 to D29 in doc 12; `python -m scripts.demo_setup` runs the whole real-data setup (checked end to end); no residents per building in the dashboard.
+
 ## 7. End-to-end check of merged `dev` (15 November 2026)
 
 | Check | Result |
 |---|---|
 | GitHub CI (python-and-contracts, frontend) | Passed on #43 and #44 |
-| Tests, CI-like environment | 226 passed, 12 skipped |
-| Tests, full environment | 273 passed, 1 skipped |
+| Tests, CI-like environment | 238 passed, 12 skipped |
+| Tests, full environment | 285 passed, 1 skipped; frontend 30 tests, lint, type check, build |
 | Ruff, contract validator (45 operations), scaffold, secrets | Pass |
 | Building table, worker publish (live FIRMS), agents on real data | Pass (numbers in section 5). One run crashed once while loading pandas; the rerun passed and it did not happen again. |
 | Worker scheduler once against PostGIS | FIRMS ok (1 new fire alert); night lights unavailable (no history file on this machine); clean-up ok |
 | PostGIS 16 in Docker: migration 0006 upgrade, downgrade, upgrade | Pass |
 | Agent output load | 131 incidents, 393 recommendations, 6 insights, 131 budgets, 268,536 buildings; all geometries valid, EPSG:4326; a reload replaces the previous run |
-| API smoke test, real-data mode, temporary local users | 47 of 47 calls pass and match the contract schemas (including Rashiru's `/map/context`): logged-out 401; officer 403 on admin audit; narrow-scope officer sees only their area (also in `/map/context`) and gets 403 elsewhere; oversized `/buildings` bbox refused; no resident fields; printed brief has the RESTRICTED banner. Test rows (brief, review, audit) deleted afterwards. |
+| API smoke test, real-data mode, temporary local users | 50 of 50 calls pass and match the contract schemas (including Rashiru's `/map/context`): logged-out 401; officer 403 on admin audit; narrow-scope officer sees only their area (also in `/map/context`) and gets 403 elsewhere; oversized `/buildings` bbox refused; no resident fields; printed brief has the RESTRICTED banner. Test rows (brief, review, audit) deleted afterwards. |
 
-## 8. Decisions and reviews still required
+## 8. Decisions
 
-1. **Height target:** 57% within one storey rather than 70%; proposed wording is a satellite-estimated range with a warning that towers are underestimated.
-2. **Fire delay:** `FIRE_RELEASE_DELAY_HOURS=0` shows fires to signed-in roles at once; decide whether a delay is needed.
-3. **Rebuild scope:** `PROJECT_PLAN.md` says no rebuilding while doc 24 adopted a budget feature; reconcile scope.
-4. **Full-AOI COG access:** decide whether broad `south-lebanon-demo` users keep downloads; cell-scoped users fail closed.
-5. **Public map:** kept off (decision of 15 November). Only revisit with the review in section 4.
+Taken on 15 November 2026 and recorded in [doc 12](../12_RISK_REGISTER_AND_DECISION_LOG.md) as D19 to D29, each with where it is enforced (public map off, sign-in for real data, routes and shelters demo-only, height range with tower warning, fire delay 0, budget-only rebuild scope, radar downloads, facilities, no people per building, Unknown instead of zero, source list).
 
 Points kept in the product: no residents per building are exposed; people stay at cell level; unknown cells are grey in the 3D view and never look undamaged; building damage is always the enclosing cell result; building heights describe the stock of about 2018, before the war.
 
-## 9. Remaining and dependencies
+## 9. Remaining
 
-| Needs | From | State | Unlocks |
-|---|---|---|---|
-| Facilities loaded into the backend (K-03 merged in #27) | Kisara / Udula | Not loaded; `/areas/{id}/facilities` returns 503 | Facilities route, alert rings, ranking facility part. Must respect doc 07 (no public inventory of critical facilities). |
-| Source register passing the `SourceRecord` schema (K-05 merged in #29) | Kisara | Fails the schema (extra `update_frequency`, nulls, 17 "VERIFY" values); not served as real data | Real `/sources` from the register |
-| Night-light history (`NIGHTLIGHT_HISTORY`) | Thanoban | Not on this machine | Possible power-loss alerts |
-| Roads and shelters | M2-04, M2-05 | Not started | Routes, closures and shelters (503 until then) |
-| Frontend real-data switch | Rashiru | Started in `bc5b122` (`/map/context`, map bundle, timeline); API checked, not checked in a browser here | Real data in the frontend |
+| Item | State |
+|---|---|
+| Night-light history (`NIGHTLIGHT_HISTORY`) | `worker/services/blackmarble_history.py` now runs locally; needs the Earthdata token file, then power-loss alerts turn on |
+| Routes and shelters | Demo-only by decision D21 |
 
-Known limits: sessions, revocation and the sign-in limit are kept in process memory, so a multi-worker deployment needs shared storage first; a database outage during the final job-status write still needs stale-run recovery; there is no independent damage validation for Lebanon. This backend is a demo, not production-ready. The WorldPop source record is still missing from `sources.json`.
+Known limits: sessions, revocation and the sign-in limit are kept in process memory, so a multi-worker deployment needs shared storage first; a database outage during the final job-status write still needs stale-run recovery; there is no independent damage validation for Lebanon. This backend is a demo, not production-ready. The real `/map/context` bundle takes about 15-20 s for 100 incidents.
