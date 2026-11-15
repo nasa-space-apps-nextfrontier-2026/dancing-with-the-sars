@@ -4,6 +4,7 @@ damage class its cell does not have). All values are made up for the test."""
 import pytest
 
 pytest.importorskip("pandas")
+pytest.importorskip("pyarrow")  # pipelines/buildings import pyarrow; CI does not install it
 
 import numpy as np
 import pandas as pd
