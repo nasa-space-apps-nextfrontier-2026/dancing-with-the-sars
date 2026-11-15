@@ -1,4 +1,4 @@
-/* RescueForce landing page. Ported from docs/design/rescueforce-landing-mockup.html.
+/* ConflictPulse landing page. Ported from docs/design/rescueforce-landing-mockup.html.
    Injected only while the landing route is mounted, so it never mixes with the dashboard styles. */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap");
 
@@ -220,7 +220,7 @@ footer::before{content:"";position:absolute;left:50%;top:-1px;width:min(900px,90
 .principles{display:flex;flex-wrap:wrap;gap:8px;margin-top:40px}
 .principles span{display:inline-flex;align-items:center;gap:8px;height:30px;padding:0 12px;border-radius:999px;border:1px solid var(--stroke-2);font-size:12.5px;color:var(--ink-2)}
 .principles span::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--ev-corroborated)}
-.foot-word{margin:56px 0 0;font:400 clamp(64px,15vw,220px)/.8 var(--serif);letter-spacing:-.03em;background:linear-gradient(180deg,rgba(241,244,243,.16),rgba(241,244,243,0) 85%);-webkit-background-clip:text;background-clip:text;color:transparent;user-select:none;white-space:nowrap}
+.foot-word{margin:56px 0 0;font:400 clamp(52px,12.5vw,190px)/.8 var(--serif);letter-spacing:-.03em;background:linear-gradient(180deg,rgba(241,244,243,.16),rgba(241,244,243,0) 85%);-webkit-background-clip:text;background-clip:text;color:transparent;user-select:none;white-space:nowrap}
 .foot-bottom{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:18px;padding-top:22px;border-top:1px solid var(--stroke);font-size:12.5px}
 
 /* ---------- responsive ---------- */

@@ -4,14 +4,12 @@ Status: 15 Nov 2026 (Thanoban). One place to prepare the presentation. Every num
 
 **One line:** RescueForce turns free satellite data (radar, night lights, fires) plus open maps (buildings, population, facilities) into a ranked list of places that may need help, with the reasons, the uncertainty and suggested next checks. **It suggests; a person decides.**
 
-**Positioning (15 Nov 2026):** RescueForce now leads with **NISAR change over time**: archive analysis of each satellite pass, shown pass by pass. The dashboard has two equal modes, **Change over time** and **Responder**. Radar is never described as live detection. Full plan: [doc 34](34_CHANGE_OVER_TIME_VIEW.md).
-
 ---
 
 ## 1. Product in one minute
 
 - **Landing page** (`/`): the story (3D Earth → dive to the affected area → what responders see) and the "Try RescueForce" button.
-- **Dashboard** (`/map`): 3D, 2D and split map, with two modes: **Change over time** (pass-by-pass chart, polarizations, likely drivers, cost per pass; section 13) and **Responder**. Incident ranking, insights, decision assistant, rebuild budget, building and shelter details, a satellite-pass timeline and a Sources panel.
+- **Dashboard** (`/map`): 3D, 2D and split map. Incident ranking, insights, decision assistant, rebuild budget, building and shelter details, a satellite-pass timeline and a Sources panel.
 - **No sign-in** (team decision, 15 Nov 2026, PR #47): the public demo shows **labelled sample data**. Real released data needs a separate public-release step on the backend (doc 31).
 - Rules everywhere: evidence labels **Observed / Reported / Corroborated / Unknown**; numbers as **ranges**; damage and routes are **candidates / not verified**; never the word "safe"; no vehicle or phone tracking; a missing input is **Unknown, never 0**.
 
@@ -47,12 +45,12 @@ Status: 15 Nov 2026 (Thanoban). One place to prepare the presentation. Every num
 
 **Short answer for judges:** fires and night lights are live feeds; radar damage is real but arrives per satellite pass (days, not minutes); population and buildings are fixed pre-war datasets. The public website shows labelled sample data so nobody mistakes it for a live operational picture.
 
-### Can radar results update automatically?
+### Can it become a live detection system?
 
-Yes, per satellite pass, step by step, and the plumbing exists (`worker/scheduler.py`):
+Yes, step by step, and the plumbing exists (`worker/scheduler.py`):
 1. **Already scheduled:** fires every 30 min, night lights daily (`python -m worker.scheduler`).
 2. **Next:** a job that checks ASF every day for new NISAR / Sentinel-1 passes over the area, runs the processing and the model, and publishes new candidates (the code for each step exists in `pipelines/radar/nisar/`; it runs by hand on Colab today).
-3. **Limits we cannot remove:** radar only sees an area when the satellite passes (days apart); processing takes compute; building changes show about **72 hours** after a pass in the UI. So radar is **archive analysis updated per satellite pass**, never live detection. Only FIRMS and Black Marble are near-real-time feeds.
+3. **Limits we cannot remove:** radar only sees an area when the satellite passes (days apart); processing takes compute; building changes show about **72 hours** after a pass in the UI. So "live" means **near real time per satellite pass**, not CCTV.
 
 ---
 
@@ -187,32 +185,7 @@ Context: the World Bank Lebanon RDNA (7 Mar 2025) puts total recovery needs at a
 
 ---
 
-## 13. Change over time and polarizations
-
-Full plan: [doc 34](34_CHANGE_OVER_TIME_VIEW.md). Study area: **South Lebanon · NISAR track 151 descending, frame 72** (`data/manifests/nisar.json`, GCOV, HH and HV). One pass every **12 days**: **17 passes acquired, 15 missed**. Missed passes are gaps on the chart, never filled. The 2026-08-23 HV pass is marked suspect (about 2 dB too bright).
-
-**What each polarization shows**
-- **HH** (horizontal send, horizontal receive): strongest where walls and ground form corners ("double bounce"). A collapse removes those corners, so **HH drops**.
-- **HV** (cross-polarized): from rough surfaces and vegetation ("volume" scattering). Rubble can make **HV rise**; burnt orchards and fields make **HV drop**.
-- **HH−HV** (ratio): separates **structure lost** (HH falls more) from **vegetation lost** (HV falls more).
-
-**Likely drivers (always a hypothesis, with look-alikes)**
-
-| Pattern | Likely driver | Rule out |
-| --- | --- | --- |
-| Sharp HH drop that stays | Building collapse | Demolition for construction, wet season |
-| HV rise that stays | Rubble and debris | Construction, crops growing |
-| HV drop near a FIRMS fire | Fire scar | Harvest, seasonal leaf loss |
-| HH and HV up for one pass only | Not war-related: rain, soil moisture | — |
-| Slow HV rise and fall each year | Not war-related: vegetation season | — |
-
-Causes are always "likely", with what would confirm them (optical image, field report, Sentinel-1, the next pass).
-
-**Budget per pass:** the rebuild budget (section 11) is recalculated at every acquired pass, using the damage candidates seen up to that pass. It is drawn as a range line under the chart, labelled "Planning indication only". In the public app the series is labelled sample data.
-
----
-
-## 14. Likely judge questions (short answers)
+## 13. Likely judge questions (short answers)
 
 1. **Is this live?** Fires (every 30 min) and night lights (daily) are live feeds. Radar damage updates per satellite pass (days). Population and buildings are fixed datasets. The public demo uses labelled sample data.
 2. **Is the data real?** Yes in the backend: real NISAR, Sentinel-1, FIRMS, Black Marble, WorldPop, OSM, GHSL. The public site uses sample data on purpose, because it is not an operational system.
@@ -227,15 +200,11 @@ Causes are always "likely", with what would confirm them (optical image, field r
 11. **Privacy and safety?** No tracking of people or vehicles; no external routing calls with locations; alerts are stored per neighbourhood; real places are not labelled as shelters publicly; nothing is called "safe".
 12. **What is the population number?** WorldPop 2020, two models; we show the smaller and larger as a range. It is pre-war, so it does not include displacement.
 13. **Costs and keys?** All data is free and open. Keys: Earthdata login (free), Cesium ion token (free). No paid APIs.
-14. **Which polarization shows what?** HH shows buildings (double bounce) and drops when they collapse. HV shows rough surfaces and vegetation: rubble can raise it, burnt vegetation lowers it. HH−HV tells structure loss from vegetation loss.
-15. **Why is it not live?** NISAR passes every 12 days, products arrive days later, and 15 of 32 passes over our area are missing. So we show archive analysis per satellite pass, not live detection. Only fires and night lights are near-real-time feeds.
-16. **What does the time series show?** For each pass: damage-candidate cells (bars) and backscatter change against the pre-war baseline (line) for HH, HV or HH−HV. Missed passes are gaps. A sentence says what changed, and a likely driver is given with alternatives.
-17. **How is the budget per pass calculated?** The same formula as section 11 (floor area × damage share × cost per m²), rerun with the damage seen up to each pass. It is a range, "planning indication only".
-18. **What would you build next?** Automatic processing of each new radar pass, local road routing, real shelter capacities, field-report input to raise or lower evidence, and validation against ground truth.
+14. **What would you build next?** Daily automatic radar job, local road routing, real shelter capacities, field-report input to raise or lower evidence, and validation against ground truth.
 
 ---
 
-## 15. Where to look in the repo
+## 14. Where to look in the repo
 
 | Topic | Files |
 | --- | --- |
@@ -247,4 +216,3 @@ Causes are always "likely", with what would confirm them (optical image, field r
 | Agents (ranking, budget, assistant, insights) | `worker/agents/` |
 | Backend real-data mode | `docs/31_BACKEND_REAL_DATA.md` |
 | UI and frontend | `docs/26_3D_MAP_UI_AND_FRONTEND.md`, `frontend/README.md` |
-| Change over time view | `docs/34_CHANGE_OVER_TIME_VIEW.md`, `frontend/src/features/map/ChangeOverTime.tsx` |

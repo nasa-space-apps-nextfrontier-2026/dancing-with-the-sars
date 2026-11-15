@@ -23,10 +23,6 @@ Source: ARCHITECTURE.md §4.3 and PROJECT_PLAN.md §§2/5/6. Show humanitarian d
 
 Times are ARCHITECT RECOMMENDATION, not a known competition video limit. M4 verifies submission requirements and adjusts. Rehearse H32–H38; record H40–H44. No live deployment or submission is performed by this planning task.
 
-## Change over time story (15 Nov 2026)
-
-See [doc 34](34_CHANGE_OVER_TIME_VIEW.md). We follow one study area: **South Lebanon, NISAR track 151 descending, frame 72**. NISAR passes every 12 days; 17 passes were acquired and 15 were missed, and the gaps stay visible. Each pass is archive analysis, not live detection. **HH** shows buildings through double bounce and drops when they collapse. **HV** shows rough surfaces and vegetation: rubble can raise it, burnt orchards lower it. The likely war-related drivers are collapse, rubble and fire scars. We rule out look-alikes such as seasons, rain and farming by checking the pre-war passes and the next pass. Every cause is a hypothesis. The rebuild budget is shown per pass as a range. Future NISAR applications: automatic processing of each new pass, coherence change once short-gap pairs exist, L-band and S-band together, the same view for floods, landslides and earthquakes, and ground validation feeding the evidence labels.
-
 ## Backup and failure narrative
 
 M3 prepares local sanitized demo bundle and second laptop; M4 records the approved journey. Simulate one API outage to demonstrate Cached + last-success instead of pretending live updates. If radar processing fails, show synthetic UI journey plus NISAR metadata and clearly state uncompleted scientific work. Do not imply browse imagery is computed damage. Security failure removes external link until fixed.

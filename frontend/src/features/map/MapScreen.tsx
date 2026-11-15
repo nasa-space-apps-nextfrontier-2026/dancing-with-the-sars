@@ -60,7 +60,7 @@ export function MapScreen() {
   const [, force] = useState(0)
   const playback = useTimelinePlayback(data?.passes ?? EMPTY_PASSES, passIdx, setPassIdx)
 
-  useEffect(() => { document.title = 'RescueForce · Map' }, [])
+  useEffect(() => { document.title = 'ConflictPulse · Map' }, [])
   useEffect(() => {
     api.mapData().then(result => {
       setData(result.data)
@@ -161,7 +161,7 @@ export function MapScreen() {
     <div id="vig" />
 
     <header id="top">
-      <Link to="/" className="pill glass brand" title="Back to the RescueForce home page"><span className="logo"><Logo /></span><b>RescueForce</b></Link>
+      <Link to="/" className="pill glass brand" title="Back to the ConflictPulse home page"><span className="logo"><Logo /></span><b>ConflictPulse</b></Link>
       <nav className="pill glass tabs" aria-label="Pages">
         {(['map', 'alerts', 'areas', 'sources'] as const).map(p => <button key={p} className="tab" aria-current={(p === 'map' && (!left || !left.startsWith('page:'))) || left === `page:${p}` ? 'page' : undefined}
           onClick={() => setLeft(p === 'map' ? null : (`page:${p}` as LeftKey))}>{p[0].toUpperCase() + p.slice(1)}</button>)}
@@ -171,18 +171,18 @@ export function MapScreen() {
       </div>
       <div className="spacer" />
       {sample && <span className="badge-sample" title="All incidents and values are sample data">Sample data</span>}
-      <div className="pill glass seg" role="group" aria-label="Base map">
-        {([['sat', 'Satellite'], ['streets', 'Streets']] as const).map(([k, t]) => <button key={k} aria-pressed={base === k} onClick={() => setBase(k)}>{t}</button>)}
+      <div className="pill glass seg baseseg" role="group" aria-label="Base map">
+        {([['sat', 'Satellite', 'Sat'], ['streets', 'Streets', 'Streets']] as const).map(([k, t, short]) => <button key={k} aria-pressed={base === k} aria-label={t} onClick={() => setBase(k)}><span className="long">{t}</span><span className="short">{short}</span></button>)}
       </div>
-      <div className="pill glass seg" role="group" aria-label="View mode">
+      <div className="pill glass seg viewseg" role="group" aria-label="View mode">
         {([['2d', '2D'], ['3d', '3D'], ['split', 'Split']] as const).map(([k, t]) => <button key={k} aria-pressed={mode === k} onClick={() => setMode(k)}>{t}</button>)}
       </div>
-      <button className="btn glass top-btn" aria-pressed={focus} onClick={() => setFocus(f => !f)}>Focus</button>
-      <button className="btn primary top-btn" id="flyTop" onClick={flyTop}><Icon name="plane" size={16} /><span>Fly to top incident</span></button>
+      <button className="btn glass top-btn" id="focusBtn" aria-pressed={focus} onClick={() => setFocus(f => !f)}>Focus</button>
+      <button className="btn primary top-btn" id="flyTop" onClick={flyTop} title="Fly to biggest change" aria-label="Fly to biggest change"><Icon name="plane" size={16} /><span>Fly to biggest change</span></button>
       <div className="usermenu">
         <button className="avatar" aria-haspopup="menu" aria-expanded={menu} aria-label="Menu" onClick={() => setMenu(m => !m)} title="Menu">⋯</button>
         {menu && <div className="menu glass" role="menu">
-          <div className="who"><b>RescueForce demo</b>Sample data · open access</div>
+          <div className="who"><b>ConflictPulse demo</b>Sample data · open access</div>
           <Link className="btn ghost sm" role="menuitem" to="/">Home page</Link>
           {token
             ? <button className="btn ghost sm" role="menuitem" onClick={() => { setMenu(false); try { localStorage.removeItem(TOKEN_KEY) } catch { /* ignore */ } setToken(null) }}>Forget Cesium token</button>
@@ -215,11 +215,11 @@ export function MapScreen() {
         <div className="steps">{['Regional', 'Descent', 'Arrival', '360° view'].map((t, i) => <div key={t} className={`step${phase === i + 1 ? ' on' : phase > i + 1 ? ' done' : ''}`}>{t}</div>)}</div>
       </div>
       <div className="timeline">
-        <div className="tl-head"><span>Satellite pass&nbsp; <b>{pass.date} · {pass.sensor}</b></span><span>{pass.status === 'missed' ? 'Missed pass · no new data from this date' : 'Building changes appear 72 h after the pass'}</span>
+        <div className="tl-head"><span>NISAR pass&nbsp; <b>{pass.date} · {pass.sensor}</b></span><span>{pass.status === 'missed' ? 'Missed pass · no new data from this date' : 'Changes appear about 72 h after each pass'}</span>
           <button className="btn sm" aria-label={playback.playing ? 'Pause acquisition playback' : 'Play acquisition timeline'} aria-pressed={playback.playing} disabled={!playback.canPlay} onClick={playback.toggle}>{playback.playing ? 'Pause' : 'Play'}</button></div>
         <div className="track">
           <div className="rl" /><div className="fill" style={{ width: `${(passIdx / n) * 100}%` }} />
-          <input type="range" min={0} max={maxPass} step={1} value={passIdx} onChange={e => playback.select(+e.target.value)} aria-label="Satellite pass date" />
+          <input type="range" min={0} max={maxPass} step={1} value={passIdx} onChange={e => playback.select(+e.target.value)} aria-label="NISAR pass date" />
           {data.passes.map((p, i) => <div key={p.id} className={`tick${p.status === 'missed' ? ' missed' : ''}${i === passIdx ? ' cur' : ''}`} style={{ left: `${(i / n) * 100}%` }} title={p.status === 'missed' ? 'Missed pass' : p.sensor} />)}
         </div>
         <div className="ticklabels">{data.passes.map((p, i) => <span key={p.id} style={{ left: `${(i / n) * 100}%` }}>{p.date.slice(5).replace('-', '/')}{p.status === 'missed' ? ' · missed' : ''}</span>)}</div>

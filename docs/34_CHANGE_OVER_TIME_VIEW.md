@@ -2,9 +2,14 @@
 
 Status: 15 Nov 2026 (Thanoban). Agreed in chat before building. Branch `feature/m4-time-series-view` (from PR #47).
 
+> **Objective.** ConflictPulse is an interactive NISAR time-series map for the "Dancing with the SARs" challenge: see how the war changed the area pass by pass (12-day passes; South Lebanon, NISAR track 151 descending, frame 72; 17 passes acquired, 15 missed), which polarization (HH/HV) shows it and the likely physical drivers.
+> A **Responder** view shows what that change may mean for people and services. Radar is archive analysis per satellite pass, never live detection. No sign-in in the public app.
+
+Name: ConflictPulse (the pulse of change in a conflict area, every 12-day NISAR pass), renamed from RescueForce on 15 Nov 2026.
+
 ## 1. Why
 
-The "Dancing with the SARs" challenge asks for an interactive app that shows **how the surface changes over time** with NISAR radar (change maps, time-series animations, dashboards), **which polarizations** show the change, and the **physical drivers** behind it. Radar cannot support live rescue claims: NISAR passes every 12 days, products arrive days later, and 15 passes over our area are missing. So RescueForce now leads with **change over time, pass by pass**, and keeps the responder view next to it. Same map, same data, two equal modes.
+The "Dancing with the SARs" challenge asks for an interactive app that shows **how the surface changes over time** with NISAR radar (change maps, time-series animations, dashboards), **which polarizations** show the change, and the **physical drivers** behind it. Radar cannot support live rescue claims: NISAR passes every 12 days, products arrive days later, and 15 passes over our area are missing. So ConflictPulse now leads with **change over time, pass by pass**, and keeps the responder view next to it. Same map, same data, two equal modes.
 
 **What we claim:** archive analysis of NISAR passes, updated per satellite pass. **What we do not claim:** live detection, confirmed damage, real-time rescue.
 
@@ -95,4 +100,4 @@ Automatic processing of each new pass; coherence (interferometric) change once s
 | Panel | `frontend/src/features/map/ChangeOverTime.tsx` (+ `changeSeries.ts` rules, unit-tested) |
 | Mode switch | `frontend/src/features/map/MapScreen.tsx` |
 | Landing | `docs/design/rescueforce-landing-mockup.html` → `frontend/src/features/landing/` |
-| Docs | this file, doc 33, doc 26 |
+| Docs | this file, doc 35 (ConflictPulse overview and judge Q&A), doc 33, doc 26 |

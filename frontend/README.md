@@ -1,6 +1,6 @@
-# CIVISAR frontend
+# ConflictPulse frontend
 
-> **UI changed (15 Nov 2026, Thanoban):** the product is now called **RescueForce**. The UI sources of truth are the landing mockup `docs/design/rescueforce-landing-mockup.html` and the dark 3D map mockup `docs/design/civisar-3d-map-mockup.html` (spec: `docs/26_3D_MAP_UI_AND_FRONTEND.md`). The old light prototype is archived in `docs/design/archive/`. MapLibre was replaced by CesiumJS.
+> **UI changed (15 Nov 2026, Thanoban):** the product is now called **ConflictPulse** (formerly RescueForce, CIVISAR): an interactive NISAR time-series map of how war changed an area pass by pass. The UI sources of truth are the landing mockup `docs/design/rescueforce-landing-mockup.html` and the dark 3D map mockup `docs/design/civisar-3d-map-mockup.html` (spec: `docs/26_3D_MAP_UI_AND_FRONTEND.md`). The old light prototype is archived in `docs/design/archive/`. MapLibre was replaced by CesiumJS.
 
 ## Run
 
@@ -9,7 +9,7 @@ npm install
 npm run dev        # login-free, labelled synthetic preview at http://127.0.0.1:5173
 ```
 
-- **Routes:** `/` is the RescueForce landing page (3D Earth story), `/map` is the dashboard. Every "Try" / "Open RescueForce" link goes to `/map`.
+- **Routes:** `/` is the ConflictPulse landing page (3D Earth story), `/map` is the dashboard. Every "Try" / "Open" link goes to `/map`.
 - **No sign-in (decided 15 Nov 2026).** Both pages are public and the sign-in page was removed. The backend session endpoints still exist; the frontend does not call them.
 - **Cesium token (free):** put `VITE_CESIUM_ION_TOKEN=...` in `frontend/.env.local` (git-ignored); set the same variable in the deploy build. Visitors are never asked for it. Without it the map works on flat ground; developers can add one from the dashboard's ⋯ menu.
 - **Data:** the labelled sample file ("Sample data" badge) until the backend serves released data publicly. Inputs listed as unavailable show as Unknown, never 0. The Sources panel reads `/api/v1/sources`.

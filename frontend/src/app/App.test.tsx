@@ -9,7 +9,7 @@ afterEach(() => { cleanup(); window.history.pushState({}, '', '/') })
 describe('public routes', () => {
   it('opens on the landing page with links into the map and no sign-in wall', async () => {
     render(<App />)
-    expect((await screen.findByRole('heading', { level: 1 })).textContent).toMatch(/War damages more/)
+    expect((await screen.findByRole('heading', { level: 1 })).textContent).toMatch(/Watch war change/)
     const links = Array.from(document.querySelectorAll('a[data-link]')).map(a => a.getAttribute('href'))
     expect(links.length).toBeGreaterThan(0)
     expect(links.every(h => h === '/map')).toBe(true)

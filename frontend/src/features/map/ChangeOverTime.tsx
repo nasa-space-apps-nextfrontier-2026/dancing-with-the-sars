@@ -23,7 +23,7 @@ export function ChangeOverTime({ data, incident, sample, onPick, onClose }: Prop
   if (!incident || !cs || !series?.length) return <>{head}<div className="db">
     {incident
       ? <p style={{ marginTop: 0 }}>No pass-by-pass series is available for this area. Missing data is not evidence of no change.</p>
-      : <p style={{ marginTop: 0 }}>See how an area changed after every NISAR pass, which polarization shows it and the likely cause. Pick an area:</p>}
+      : <p style={{ marginTop: 0 }}>Pick an area to see how it changed pass by pass: what the war changed after every NISAR pass, which polarization shows it and the likely cause.</p>}
     <div className="cot-pick">
       {data.incidents.filter(i => i.id !== incident?.id).sort((a, b) => a.rank - b.rank).map(i =>
         <button key={i.id} className="btn sm" onClick={() => onPick(i.id)}>{i.name}{cs?.by_incident[i.id] ? '' : ' · no series'}</button>)}

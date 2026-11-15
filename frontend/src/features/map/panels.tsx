@@ -63,7 +63,7 @@ function IncidentPanel({ ctx, tab, setTab, onClose }: { ctx: MapCtx; tab: Tab; s
   if (!inc) {
     const vis = D.incidents.filter(i => passIndex(D, i.first_pass) <= passIdx).length
     return <><Head kicker="Incident" title="No incident selected" onClose={onClose} />
-      <div className="db"><p style={{ marginTop: 0 }}>{vis} candidate incidents on this pass. Pick a pin on the map, or use <b>Fly to top incident</b>.</p>
+      <div className="db"><p style={{ marginTop: 0 }}>{vis} candidate incidents on this pass. Pick a pin on the map, or use <b>Fly to biggest change</b>.</p>
         <Note>Every marker is a candidate from satellite data. Nothing on this map is confirmed on the ground.</Note></div></>
   }
   const A = analyse(D, inc, passIdx), p = D.passes[passIndex(D, inc.first_pass)]
