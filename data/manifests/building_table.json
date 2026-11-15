@@ -4,7 +4,7 @@
   "synthetic": false,
   "safety_tag": "restricted_building_level",
   "serve_rule": "Local input for agents only. The API serves people and damage at cell level, never per building.",
-  "built_at": "2026-11-14T14:25:47Z",
+  "built_at": "2026-11-15T07:25:10Z",
   "inputs": {
     "buildings_base": {
       "file": "data/local/buildings_base.parquet",
@@ -17,10 +17,14 @@
     "damage_cells": {
       "file": "data/private/nisar/model/damage_cells.parquet",
       "sha256": "d191eaca6774e8168dd33905670cd3bcea3a98a8822313943dbb9f61ecdae8b1"
+    },
+    "population": {
+      "file": "data/local/population.csv.gz",
+      "sha256": "76a2365a7ec7e1927e155ab4a5ca60f3d50176109589396ec8a008ef18d1c41f"
     }
   },
   "output": "data/local/building_table.parquet",
-  "output_sha256": "98129dbd63a8ae03afed80ace62be762cd4079fc8a8aed15ceacb387b68d8dba",
+  "output_sha256": "212086fe71f4cf0d8a822a1b843c666270e63b0e19cd80f8bdaaebb6dda9cc88",
   "buildings": 268536,
   "damage_class_counts": {
     "no_detected_change": 232101,
@@ -39,8 +43,15 @@
   "residential_buildings": 237736,
   "second_sensor_agrees_buildings": 1252,
   "people": {
-    "status": "unavailable",
-    "reason": "population file (K-04) not loaded"
+    "status": "loaded",
+    "pop_year": 2020,
+    "cells_with_people_but_no_residential_building": 1203,
+    "people_not_allocated_low": 46612,
+    "people_not_allocated_high": 61588,
+    "cells_with_people_but_no_building": 12775,
+    "people_in_cells_without_buildings_low": 283762,
+    "people_in_cells_without_buildings_high": 373831,
+    "note": "Residents per building cover only cells with buildings; area people totals must come from the population file, not from summing buildings."
   },
   "limits": [
     "damage_class, evidence_label and second_sensor_agrees are H3 r9 cell results copied to each building.",
