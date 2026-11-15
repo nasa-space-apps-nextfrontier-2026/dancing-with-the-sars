@@ -1,6 +1,6 @@
 # Keys and settings (U-07)
 
-Names, owners and expiry dates only. **Never put a value here, in Git, in a PR, in chat or in a screenshot.** Real values live in your local `.env` (ignored by Git) and in the deploy secret store (GitHub Actions secrets or the server's environment). Task: [doc 25](../25_NEW_PLAN_TASKS.md) U-07. Last updated 14 November 2026 by Udula.
+Names, owners and expiry dates only. **Never put a value here, in Git, in a PR, in chat or in a screenshot.** Real values live in your local `.env` (ignored by Git) and in the deploy secret store (GitHub Actions secrets or the server's environment). Task: [doc 25](../25_NEW_PLAN_TASKS.md) U-07. Last updated 15 November 2026 by Udula.
 
 ## Secrets
 
@@ -21,8 +21,8 @@ Names, owners and expiry dates only. **Never put a value here, in Git, in a PR, 
 | Name | Meaning | Default |
 |---|---|---|
 | `DEMO_SYNTHETIC` | `true` serves the synthetic fixtures; `false` serves real data | `true` |
-| `PUBLISHED_DIR` | Where the API reads published agent and ML files | `data/published` |
-| `PUBLIC_RELEASE_APPROVED` | Whether the public map may show data. Stays `false` until a person approves a release | `false` |
+| `PUBLISHED_DIR` | PR #21 JSON path: where that API read published files. **Not read by the PostGIS backend** (`feature/m3-01-backend-foundation`); the worker still writes there before `scripts.load_agent_outputs` loads PostGIS | `data/published` |
+| `PUBLIC_RELEASE_APPROVED` | PR #21 public-map switch. **Not read by the PostGIS backend**, where the public map is suppressed. Thanoban's reply asks to keep an approval gate; Rashiru's backend keeps the map off. Open decision | `false` |
 | `ALLOWED_ORIGIN`, `COOKIE_SECURE` | Browser origin and cookie flag | local values in `.env.example` |
 | `DATA_ROOT`, `CIVISAR_DB_PORT`, `NIGHTLIGHT_HISTORY`, `FIRE_RELEASE_DELAY_HOURS` | Backend real-data mode (branch `feature/m3-01-backend-foundation`, see doc 31) | `data`, `5432`, empty, `0` |
 
