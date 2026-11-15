@@ -21,10 +21,11 @@ describe('public routes', () => {
     await screen.findByRole('heading', { level: 1 })
     expect(window.location.pathname).toBe('/')
   })
-  it('has a sign-in page for real data', async () => {
+  it('has no sign-in page: /signin goes back to the landing page', async () => {
     window.history.pushState({}, '', '/signin')
     render(<App />)
-    expect(await screen.findByRole('heading', { name: 'Sign in' })).toBeTruthy()
-    expect(screen.getByRole('link', { name: 'Continue with sample data' }).getAttribute('href')).toBe('/map')
+    await screen.findByRole('heading', { level: 1 })
+    expect(window.location.pathname).toBe('/')
+    expect(screen.queryByRole('heading', { name: 'Sign in' })).toBeNull()
   })
 })

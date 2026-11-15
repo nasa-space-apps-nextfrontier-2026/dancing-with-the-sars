@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { BaseMap, Incident, LayerKey, Layers, LonLat, MapData, Pass, ViewMode } from '../../types/map'
 import { Link } from 'react-router-dom'
-import { api, apiErrorMessage, type Session } from '../../services/api'
+import { api, apiErrorMessage } from '../../services/api'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
 import css from '../../styles.css?inline'
 import { usePageStyle } from '../../app/usePageStyle'
@@ -52,7 +52,6 @@ export function MapScreen() {
   const [banner, setBanner] = useState('')
   const [roadsVersion, setRoadsVersion] = useState(0)
   const [menu, setMenu] = useState(false)
-  const [session, setSession] = useState<Session | null | undefined>(undefined) // undefined = still checking
   const engineRef = useRef<MapEngine | null>(null)
   const v3Ref = useRef<HTMLDivElement>(null), v2Ref = useRef<HTMLDivElement>(null), creditRef = useRef<HTMLSpanElement>(null)
   const [, force] = useState(0)
@@ -60,19 +59,12 @@ export function MapScreen() {
 
   useEffect(() => { document.title = 'RescueForce · Map' }, [])
   useEffect(() => {
-    let live = true
-    api.currentSession().then(s => { if (live) setSession(s) })
-    return () => { live = false }
-  }, [])
-  useEffect(() => {
-    if (session === undefined) return
-    setData(null); setLoadError('')
-    api.mapData(session).then(result => {
+    api.mapData().then(result => {
       setData(result.data)
       setSample(result.sample)
       setPassIdx(Math.max(0, result.data.passes.length - 1))
     }).catch(error => setLoadError(apiErrorMessage(error)))
-  }, [session])
+  }, [])
   useEffect(() => {
     let live = true
     setSources({ status: 'loading', items: [], error: '' })
@@ -184,13 +176,8 @@ export function MapScreen() {
       <div className="usermenu">
         <button className="avatar" aria-haspopup="menu" aria-expanded={menu} aria-label="Menu" onClick={() => setMenu(m => !m)} title="Menu">⋯</button>
         {menu && <div className="menu glass" role="menu">
-          {session && !session.synthetic
-            ? <div className="who"><b>{session.user_id}</b>{session.role} · real data in your area</div>
-            : <div className="who"><b>RescueForce demo</b>Sample data · open access</div>}
+          <div className="who"><b>RescueForce demo</b>Sample data · open access</div>
           <Link className="btn ghost sm" role="menuitem" to="/">Home page</Link>
-          {session && !session.synthetic
-            ? <button className="btn ghost sm" role="menuitem" onClick={() => { setMenu(false); api.signOut(session.csrf_token).catch(() => {}).finally(() => setSession(null)) }}>Sign out</button>
-            : <Link className="btn ghost sm" role="menuitem" to="/signin">Sign in for real data</Link>}
           {token
             ? <button className="btn ghost sm" role="menuitem" onClick={() => { setMenu(false); try { localStorage.removeItem(TOKEN_KEY) } catch { /* ignore */ } setToken(null) }}>Forget Cesium token</button>
             : <button className="btn ghost sm" role="menuitem" onClick={() => { setMenu(false); setAskToken(true) }}>Add Cesium token (3D buildings)</button>}
