@@ -74,11 +74,20 @@ def add_residents(df: pd.DataFrame, population: pd.DataFrame | None) -> tuple[pd
             unallocated_low += round(lo)
             unallocated_high += round(hi)
             continue
-        df.loc[idx, "residents_low"] = spread(lo, w)
-        df.loc[idx, "residents_high"] = spread(hi, w)
+        low = spread(lo, w)
+        # high = low + a share of the difference: never below low, and both cell totals stay exact
+        df.loc[idx, "residents_low"] = low
+        df.loc[idx, "residents_high"] = low + spread(max(0, round(hi) - round(lo)), w)
+    no_buildings = pop[~pop.index.isin(set(df["h3_r9"]))]
     return df, {"status": "loaded", "pop_year": int(pop["pop_year"].max()) if len(pop) else None,
                 "cells_with_people_but_no_residential_building": cells_without_homes,
-                "people_not_allocated_low": unallocated_low, "people_not_allocated_high": unallocated_high}
+                "people_not_allocated_low": unallocated_low, "people_not_allocated_high": unallocated_high,
+                # people in cells with no OSM building at all: real people, just not in any building row
+                "cells_with_people_but_no_building": len(no_buildings),
+                "people_in_cells_without_buildings_low": round(float(no_buildings["pop_low"].sum())),
+                "people_in_cells_without_buildings_high": round(float(no_buildings["pop_high"].sum())),
+                "note": ("Residents per building cover only cells with buildings; area people totals must "
+                         "come from the population file, not from summing buildings.")}
 
 
 def build(base: pd.DataFrame, heights: pd.DataFrame, damage: pd.DataFrame,
