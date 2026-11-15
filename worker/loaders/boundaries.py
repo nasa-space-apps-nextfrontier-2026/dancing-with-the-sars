@@ -15,6 +15,7 @@ from pathlib import Path
 import geopandas as gpd
 import pandas as pd
 from shapely.geometry import box
+from shapely.geometry.base import BaseGeometry
 
 from worker.loaders.config import (
     ADMIN1_FILENAME,
@@ -92,7 +93,7 @@ def _standardize(frame: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         if pd.isna(admin_id) or str(admin_id).strip() == "":
             continue
         geom = row.get("geometry")
-        if geom is None or geom.is_empty:
+        if not isinstance(geom, BaseGeometry) or geom.is_empty:  # missing outlines arrive as NaN
             continue
         parent = row.get(src[PARENT_ID])
         rows.append(
