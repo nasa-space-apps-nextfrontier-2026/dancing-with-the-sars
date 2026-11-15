@@ -23,17 +23,6 @@ export type Facility = LonLat & { id: string; kind: string; name: string }
 export type Shelter = LonLat & { id: string; incident_id: string; kind: string; name: string; capacity: Range }
 export type Route = { id: string; incident_id: string; label: string; status: 'available_not_verified' | 'possibly_blocked_candidate'; coords: [number, number][] }
 export type Budget = { area: string; low: number; high: number; unit: string; assumptions: string[] }
-/** One NISAR pass in the per-incident change series (doc 34). Missed passes carry no values and are never interpolated. */
-export type ChangePoint = {
-  date: string; status: 'ok' | 'missed'; tier?: 'before' | 'after' | 'later'
-  candidate_cells?: number; hh_change_db?: number; hv_change_db?: number; ratio_change_db?: number
-  budget_musd?: Range; quality?: string
-}
-export type ChangeSeries = {
-  _note?: string; study_area: string; baseline: string
-  war_gap: { from: string; to: string; note: string }
-  by_incident: Record<string, ChangePoint[]>
-}
 export type RadarLayer = { id: string; title: string; tile_url: string; date: string; product: string; attribution: string }
 
 export type MapData = {
@@ -42,8 +31,6 @@ export type MapData = {
   passes: Pass[]; incidents: Incident[]; damage_cells: DamageCell[]; change_cells: ChangeCell[]; fires: Fire[]
   nightlights: NightCell[]; population: PopCell[]; facilities: Facility[]; shelters: Shelter[]; routes: Route[]; budget: Budget[]
   radar_layers?: RadarLayer[]
-  /** Pass-by-pass change per incident. Sample file only; the real backend mapping leaves it undefined. */
-  change_series?: ChangeSeries
 }
 
 export type LayerKey = 'damage' | 'second' | 'change' | 'fires' | 'night' | 'pop' | 'facilities' | 'shelters' | 'routes' | 'streets' | 'buildings'

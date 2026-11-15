@@ -28,7 +28,6 @@ afterEach(() => vi.unstubAllGlobals())
 
 it('maps released API evidence without filling unavailable domains', () => {
   const data = toMapData(bundle)
-  expect(data.change_series).toBeUndefined()
   expect(data.passes).toEqual([{ id: '2026-11-14', date: '2026-11-14', sensor: 'NISAR', status: 'ok' }])
   expect(data.incidents[0]).toMatchObject({ id: 'i1', evidence: 'Unknown', people_nearby: { low: 20, high: 30 } })
   expect(data.damage_cells[0]).toMatchObject({ id: 'cell-1', damage_class: 'moderate', evidence: 'Unknown' })

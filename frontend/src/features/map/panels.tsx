@@ -48,11 +48,10 @@ export function Legend({ onClose }: { onClose: () => void }) {
 }
 
 /* ---------- right panel ---------- */
-/** `change` (Change over time mode) replaces the incident tabs; building and shelter details stay the same in both modes. */
-export function RightPanel({ ctx, open, view, setView, onClose, change }: { ctx: MapCtx; open: boolean; view: RightView; setView: (v: RightView) => void; onClose: () => void; change?: ReactNode }) {
+export function RightPanel({ ctx, open, view, setView, onClose }: { ctx: MapCtx; open: boolean; view: RightView; setView: (v: RightView) => void; onClose: () => void }) {
   const [tab, setTab] = useState<Tab>('summary')
-  return <aside id="right" className={`drawer glass${open ? '' : ' hidden'}`} aria-label={change && view.kind === 'incident' ? 'Change over time' : 'Incident'}>
-    {change && view.kind === 'incident' ? change : view.kind === 'building' ? <BuildingDetail ctx={ctx} b={view.info} back={() => setView({ kind: 'incident' })} onClose={onClose} />
+  return <aside id="right" className={`drawer glass${open ? '' : ' hidden'}`} aria-label="Incident">
+    {view.kind === 'building' ? <BuildingDetail ctx={ctx} b={view.info} back={() => setView({ kind: 'incident' })} onClose={onClose} />
       : view.kind === 'shelter' ? <ShelterDetail ctx={ctx} id={view.id} back={() => { setView({ kind: 'incident' }); setTab('shelters') }} onClose={onClose} />
         : <IncidentPanel ctx={ctx} tab={tab} setTab={setTab} onClose={onClose} />}
   </aside>

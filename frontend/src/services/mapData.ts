@@ -170,8 +170,6 @@ export function toMapData(bundle: FrontendMapBundle): MapData {
     shelters: [],
     routes: [],
     budget,
-    // No per-pass series from the API bundle yet: never invent one (doc 34 §6).
-    change_series: undefined,
     radar_layers: bundle.layers.items.flatMap(layer => layer.tile_url ? [{ id: layer.layer_id, title: layer.title ?? layer.product, tile_url: layer.tile_url, date: layer.date ?? layer.available_acquisitions.at(-1)?.slice(0, 10) ?? '', product: layer.product, attribution: layer.attribution ?? layer.product }] : []),
   }
 }
