@@ -1,32 +1,12 @@
-import csv
-import gzip
-from pathlib import Path
-
 from backend.app.handlers import handler
 from backend.app.handlers.fixtures import load_fixture
 from fastapi import Request
 
-DATA_DIR = Path(__file__).resolve().parents[3] / "data" / "local"
-GRID_FILE = DATA_DIR / "grid_r9.csv.gz"
-
 
 def _load_areas_from_grid() -> list[dict]:
-    if not GRID_FILE.exists():
-        return [{"area_id": "demo-area-01", "h3_id": None, "cadaster_code": None}]
-    areas = []
-    seen = set()
-    with gzip.open(GRID_FILE, "rt", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            district = row.get("district_id")
-            if district and district not in seen:
-                seen.add(district)
-                areas.append({
-                    "area_id": district,
-                    "h3_id": None,
-                    "cadaster_code": None
-                })
-    return areas or [{"area_id": "demo-area-01", "h3_id": None, "cadaster_code": None}]
+    """Synthetic mode serves the sample area only: never the real K-02 grid stamped synthetic (and
+    a local grid file must not change what the demo shows). Real areas come from PostGIS."""
+    return [{"area_id": "demo-area-01", "h3_id": None, "cadaster_code": None}]
 
 
 def _error_404(request: Request):

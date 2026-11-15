@@ -12,7 +12,14 @@ from typing import Any
 
 import h3
 from backend.app.core.security import Identity
-from backend.app.services import agents_real, areas_real, live_real, radar_real, summary_real
+from backend.app.services import (
+    agents_real,
+    areas_real,
+    facilities_real,
+    live_real,
+    radar_real,
+    summary_real,
+)
 
 
 def _centroids(cell_ids: set[str]) -> dict[str, list[float]]:
@@ -34,10 +41,11 @@ def build(
 ) -> dict[str, Any]:
     """Return the current released, scoped data needed by the map screen."""
     unavailable: dict[str, str] = {
-        "facilities": "Validated facility data is not loaded.",
         "shelters": "Validated shelter data is not loaded.",
         "routes": "Validated road and closure data is not loaded.",
     }
+    if not facilities_real.loaded(engine):
+        unavailable["facilities"] = "Validated facility data is not loaded."
 
     try:
         incidents = agents_real.list_incidents(engine, identity, area_id, limit, 0)
