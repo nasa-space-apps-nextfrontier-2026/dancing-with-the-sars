@@ -105,3 +105,23 @@ def test_no_banned_wording():
                       mapped={"school": 1}, hit={"school": 1})}
     text = json.dumps(ranking.rank([alert("p", "a1", "possible_power_loss", 2)], fx, OK, now=NOW)).lower()
     assert "safe" not in text and "confirmed damage" not in text
+
+
+def test_area_people_come_from_the_population_file_not_buildings():
+    pd = pytest.importorskip("pandas")
+    h3 = pytest.importorskip("h3")
+    from worker.agents.inputs import area_facts
+
+    area = h3.latlng_to_cell(33.3, 35.5, 8)
+    cells = sorted(h3.cell_to_children(area, 9))
+    # one building in cells[0]; cells[1] has people but no building at all
+    table = pd.DataFrame({"building_id": ["b1"], "h3_r9": [cells[0]], "h3_r8": [area], "use": ["residential"],
+                          "footprint_m2": [100.0], "floors_low": [1], "floors_high": [2],
+                          "damage_class": ["moderate_candidate"], "evidence_label": ["observed"],
+                          "residents_low": [10], "residents_high": [12], "run_id": ["r"]})
+    pop = pd.DataFrame({"cell_id": [cells[0], cells[1]], "pop_low": [10.0, 30.0], "pop_high": [12.0, 40.0],
+                        "pop_year": [2020, 2020]})
+    with_pop = area_facts(table, pop)[area]
+    assert (with_pop.residents_low, with_pop.residents_high) == (40, 52)   # not just the 10-12 in buildings
+    without = area_facts(table)[area]
+    assert without.residents_low is None and without.residents_high is None  # unknown, not a partial sum
