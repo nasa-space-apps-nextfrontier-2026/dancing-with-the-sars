@@ -94,5 +94,4 @@ Claude (Claude Design for the UI prototype and mockups, Claude Code for developm
 1. Read and record the terms and the citation text marked **VERIFY** above. Black Marble and FIRMS also need exact citation text from the DAAC pages.
 2. Confirm the Cesium ion free-tier terms cover the competition demo, and keep the token out of Git.
 3. Replace the OSRM demo server and the heavy use of public tile servers if the product goes beyond the demo.
-4. Fix the NISAR mark wording in `DATASETS.md` (section 1 above).
-5. Keep one record per dataset (`DATASETS.md` section 7), including the Resources-tab link it came from.
+4. Keep one record per dataset (`DATASETS.md` section 7), including the Resources-tab link it came from.
