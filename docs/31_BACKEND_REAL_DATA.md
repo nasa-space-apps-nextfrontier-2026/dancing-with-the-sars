@@ -9,7 +9,7 @@ docker compose up -d db                      # or: $env:CIVISAR_DB_PORT=5433 if 
 .\.venv\Scripts\python.exe -m alembic -c backend/alembic.ini upgrade head
 ```
 
-Migrations: `0001_initial_postgis` (Rashiru), `0002_metric_value_records` (contract value id, release time and full record), `0003_alerts_and_source_status` (worker alerts and per-source fetch status) `0004_briefs` (stored briefs) and `0005_audit_reviews_access_jobs` (audit log, alert reviews, admin role changes, manual job runs). Every upgrade and downgrade were tested on `postgis/postgis:16-3.4`.
+Migrations: `0001_initial_postgis` (Rashiru), `0002_metric_value_records` (contract value id, release time and full record), `0003_alerts_and_source_status` (worker alerts and per-source fetch status), `0004_briefs` (stored briefs), `0005_audit_reviews_access_jobs` (audit log, alert reviews, admin role changes, manual job runs), and `0006_agent_outputs` (restricted incident ranking, recommendation, insight, budget and building-context outputs loaded by `scripts/load_agent_outputs.py`). Revisions through `0005` were previously exercised on disposable `postgis/postgis:16-3.4`; `0006` has not been live-PostGIS verified in the M4 integration and no migration or loader was run during that work.
 
 ## 2. Load the radar results
 
