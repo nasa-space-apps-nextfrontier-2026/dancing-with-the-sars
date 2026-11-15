@@ -19,11 +19,11 @@
     }
   ],
   "licence": "CC BY 4.0",
-  "generated_date": "2026-11-14",
+  "generated_date": "2026-11-15",
   "cell_count": 52053,
   "cells_with_data": 23097,
-  "total_low": 1635592,
-  "total_high": 2298561,
+  "total_low": 1954102,
+  "total_high": 2674088,
   "columns": [
     "cell_id",
     "pop_low",

@@ -73,11 +73,18 @@ def power_alert(event: dict[str, Any], processed_at: dt.datetime, snapshot_id: s
 
 
 def store(engine: Any, source_id: str, alerts: list[dict[str, Any]], acquired_at: dt.datetime | None,
-          detail: dict[str, Any]) -> None:
+          detail: dict[str, Any], replace_type: str | None = None) -> None:
+    """Upsert the alerts. With `replace_type`, alerts of that type missing from this successful run are
+    removed so the map shows the current picture; alerts someone has reviewed are kept."""
     from sqlalchemy import text
 
     t = now_utc()
     with engine.begin() as conn:
+        if replace_type:
+            conn.execute(text(
+                "DELETE FROM alerts WHERE type = :type AND NOT (alert_id = ANY(:ids)) "
+                "AND alert_id NOT IN (SELECT alert_id FROM alert_reviews)"),
+                {"type": replace_type, "ids": [a["alert_id"] for a in alerts]})
         for a in alerts:
             conn.execute(text(
                 "INSERT INTO alerts (alert_id, area_id, type, title, detected_at, processed_at, satellite, "
@@ -122,7 +129,7 @@ def run_fires(engine: Any, current_events: Callable[[], tuple[list[Any], dict]] 
     snapshot = f"{FIRE_SOURCE}:{t.strftime('%Y%m%dT%H%M%SZ')}"
     alerts = [fire_alert(e, t, snapshot) for e in events]
     latest = max((dt.datetime.fromisoformat(e.end) for e in events), default=None)
-    store(engine, FIRE_SOURCE, alerts, latest, info)
+    store(engine, FIRE_SOURCE, alerts, latest, info, replace_type="fire_detected")
     return {"source": FIRE_SOURCE, "status": "ok", "alerts": len(alerts), **info}
 
 
@@ -143,7 +150,7 @@ def run_power_loss(engine: Any, history_path: str | None) -> dict:
     snapshot = f"{LIGHTS_SOURCE}:{t.strftime('%Y%m%dT%H%M%SZ')}"
     alerts = [a for a in (power_alert(e, t, snapshot) for e in events) if a]
     latest = max((a["detected_at"] for a in alerts), default=None)
-    store(engine, LIGHTS_SOURCE, alerts, latest, {"cells_flagged": len(alerts)})
+    store(engine, LIGHTS_SOURCE, alerts, latest, {"cells_flagged": len(alerts)}, replace_type="possible_power_loss")
     return {"source": LIGHTS_SOURCE, "status": "ok", "alerts": len(alerts)}
 
 

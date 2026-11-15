@@ -275,3 +275,6 @@ body.focus #exitFocus{display:inline-flex}
 .usermenu .menu .who{padding:6px 8px 8px;border-bottom:1px solid var(--stroke);margin-bottom:6px;font-size:12px;color:var(--ink-3)}
 .usermenu .menu .who b{display:block;color:var(--ink);font-size:13px}
 .usermenu .menu button{width:100%;justify-content:flex-start}
+.badge-real{color:#7fd6b0;border-color:rgba(127,214,176,.5);background:rgba(127,214,176,.08)}
+.fidelity{position:absolute;left:50%;bottom:calc(var(--dock,96px) + 10px);transform:translateX(-50%);z-index:5;font:600 11px/14px var(--mono);letter-spacing:.04em;color:var(--ink-2);padding:5px 12px;border-radius:var(--r-pill);pointer-events:none;white-space:nowrap}
+body.mode-2d .fidelity{display:none}

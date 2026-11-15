@@ -2,7 +2,7 @@
   "kind": "buildings_height",
   "task": "U-02",
   "synthetic": false,
-  "built_at": "2026-11-14T14:08:50Z",
+  "built_at": "2026-11-15T15:26:55Z",
   "inputs": {
     "buildings_base": {
       "file": "data/local/buildings_base.parquet",

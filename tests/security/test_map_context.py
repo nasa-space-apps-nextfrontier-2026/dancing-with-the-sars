@@ -1,4 +1,5 @@
 import json
+from types import SimpleNamespace
 
 import h3
 from fastapi.testclient import TestClient
@@ -31,6 +32,7 @@ def _empty_bundle() -> dict:
 
 def test_map_context_requires_authentication(monkeypatch):
     monkeypatch.setenv("DEMO_SYNTHETIC", "false")
+    monkeypatch.setenv("PUBLIC_REAL_DATA", "false")  # a local .env may enable the public viewer
     get_settings.cache_clear()
     with TestClient(app) as client:
         assert client.get("/api/v1/map/context").status_code == 401
@@ -91,7 +93,10 @@ def test_bundle_uses_h3_centres_and_reports_missing_domains(monkeypatch):
         "synthetic": False, "items": [], "next_cursor": None,
     })
     monkeypatch.setattr(map_context_real.areas_real, "people", lambda *_args: (_ for _ in ()).throw(map_context_real.summary_real.Unavailable()))
-    monkeypatch.setattr(map_context_real.facilities_real, "loaded", lambda *_args: False)
+    def not_loaded(*_args):
+        raise map_context_real.facilities_real.NotLoaded
+
+    monkeypatch.setattr(map_context_real.facilities_real, "all_in_scope", not_loaded)
     monkeypatch.setattr(map_context_real, "_night_lights_loaded", lambda *_args: False)
 
     result = map_context_real.build(object(), Identity("u", "analyst", (AREA,)), None, 10)
@@ -100,11 +105,24 @@ def test_bundle_uses_h3_centres_and_reports_missing_domains(monkeypatch):
     assert result["unavailable"]["routes"].startswith("Validated")
     assert result["unavailable"]["facilities"].startswith("Validated")
     assert "Unknown, not zero" in result["unavailable"]["night_lights"]
-    monkeypatch.setattr(map_context_real.facilities_real, "loaded", lambda *_args: True)
+    other_cell = next(c for c in h3.cell_to_children(AREA, 9) if c != CELL)
+    row = SimpleNamespace(facility_id="osm-1", type="clinic", h3_r9=other_cell, h3_r8=AREA,
+                          osm_timestamp=None, lon=35.5, lat=33.3)
+    far = SimpleNamespace(facility_id="osm-2", type="school", h3_r9="x", h3_r8="other-r8",
+                          osm_timestamp=None, lon=35.9, lat=33.5)
+    monkeypatch.setattr(map_context_real.facilities_real, "all_in_scope", lambda *_args: [row, far])
     monkeypatch.setattr(map_context_real, "_night_lights_loaded", lambda *_args: True)
     loaded = map_context_real.build(object(), Identity("u", "analyst", (AREA,)), None, 10)
-    # facility points are never in the bundle, so the map still reports them as unavailable
-    assert "not on this map" in loaded["unavailable"]["facilities"]
+    assert "facilities" not in loaded["unavailable"]
+    facilities = loaded["facilities"]
+    assert facilities["by_area"][AREA]["clinic"] == 1 and facilities["by_area"][AREA]["total"] == 1
+    first, second = facilities["items"]
+    assert first["operating_status"] == "Unknown" and "Not confirmed undamaged" in first["damage_status"]
+    assert second["damage_status"].startswith("Not assessed")
+    assert first["geometry"] is None  # analysts never get locations
+    coordinator = map_context_real.build(object(), Identity("u", "coordinator", (AREA,)), None, 10)
+    assert coordinator["facilities"]["items"][0]["geometry"]["coordinates"] == [35.5, 33.3]
+    assert result["facilities"] is None
     assert "night_lights" not in loaded["unavailable"]
     assert result["unavailable"][f"people:{AREA}"] == "Population evidence is not loaded."
     assert result["synthetic"] is False

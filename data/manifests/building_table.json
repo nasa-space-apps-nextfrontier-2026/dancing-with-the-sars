@@ -4,7 +4,7 @@
   "synthetic": false,
   "safety_tag": "restricted_building_level",
   "serve_rule": "Local input for agents only. The API serves people and damage at cell level, never per building.",
-  "built_at": "2026-11-15T07:25:10Z",
+  "built_at": "2026-11-15T15:29:33Z",
   "inputs": {
     "buildings_base": {
       "file": "data/local/buildings_base.parquet",
@@ -20,11 +20,11 @@
     },
     "population": {
       "file": "data/local/population.csv.gz",
-      "sha256": "76a2365a7ec7e1927e155ab4a5ca60f3d50176109589396ec8a008ef18d1c41f"
+      "sha256": "b692b3ecc0565e38d76d67017a27721558a3a6df79f2b8614e452f082b01d342"
     }
   },
   "output": "data/local/building_table.parquet",
-  "output_sha256": "212086fe71f4cf0d8a822a1b843c666270e63b0e19cd80f8bdaaebb6dda9cc88",
+  "output_sha256": "f14a5181c59476e12e1c37f3435e54cd60dee9328d8945a79b8fd2c0dd210e13",
   "buildings": 268536,
   "damage_class_counts": {
     "no_detected_change": 232101,
@@ -46,11 +46,11 @@
     "status": "loaded",
     "pop_year": 2020,
     "cells_with_people_but_no_residential_building": 1203,
-    "people_not_allocated_low": 46612,
-    "people_not_allocated_high": 61588,
+    "people_not_allocated_low": 50907,
+    "people_not_allocated_high": 74159,
     "cells_with_people_but_no_building": 12775,
-    "people_in_cells_without_buildings_low": 283762,
-    "people_in_cells_without_buildings_high": 373831,
+    "people_in_cells_without_buildings_low": 312276,
+    "people_in_cells_without_buildings_high": 425655,
     "note": "Residents per building cover only cells with buildings; area people totals must come from the population file, not from summing buildings."
   },
   "limits": [

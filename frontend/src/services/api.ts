@@ -1,4 +1,5 @@
 import type { MapData } from '../types/map'
+import { toMapData, type FrontendMapBundle } from './mapData'
 
 export type ApiError = { error: { code: string; message: string; request_id: string; details: unknown[] }; synthetic: boolean }
 const base = import.meta.env.VITE_API_BASE_URL || '/api/v1'
@@ -56,9 +57,14 @@ export const api = {
     }
     throw new Error('Source catalogue pagination did not terminate.')
   },
-  /** The public demo has no sign-in, so it shows the labelled sample file (shaped like the API).
-   *  Real released data (/map/context) comes back once the backend serves it publicly. */
+  /** No sign-in (team decision): the real released bundle from the API. Only when the API cannot be
+   *  reached or has no data loaded does the dashboard fall back to the labelled sample file. */
   mapData: async (): Promise<{ data: MapData; sample: boolean }> => {
+    try {
+      const bundle = await request<FrontendMapBundle>('/map/context?limit=100')
+      const data = toMapData(bundle)
+      if (data.incidents.length) return { data, sample: false }
+    } catch { /* API unreachable: use the labelled sample below */ }
     const response = await fetch('/sample/civisar-3d-sample.json', { cache: 'no-store' })
     if (!response.ok) throw new Error('Sample map data not found')
     return { data: (await response.json()) as MapData, sample: true }

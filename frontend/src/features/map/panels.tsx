@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react'
-import type { DamageClass, Evidence, LayerKey } from '../../types/map'
+import type { Assistant, DamageClass, Evidence, LayerKey } from '../../types/map'
 import { Icon, type IconName } from '../../components/Icons'
 import { addHours, analyse, AREA_M, dist, dms, fmtM, passIndex, pathStats, rng, type Hazard } from './analysis'
 import { DMG_LABEL, type BuildingInfo } from './engine'
@@ -48,6 +48,44 @@ export function Legend({ onClose }: { onClose: () => void }) {
 }
 
 /* ---------- right panel ---------- */
+
+/** Satellite acquisition time (not the processing time): "2026-11-14 10:20 UTC" or a plain date. */
+export const fmtAcq = (t: string) => t.length > 10 ? `${t.slice(0, 10)} ${t.slice(11, 16)} UTC` : t
+
+/** Money range in readable units: US$0.40–4.27 billion. Sample data keeps its own unit. */
+export function money(low: number, high: number, unit: string): string {
+  if (unit !== 'USD') return `${low.toFixed(1)}–${high.toFixed(1)} ${unit}`
+  const [d, w] = high >= 1e9 ? [1e9, 'billion'] : high >= 1e6 ? [1e6, 'million'] : [1e3, 'thousand']
+  return `US$${(low / d).toFixed(2)}–${(high / d).toFixed(2)} ${w}`
+}
+export const fmtMonths = (r: { low: number; high: number }) =>
+  r.high >= 24 ? `${(r.low / 12).toFixed(1)}–${(r.high / 12).toFixed(1)} years` : `${r.low.toFixed(0)}–${r.high.toFixed(0)} months`
+
+/** One extra option when evidence is weak and the agent gave only one (doc 24: two or three options). */
+export const MONITOR_OPTION = {
+  title: 'Monitor until the next radar pass', why: ['Evidence is weak: no second satellite agrees yet'],
+  needs: ['analyst time', 'the next NISAR pass and its 72-hour hold'],
+  risks: ['a real need waits days for the next pass'],
+  trade_off: 'Gain: no team is sent on a weak signal. Give up: time, if the damage is real.',
+}
+
+export function AssistantBlock({ a, weak }: { a: Assistant; weak: boolean }) {
+  const options = a.options.length === 1 && weak ? [...a.options, MONITOR_OPTION] : a.options
+  return <>
+    <div className="sect">Situation</div>
+    <p className="small" style={{ margin: 0, color: 'var(--ink-2)' }}>{a.situation}</p>
+    <div className="sect">Options with trade-offs</div>
+    <ul className="list">{options.map(o => <li key={o.title} className="card"><b>{o.title}</b>
+      <div className="small" style={{ marginTop: 4, color: 'var(--ink-2)' }}>{o.trade_off}</div>
+      {o.risks.length > 0 && <div className="small muted" style={{ marginTop: 4 }}>Risk: {o.risks.join('; ')}</div>}
+      <div className="row" style={{ marginTop: 6 }}><span className="tag">Option, not an order</span></div></li>)}</ul>
+    <div className="sect">What we do not know</div>
+    {a.unknowns.length ? <ul className="gaps">{a.unknowns.map(t => <li key={t}><span className="gdot ev-Unknown" />{t}</li>)}</ul> : <p className="empty">No gaps listed by the agent.</p>}
+    {a.next_review.length > 0 && <><div className="sect">Next review</div>
+      <ul className="small" style={{ margin: 0, paddingLeft: 18, color: 'var(--ink-2)' }}>{a.next_review.map(([k, v]) => <li key={k}><b>{k}</b>: {v}</li>)}</ul></>}
+  </>
+}
+
 export function RightPanel({ ctx, open, view, setView, onClose }: { ctx: MapCtx; open: boolean; view: RightView; setView: (v: RightView) => void; onClose: () => void }) {
   const [tab, setTab] = useState<Tab>('summary')
   return <aside id="right" className={`drawer glass${open ? '' : ' hidden'}`} aria-label="Incident">
@@ -77,7 +115,7 @@ function IncidentPanel({ ctx, tab, setTab, onClose }: { ctx: MapCtx; tab: Tab; s
     body = <>
       <div className="kpis">
         <Kpi icon="people" k="People" val={inc.people_available === false ? 'Unknown' : rng(inc.people_nearby)} sub={inc.people_available === false ? 'Population evidence unavailable' : 'In affected area (WorldPop)'} onShow={() => show([...D.population.filter(c => dist(c, inc) <= AREA_M), inc], ['pop'])} />
-        <Kpi icon="facility" k="Facilities" val={missing.facilities ? 'Unknown' : A.facilities.length} sub={missing.facilities ?? 'Inside or near damage, fire or dark cells'} onShow={() => show([...A.facilities.map(x => x.f), inc], ['facilities'])} />
+        <Kpi icon="facility" k="Facilities" val={inc.facility_counts ? Object.values(inc.facility_counts).reduce((a, b) => a + b, 0) : missing.facilities ? 'Unknown' : A.facilities.length} sub={inc.facility_counts ? (Object.entries(inc.facility_counts).map(([k, n]) => `${n} ${k}`).join(' · ') || 'None in this area (OSM)') : missing.facilities ?? 'Inside or near damage, fire or dark cells'} onShow={() => show([...A.facilities.map(x => x.f), inc], ['facilities'])} />
         <Kpi icon="road" k="Roads" val={missing.routes ? 'Unknown' : A.roads.length} sub={missing.routes ? 'Road data is not loaded' : 'Possibly blocked (candidate)'} onShow={() => show(A.roads.flatMap(r => r.coords.map(([lon, lat]) => ({ lon, lat }))), ['routes'])} />
         <Kpi icon="power" k="Power" val={A.dark.length ? (A.dark.some(cell => cell.people_available === false) ? 'Unknown' : rng(A.darkPeople)) : (missing.night_lights ? 'Unknown' : '0')} sub={A.dark.length ? `People in ${A.dark.length} dark cell${A.dark.length > 1 ? 's' : ''}: possible power loss` : (missing.night_lights ?? 'No dark cells on this pass')} onShow={() => show([...A.dark, inc], ['night'])} />
       </div>
@@ -88,7 +126,7 @@ function IncidentPanel({ ctx, tab, setTab, onClose }: { ctx: MapCtx; tab: Tab; s
         <div className="kpi"><span className="k">Buildings</span><b>{inc.buildings_available === false ? 'Unknown' : rng(inc.buildings_candidate)}</b><span className="s">{inc.buildings_available === false ? 'Radar evidence unavailable' : 'Candidate damage'}</span></div>
         <div className="kpi"><span className="k">Score</span><b>{inc.score.low.toFixed(2)}–{inc.score.high.toFixed(2)}</b><span className="s">Ranking range</span></div>
       </div>
-      <div style={{ marginTop: 8 }}><Note><b style={{ color: 'var(--ink)' }}>Check before acting.</b> Seen {p.date} ({p.sensor}), changes from {addHours(p.date, 72)}. Candidates only.</Note></div>
+      <div style={{ marginTop: 8 }}><Note><b style={{ color: 'var(--ink)' }}>Check before acting.</b> Satellite saw it {fmtAcq(inc.acquired_at ?? p.date)} ({p.sensor}), changes from {addHours(p.date, 72)}. Candidates only.</Note></div>
     </>
   } else if (tab === 'impacts') {
     const Row = ({ icon, t, children }: { icon: IconName; t: string; children: ReactNode }) => <div className="irow"><span className="ico"><Icon name={icon} size={16} /></span><div><div className="t">{t}</div><div className="m">{children}</div></div></div>
@@ -267,6 +305,7 @@ function LeftBody({ ctx, k, onClose }: { ctx: MapCtx; k: LeftKey; onClose: () =>
         <div className="dsum"><div><b>{open.length}</b><span>open checks</span></div><div><b>{ok}</b><span>route{ok === 1 ? '' : 's'} to check</span></div>
           <div><b style={{ color: '#ff9a9d' }}>{bl}</b><span>possibly blocked</span></div><div><b>{A.shelters.length}</b><span>shelter sites</span></div></div>
         <div className="row small muted" style={{ marginTop: 8 }}>For <b style={{ color: 'var(--ink)' }}>{inc.name}</b> · pass {D.passes[ctx.passIdx].date} <Ev e={inc.evidence} /></div>
+        {inc.assistant && <AssistantBlock a={inc.assistant} weak={!inc.second_sensor_agrees} />}
         <div className="sect">Suggested next checks</div>
         {open.length ? <ul className="list">{open.map(s => <Sug key={s.id} s={s} isDone={false} />)}</ul> : <p className="empty">No open suggestions.</p>}
         {done.length > 0 && <ul className="list" style={{ marginTop: 6 }}>{done.map(s => <Sug key={s.id} s={s} isDone />)}</ul>}
@@ -284,17 +323,20 @@ function LeftBody({ ctx, k, onClose }: { ctx: MapCtx; k: LeftKey; onClose: () =>
         <div className="sect">Data gaps</div>
         <ul className="gaps">{gaps.map(([t, e]) => <li key={t}><span className={`gdot ev-${e}`} />{t}</li>)}</ul>
       </div>
-      <div className="df">Suggestions only. The officer chooses the route.</div></>
+      <div className="df">{inc.assistant?.note ?? 'Suggestions only. The officer chooses the route.'}</div></>
   }
   if (k === 'budget') {
-    const max = Math.max(...D.budget.map(b => b.high))
+    const real = !!D.meta.availability, max = Math.max(...D.budget.map(b => b.high))
     return <><Head kicker="Agent output · indicative" title="Rebuild budget" onClose={onClose} />
-      <div className="db"><ul className="list">{D.budget.map(b => <li key={b.area} className="card"><h3>{b.area}</h3>
+      <div className="db">{D.budget.length ? <ul className="list">{D.budget.map(b => <li key={b.area} className="card"><h3>{b.area}</h3>
         <div className="budget-bar"><i style={{ left: `${(b.low / max) * 100}%`, width: `${((b.high - b.low) / max) * 100}%` }} /></div>
-        <div className="mono" style={{ fontSize: 16, fontWeight: 600 }}>{b.low.toFixed(1)}–{b.high.toFixed(1)} <span className="muted" style={{ fontSize: 12, fontWeight: 400 }}>{b.unit}</span></div>
-        <div className="sect" style={{ margin: '12px 0 6px' }}>Assumptions</div>
-        <ul className="small" style={{ margin: 0, paddingLeft: 18, color: 'var(--ink-2)' }}>{b.assumptions.map(a => <li key={a}>{a}</li>)}</ul></li>)}</ul></div>
-      <div className="df"><b style={{ color: 'var(--ink-2)' }}>Indicative, not a quote.</b> Ranges from sample data.</div></>
+        <div className="mono" style={{ fontSize: 16, fontWeight: 600 }}>{money(b.low, b.high, b.unit)}</div>
+        {b.duration_months && <div className="small muted" style={{ marginTop: 4 }}>Duration about {fmtMonths(b.duration_months)}</div>}
+        <div className="row" style={{ marginTop: 6 }}><span className="tag">{b.label ?? 'Planning indication only'}</span></div>
+        <details style={{ marginTop: 10 }}><summary className="sect" style={{ margin: 0, cursor: 'pointer' }}>Assumptions ({b.assumptions.length})</summary>
+          <ul className="small" style={{ margin: '6px 0 0', paddingLeft: 18, color: 'var(--ink-2)' }}>{b.assumptions.map((a, i) => <li key={i}>{a}</li>)}</ul></details></li>)}</ul>
+        : <p className="empty">No budget output is loaded.</p>}</div>
+      <div className="df"><b style={{ color: 'var(--ink-2)' }}>Planning indication only, not a quote.</b> {real ? 'Ranges from the budget agent on the real building table; cost per m² anchored to the World Bank Syria assessment (2025).' : 'Ranges from sample data.'}</div></>
   }
   // layers
   return <><Head kicker="Map" title="Layers" onClose={onClose} />

@@ -534,6 +534,27 @@ async def handle_admin(
     return job
 
 
+_MAP_CONTEXT_CACHE: dict[tuple[Any, ...], tuple[float, Any]] = {}
+
+
+def _cached_map_context(identity: Identity | None, area_id: str | None, limit: int) -> Any:
+    """The bundle takes 15-20 s to build; cache it per identity, area and limit for a few minutes."""
+    import time
+
+    from backend.app.core.config import get_settings
+    from backend.app.services import map_context_real
+
+    ttl = get_settings().map_context_cache_s
+    key = (identity, area_id, limit)
+    hit = _MAP_CONTEXT_CACHE.get(key)
+    if ttl > 0 and hit and time.monotonic() - hit[0] < ttl:
+        return hit[1]
+    value = map_context_real.build(engine(), identity, area_id, limit)
+    if ttl > 0:
+        _MAP_CONTEXT_CACHE[key] = (time.monotonic(), value)
+    return value
+
+
 def handle_agents(
     request: Request,
     path: str,
@@ -546,12 +567,10 @@ def handle_agents(
     p, q = request.path_params, request.query_params
     try:
         if path == "/map/context":
-            from backend.app.services import map_context_real
-
             page = _page(q, 50, 100)
             if page is None or page[1] != 0:
                 return error("INVALID_REQUEST", "limit must be 1-100.", 422, request)
-            return map_context_real.build(engine(), identity, q.get("area_id"), page[0])
+            return _cached_map_context(identity, q.get("area_id"), page[0])
         if path == "/incidents":
             page = _page(q, 50, 100)
             if page is None:

@@ -5,6 +5,7 @@ from backend.app.api import radar
 from backend.app.core.config import get_settings
 from backend.app.core.permissions import allowed, capabilities, is_private_layer
 from backend.app.core.security import (
+    Identity,
     authenticate,
     clear_login_failures,
     issue_session,
@@ -15,6 +16,7 @@ from backend.app.core.security import (
     session_expires_at,
 )
 from backend.app.handlers import HANDLERS
+from backend.app.policy.scope import AOI_ID
 from backend.app.services.radar_catalog import layer_catalog, observation_series
 from backend.app.services.synthetic_area import area_summary, enabled, source_record
 from fastapi import FastAPI, Request
@@ -38,6 +40,21 @@ def error(code: str, message: str, status: int, request: Request) -> JSONRespons
 def current(request: Request):
     return read_session(request.cookies.get('civisar_session'))
 
+PUBLIC_VIEWER = Identity('public-viewer', 'coordinator', (AOI_ID,))
+
+def viewer(request: Request, path: str):
+    """The signed-in session, or (public_real_data, real-data mode, GET only) a read-only public viewer.
+
+    Admin routes still need admin (coordinator < admin), and every write still needs a session and CSRF."""
+    session = current(request)
+    if session:
+        return session
+    s = get_settings()
+    if (s.public_real_data and not s.demo_synthetic and request.method == 'GET'
+            and not path.startswith(('/session', '/admin'))):
+        return (PUBLIC_VIEWER, '')
+    return None
+
 def audit(request: Request, actor: str, action: str, resource_type: str, outcome: str) -> None:
     """Real-data mode only (the synthetic demo has no database)."""
     if not enabled():
@@ -48,7 +65,7 @@ def scope_from_request(request: Request, path: str) -> str | None:
     return request.path_params.get('area_id') or request.query_params.get('area_id')
 
 def authorize(request: Request, role: str, path: str):
-    session = current(request)
+    session = viewer(request, path)
     identity = session[0] if session else None
     if role != 'public' and identity is None:
         return error('UNAUTHENTICATED', 'Sign in required.', 401, request)
@@ -124,7 +141,7 @@ def attach_routes(app: FastAPI) -> None:
                 if _path == '/health':
                     return {'status': 'ok', 'synthetic': get_settings().demo_synthetic}
                 if not enabled():
-                    session = current(request)
+                    session = viewer(request, _path)
                     real = await radar.handle(request, _path, session[0] if session else None, error)
                     if real is not None:
                         return real

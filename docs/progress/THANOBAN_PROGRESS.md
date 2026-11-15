@@ -129,3 +129,10 @@ Built the per-cell history on Colab (230 nightly tiles, NOAA-20 and NOAA-21, las
 - Merged into `dev`: #18 (C-01 registry), #24 (U-06 contract), #30 (Udula progress log), #32 (reply to Udula), #33 (this work).
 - Kisara #25 to #29: brought up to date with `dev`. Their CI failed because a contract test needed scikit-learn once their numpy was installed; fixed in #33 by skipping that test when scikit-learn is missing.
 - Chames #19, #22, #23, #31: brought up to date with `dev`; no conflicts left after #18 merged; `dev`'s published-data handlers kept as doc 25 says.
+
+## 15 November 2026 (evening): real data on the public dashboard
+
+- **Decision D30** (doc 12): the dashboard opens with no sign-in and shows the full real data, so the NASA judging team can use it directly. Writes still need sign-in; people per building stay hidden.
+- **Hosted database:** connected the team's Supabase project (PostgreSQL 17, PostGIS 3.3), revoked Supabase's public roles (anon, authenticated) on all current and future tables, kept Row Level Security on, migrated to 0007.
+- **Inputs rebuilt from public downloads** (HOTOSM buildings, GHS-OBAT heights, WorldPop 2020, OCHA COD-AB boundaries, Overpass facilities) and loaded: 52,786 radar cell results, 179 incidents, 537 recommendations, 131 budgets, 268,536 buildings, 383 facilities, 50 alerts (49 possible power loss from my night-light history, 1 fire). Steps in doc 31 section 6.
+- Backend public-read setting and the dashboard switch to real data (with Udula's screen gaps 1 to 6 fixed) on `feature/m4-public-real-data`.

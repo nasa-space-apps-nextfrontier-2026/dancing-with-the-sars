@@ -134,6 +134,7 @@ export class MapEngine {
   layers: Layers
   passIdx: number
   selected: string | null = null
+  hovered: string | null = null
   mode: ViewMode = '3d'
   base: BaseMap = 'sat'
 
@@ -256,7 +257,7 @@ export class MapEngine {
     D.incidents.forEach(inc => add('incident', pi(inc.first_pass), {
       position: C.Cartesian3.fromDegrees(inc.lon, inc.lat),
       billboard: { image: pinImg(inc.rank, DMG_COLOR[inc.damage_class]), scale: 0.5, verticalOrigin: C.VerticalOrigin.BOTTOM, heightReference: C.HeightReference.CLAMP_TO_GROUND, disableDepthTestDistance: Number.POSITIVE_INFINITY },
-      label: label(inc.name, { pixelOffset: new C.Cartesian2(22, -34), distanceDisplayCondition: new C.DistanceDisplayCondition(1800, 4e5) }),
+      label: label(inc.name, { pixelOffset: new C.Cartesian2(22, -34), show: false, distanceDisplayCondition: new C.DistanceDisplayCondition(0, 4e5) }),
     }, { _incident: inc.id }))
     D.damage_cells.forEach(d => {
       const c = css(DMG_COLOR[d.damage_class]), p = pi(d.pass_id), sq = square(d.lon, d.lat, d.size_m)
@@ -470,6 +471,8 @@ export class MapEngine {
     h.setInputAction((e: { endPosition: C.Cartesian2 }) => {
       const p = v.scene.pick(e.endPosition), id = p && (p.id as Tagged | undefined)
       v.canvas.style.cursor = id && (id._incident || id._shelter) ? 'pointer' : ''
+      const hov = id && id._incident ? id._incident : null
+      if (hov !== this.hovered) { this.hovered = hov; this.refresh() }
     }, C.ScreenSpaceEventType.MOUSE_MOVE)
   }
   private buildingInfo(f: C.Cesium3DTileFeature, pos?: C.Cartesian3): BuildingInfo {
@@ -496,7 +499,11 @@ export class MapEngine {
   /* ---------- state from React ---------- */
   refresh() {
     const vis = (en: Tagged) => {
-      if (en._incident) return (en._pass ?? 0) <= this.passIdx
+      if (en._incident) {
+        // Only the selected or hovered incident shows its label, so labels never pile up.
+        if (en.label) en.label.show = new C.ConstantProperty(en._incident === this.selected || en._incident === this.hovered)
+        return (en._pass ?? 0) <= this.passIdx
+      }
       if (en._layer === 'shelters') return this.layers.shelters && (!en._forIncident || en._forIncident === this.selected)
       const on = this.layers[en._layer as keyof Layers]
       return on !== false && (en._pass === undefined || en._pass <= this.passIdx)

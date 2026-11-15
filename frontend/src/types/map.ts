@@ -5,14 +5,22 @@ export type Range = { low: number; high: number }
 export type LonLat = { lon: number; lat: number; h?: number }
 
 export type Pass = { id: string; date: string; sensor: string; status: 'ok' | 'missed' }
+export type AssistantOption = { title: string; trade_off: string; why: string[]; needs: string[]; risks: string[] }
+/** The decision assistant's own output (agent U-05): options, not orders. */
+export type Assistant = { situation: string; options: AssistantOption[]; unknowns: string[]; next_review: [string, string][]; note: string }
 export type Suggestion = { id: string; kind: 'check' | 'route'; text: string; reason: string }
 export type Incident = LonLat & {
   id: string; name: string; area: string; rank: number; score: Range; damage_class: DamageClass; evidence: Evidence
   second_sensor_agrees: boolean; first_pass: string; buildings_candidate: Range; people_nearby: Range
   buildings_available?: boolean; people_available?: boolean
+  /** Facility counts by type in the area (real data only, when the API sends them). */
+  facility_counts?: Record<string, number>
   why: { factor: string; value: string; weight: number }[]
   insights: { text: string; evidence: Evidence; source: string; source_date: string }[]
   suggestions: Suggestion[]
+  assistant?: Assistant
+  /** When the satellite saw it (radar pass or alert detection), not when it was processed. */
+  acquired_at?: string
 }
 export type DamageCell = LonLat & { id: string; incident_id: string; size_m: number; damage_class: DamageClass; evidence: Evidence; second_sensor: boolean; pass_id: string }
 export type ChangeCell = LonLat & { id: string; size_m: number; pass_id: string }
@@ -22,7 +30,7 @@ export type PopCell = LonLat & { id: string; size_m: number; people: Range }
 export type Facility = LonLat & { id: string; kind: string; name: string }
 export type Shelter = LonLat & { id: string; incident_id: string; kind: string; name: string; capacity: Range }
 export type Route = { id: string; incident_id: string; label: string; status: 'available_not_verified' | 'possibly_blocked_candidate'; coords: [number, number][] }
-export type Budget = { area: string; low: number; high: number; unit: string; assumptions: string[] }
+export type Budget = { area: string; low: number; high: number; unit: string; assumptions: string[]; label?: string; duration_months?: Range }
 export type RadarLayer = { id: string; title: string; tile_url: string; date: string; product: string; attribution: string }
 
 export type MapData = {

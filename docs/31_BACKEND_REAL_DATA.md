@@ -141,3 +141,43 @@ Rules (doc 07): operating status is always `Unknown` (no source says a site is o
 - Logged-out users never get radar layers, tiles, damage or series.
 
 Tests: `tests/security/` (scope, hold, roles, tiles, file allow-list, summary and briefs) and `backend/tests/test_load_radar_results.py`.
+
+## 6. Hosted database (Supabase) and rebuilding the inputs
+
+**Database (15 Nov 2026).** The real data is loaded into a Supabase project (free plan, Seoul region, PostgreSQL 17, PostGIS 3.3). Same schema as section 1; only `DATABASE_URL` changes.
+
+- In `.env` (never committed): `DATABASE_URL=postgresql+psycopg://postgres.<project-ref>:<password>@aws-1-ap-northeast-2.pooler.supabase.com:5432/postgres`. Use the **Session pooler** string (IPv4), change the scheme to `postgresql+psycopg://`, and URL-encode special characters in the password (`#` = `%23`, `@` = `%40`).
+- Supabase serves every table in `public` through its own Data API. Block it before loading anything: `REVOKE ALL ON ALL TABLES, SEQUENCES and FUNCTIONS IN SCHEMA public FROM anon, authenticated`, the same with `ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public` so new tables stay closed, and keep Row Level Security on for every table. Our API connects as `postgres` and is the only reader.
+- The free plan pauses after some days without activity and has a small size cap: open the project before a demo.
+- Reset the database password if it was ever shared, then update `.env` and the host's secret.
+
+**Rebuilding the inputs from public downloads** (all outside Git, under `data/raw/` and `data/local/`):
+
+| Input | Download |
+|---|---|
+| OSM buildings | HDX `hotosm_lbn_buildings`, GeoParquet, saved as `data/raw/hotosm/lbn_buildings.parquet` |
+| Heights | JRC GHS-OBAT `GHS_OBAT_CSV_LBN_E2020_R2024A_V1_0.zip`, unzipped to `data/raw/ghsl/obat_lbn/` |
+| Population | WorldPop 2020 Lebanon constrained and unconstrained rasters in `data/raw/worldpop/` |
+| Boundaries | HDX OCHA COD-AB Lebanon GeoJSON zip, unzipped to `data/raw/lbn_admin/` |
+| Facilities | Overpass API (fetched by the loader) |
+
+```bash
+export SSL_CERT_FILE=$(python -c "import certifi; print(certifi.where())")   # if Python's own CA store is out of date
+python -m worker.loaders.boundaries
+python -m worker.loaders.grid
+python -m worker.loaders.population
+python -m worker.loaders.facilities          # Overpass can answer 502 when busy: run again
+python -m pipelines.buildings.base
+python -m pipelines.buildings.heights
+python -m pipelines.buildings.table
+python -m alembic -c backend/alembic.ini upgrade head
+python -m pipelines.radar.nisar.export_contract
+python -m scripts.load_radar_results --replace
+python -m worker.main --publish --damage data/private/nisar/model/damage_cells.parquet --history data/local/bm_history.csv.gz --fires
+python -m worker.main --agents --table data/local/building_table.parquet --population data/local/population.csv.gz
+python -m scripts.load_agent_outputs
+python -m scripts.load_facilities
+python -m worker.scheduler --once
+```
+
+Result on 15 Nov 2026: 52,786 radar cell results and 41,508 values; 268,536 buildings; 52,053 grid and population cells; 179 incidents, 537 recommendations, 6 insights, 131 budgets; 383 facilities inside Lebanon (of 543); 50 alerts (49 possible power loss, 1 fire). The public dashboard reads this data with no sign-in (decision D30, doc 12).
