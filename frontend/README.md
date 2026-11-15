@@ -1,20 +1,36 @@
-# CIVISAR frontend: build guide (for Rashiru and his coding tools)
+# CIVISAR frontend
 
-**Read this first, then build.** The UI is already designed. Do not invent screens, colours or wording.
+> **UI changed (15 Nov 2026, Thanoban):** the UI source of truth is now the dark 3D map mockup `docs/design/civisar-3d-map-mockup.html` (spec: `docs/26_3D_MAP_UI_AND_FRONTEND.md`). The old light prototype is archived in `docs/design/archive/`. MapLibre was replaced by CesiumJS.
 
-1. **Open `docs/design/civisar-prototype.html` in a browser.** It is the UI source of truth: tokens, components, screens, light and dark themes. Read its HTML and CSS directly.
-2. Read `docs/UI_DESIGN.md` (screens, outputs, wording rules, the build rules) and `docs/06_FRONTEND_DESIGN_AND_SCREEN_PLAN.md` (screen plan).
-3. The API is the draft in `docs/contracts/openapi.yaml`. Use mock data from `docs/contracts/` fixtures until the real endpoints exist.
+## Run
+
+```bash
+npm install
+npm run dev        # http://127.0.0.1:5173
+```
+
+- **Sign-in is required.** The app calls `POST /api/v1/session` (proxied to the backend on :8000). With no backend running, the sign-in screen offers "Continue with demo session (sample data)".
+- **Cesium token (free):** put `VITE_CESIUM_ION_TOKEN=...` in `frontend/.env.local` (git-ignored), or paste it in the box the app shows. Without it the map still works: flat ground, no 3D buildings.
+- Checks: `npm run lint`, `npx tsc -b`, `npm test`.
+
+## Layout of the code
+
+| Path | What |
+| --- | --- |
+| `src/app/App.tsx` | Session check and the sign-in gate. |
+| `src/features/signin/SignIn.tsx` | Sign-in screen (same dark glass design). |
+| `src/features/map/MapScreen.tsx` | Top bar, rail, dock, token box; owns UI state and drives the engine. |
+| `src/features/map/panels.tsx` | Incident panel (Summary, Impacts, Shelters, Power, Insights), building and shelter detail, ranking, decision assistant, budget, layers, legend. |
+| `src/features/map/engine.ts` | All CesiumJS code: globe, terrain, OSM buildings, overlays, fire/damage effects, OSRM road routes, camera flights, 2D/3D/split. |
+| `src/features/map/analysis.ts` | Pure helpers (distances, ranges, impacts, route stats). Unit-tested. |
+| `src/services/api.ts` | Session API and map data. Loads `public/sample/civisar-3d-sample.json` until the incident endpoints exist. |
+| `src/styles.css` | Tokens and components copied from the mockup. |
 
 ## Build rules
-- Copy the prototype's CSS variables (`:root` and `[data-theme="dark"]`) into `src/styles.css`. No new colours.
-- One React component per prototype component or screen, in `src/components/`, with the same labels and wording.
-- Evidence labels are exactly Observed, Reported, Corroborated, Unknown. Never write "safe". Show ranges, not single numbers. "Possible power loss", not "blackout". "Fire detected", never a cause.
-- Keep the "illustrative data" badge wherever mock data shows.
-- Login is required: build the sign-in screen and the logged-out view (public-safe map only).
-- No vehicle, convoy or phone tracking anywhere.
-- Do not edit the prototype in a feature PR. Change it only through a `docs/` PR.
-- Branch `feature/m4-<name>` from `dev`, PR into `dev` (see `docs/17_TEAM_ASSIGNMENT_AND_BRANCHES.md`).
 
-## Order
-Tokens and theme, app shell, main map and time slider, alert feed and inspector, then summary, routes, shelters, sources, sign-in, print and phone layout (cut first if short on time).
+- Match the mockup: same layout zones, wording, tokens. Colour only for evidence, damage class, route status, fire and power.
+- Evidence labels are exactly Observed, Reported, Corroborated, Unknown. Ranges, not single numbers. Never write "safe". "Possible power loss", not "blackout". Routes and damage are "not verified" / "candidate".
+- Every map layer must appear in 2D, 3D and split view.
+- Keep the "Sample data" badge while sample data is shown. No vehicle, convoy or phone tracking.
+- Cesium is pinned to 1.121.0 (engine 11.0.0, widgets 8.0.0, zip.js 2.7.54 via `overrides`) because newer transitive versions break the Vite build. Change them together.
+- Branch `feature/m4-<name>` from `dev`, PR into `dev`.
